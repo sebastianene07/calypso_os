@@ -1,0 +1,3 @@
+[submodule "s_alloc"]
+	path = s_alloc
+	url = git@github.com:SebiEne/s_alloc.git
