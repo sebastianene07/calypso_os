@@ -6,6 +6,7 @@ extern unsigned long _sdata;
 extern unsigned long _etext;
 extern unsigned long _ebss;
 extern unsigned long _edata;
+extern unsigned long _srodata;
 
 void c_startup(void);
 void dummy_fn(void);
@@ -36,21 +37,21 @@ void dummy_fn(void)
 {
         while(1)
         {
-                
+
         }
 }
 
 void c_startup(void)
 {
         unsigned long *src, *dst;
-        
+
         src = &_etext;
         dst = &_sdata;
-        while(dst < &_edata) 
+        while(dst < &_edata)
                 *(dst++) = *(src++);
-        
+
         src = &_sbss;
-        while(src < &_ebss) 
+        while(src < &_ebss)
                 *(src++) = 0;
 
         main();

@@ -15,12 +15,16 @@ int main()
 
     while(1)
     {
-#if 0
-          for(int c = 0; c < 5000000; c++);
+      for(int c = 0; c < 5000000; c++);
 
-          gpio_toogle(0, LED);
-          for(int c = 0; c < 1000000; c++);
-#endif
+      static char *bau = "Ce mai faci ?";
+
+      uart_send(bau, 13);
+
+      gpio_toogle(0, LED);
+      for(int c = 0; c < 5000000; c++);
+
+      gpio_toogle(1, LED);
     }
     return 0;
 }
