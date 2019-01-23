@@ -12,12 +12,18 @@ SECTIONS {
                 . = ALIGN(4);
         } >FLASH
 
+        .rodata : {
+          . = ALIGN(4);
+          _srodata = .;
+          *(.rodata)
+          *(.rodata.*)
+          . = ALIGN(4);
+        } > FLASH
+
         .text : {
                 . = ALIGN(4);
                 *(.text)                /* Program code */
                 *(.text.*)
-                *(.rodata)              /* read only data */
-                *(.rodata*)
                 . = ALIGN(4);
                 _etext = .;             /* _etext is end of program code */
         } >FLASH                        /* this section is code, hence gos to FLASH */

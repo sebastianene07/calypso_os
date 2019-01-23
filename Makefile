@@ -22,16 +22,17 @@ all:
 		$(MAKE) -C $$src_dir	all;	\
 	done ;
 
-	${PREFIX}gcc ${LDFLAGS} $(TMP_LIB) -o build.elf
+	${PREFIX}ar xv ${TMP_LIB}
+	${PREFIX}gcc ${LDFLAGS} *.o -o build.elf
 	${PREFIX}objcopy -O ihex build.elf build.hex
 
 load:
-	nrfjprog -f nrf52 --program build.hex --sectorerase
+	nrfprog -f nrf52 --program build.hex --sectorerase
 
 .PHONY: clean
 
 clean:
-	rm build.* linker* tmp_lib*
+	rm build.* *.o linker* tmp_lib*
 	for src_dir in $(SRC_DIRS) ; do \
 		$(MAKE) -C $$src_dir	clean;	\
 	done ;

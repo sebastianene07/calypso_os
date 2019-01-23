@@ -16,6 +16,7 @@
 #define UART_TXD_OFFSET                     (0x544)
 #define UART_TXD_MAXCNT                     (0x548)
 #define UART_ENDTX_OFFSET                   (0x120)
+#define UART_EVENTS_TXSTOPPED_OFFSET        (0x158)
 
 /* UART configuration fields */
 
@@ -29,8 +30,11 @@
 #define UART_TXD_PTR_CONFIG (*((uint32_t *)(UART_BASE + UART_TXD_OFFSET)))
 #define UART_TXD_MAXCNT_CONFIG (*((uint32_t *)(UART_BASE + UART_TXD_MAXCNT)))
 #define UART_TX_START_TASK (*((uint32_t *)(UART_BASE + UART_TASK_START_TX_OFFSET)))
-#define UART_ENDTX (*((uint32_t *)(UART_BASE + UART_ENDTX_OFFSET)))
+#define UART_ENDTX (((uint32_t *)(UART_BASE + UART_ENDTX_OFFSET)))
 #define UART_STOP_TX_TASK (*((uint32_t *)(UART_BASE + 0x00C)))
+#define UART_EVENTS_TXSTOPPED (*((uint32_t *)(UART_BASE + UART_EVENTS_TXSTOPPED_OFFSET)))
+
+static volatile uint32_t *g_uart_end_tx = UART_ENDTX;
 
 /* Board configs : this should not stay in driver code */
 
@@ -39,6 +43,16 @@
 
 #define UART_RX_PIN                         (8)   /* range 0 - 31 */
 #define UART_RX_PORT                        (0)   /* range 0 - 1  */
+
+#define UART_TX_BUFFER                      (128)
+#define UART_RX_BUFFER                      (128)
+
+/* Private types */
+
+static char g_uart_tx_buffer[UART_TX_BUFFER];
+static char g_uart_rx_buffer[UART_RX_BUFFER];
+
+/* Public functions */
 
 int uart_init(void)
 {
@@ -64,11 +78,16 @@ int uart_init(void)
 
 int uart_send(char *msg, int msg_len)
 {
-  UART_TXD_PTR_CONFIG     = (uint32_t)msg;
+  for (int i = 0; i < msg_len; i++)
+  {
+    g_uart_tx_buffer[i] = *(msg++);
+  }
+
+  UART_TXD_PTR_CONFIG     = g_uart_tx_buffer;
   UART_TXD_MAXCNT_CONFIG  = msg_len;
   UART_TX_START_TASK      = 1;
 
-  while (UART_ENDTX == 0)
+  while (*g_uart_end_tx == 0)
   {
     ;;
   }
