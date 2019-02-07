@@ -15,15 +15,18 @@ int main()
 
     gpio_toogle(1, LED);
 
+    int code = 65;
+    int incr = 0;
+
     while(1)
     {
       for(int c = 0; c < 5000000; c++);
 
       char *bau = malloc(100);
-      memset(bau, 'A', 10);
-      bau[11] = '\n';
+      memset(bau, code + incr, 10);
+      bau[11] = 10;
 
-      uart_send(bau, 10);
+      uart_send(bau, 12);
 
       gpio_toogle(0, LED);
       for(int c = 0; c < 5000000; c++);
@@ -31,6 +34,9 @@ int main()
       gpio_toogle(1, LED);
 
       free(bau);
+
+      incr = (incr + 1) % 26;
     }
+
     return 0;
 }
