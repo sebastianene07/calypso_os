@@ -1,7 +1,7 @@
 /* details on syntax can be found in GCC linker manual */
 
 MEMORY {
-  RAM   (xrw): ORIGIN = 0x20000000, LENGTH = 20K
+  RAM   (xrw): ORIGIN = 0x20000000, LENGTH = 100K
   FLASH (rx) : ORIGIN = 0x0, LENGTH = 256K
 }
 
