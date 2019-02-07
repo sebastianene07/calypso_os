@@ -9,13 +9,15 @@ include .config
 $(info machine_type=$(MACHINE_TYPE))
 
 SRC_DIRS := $(shell find . -iname $(MACHINE_TYPE))
-SRC_DIRS += sched
+SRC_DIRS += sched s_alloc
 TMP_LIB=tmp_lib.a
+TARGET=$(MACHINE_TYPE)
 
 export CFLAGS
 export PREFIX
 export TOPDIR
 export TMP_LIB
+export TARGET
 
 all:
 	for src_dir in $(SRC_DIRS) ; do \
