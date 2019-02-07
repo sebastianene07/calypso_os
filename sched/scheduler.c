@@ -6,6 +6,7 @@
  */
 
 #include <scheduler.h>
+#include <errno.h>
 #include <stdlib.h>
 #include <list.h>
 
@@ -67,17 +68,22 @@ int sched_init(void)
  *************************************************************************/
 int sched_create_task(void (*task_entry_point)(void), uint32_t stack_size)
 {
-  struct tcb_s *task_tcb = (struct tcb_s *)g_sched_mem_up_marker;
+  struct tcb_s *task_tcb = malloc(sizeof(struct tcb_s) + stack_size);
+  if (task_tcb == NULL)
+  {
+    return -ENOMEM;
+  }
+
   task_tcb->entry_point    = task_entry_point;
-  task_tcb->stack_ptr_base = g_sched_mem_up_marker + sizeof(struct tcb_s);
-  task_tcb->stack_ptr_top  = g_sched_mem_up_marker + stack_size;
-  task_tcb->t_state    = READY;
+  task_tcb->stack_ptr_base = task_tcb + sizeof(struct tcb_s);
+  task_tcb->stack_ptr_top  = task_tcb + stack_size;
+  task_tcb->t_state        = READY;
 
 #ifdef CONFIG_SCHEDULER_TASK_COLORATION
   /* The effective stack size is base - top */
 
   for (uint32_t *ptr = task_tcb->stack_ptr_base;
-     ptr < task_tcb->stack_ptr_top;
+     ptr < (uint32_t*)task_tcb->stack_ptr_top;
      ptr++) {
        *ptr = 0xDEADBEEF;
      }
@@ -90,9 +96,9 @@ int sched_create_task(void (*task_entry_point)(void), uint32_t stack_size)
   task_tcb->mcu_context[2] = NULL;
   task_tcb->mcu_context[3] = NULL;
   task_tcb->mcu_context[4] = NULL;
-  task_tcb->mcu_context[5] = sched_default_task_exit_point;
+  task_tcb->mcu_context[5] = NULL;//sched_default_task_exit_point;
   task_tcb->mcu_context[6] = task_entry_point;
-  task_tcb->mcu_context[7] = 0x1000000;
+  task_tcb->mcu_context[7] = (uint32_t *)0x1000000;
 
   /* Stack context in interrupt */
 
@@ -101,10 +107,10 @@ int sched_create_task(void (*task_entry_point)(void), uint32_t stack_size)
     sizeof(void *) * MCU_CONTEXT_SIZE;
 
   for (uint32_t *ptr = ptr_after_int;
-     ptr < task_tcb->stack_ptr_top;
+     ptr < (uint32_t *)task_tcb->stack_ptr_top;
      ptr++)
   {
-    *ptr = task_tcb->mcu_context[i++];
+    *ptr = (uint32_t)task_tcb->mcu_context[i++];
   }
 
   task_tcb->sp = ptr_after_int;
