@@ -1,6 +1,6 @@
 SRC:=$(wildcard *.c)
 OBJS:=$(patsubst %.c,%.o,$(SRC))
-SCHED_FLAGS := ${CFLAGS} -I$(TOPDIR)/include -I$(TOPDIR)/s_alloc
+SCHED_FLAGS := ${CFLAGS} -I$(TOPDIR)/include -I$(TOPDIR)/s_alloc -I$(TOPDIR)/sched/include
 
 all: $(OBJS)
 	echo tests
