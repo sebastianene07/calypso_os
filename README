@@ -1,0 +1,13 @@
+This OS embedded project is started from scratch and it's purpose is for
+learning. I started by targeting the nordic nRF52 board because it has good
+documentation and there are multiple examples out there on the web.
+
+### Contents
+
+1. Getting Started
+2. Porting Guide (TODO)
+3. Tools
+
+### Contributions
+
+Contributions are really welcome. You can email me on: Sebastian Ene <sebastian.ene07@gmail.com>
