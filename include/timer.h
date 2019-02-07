@@ -1,6 +1,8 @@
 #ifndef __TIMER_H
 #define __TIMER_H
 
+#include <stdint.h>
+
 #define TIMER_0_BASE_ADDRESS    (0x40008000)
 
 /* Registers offsets */
