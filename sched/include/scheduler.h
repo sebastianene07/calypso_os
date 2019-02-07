@@ -10,6 +10,7 @@
 #define SCHEDULER_H_
 
 #include <stdint.h>
+#include <list.h>
 
 #define CONFIG_SCHEDULER_TASK_COLORATION      (1)
 #define CONFIG_SCHEDULER_IDLE_TASK_STACK_SIZE (128)
@@ -28,6 +29,7 @@ struct tcb_s {
   void *stack_ptr_top;
   void *sp;
   void *mcu_context[MCU_CONTEXT_SIZE];
+  struct list_head next_tcb;
 } __attribute__((aligned(4)));
 
 int sched_init(void);

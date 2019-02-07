@@ -48,11 +48,6 @@ void (*vectors[])(void) = {
         /* External interrupts */
 };
 
-void SysTick_Handler(void)
-{
-
-}
-
 void dummy_fn(void)
 {
         while(1)

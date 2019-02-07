@@ -8,7 +8,10 @@
 #include <scheduler.h>
 #include <errno.h>
 #include <stdlib.h>
-#include <list.h>
+
+/* Scheduler task_list */
+
+LIST_HEAD(g_tcb_list);
 
 /* Current running task */
 
@@ -115,7 +118,9 @@ int sched_create_task(void (*task_entry_point)(void), uint32_t stack_size)
 
   task_tcb->sp = ptr_after_int;
 
-  /* TODO: Insert the task in the list */
+  /* Insert the task in the list */
+
+  list_add(&task_tcb->next_tcb, &g_tcb_list);
 
   return 0;
 }
@@ -132,19 +137,21 @@ int sched_create_task(void (*task_entry_point)(void), uint32_t stack_size)
 *************************************************************************/
 struct tcb_s *sched_get_next_task(void)
 {
-  if (g_task_num == 0)
-  {
-    return NULL;
-  }
-
-  if (g_task_index == g_task_num - 1)
-  {
-    g_task_index = 0;
-  }
-
-  g_task_index++;
-
-  return g_tasks[g_task_index];
+  return NULL;
+//
+//  if (g_task_num == 0)
+//  {
+//    return NULL;
+//  }
+//
+//  if (g_task_index == g_task_num - 1)
+//  {
+//    g_task_index = 0;
+//  }
+//
+//  g_task_index++;
+//
+//  return g_tasks[g_task_index];
 }
 
 /**************************************************************************
@@ -174,10 +181,12 @@ void sched_run(void)
 *************************************************************************/
 struct tcb_s *sched_get_current_task(void)
 {
-  if (g_task_num > g_task_index)
-    return g_tasks[g_task_index];
-  else
-    return NULL;
+  return NULL;
+//
+//  if (g_task_num > g_task_index)
+//    return g_tasks[g_task_index];
+//  else
+//    return NULL;
 }
 
 /**************************************************************************
