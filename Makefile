@@ -9,7 +9,7 @@ include .config
 $(info machine_type=$(MACHINE_TYPE))
 
 SRC_DIRS := $(shell find . -iname $(MACHINE_TYPE))
-SRC_DIRS += sched s_alloc
+SRC_DIRS += sched s_alloc utils
 TMP_LIB=tmp_lib.a
 TARGET=$(MACHINE_TYPE)
 
