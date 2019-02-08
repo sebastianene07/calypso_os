@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <timer.h>
 
 #include "uart.h"
 #include "gpio.h"
@@ -9,9 +10,17 @@ unsigned int LED = 13;
 
 int main()
 {
+    uint32_t *NVIC_ISER0 = (uint32_t *)0xE000E100;
+    *NVIC_ISER0 |= (1 << 15);
+
+    uint32_t *NVIC_IABR0 = (uint32_t *)0xE000E300;
+    *NVIC_IABR0 |= (1 << 15);
+
     uart_init();
     gpio_init();
     gpio_configure(LED);
+
+    timer_init();
 
     gpio_toogle(1, LED);
 

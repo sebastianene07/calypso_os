@@ -5,6 +5,10 @@
 
 #define TIMER_0_BASE_ADDRESS    (0x40008000)
 
+/* System tick CSR */
+
+#define SYS_TICK_CSR            (0xE000E010)
+
 /* Registers offsets */
 
 #define TIMER_BITMODE         (0x508)

@@ -1,0 +1,290 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+ARCH_FLAGS	arch/arm/nrf52840/Makefile	/^ARCH_FLAGS:=${CFLAGS} -I$(TOPDIR)\/include -I$(TOPDIR)\/s_alloc$/;"	m
+ARCH_FLAGS	s_alloc/Makefile	/^ARCH_FLAGS:=${CFLAGS} -I$(TOPDIR)\/include$/;"	m
+BusFault_Handler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^BusFault_Handler$/;"	l
+CCM_AAR_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^CCM_AAR_IRQHandler$/;"	l
+COMP_LPCOMP_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^COMP_LPCOMP_IRQHandler$/;"	l
+CONFIG_SCHEDULER_IDLE_TASK_STACK_SIZE	sched/include/scheduler.h	16;"	d
+CONFIG_SCHEDULER_TASK_COLORATION	sched/include/scheduler.h	15;"	d
+CRYPTOCELL_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^CRYPTOCELL_IRQHandler$/;"	l
+DEBUG_PORT	Makefile	/^DEBUG_PORT=2771$/;"	m
+DebugMon_Handler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^DebugMon_Handler$/;"	l
+ECB_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^ECB_IRQHandler$/;"	l
+FPU_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^FPU_IRQHandler$/;"	l
+GPIOTE_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^GPIOTE_IRQHandler$/;"	l
+GPIO_BASE	arch/arm/nrf52840/gpio/gpio.c	5;"	d	file:
+GPIO_OUTCLR	arch/arm/nrf52840/gpio/gpio.c	7;"	d	file:
+GPIO_OUTSET	arch/arm/nrf52840/gpio/gpio.c	6;"	d	file:
+GPIO_PIN_CNF	arch/arm/nrf52840/gpio/gpio.c	8;"	d	file:
+HALTED	sched/include/scheduler.h	/^  HALTED$/;"	e	enum:task_state_e
+HEAP_BLOCK_SIZE	arch/arm/nrf52840/startup.c	9;"	d	file:
+HEAP_END	arch/arm/nrf52840/startup.c	8;"	d	file:
+HEAP_START	arch/arm/nrf52840/startup.c	7;"	d	file:
+HLIST_HEAD	s_alloc/list.h	407;"	d
+HLIST_HEAD_INIT	s_alloc/list.h	406;"	d
+HardFault_Handler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^HardFault_Handler$/;"	l
+I2S_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^I2S_IRQHandler$/;"	l
+INIT_HLIST_HEAD	s_alloc/list.h	408;"	d
+INIT_HLIST_NODE	s_alloc/list.h	409;"	d
+INIT_LIST_HEAD	s_alloc/list.h	85;"	d
+LED	sched/main.c	/^unsigned int LED = 13;$/;"	v
+LIST_HEAD	s_alloc/list.h	82;"	d
+LIST_HEAD_INIT	s_alloc/list.h	80;"	d
+LIST_POISON1	s_alloc/list.h	60;"	d
+LIST_POISON2	s_alloc/list.h	61;"	d
+MCU_CONTEXT_SIZE	sched/include/scheduler.h	17;"	d
+MWU_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^MWU_IRQHandler$/;"	l
+MemoryManagement_Handler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^MemoryManagement_Handler$/;"	l
+NFCT_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^NFCT_IRQHandler$/;"	l
+NMI_Handler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^NMI_Handler$/;"	l
+NULL	s_alloc/list.h	26;"	d
+OBJS	s_alloc/Makefile	/^OBJS := $(patsubst %.c,%.o,$(SRC))$/;"	m
+OBJS	sched/Makefile	/^OBJS:=$(patsubst %.c,%.o,$(SRC))$/;"	m
+OBJS	utils/Makefile	/^OBJS:=$(patsubst %.c,%.o,$(SRC))$/;"	m
+OBJS_ASM	sched/Makefile	/^OBJS_ASM:=$(patsubst %.s,%.o,$(SRC_ASM))$/;"	m
+OUT	s_alloc/Makefile	/^OUT = allocator$/;"	m
+PDM_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^PDM_IRQHandler$/;"	l
+POWER_CLOCK_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^POWER_CLOCK_IRQHandler$/;"	l
+PREFIX	Makefile	/^PREFIX := arm-none-eabi-$/;"	m
+PWM0_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^PWM0_IRQHandler$/;"	l
+PWM1_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^PWM1_IRQHandler$/;"	l
+PWM2_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^PWM2_IRQHandler$/;"	l
+PWM3_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^PWM3_IRQHandler$/;"	l
+PendSV_Handler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^PendSV_Handler$/;"	l
+QDEC_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^QDEC_IRQHandler$/;"	l
+QSPI_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^QSPI_IRQHandler$/;"	l
+RADIO_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^RADIO_IRQHandler$/;"	l
+RAM_BASE	arch/arm/nrf52840/startup.c	4;"	d	file:
+READY	sched/include/scheduler.h	/^  READY,$/;"	e	enum:task_state_e
+RNG_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^RNG_IRQHandler$/;"	l
+RTC0_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^RTC0_IRQHandler$/;"	l
+RTC1_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^RTC1_IRQHandler$/;"	l
+RTC2_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^RTC2_IRQHandler$/;"	l
+RUNNING	sched/include/scheduler.h	/^  RUNNING,$/;"	e	enum:task_state_e
+Reset_Handler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^Reset_Handler$/;"	l
+SAADC_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^SAADC_IRQHandler$/;"	l
+SCHEDULER_H_	sched/include/scheduler.h	10;"	d
+SCHED_FLAGS	sched/Makefile	/^SCHED_FLAGS := ${CFLAGS} -I$(TOPDIR)\/include -I$(TOPDIR)\/s_alloc -I$(TOPDIR)\/sched\/include$/;"	m
+SCHED_FLAGS	utils/Makefile	/^SCHED_FLAGS := ${CFLAGS} -I$(TOPDIR)\/include -I$(TOPDIR)\/s_alloc$/;"	m
+SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQHandler$/;"	l
+SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQHandler$/;"	l
+SPIM2_SPIS2_SPI2_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^SPIM2_SPIS2_SPI2_IRQHandler$/;"	l
+SPIM3_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^SPIM3_IRQHandler$/;"	l
+SRC	arch/arm/nrf52840/Makefile	/^SRC := $(wildcard *.c)$/;"	m
+SRC	s_alloc/Makefile	/^	SRC := $(wildcard *.c)$/;"	m
+SRC	s_alloc/Makefile	/^	SRC := $(wildcard s_heap*.c)$/;"	m
+SRC	sched/Makefile	/^SRC:=$(wildcard *.c)$/;"	m
+SRC	utils/Makefile	/^SRC:=$(wildcard *.c)$/;"	m
+SRC_ASM	sched/Makefile	/^SRC_ASM:=$(wildcard *.s)$/;"	m
+SRC_DIRS	Makefile	/^SRC_DIRS := $(shell find . -iname $(MACHINE_TYPE))$/;"	m
+STACK_TOP	arch/arm/nrf52840/startup.c	5;"	d	file:
+SVC_Handler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^SVC_Handler$/;"	l
+SWI0_EGU0_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^SWI0_EGU0_IRQHandler$/;"	l
+SWI1_EGU1_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^SWI1_EGU1_IRQHandler$/;"	l
+SWI2_EGU2_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^SWI2_EGU2_IRQHandler$/;"	l
+SWI3_EGU3_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^SWI3_EGU3_IRQHandler$/;"	l
+SWI4_EGU4_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^SWI4_EGU4_IRQHandler$/;"	l
+SWI5_EGU5_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^SWI5_EGU5_IRQHandler$/;"	l
+SYS_TICK_CSR	include/timer.h	10;"	d
+SysTick_Handle_context_switch	sched/context_switch.s	/^SysTick_Handle_context_switch:$/;"	l
+SysTick_Handler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^SysTick_Handler$/;"	l
+SysTick_Handler	sched/context_switch.s	/^ SysTick_Handler:$/;"	l
+SysTick_Handler_copy_from_stack	sched/context_switch.s	/^SysTick_Handler_copy_from_stack:$/;"	l
+SysTick_Handler_copy_to_stack	sched/context_switch.s	/^SysTick_Handler_copy_to_stack:$/;"	l
+SysTick_Handler_ret	sched/context_switch.s	/^SysTick_Handler_ret:$/;"	l
+TARGET	Makefile	/^TARGET=$(MACHINE_TYPE)$/;"	m
+TEMP_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^TEMP_IRQHandler$/;"	l
+TIMER0_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^TIMER0_IRQHandler$/;"	l
+TIMER1_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^TIMER1_IRQHandler$/;"	l
+TIMER2_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^TIMER2_IRQHandler$/;"	l
+TIMER3_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^TIMER3_IRQHandler$/;"	l
+TIMER4_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^TIMER4_IRQHandler$/;"	l
+TIMER_0_BASE_ADDRESS	include/timer.h	6;"	d
+TIMER_BITMODE	include/timer.h	14;"	d
+TIMER_COMPARE_COUNTER	include/timer.h	18;"	d
+TIMER_FUNCTION_REGISTER	include/timer.h	23;"	d
+TIMER_INT_CLR	include/timer.h	16;"	d
+TIMER_INT_SET	include/timer.h	15;"	d
+TIMER_PRESCALER	include/timer.h	17;"	d
+TIMER_SHORTS	include/timer.h	19;"	d
+TIMER_TASK_START	include/timer.h	20;"	d
+TIMER_TASK_STOP	include/timer.h	21;"	d
+TMP_LIB	Makefile	/^TMP_LIB=tmp_lib.a$/;"	m
+TOPDIR	Makefile	/^TOPDIR=$(shell pwd)$/;"	m
+UARTE0_UART0_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^UARTE0_UART0_IRQHandler$/;"	l
+UARTE1_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^UARTE1_IRQHandler$/;"	l
+UART_BASE	arch/arm/nrf52840/serial/uart.c	3;"	d	file:
+UART_BAUDRATE	arch/arm/nrf52840/serial/uart.c	27;"	d	file:
+UART_BAUDRATE_OFFSET	arch/arm/nrf52840/serial/uart.c	15;"	d	file:
+UART_CONFIG	arch/arm/nrf52840/serial/uart.c	26;"	d	file:
+UART_CONFIG_OFFSET	arch/arm/nrf52840/serial/uart.c	14;"	d	file:
+UART_ENABLE	arch/arm/nrf52840/serial/uart.c	25;"	d	file:
+UART_ENABLE_OFFSET	arch/arm/nrf52840/serial/uart.c	5;"	d	file:
+UART_ENDTX	arch/arm/nrf52840/serial/uart.c	33;"	d	file:
+UART_ENDTX_OFFSET	arch/arm/nrf52840/serial/uart.c	18;"	d	file:
+UART_EVENTS_TXSTOPPED	arch/arm/nrf52840/serial/uart.c	35;"	d	file:
+UART_EVENTS_TXSTOPPED_OFFSET	arch/arm/nrf52840/serial/uart.c	19;"	d	file:
+UART_HWFC	arch/arm/nrf52840/serial/uart.c	23;"	d	file:
+UART_PIN_SEL_CTS_OFFSET	arch/arm/nrf52840/serial/uart.c	8;"	d	file:
+UART_PIN_SEL_RTS_OFSSET	arch/arm/nrf52840/serial/uart.c	6;"	d	file:
+UART_PIN_SEL_RXD_OFFSET	arch/arm/nrf52840/serial/uart.c	9;"	d	file:
+UART_PIN_SEL_TXD_OFFSET	arch/arm/nrf52840/serial/uart.c	7;"	d	file:
+UART_RX_BUFFER	arch/arm/nrf52840/serial/uart.c	48;"	d	file:
+UART_RX_PIN	arch/arm/nrf52840/serial/uart.c	44;"	d	file:
+UART_RX_PORT	arch/arm/nrf52840/serial/uart.c	45;"	d	file:
+UART_RX_PORT_CONFIG	arch/arm/nrf52840/serial/uart.c	29;"	d	file:
+UART_STOP_TX_TASK	arch/arm/nrf52840/serial/uart.c	34;"	d	file:
+UART_TASK_START_RX_OFFSET	arch/arm/nrf52840/serial/uart.c	10;"	d	file:
+UART_TASK_START_TX_OFFSET	arch/arm/nrf52840/serial/uart.c	12;"	d	file:
+UART_TASK_STOP_RX_OFFSET	arch/arm/nrf52840/serial/uart.c	11;"	d	file:
+UART_TASK_STOP_TX_OFFSET	arch/arm/nrf52840/serial/uart.c	13;"	d	file:
+UART_TXD_MAXCNT	arch/arm/nrf52840/serial/uart.c	17;"	d	file:
+UART_TXD_MAXCNT_CONFIG	arch/arm/nrf52840/serial/uart.c	31;"	d	file:
+UART_TXD_OFFSET	arch/arm/nrf52840/serial/uart.c	16;"	d	file:
+UART_TXD_PTR_CONFIG	arch/arm/nrf52840/serial/uart.c	30;"	d	file:
+UART_TX_BUFFER	arch/arm/nrf52840/serial/uart.c	47;"	d	file:
+UART_TX_PIN	arch/arm/nrf52840/serial/uart.c	41;"	d	file:
+UART_TX_PORT	arch/arm/nrf52840/serial/uart.c	42;"	d	file:
+UART_TX_PORT_CONFIG	arch/arm/nrf52840/serial/uart.c	28;"	d	file:
+UART_TX_START_TASK	arch/arm/nrf52840/serial/uart.c	32;"	d	file:
+USBD_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^USBD_IRQHandler$/;"	l
+UsageFault_Handler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^UsageFault_Handler$/;"	l
+WDT_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^WDT_IRQHandler$/;"	l
+_LINUX_LIST_H	s_alloc/list.h	19;"	d
+__ASERT_H	include/assert.h	2;"	d
+__GPIO_H	include/gpio.h	2;"	d
+__STDLIB_H	include/stdlib.h	2;"	d
+__STRING_H	include/string.h	2;"	d
+__S_HEAP_H	s_alloc/s_heap.h	20;"	d
+__TIMER_H	include/timer.h	2;"	d
+__UART_H	include/uart.h	2;"	d
+__Vectors	arch/arm/nrf52840/iar_startup_nrf52840.s	/^__Vectors                           EQU   __vector_table$/;"	d
+__Vectors_End	arch/arm/nrf52840/iar_startup_nrf52840.s	/^__Vectors_End$/;"	l
+__Vectors_Size	arch/arm/nrf52840/iar_startup_nrf52840.s	/^__Vectors_Size                      EQU   __Vectors_End - __Vectors$/;"	d
+__hlist_del	s_alloc/list.h	/^static inline void __hlist_del(struct hlist_node *n)$/;"	f
+__list_add	s_alloc/list.h	/^static inline void __list_add(struct list_head *new,$/;"	f
+__list_del	s_alloc/list.h	/^static inline void __list_del(struct list_head * prev, struct list_head * next)$/;"	f
+__list_for_each	s_alloc/list.h	281;"	d
+__list_splice	s_alloc/list.h	/^static inline void __list_splice(struct list_head *list,$/;"	f
+__vector_table	arch/arm/nrf52840/iar_startup_nrf52840.s	/^__vector_table$/;"	l
+addr_comparator	s_alloc/s_heap.c	/^static int addr_comparator(struct list_head *node_1, struct list_head *node_2)$/;"	f	file:
+assert	include/assert.h	4;"	d
+block_size	s_alloc/s_heap.h	/^  size_t block_size;$/;"	m	struct:__anon2
+c_startup	arch/arm/nrf52840/startup.c	/^void c_startup(void)$/;"	f
+calloc	utils/stdlib.c	/^void *calloc(size_t nmemb, size_t size)$/;"	f
+chunk_addr	s_alloc/s_heap.h	/^  void *chunk_addr;           \/* Start of an allocated chunk *\/$/;"	m	struct:mem_node_info_s
+comparator	s_alloc/list.h	/^int (*comparator)(struct list_head *node_1, struct list_head *node_2);$/;"	v
+comparator_cb	s_alloc/list.h	/^typedef int (*comparator_cb)(struct list_head *node_1, struct list_head *node_2);$/;"	t
+container_of	s_alloc/list.h	49;"	d
+dummy_fn	arch/arm/nrf52840/startup.c	/^void dummy_fn(void)$/;"	f
+entry_point	sched/include/scheduler.h	/^  void (*entry_point)(void);$/;"	m	struct:tcb_s
+first	s_alloc/list.h	/^  struct hlist_node *first;$/;"	m	struct:hlist_head	typeref:struct:hlist_head::hlist_node
+free	utils/stdlib.c	/^void free(void *ptr)$/;"	f
+g_free_heap_list	s_alloc/s_heap.h	/^  struct list_head g_free_heap_list;$/;"	m	struct:__anon2	typeref:struct:__anon2::list_head
+g_my_heap	arch/arm/nrf52840/startup.c	/^heap_t g_my_heap;$/;"	v
+g_task_index	sched/scheduler.c	/^static volatile uint32_t g_task_index;$/;"	v	file:
+g_tcb_list	sched/scheduler.c	/^LIST_HEAD(g_tcb_list);$/;"	v
+g_uart_end_tx	arch/arm/nrf52840/serial/uart.c	/^static volatile uint32_t *g_uart_end_tx = UART_ENDTX;$/;"	v	file:
+g_uart_rx_buffer	arch/arm/nrf52840/serial/uart.c	/^static char g_uart_rx_buffer[UART_RX_BUFFER];$/;"	v	file:
+g_uart_tx_buffer	arch/arm/nrf52840/serial/uart.c	/^static char g_uart_tx_buffer[UART_TX_BUFFER];$/;"	v	file:
+g_used_heap_list	s_alloc/s_heap.h	/^  struct list_head g_used_heap_list;$/;"	m	struct:__anon2	typeref:struct:__anon2::list_head
+gpio_configure	arch/arm/nrf52840/gpio/gpio.c	/^void gpio_configure(int pin)$/;"	f
+gpio_init	arch/arm/nrf52840/gpio/gpio.c	/^void gpio_init(void)$/;"	f
+gpio_toogle	arch/arm/nrf52840/gpio/gpio.c	/^void gpio_toogle(int enable, int pin)$/;"	f
+heap_mem_start	s_alloc/s_heap.h	/^  void *heap_mem_start;$/;"	m	struct:__anon2
+heap_mem_start_unaligned	s_alloc/s_heap.h	/^  void *heap_mem_start_unaligned;$/;"	m	struct:__anon2
+heap_memory_end	s_alloc/s_heap.h	/^  void *heap_memory_end;$/;"	m	struct:__anon2
+heap_t	s_alloc/s_heap.h	/^} heap_t;$/;"	t	typeref:struct:__anon2
+hlist_add_after	s_alloc/list.h	/^static inline void hlist_add_after(struct hlist_node *n,$/;"	f
+hlist_add_before	s_alloc/list.h	/^static inline void hlist_add_before(struct hlist_node *n,$/;"	f
+hlist_add_head	s_alloc/list.h	/^static inline void hlist_add_head(struct hlist_node *n, struct hlist_head *h)$/;"	f
+hlist_del	s_alloc/list.h	/^static inline void hlist_del(struct hlist_node *n)$/;"	f
+hlist_del_init	s_alloc/list.h	/^static inline void hlist_del_init(struct hlist_node *n)$/;"	f
+hlist_empty	s_alloc/list.h	/^static inline int hlist_empty(const struct hlist_head *h)$/;"	f
+hlist_entry	s_alloc/list.h	481;"	d
+hlist_for_each	s_alloc/list.h	483;"	d
+hlist_for_each_entry	s_alloc/list.h	498;"	d
+hlist_for_each_entry_continue	s_alloc/list.h	510;"	d
+hlist_for_each_entry_from	s_alloc/list.h	522;"	d
+hlist_for_each_entry_safe	s_alloc/list.h	535;"	d
+hlist_for_each_safe	s_alloc/list.h	487;"	d
+hlist_head	s_alloc/list.h	/^struct hlist_head {$/;"	s
+hlist_node	s_alloc/list.h	/^struct hlist_node {$/;"	s
+hlist_unhashed	s_alloc/list.h	/^static inline int hlist_unhashed(const struct hlist_node *h)$/;"	f
+list_add	s_alloc/list.h	/^static inline void list_add(struct list_head *new, struct list_head *head)$/;"	f
+list_add_tail	s_alloc/list.h	/^static inline void list_add_tail(struct list_head *new, struct list_head *head)$/;"	f
+list_del	s_alloc/list.h	/^static inline void list_del(struct list_head *entry)$/;"	f
+list_del_init	s_alloc/list.h	/^static inline void list_del_init(struct list_head *entry)$/;"	f
+list_empty	s_alloc/list.h	/^static inline int list_empty(const struct list_head *head)$/;"	f
+list_entry	s_alloc/list.h	249;"	d
+list_for_each	s_alloc/list.h	258;"	d
+list_for_each_entry	s_alloc/list.h	309;"	d
+list_for_each_entry_continue	s_alloc/list.h	342;"	d
+list_for_each_entry_reverse	s_alloc/list.h	320;"	d
+list_for_each_entry_safe	s_alloc/list.h	354;"	d
+list_for_each_entry_safe_continue	s_alloc/list.h	368;"	d
+list_for_each_entry_safe_reverse	s_alloc/list.h	382;"	d
+list_for_each_prev	s_alloc/list.h	289;"	d
+list_for_each_safe	s_alloc/list.h	299;"	d
+list_for_each_start	s_alloc/list.h	262;"	d
+list_for_each_stop	s_alloc/list.h	266;"	d
+list_head	s_alloc/list.h	/^struct list_head {$/;"	s
+list_move	s_alloc/list.h	/^static inline void list_move(struct list_head *list, struct list_head *head)$/;"	f
+list_move_tail	s_alloc/list.h	/^static inline void list_move_tail(struct list_head *list,$/;"	f
+list_prepare_entry	s_alloc/list.h	332;"	d
+list_size	s_alloc/s_heap.c	/^static size_t list_size(struct list_head *list)$/;"	f	file:
+list_sort	s_alloc/s_heap.c	/^static void list_sort(struct list_head *list,$/;"	f	file:
+list_splice	s_alloc/list.h	/^static inline void list_splice(struct list_head *list, struct list_head *head)$/;"	f
+list_splice_init	s_alloc/list.h	/^static inline void list_splice_init(struct list_head *list,$/;"	f
+main	s_alloc/main.c	/^int main(void)$/;"	f
+main	sched/main.c	/^int main()$/;"	f
+malloc	utils/stdlib.c	/^void *malloc(size_t size)$/;"	f
+mask	s_alloc/s_heap.h	/^  mem_mask_t mask;            \/* Chunk information as size *\/$/;"	m	struct:mem_node_info_s
+mcu_context	sched/include/scheduler.h	/^  void *mcu_context[MCU_CONTEXT_SIZE];$/;"	m	struct:tcb_s
+mem_mask_t	s_alloc/s_heap.h	/^} mem_mask_t;$/;"	t	typeref:struct:__anon1
+mem_node_info_s	s_alloc/s_heap.h	/^typedef struct mem_node_info_s$/;"	s
+mem_node_t	s_alloc/s_heap.h	/^} mem_node_t;$/;"	t	typeref:struct:mem_node_info_s
+memset	utils/string.c	/^void *memset(void *s, int c, size_t n)$/;"	f
+next	s_alloc/list.h	/^  struct hlist_node *next, **pprev;$/;"	m	struct:hlist_node	typeref:struct:hlist_node::hlist_node
+next	s_alloc/list.h	/^  struct list_head *next, *prev;$/;"	m	struct:list_head	typeref:struct:list_head::list_head
+next_tcb	sched/include/scheduler.h	/^  struct list_head next_tcb;$/;"	m	struct:tcb_s	typeref:struct:tcb_s::list_head
+node_list	s_alloc/s_heap.h	/^  struct list_head node_list; \/* Next\/Prev chunk node *\/$/;"	m	struct:mem_node_info_s	typeref:struct:mem_node_info_s::list_head
+num_blocks	s_alloc/s_heap.h	/^  size_t num_blocks;$/;"	m	struct:__anon2
+offsetof	s_alloc/list.h	39;"	d
+pprev	s_alloc/list.h	/^  struct hlist_node *next, **pprev;$/;"	m	struct:hlist_node	typeref:struct:hlist_node::
+prev	s_alloc/list.h	/^  struct list_head *next, *prev;$/;"	m	struct:list_head	typeref:struct:list_head::
+printf	utils/stdio.c	/^int printf(const char * format, ... )$/;"	f
+puts	utils/stdio.c	/^int puts(const char *s)$/;"	f
+realloc	utils/stdlib.c	/^void *realloc(void *ptr, size_t size)$/;"	f
+reallocarray	utils/stdlib.c	/^void *reallocarray(void *ptr, size_t nmemb, size_t size)$/;"	f
+s_alloc	s_alloc/s_heap.c	/^void *s_alloc(size_t len, heap_t *my_heap)$/;"	f
+s_dbg_heap	s_alloc/main.c	/^void s_dbg_heap(heap_t *my_heap)$/;"	f
+s_free	s_alloc/s_heap.c	/^void s_free(void *ptr, heap_t *my_heap)$/;"	f
+s_init	s_alloc/s_heap.c	/^void s_init(heap_t *my_heap,$/;"	f
+sched_create_task	sched/scheduler.c	/^int sched_create_task(void (*task_entry_point)(void), uint32_t stack_size)$/;"	f
+sched_desroy	sched/scheduler.c	/^int sched_desroy(void)$/;"	f
+sched_get_current_task	sched/scheduler.c	/^struct tcb_s *sched_get_current_task(void)$/;"	f
+sched_get_next_task	sched/scheduler.c	/^struct tcb_s *sched_get_next_task(void)$/;"	f
+sched_idle_task	sched/scheduler.c	/^static void sched_idle_task(void)$/;"	f	file:
+sched_init	sched/scheduler.c	/^int sched_init(void)$/;"	f
+sched_run	sched/scheduler.c	/^void sched_run(void)$/;"	f
+size	s_alloc/s_heap.h	/^  uint32_t size : 31; \/* size of the chunk without header in blocks number *\/$/;"	m	struct:__anon1
+size_t	include/stdlib.h	/^typedef unsigned int size_t;$/;"	t
+sp	sched/include/scheduler.h	/^  void *sp;$/;"	m	struct:tcb_s
+stack_ptr_base	sched/include/scheduler.h	/^  void *stack_ptr_base;$/;"	m	struct:tcb_s
+stack_ptr_top	sched/include/scheduler.h	/^  void *stack_ptr_top;$/;"	m	struct:tcb_s
+t_state	sched/include/scheduler.h	/^  enum task_state_e t_state;$/;"	m	struct:tcb_s	typeref:enum:tcb_s::task_state_e
+task_state_e	sched/include/scheduler.h	/^enum task_state_e {$/;"	g
+tcb_s	sched/include/scheduler.h	/^struct tcb_s {$/;"	s
+timer_init	arch/arm/nrf52840/timer/timer.c	/^int timer_init(void)$/;"	f
+total_size	s_alloc/s_heap.h	/^  size_t total_size;$/;"	m	struct:__anon2
+uart_init	arch/arm/nrf52840/serial/uart.c	/^int uart_init(void)$/;"	f
+uart_receive	arch/arm/nrf52840/serial/uart.c	/^char uart_receive(void)$/;"	f
+uart_send	arch/arm/nrf52840/serial/uart.c	/^int uart_send(char *msg, int msg_len)$/;"	f
+used	s_alloc/s_heap.h	/^  uint32_t used : 1;  \/* used\/unused chunk *\/$/;"	m	struct:__anon1
+vectors	arch/arm/nrf52840/startup.c	/^void (*vectors[])(void) = {$/;"	v
