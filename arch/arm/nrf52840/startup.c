@@ -6,7 +6,7 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define RAM_BASE  (void *)(0x20000000)
+#define RAM_BASE   (void *)(0x20000000)
 #define STACK_TOP  (void *)(RAM_BASE + 0x5000)
 
 #define HEAP_START (void *)(RAM_BASE + 0x5004)
@@ -42,16 +42,11 @@ void c_startup(void);
 
 void dummy_fn(void);
 
-int main();
+int os_startup(void);
 
 void SysTick_Handler(void);
 
 volatile int is_enabled = 0;
-
-void miau(void)
-{
-  is_enabled = !is_enabled;
-}
 
 __attribute__((section(".isr_vector")))
 void (*vectors[])(void) = {
@@ -70,10 +65,18 @@ void (*vectors[])(void) = {
         dummy_fn,
         dummy_fn,
         dummy_fn,
-        miau,
+        SysTick_Handler,
 
         /* External interrupts */
 };
+
+void my_cat(void)
+{
+  while (1)
+  {
+
+  }
+}
 
 void dummy_fn(void)
 {
@@ -96,6 +99,7 @@ void c_startup(void)
   while(src < &_ebss)
       *(src++) = 0;
 
+  /* TODO: If the stack goes below _ebss we must ASSERT */
 
   /* Initialize the HEAP memory */
 
@@ -104,11 +108,17 @@ void c_startup(void)
          HEAP_END,
          HEAP_BLOCK_SIZE);
 
+  sched_init();
+  sched_create_task(my_cat, 1024);
+
   /* Configure Sys Tick */
 
   SysTick_Config(SystemCoreClock / 10);
 
-  /* Jump to os startup */
+  /* Schedule tasks */
 
-  os_startup();
+  while (1)
+  {
+    ;;
+  }
 }

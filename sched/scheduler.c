@@ -15,7 +15,7 @@ LIST_HEAD(g_tcb_list);
 
 /* Current running task */
 
-static volatile uint32_t g_task_index;
+static volatile struct list_head *g_current_tcb = NULL;
 
 /**************************************************************************
  * Name:
@@ -56,6 +56,8 @@ int sched_init(void)
     return ret;
   }
 
+  g_current_tcb = g_tcb_list.next;
+
   return 0;
 }
 
@@ -65,6 +67,13 @@ int sched_init(void)
  *
  * Description:
  *  Create a new task.
+ *
+ * Input Parameters:
+ *  task_entry_point - the entry point of a task
+ *  stack_size       - the stack size of the new task
+ *
+ * Assumptions:
+ *  Call this function with interrupts disabled.
  *
  * Return Value:
  *  OK in case of success otherwise a negate value.
@@ -78,18 +87,19 @@ int sched_create_task(void (*task_entry_point)(void), uint32_t stack_size)
   }
 
   task_tcb->entry_point    = task_entry_point;
-  task_tcb->stack_ptr_base = task_tcb + sizeof(struct tcb_s);
-  task_tcb->stack_ptr_top  = task_tcb + stack_size;
+  task_tcb->stack_ptr_base = (void *)task_tcb + sizeof(struct tcb_s);
+  task_tcb->stack_ptr_top  = (void *)task_tcb + stack_size;
   task_tcb->t_state        = READY;
 
 #ifdef CONFIG_SCHEDULER_TASK_COLORATION
   /* The effective stack size is base - top */
 
-  for (uint32_t *ptr = task_tcb->stack_ptr_base;
-     ptr < (uint32_t*)task_tcb->stack_ptr_top;
-     ptr++) {
-       *ptr = 0xDEADBEEF;
-     }
+  for (uint8_t *ptr = task_tcb->stack_ptr_base;
+     ptr < (uint8_t*)task_tcb->stack_ptr_top;
+     ptr = ptr + sizeof(uint32_t))
+  {
+    *((uint32_t *)ptr) = 0xDEADBEEF;
+  }
 #endif
 
   /* Initial MCU context */
@@ -99,7 +109,7 @@ int sched_create_task(void (*task_entry_point)(void), uint32_t stack_size)
   task_tcb->mcu_context[2] = NULL;
   task_tcb->mcu_context[3] = NULL;
   task_tcb->mcu_context[4] = NULL;
-  task_tcb->mcu_context[5] = NULL;//sched_default_task_exit_point;
+  task_tcb->mcu_context[5] = 0xffffffff;//sched_default_task_exit_point;
   task_tcb->mcu_context[6] = task_entry_point;
   task_tcb->mcu_context[7] = (uint32_t *)0x1000000;
 
@@ -109,11 +119,11 @@ int sched_create_task(void (*task_entry_point)(void), uint32_t stack_size)
   void *ptr_after_int = task_tcb->stack_ptr_top -
     sizeof(void *) * MCU_CONTEXT_SIZE;
 
-  for (uint32_t *ptr = ptr_after_int;
-     ptr < (uint32_t *)task_tcb->stack_ptr_top;
-     ptr++)
+  for (uint8_t *ptr = ptr_after_int;
+     ptr < (uint8_t *)task_tcb->stack_ptr_top;
+     ptr += sizeof(uint32_t))
   {
-    *ptr = (uint32_t)task_tcb->mcu_context[i++];
+    *((uint32_t *)ptr) = (uint32_t)task_tcb->mcu_context[i++];
   }
 
   task_tcb->sp = ptr_after_int;
@@ -137,21 +147,15 @@ int sched_create_task(void (*task_entry_point)(void), uint32_t stack_size)
 *************************************************************************/
 struct tcb_s *sched_get_next_task(void)
 {
-  return NULL;
-//
-//  if (g_task_num == 0)
-//  {
-//    return NULL;
-//  }
-//
-//  if (g_task_index == g_task_num - 1)
-//  {
-//    g_task_index = 0;
-//  }
-//
-//  g_task_index++;
-//
-//  return g_tasks[g_task_index];
+  g_current_tcb = g_current_tcb->next;
+  if (g_current_tcb == &g_tcb_list)
+    {
+      g_current_tcb = g_current_tcb->next;
+    }
+
+  struct tcb_s *next_tcb = (struct tcb_s *)container_of(g_current_tcb,
+    struct tcb_s, next_tcb);
+  return next_tcb;
 }
 
 /**************************************************************************
@@ -181,12 +185,9 @@ void sched_run(void)
 *************************************************************************/
 struct tcb_s *sched_get_current_task(void)
 {
-  return NULL;
-//
-//  if (g_task_num > g_task_index)
-//    return g_tasks[g_task_index];
-//  else
-//    return NULL;
+  struct tcb_s *next_tcb = (struct tcb_s *)container_of(g_current_tcb,
+    struct tcb_s, next_tcb);
+  return next_tcb;
 }
 
 /**************************************************************************
