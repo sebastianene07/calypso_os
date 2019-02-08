@@ -70,14 +70,6 @@ void (*vectors[])(void) = {
         /* External interrupts */
 };
 
-void my_cat(void)
-{
-  while (1)
-  {
-
-  }
-}
-
 void dummy_fn(void)
 {
         while(1)
@@ -109,7 +101,7 @@ void c_startup(void)
          HEAP_BLOCK_SIZE);
 
   sched_init();
-  sched_create_task(my_cat, 1024);
+  sched_create_task(os_startup, 1024);
 
   /* Configure Sys Tick */
 

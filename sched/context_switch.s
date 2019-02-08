@@ -23,15 +23,31 @@
  *	|  R2  |
  *	|  R1  |
  *	|  R0  |
- *   ______	 <---- Stack top after stacking
+ *   ______	 <---- Stack ptr after stacking
  *
  *  32 bytes stored by the interrupt controller to save context.
  */
+
+/* We also need to store :
+ *
+ * This will be placed below the R0 from the ISR stacking
+ *
+ * R4
+ * R5
+ * R6
+ * R7
+ * R8
+ * R9
+ * R10
+ * R11
+ */
+
 
 .align 4
 .thumb_func
 
  SysTick_Handler:
+
 	stmdb sp!, {lr}					    // Store the link register on the stack
 	bl sched_get_current_task		// Get current TCB address in R0
 	ldmia sp!, {lr}					    // Restore the link register from the stack
@@ -42,23 +58,21 @@
 	cmp r1, 1						        // If task is not running then we must plan it
 	bne SysTick_Handle_context_switch
 
-/* Task is running so switch it to READY and save it's SP */
+/* Task is running so switch it to (not running) READY */
 
   mov r1, #0
   str r1, [r0, #4]
 
-/* Source is the SP address */
+/* Save the R4-R11 registers on the stack (we are on the running TCB stack) */
+
+  push {R4-R11}
+
+/* Save the SP in the TCB */
 
   mov r1, sp
   str r1, [r0, #16]
 
-/* Save context in struct tcb from stack */
-
-#SysTick_Handler_copy_from_stack:
-#	ldr r4, [r1], #4						// Load one word in r4
-#	str r4, [r0], #4						// Store one word in mcu_context
-#	subs r3, r3, #1							// Decrement counter as we copied 1 word
-#	bne SysTick_Handler_copy_from_stack		// Repeat word copy
+/* Get the next task ptr in R0 */
 
 	stmdb sp!, {lr}					    // Store the link register on the stack
 	bl sched_get_next_task			// Get the next TCB address in R0
@@ -73,19 +87,11 @@ SysTick_Handle_context_switch:
 	mov r5, r0						  // Save task TCB ptr in r5
 	add r5, #16						  // Get the address of the sp from TCB struct in r5
 
-/* Restore context from struct tcb and set stack */
-
-#SysTick_Handler_copy_to_stack:
-#	ldr r4, [r1], #4						// Load one word in r4
-#	str r4, [r0], #4						// Store one word in mcu_context
-#	subs r3, r3, #1							// Decrement counter as we copied 1 word
-#	bne SysTick_Handler_copy_to_stack		// Repeat word copy
-
 /* The SP of the new task should have already some stacking values */
 
 	ldr r0, [r5]							  // Set SP to point to the task SP
 	mov sp, r0								  //
+  pop {R4-R11}                // Pop R4-R11
 
 SysTick_Handler_ret:
 	bx lr							          // Return from handler
-
