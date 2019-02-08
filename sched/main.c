@@ -15,7 +15,6 @@ int os_startup(void)
     uart_init();
     gpio_init();
     gpio_configure(LED);
-
     timer_init();
 
     gpio_toogle(1, LED);

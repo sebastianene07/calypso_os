@@ -42,29 +42,28 @@
 	cmp r1, 1						        // If task is not running then we must plan it
 	bne SysTick_Handle_context_switch
 
-/* Task is running so switch it to READY and save it's context */
+/* Task is running so switch it to READY and save it's SP */
 
   mov r1, #0
   str r1, [r0, #4]
 
-	mov r1, sp						// Source is the SP address
-	mov r2, r1						//
-	sub r2, #20						// Here is the task stack pointer before interrupt
-  str r2, [r0, #16]			// Store the stack pointer in struct tcb
-  add r0, #20						// Destination + offsetof((struct tcb_s), mcu_context)
-	mov r3, #8						// Number of 32 bit words
+/* Source is the SP address */
+
+  mov r1, sp
+  str r1, [r0, #16]
 
 /* Save context in struct tcb from stack */
 
-SysTick_Handler_copy_from_stack:
-	ldr r4, [r1], #4						// Load one word in r4
-	str r4, [r0], #4						// Store one word in mcu_context
-	subs r3, r3, #1							// Decrement counter as we copied 1 word
-	bne SysTick_Handler_copy_from_stack		// Repeat word copy
+#SysTick_Handler_copy_from_stack:
+#	ldr r4, [r1], #4						// Load one word in r4
+#	str r4, [r0], #4						// Store one word in mcu_context
+#	subs r3, r3, #1							// Decrement counter as we copied 1 word
+#	bne SysTick_Handler_copy_from_stack		// Repeat word copy
 
 	stmdb sp!, {lr}					    // Store the link register on the stack
 	bl sched_get_next_task			// Get the next TCB address in R0
 	ldmia sp!, {lr}					    // Restore the link register from the stack
+
 	cmp r0, #0						      // Verify NULL pointer TCB
 	beq SysTick_Handler_ret			// Handle NULL pointer to return from handler
 
@@ -73,18 +72,16 @@ SysTick_Handle_context_switch:
 	str r1, [r0, #4]				// Switch task state to running
 	mov r5, r0						  // Save task TCB ptr in r5
 	add r5, #16						  // Get the address of the sp from TCB struct in r5
-	mov r1, r0						  // Get the base TCB in R1
-	add r1, #20						  // The source is base TCB + offsetof((struct tcb_s), mcu_context)
-	mov r0, sp	  					// Destination is the stack
-	mov r3, #8
 
 /* Restore context from struct tcb and set stack */
 
-SysTick_Handler_copy_to_stack:
-	ldr r4, [r1], #4						// Load one word in r4
-	str r4, [r0], #4						// Store one word in mcu_context
-	subs r3, r3, #1							// Decrement counter as we copied 1 word
-	bne SysTick_Handler_copy_to_stack		// Repeat word copy
+#SysTick_Handler_copy_to_stack:
+#	ldr r4, [r1], #4						// Load one word in r4
+#	str r4, [r0], #4						// Store one word in mcu_context
+#	subs r3, r3, #1							// Decrement counter as we copied 1 word
+#	bne SysTick_Handler_copy_to_stack		// Repeat word copy
+
+/* The SP of the new task should have already some stacking values */
 
 	ldr r0, [r5]							  // Set SP to point to the task SP
 	mov sp, r0								  //

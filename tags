@@ -4,77 +4,106 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
-ARCH_FLAGS	arch/arm/nrf52840/Makefile	/^ARCH_FLAGS:=${CFLAGS} -I$(TOPDIR)\/include -I$(TOPDIR)\/s_alloc$/;"	m
+ACTLR	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t ACTLR;                   \/*!< Offset: 0x008 (R\/W)  Auxiliary Control Register              *\/$/;"	m	struct:__anon3
+ADR	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t ADR;                     \/*!< Offset: 0x04C (R\/ )  Auxiliary Feature Register                            *\/$/;"	m	struct:__anon4
+AFSR	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t AFSR;                    \/*!< Offset: 0x03C (R\/W)  Auxiliary Fault Status Register                       *\/$/;"	m	struct:__anon4
+AIRCR	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t AIRCR;                   \/*!< Offset: 0x00C (R\/W)  Application Interrupt and Reset Control Register      *\/$/;"	m	struct:__anon4
+ARCH_FLAGS	arch/arm/nrf52840/Makefile	/^ARCH_FLAGS:=${CFLAGS} -I$(TOPDIR)\/include -I$(TOPDIR)\/s_alloc -I.\/include\/$/;"	m
 ARCH_FLAGS	s_alloc/Makefile	/^ARCH_FLAGS:=${CFLAGS} -I$(TOPDIR)\/include$/;"	m
-BusFault_Handler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^BusFault_Handler$/;"	l
-CCM_AAR_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^CCM_AAR_IRQHandler$/;"	l
-COMP_LPCOMP_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^COMP_LPCOMP_IRQHandler$/;"	l
+BFAR	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t BFAR;                    \/*!< Offset: 0x038 (R\/W)  BusFault Address Register                             *\/$/;"	m	struct:__anon4
+BusFault_IRQn	arch/arm/nrf52840/include/core_cm4.h	/^  BusFault_IRQn                = -11,              \/**< Cortex-M4 Bus Fault Interrupt *\/$/;"	e	enum:IRQn
+CALIB	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t CALIB;                   \/*!< Offset: 0x00C (R\/ )  SysTick Calibration Register        *\/$/;"	m	struct:__anon5
+CCR	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t CCR;                     \/*!< Offset: 0x014 (R\/W)  Configuration Control Register                        *\/$/;"	m	struct:__anon4
+CFSR	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t CFSR;                    \/*!< Offset: 0x028 (R\/W)  Configurable Fault Status Register                    *\/$/;"	m	struct:__anon4
 CONFIG_SCHEDULER_IDLE_TASK_STACK_SIZE	sched/include/scheduler.h	16;"	d
 CONFIG_SCHEDULER_TASK_COLORATION	sched/include/scheduler.h	15;"	d
-CRYPTOCELL_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^CRYPTOCELL_IRQHandler$/;"	l
+CPACR	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t CPACR;                   \/*!< Offset: 0x088 (R\/W)  Coprocessor Access Control Register                   *\/$/;"	m	struct:__anon4
+CPUID	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t CPUID;                   \/*!< Offset: 0x000 (R\/ )  CPUID Base Register                                   *\/$/;"	m	struct:__anon4
+CTRL	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t CTRL;                    \/*!< Offset: 0x000 (R\/W)  SysTick Control and Status Register *\/$/;"	m	struct:__anon5
+CoreDebug_BASE	arch/arm/nrf52840/include/core_cm4.h	132;"	d
 DEBUG_PORT	Makefile	/^DEBUG_PORT=2771$/;"	m
-DebugMon_Handler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^DebugMon_Handler$/;"	l
-ECB_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^ECB_IRQHandler$/;"	l
-FPU_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^FPU_IRQHandler$/;"	l
-GPIOTE_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^GPIOTE_IRQHandler$/;"	l
+DFR	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t DFR;                     \/*!< Offset: 0x048 (R\/ )  Debug Feature Register                                *\/$/;"	m	struct:__anon4
+DFSR	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t DFSR;                    \/*!< Offset: 0x030 (R\/W)  Debug Fault Status Register                           *\/$/;"	m	struct:__anon4
+DWT_BASE	arch/arm/nrf52840/include/core_cm4.h	130;"	d
+DebugMonitor_IRQn	arch/arm/nrf52840/include/core_cm4.h	/^  DebugMonitor_IRQn            = -4,               \/**< Cortex-M4 Debug Monitor Interrupt *\/$/;"	e	enum:IRQn
 GPIO_BASE	arch/arm/nrf52840/gpio/gpio.c	5;"	d	file:
 GPIO_OUTCLR	arch/arm/nrf52840/gpio/gpio.c	7;"	d	file:
 GPIO_OUTSET	arch/arm/nrf52840/gpio/gpio.c	6;"	d	file:
 GPIO_PIN_CNF	arch/arm/nrf52840/gpio/gpio.c	8;"	d	file:
 HALTED	sched/include/scheduler.h	/^  HALTED$/;"	e	enum:task_state_e
-HEAP_BLOCK_SIZE	arch/arm/nrf52840/startup.c	9;"	d	file:
-HEAP_END	arch/arm/nrf52840/startup.c	8;"	d	file:
-HEAP_START	arch/arm/nrf52840/startup.c	7;"	d	file:
+HEAP_BLOCK_SIZE	arch/arm/nrf52840/startup.c	14;"	d	file:
+HEAP_END	arch/arm/nrf52840/startup.c	13;"	d	file:
+HEAP_START	arch/arm/nrf52840/startup.c	12;"	d	file:
+HFSR	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t HFSR;                    \/*!< Offset: 0x02C (R\/W)  HardFault Status Register                             *\/$/;"	m	struct:__anon4
 HLIST_HEAD	s_alloc/list.h	407;"	d
 HLIST_HEAD_INIT	s_alloc/list.h	406;"	d
-HardFault_Handler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^HardFault_Handler$/;"	l
-I2S_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^I2S_IRQHandler$/;"	l
+HardFault_IRQn	arch/arm/nrf52840/include/core_cm4.h	/^  HardFault_IRQn               = -13,              \/**< Cortex-M4 SV Hard Fault Interrupt *\/$/;"	e	enum:IRQn
+IABR	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t IABR[8];                 \/*!< Offset: 0x200 (R\/W)  Interrupt Active bit Register           *\/$/;"	m	struct:__anon6
+ICER	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t ICER[8];                 \/*!< Offset: 0x080 (R\/W)  Interrupt Clear Enable Register         *\/$/;"	m	struct:__anon6
+ICPR	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t ICPR[8];                 \/*!< Offset: 0x180 (R\/W)  Interrupt Clear Pending Register        *\/$/;"	m	struct:__anon6
+ICSR	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t ICSR;                    \/*!< Offset: 0x004 (R\/W)  Interrupt Control and State Register                  *\/$/;"	m	struct:__anon4
+ICTR	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t ICTR;                    \/*!< Offset: 0x004 (R\/ )  Interrupt Controller Type Register      *\/$/;"	m	struct:__anon3
 INIT_HLIST_HEAD	s_alloc/list.h	408;"	d
 INIT_HLIST_NODE	s_alloc/list.h	409;"	d
 INIT_LIST_HEAD	s_alloc/list.h	85;"	d
+IP	arch/arm/nrf52840/include/core_cm4.h	/^  uint8_t  IP[240];                 \/*!< Offset: 0x300 (R\/W)  Interrupt Priority Register (8Bit wide) *\/$/;"	m	struct:__anon6
+IRQn	arch/arm/nrf52840/include/core_cm4.h	/^typedef enum IRQn {$/;"	g
+IRQn_Type	arch/arm/nrf52840/include/core_cm4.h	/^} IRQn_Type;$/;"	t	typeref:enum:IRQn
+ISAR	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t ISAR[5];                 \/*!< Offset: 0x060 (R\/ )  Instruction Set Attributes Register                   *\/$/;"	m	struct:__anon4
+ISER	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t ISER[8];                 \/*!< Offset: 0x000 (R\/W)  Interrupt Set Enable Register           *\/$/;"	m	struct:__anon6
+ISPR	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t ISPR[8];                 \/*!< Offset: 0x100 (R\/W)  Interrupt Set Pending Register          *\/$/;"	m	struct:__anon6
+ITM_BASE	arch/arm/nrf52840/include/core_cm4.h	129;"	d
 LED	sched/main.c	/^unsigned int LED = 13;$/;"	v
 LIST_HEAD	s_alloc/list.h	82;"	d
 LIST_HEAD_INIT	s_alloc/list.h	80;"	d
 LIST_POISON1	s_alloc/list.h	60;"	d
 LIST_POISON2	s_alloc/list.h	61;"	d
+LOAD	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t LOAD;                    \/*!< Offset: 0x004 (R\/W)  SysTick Reload Value Register       *\/$/;"	m	struct:__anon5
 MCU_CONTEXT_SIZE	sched/include/scheduler.h	17;"	d
-MWU_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^MWU_IRQHandler$/;"	l
-MemoryManagement_Handler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^MemoryManagement_Handler$/;"	l
-NFCT_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^NFCT_IRQHandler$/;"	l
-NMI_Handler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^NMI_Handler$/;"	l
+MMFAR	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t MMFAR;                   \/*!< Offset: 0x034 (R\/W)  MemManage Fault Address Register                      *\/$/;"	m	struct:__anon4
+MMFR	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t MMFR[4];                 \/*!< Offset: 0x050 (R\/ )  Memory Model Feature Register                         *\/$/;"	m	struct:__anon4
+MemoryManagement_IRQn	arch/arm/nrf52840/include/core_cm4.h	/^  MemoryManagement_IRQn        = -12,              \/**< Cortex-M4 Memory Management Interrupt *\/$/;"	e	enum:IRQn
 NULL	s_alloc/list.h	26;"	d
+NVIC	arch/arm/nrf52840/include/core_cm4.h	140;"	d
+NVIC_BASE	arch/arm/nrf52840/include/core_cm4.h	134;"	d
+NVIC_ClearPendingIRQ	arch/arm/nrf52840/include/core_cm4.h	/^static inline void NVIC_ClearPendingIRQ(IRQn_Type IRQn)$/;"	f
+NVIC_DisableIRQ	arch/arm/nrf52840/include/core_cm4.h	/^static inline void NVIC_DisableIRQ(IRQn_Type IRQn)$/;"	f
+NVIC_EnableIRQ	arch/arm/nrf52840/include/core_cm4.h	/^static inline void NVIC_EnableIRQ(IRQn_Type IRQn)$/;"	f
+NVIC_SetPriority	arch/arm/nrf52840/include/core_cm4.h	/^static inline void NVIC_SetPriority(IRQn_Type IRQn, uint32_t priority)$/;"	f
+NVIC_Type	arch/arm/nrf52840/include/core_cm4.h	/^} NVIC_Type;$/;"	t	typeref:struct:__anon6
+NonMaskableInt_IRQn	arch/arm/nrf52840/include/core_cm4.h	/^  NonMaskableInt_IRQn          = -14,              \/**< Non Maskable Interrupt *\/$/;"	e	enum:IRQn
+NotAvail_IRQn	arch/arm/nrf52840/include/core_cm4.h	/^  NotAvail_IRQn                = -128,             \/**< Not available device specific interrupt *\/$/;"	e	enum:IRQn
 OBJS	s_alloc/Makefile	/^OBJS := $(patsubst %.c,%.o,$(SRC))$/;"	m
 OBJS	sched/Makefile	/^OBJS:=$(patsubst %.c,%.o,$(SRC))$/;"	m
 OBJS	utils/Makefile	/^OBJS:=$(patsubst %.c,%.o,$(SRC))$/;"	m
 OBJS_ASM	sched/Makefile	/^OBJS_ASM:=$(patsubst %.s,%.o,$(SRC_ASM))$/;"	m
 OUT	s_alloc/Makefile	/^OUT = allocator$/;"	m
-PDM_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^PDM_IRQHandler$/;"	l
-POWER_CLOCK_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^POWER_CLOCK_IRQHandler$/;"	l
+PFR	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t PFR[2];                  \/*!< Offset: 0x040 (R\/ )  Processor Feature Register                            *\/$/;"	m	struct:__anon4
 PREFIX	Makefile	/^PREFIX := arm-none-eabi-$/;"	m
-PWM0_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^PWM0_IRQHandler$/;"	l
-PWM1_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^PWM1_IRQHandler$/;"	l
-PWM2_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^PWM2_IRQHandler$/;"	l
-PWM3_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^PWM3_IRQHandler$/;"	l
-PendSV_Handler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^PendSV_Handler$/;"	l
-QDEC_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^QDEC_IRQHandler$/;"	l
-QSPI_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^QSPI_IRQHandler$/;"	l
-RADIO_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^RADIO_IRQHandler$/;"	l
-RAM_BASE	arch/arm/nrf52840/startup.c	4;"	d	file:
+PendSV_IRQn	arch/arm/nrf52840/include/core_cm4.h	/^  PendSV_IRQn                  = -2,               \/**< Cortex-M4 Pend SV Interrupt *\/$/;"	e	enum:IRQn
+RAM_BASE	arch/arm/nrf52840/startup.c	9;"	d	file:
 READY	sched/include/scheduler.h	/^  READY,$/;"	e	enum:task_state_e
-RNG_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^RNG_IRQHandler$/;"	l
-RTC0_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^RTC0_IRQHandler$/;"	l
-RTC1_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^RTC1_IRQHandler$/;"	l
-RTC2_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^RTC2_IRQHandler$/;"	l
+RESERVED0	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t RESERVED0[1];$/;"	m	struct:__anon3
+RESERVED0	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t RESERVED0[24];$/;"	m	struct:__anon6
+RESERVED0	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t RESERVED0[5];$/;"	m	struct:__anon4
+RESERVED2	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t RESERVED2[24];$/;"	m	struct:__anon6
+RESERVED3	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t RESERVED3[24];$/;"	m	struct:__anon6
+RESERVED4	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t RESERVED4[56];$/;"	m	struct:__anon6
+RESERVED5	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t RESERVED5[644];$/;"	m	struct:__anon6
+RSERVED1	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t RSERVED1[24];$/;"	m	struct:__anon6
 RUNNING	sched/include/scheduler.h	/^  RUNNING,$/;"	e	enum:task_state_e
-Reset_Handler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^Reset_Handler$/;"	l
-SAADC_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^SAADC_IRQHandler$/;"	l
+SCB	arch/arm/nrf52840/include/core_cm4.h	138;"	d
+SCB_BASE	arch/arm/nrf52840/include/core_cm4.h	135;"	d
+SCB_Type	arch/arm/nrf52840/include/core_cm4.h	/^} SCB_Type;$/;"	t	typeref:struct:__anon4
 SCHEDULER_H_	sched/include/scheduler.h	10;"	d
 SCHED_FLAGS	sched/Makefile	/^SCHED_FLAGS := ${CFLAGS} -I$(TOPDIR)\/include -I$(TOPDIR)\/s_alloc -I$(TOPDIR)\/sched\/include$/;"	m
 SCHED_FLAGS	utils/Makefile	/^SCHED_FLAGS := ${CFLAGS} -I$(TOPDIR)\/include -I$(TOPDIR)\/s_alloc$/;"	m
-SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQHandler$/;"	l
-SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQHandler$/;"	l
-SPIM2_SPIS2_SPI2_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^SPIM2_SPIS2_SPI2_IRQHandler$/;"	l
-SPIM3_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^SPIM3_IRQHandler$/;"	l
+SCR	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t SCR;                     \/*!< Offset: 0x010 (R\/W)  System Control Register                               *\/$/;"	m	struct:__anon4
+SCS_BASE	arch/arm/nrf52840/include/core_cm4.h	128;"	d
+SCnSCB	arch/arm/nrf52840/include/core_cm4.h	137;"	d
+SCnSCB_Type	arch/arm/nrf52840/include/core_cm4.h	/^} SCnSCB_Type;$/;"	t	typeref:struct:__anon3
+SHCSR	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t SHCSR;                   \/*!< Offset: 0x024 (R\/W)  System Handler Control and State Register             *\/$/;"	m	struct:__anon4
+SHP	arch/arm/nrf52840/include/core_cm4.h	/^  uint8_t  SHP[12];                 \/*!< Offset: 0x018 (R\/W)  System Handlers Priority Registers (4-7, 8-11, 12-15) *\/$/;"	m	struct:__anon4
 SRC	arch/arm/nrf52840/Makefile	/^SRC := $(wildcard *.c)$/;"	m
 SRC	s_alloc/Makefile	/^	SRC := $(wildcard *.c)$/;"	m
 SRC	s_alloc/Makefile	/^	SRC := $(wildcard s_heap*.c)$/;"	m
@@ -82,28 +111,31 @@ SRC	sched/Makefile	/^SRC:=$(wildcard *.c)$/;"	m
 SRC	utils/Makefile	/^SRC:=$(wildcard *.c)$/;"	m
 SRC_ASM	sched/Makefile	/^SRC_ASM:=$(wildcard *.s)$/;"	m
 SRC_DIRS	Makefile	/^SRC_DIRS := $(shell find . -iname $(MACHINE_TYPE))$/;"	m
-STACK_TOP	arch/arm/nrf52840/startup.c	5;"	d	file:
-SVC_Handler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^SVC_Handler$/;"	l
-SWI0_EGU0_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^SWI0_EGU0_IRQHandler$/;"	l
-SWI1_EGU1_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^SWI1_EGU1_IRQHandler$/;"	l
-SWI2_EGU2_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^SWI2_EGU2_IRQHandler$/;"	l
-SWI3_EGU3_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^SWI3_EGU3_IRQHandler$/;"	l
-SWI4_EGU4_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^SWI4_EGU4_IRQHandler$/;"	l
-SWI5_EGU5_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^SWI5_EGU5_IRQHandler$/;"	l
+STACK_TOP	arch/arm/nrf52840/startup.c	10;"	d	file:
+STIR	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t STIR;                    \/*!< Offset: 0xE00 ( \/W)  Software Trigger Interrupt Register     *\/$/;"	m	struct:__anon6
+SVCall_IRQn	arch/arm/nrf52840/include/core_cm4.h	/^  SVCall_IRQn                  = -5,               \/**< Cortex-M4 SV Call Interrupt *\/$/;"	e	enum:IRQn
+SYSTEM_CLOCK	arch/arm/nrf52840/startup.c	17;"	d	file:
 SYS_TICK_CSR	include/timer.h	10;"	d
+SysTick	arch/arm/nrf52840/include/core_cm4.h	139;"	d
+SysTick_BASE	arch/arm/nrf52840/include/core_cm4.h	133;"	d
+SysTick_CTRL_CLKSOURCE_Msk	arch/arm/nrf52840/include/core_cm4.h	9;"	d
+SysTick_CTRL_CLKSOURCE_Pos	arch/arm/nrf52840/include/core_cm4.h	8;"	d
+SysTick_CTRL_ENABLE_Msk	arch/arm/nrf52840/include/core_cm4.h	15;"	d
+SysTick_CTRL_ENABLE_Pos	arch/arm/nrf52840/include/core_cm4.h	14;"	d
+SysTick_CTRL_TICKINT_Msk	arch/arm/nrf52840/include/core_cm4.h	12;"	d
+SysTick_CTRL_TICKINT_Pos	arch/arm/nrf52840/include/core_cm4.h	11;"	d
+SysTick_Config	arch/arm/nrf52840/include/core_cm4.h	/^static inline uint32_t SysTick_Config(uint32_t ticks)$/;"	f
 SysTick_Handle_context_switch	sched/context_switch.s	/^SysTick_Handle_context_switch:$/;"	l
-SysTick_Handler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^SysTick_Handler$/;"	l
 SysTick_Handler	sched/context_switch.s	/^ SysTick_Handler:$/;"	l
 SysTick_Handler_copy_from_stack	sched/context_switch.s	/^SysTick_Handler_copy_from_stack:$/;"	l
 SysTick_Handler_copy_to_stack	sched/context_switch.s	/^SysTick_Handler_copy_to_stack:$/;"	l
 SysTick_Handler_ret	sched/context_switch.s	/^SysTick_Handler_ret:$/;"	l
+SysTick_IRQn	arch/arm/nrf52840/include/core_cm4.h	/^  SysTick_IRQn                 = -1,               \/**< Cortex-M4 System Tick Interrupt *\/$/;"	e	enum:IRQn
+SysTick_LOAD_RELOAD_Msk	arch/arm/nrf52840/include/core_cm4.h	20;"	d
+SysTick_LOAD_RELOAD_Pos	arch/arm/nrf52840/include/core_cm4.h	19;"	d
+SysTick_Type	arch/arm/nrf52840/include/core_cm4.h	/^} SysTick_Type;$/;"	t	typeref:struct:__anon5
+SystemCoreClock	arch/arm/nrf52840/startup.c	/^uint32_t SystemCoreClock = SYSTEM_CLOCK;  \/* System Core Clock Frequency *\/$/;"	v
 TARGET	Makefile	/^TARGET=$(MACHINE_TYPE)$/;"	m
-TEMP_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^TEMP_IRQHandler$/;"	l
-TIMER0_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^TIMER0_IRQHandler$/;"	l
-TIMER1_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^TIMER1_IRQHandler$/;"	l
-TIMER2_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^TIMER2_IRQHandler$/;"	l
-TIMER3_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^TIMER3_IRQHandler$/;"	l
-TIMER4_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^TIMER4_IRQHandler$/;"	l
 TIMER_0_BASE_ADDRESS	include/timer.h	6;"	d
 TIMER_BITMODE	include/timer.h	14;"	d
 TIMER_COMPARE_COUNTER	include/timer.h	18;"	d
@@ -116,8 +148,7 @@ TIMER_TASK_START	include/timer.h	20;"	d
 TIMER_TASK_STOP	include/timer.h	21;"	d
 TMP_LIB	Makefile	/^TMP_LIB=tmp_lib.a$/;"	m
 TOPDIR	Makefile	/^TOPDIR=$(shell pwd)$/;"	m
-UARTE0_UART0_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^UARTE0_UART0_IRQHandler$/;"	l
-UARTE1_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^UARTE1_IRQHandler$/;"	l
+TPI_BASE	arch/arm/nrf52840/include/core_cm4.h	131;"	d
 UART_BASE	arch/arm/nrf52840/serial/uart.c	3;"	d	file:
 UART_BAUDRATE	arch/arm/nrf52840/serial/uart.c	27;"	d	file:
 UART_BAUDRATE_OFFSET	arch/arm/nrf52840/serial/uart.c	15;"	d	file:
@@ -152,26 +183,32 @@ UART_TX_PIN	arch/arm/nrf52840/serial/uart.c	41;"	d	file:
 UART_TX_PORT	arch/arm/nrf52840/serial/uart.c	42;"	d	file:
 UART_TX_PORT_CONFIG	arch/arm/nrf52840/serial/uart.c	28;"	d	file:
 UART_TX_START_TASK	arch/arm/nrf52840/serial/uart.c	32;"	d	file:
-USBD_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^USBD_IRQHandler$/;"	l
-UsageFault_Handler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^UsageFault_Handler$/;"	l
-WDT_IRQHandler	arch/arm/nrf52840/iar_startup_nrf52840.s	/^WDT_IRQHandler$/;"	l
+UsageFault_IRQn	arch/arm/nrf52840/include/core_cm4.h	/^  UsageFault_IRQn              = -10,              \/**< Cortex-M4 Usage Fault Interrupt *\/$/;"	e	enum:IRQn
+VAL	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t VAL;                     \/*!< Offset: 0x008 (R\/W)  SysTick Current Value Register      *\/$/;"	m	struct:__anon5
+VTOR	arch/arm/nrf52840/include/core_cm4.h	/^  uint32_t VTOR;                    \/*!< Offset: 0x008 (R\/W)  Vector Table Offset Register                          *\/$/;"	m	struct:__anon4
+XTAL	arch/arm/nrf52840/startup.c	16;"	d	file:
 _LINUX_LIST_H	s_alloc/list.h	19;"	d
 __ASERT_H	include/assert.h	2;"	d
+__CHECK_DEVICE_DEFINES	arch/arm/nrf52840/include/core_cm4.h	6;"	d
+__CM4_REV	arch/arm/nrf52840/include/core_cm4.h	25;"	d
+__CORE_CM4	arch/arm/nrf52840/include/core_cm4.h	2;"	d
+__FPU_PRESENT	arch/arm/nrf52840/include/core_cm4.h	30;"	d
 __GPIO_H	include/gpio.h	2;"	d
+__MPU_PRESENT	arch/arm/nrf52840/include/core_cm4.h	35;"	d
+__NVIC_PRIO_BITS	arch/arm/nrf52840/include/core_cm4.h	40;"	d
 __STDLIB_H	include/stdlib.h	2;"	d
 __STRING_H	include/string.h	2;"	d
 __S_HEAP_H	s_alloc/s_heap.h	20;"	d
 __TIMER_H	include/timer.h	2;"	d
 __UART_H	include/uart.h	2;"	d
-__Vectors	arch/arm/nrf52840/iar_startup_nrf52840.s	/^__Vectors                           EQU   __vector_table$/;"	d
-__Vectors_End	arch/arm/nrf52840/iar_startup_nrf52840.s	/^__Vectors_End$/;"	l
-__Vectors_Size	arch/arm/nrf52840/iar_startup_nrf52840.s	/^__Vectors_Size                      EQU   __Vectors_End - __Vectors$/;"	d
+__Vendor_SysTickConfig	arch/arm/nrf52840/include/core_cm4.h	44;"	d
+__disable_irq	arch/arm/nrf52840/include/core_cm4.h	/^static inline void __disable_irq(void)$/;"	f
+__enable_irq	arch/arm/nrf52840/include/core_cm4.h	/^static inline void __enable_irq(void)$/;"	f
 __hlist_del	s_alloc/list.h	/^static inline void __hlist_del(struct hlist_node *n)$/;"	f
 __list_add	s_alloc/list.h	/^static inline void __list_add(struct list_head *new,$/;"	f
 __list_del	s_alloc/list.h	/^static inline void __list_del(struct list_head * prev, struct list_head * next)$/;"	f
 __list_for_each	s_alloc/list.h	281;"	d
 __list_splice	s_alloc/list.h	/^static inline void __list_splice(struct list_head *list,$/;"	f
-__vector_table	arch/arm/nrf52840/iar_startup_nrf52840.s	/^__vector_table$/;"	l
 addr_comparator	s_alloc/s_heap.c	/^static int addr_comparator(struct list_head *node_1, struct list_head *node_2)$/;"	f	file:
 assert	include/assert.h	4;"	d
 block_size	s_alloc/s_heap.h	/^  size_t block_size;$/;"	m	struct:__anon2
@@ -216,6 +253,7 @@ hlist_for_each_safe	s_alloc/list.h	487;"	d
 hlist_head	s_alloc/list.h	/^struct hlist_head {$/;"	s
 hlist_node	s_alloc/list.h	/^struct hlist_node {$/;"	s
 hlist_unhashed	s_alloc/list.h	/^static inline int hlist_unhashed(const struct hlist_node *h)$/;"	f
+is_enabled	arch/arm/nrf52840/startup.c	/^volatile int is_enabled = 0;$/;"	v
 list_add	s_alloc/list.h	/^static inline void list_add(struct list_head *new, struct list_head *head)$/;"	f
 list_add_tail	s_alloc/list.h	/^static inline void list_add_tail(struct list_head *new, struct list_head *head)$/;"	f
 list_del	s_alloc/list.h	/^static inline void list_del(struct list_head *entry)$/;"	f
@@ -242,7 +280,6 @@ list_sort	s_alloc/s_heap.c	/^static void list_sort(struct list_head *list,$/;"	f
 list_splice	s_alloc/list.h	/^static inline void list_splice(struct list_head *list, struct list_head *head)$/;"	f
 list_splice_init	s_alloc/list.h	/^static inline void list_splice_init(struct list_head *list,$/;"	f
 main	s_alloc/main.c	/^int main(void)$/;"	f
-main	sched/main.c	/^int main()$/;"	f
 malloc	utils/stdlib.c	/^void *malloc(size_t size)$/;"	f
 mask	s_alloc/s_heap.h	/^  mem_mask_t mask;            \/* Chunk information as size *\/$/;"	m	struct:mem_node_info_s
 mcu_context	sched/include/scheduler.h	/^  void *mcu_context[MCU_CONTEXT_SIZE];$/;"	m	struct:tcb_s
@@ -250,12 +287,14 @@ mem_mask_t	s_alloc/s_heap.h	/^} mem_mask_t;$/;"	t	typeref:struct:__anon1
 mem_node_info_s	s_alloc/s_heap.h	/^typedef struct mem_node_info_s$/;"	s
 mem_node_t	s_alloc/s_heap.h	/^} mem_node_t;$/;"	t	typeref:struct:mem_node_info_s
 memset	utils/string.c	/^void *memset(void *s, int c, size_t n)$/;"	f
+miau	arch/arm/nrf52840/startup.c	/^void miau(void)$/;"	f
 next	s_alloc/list.h	/^  struct hlist_node *next, **pprev;$/;"	m	struct:hlist_node	typeref:struct:hlist_node::hlist_node
 next	s_alloc/list.h	/^  struct list_head *next, *prev;$/;"	m	struct:list_head	typeref:struct:list_head::list_head
 next_tcb	sched/include/scheduler.h	/^  struct list_head next_tcb;$/;"	m	struct:tcb_s	typeref:struct:tcb_s::list_head
 node_list	s_alloc/s_heap.h	/^  struct list_head node_list; \/* Next\/Prev chunk node *\/$/;"	m	struct:mem_node_info_s	typeref:struct:mem_node_info_s::list_head
 num_blocks	s_alloc/s_heap.h	/^  size_t num_blocks;$/;"	m	struct:__anon2
 offsetof	s_alloc/list.h	39;"	d
+os_startup	sched/main.c	/^int os_startup(void)$/;"	f
 pprev	s_alloc/list.h	/^  struct hlist_node *next, **pprev;$/;"	m	struct:hlist_node	typeref:struct:hlist_node::
 prev	s_alloc/list.h	/^  struct list_head *next, *prev;$/;"	m	struct:list_head	typeref:struct:list_head::
 printf	utils/stdio.c	/^int printf(const char * format, ... )$/;"	f
