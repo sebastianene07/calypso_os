@@ -2,6 +2,10 @@
 #include <s_heap.h>
 #include <core_cm4.h>
 
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
 #define RAM_BASE  (void *)(0x20000000)
 #define STACK_TOP  (void *)(RAM_BASE + 0x5000)
 
@@ -9,15 +13,14 @@
 #define HEAP_END   (void *)(RAM_BASE + 0x19000)
 #define HEAP_BLOCK_SIZE (16)
 
-#define  XTAL            (50000000UL)     /* Oscillator frequency */
+#define XTAL            (50000000UL)     /* Oscillator frequency */
+#define SYSTEM_CLOCK    (XTAL / 2U)
 
-#define  SYSTEM_CLOCK    (XTAL / 2U)
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
 
-/*----------------------------------------------------------------------------
-  System Core Clock Variable
- *----------------------------------------------------------------------------*/
 uint32_t SystemCoreClock = SYSTEM_CLOCK;  /* System Core Clock Frequency */
-
 
 extern unsigned long _stext;
 extern unsigned long _sbss;
@@ -27,7 +30,13 @@ extern unsigned long _ebss;
 extern unsigned long _edata;
 extern unsigned long _srodata;
 
+/* Heap definition */
+
 heap_t g_my_heap;
+
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
 void c_startup(void);
 
@@ -37,9 +46,11 @@ int main();
 
 void SysTick_Handler(void);
 
+volatile int is_enabled = 0;
+
 void miau(void)
 {
-  while(1) {;;}
+  is_enabled = !is_enabled;
 }
 
 __attribute__((section(".isr_vector")))
@@ -95,9 +106,9 @@ void c_startup(void)
 
   /* Configure Sys Tick */
 
-  SysTick_Config(SystemCoreClock / 1000);
+  SysTick_Config(SystemCoreClock / 10);
 
-  /* Start the main program */
+  /* Jump to os startup */
 
-  main();
+  os_startup();
 }

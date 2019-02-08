@@ -8,14 +8,10 @@
 
 unsigned int LED = 13;
 
-int main()
+extern int is_enabled;
+
+int os_startup(void)
 {
-    uint32_t *NVIC_ISER0 = (uint32_t *)0xE000E100;
-    *NVIC_ISER0 |= (1 << 15);
-
-    uint32_t *NVIC_IABR0 = (uint32_t *)0xE000E300;
-    *NVIC_IABR0 |= (1 << 15);
-
     uart_init();
     gpio_init();
     gpio_configure(LED);
@@ -29,18 +25,20 @@ int main()
 
     while(1)
     {
-      for(int c = 0; c < 5000000; c++);
-
       char *bau = malloc(100);
       memset(bau, code + incr, 10);
       bau[11] = 10;
 
       uart_send(bau, 12);
 
-      gpio_toogle(0, LED);
-      for(int c = 0; c < 5000000; c++);
-
-      gpio_toogle(1, LED);
+      if (is_enabled)
+      {
+        gpio_toogle(0, LED);
+      }
+      else
+      {
+        gpio_toogle(1, LED);
+      }
 
       free(bau);
 
