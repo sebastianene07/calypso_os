@@ -1,7 +1,7 @@
 SRC := $(wildcard *.c)
 SRC += $(wildcard */*.c)
 OBJS += $(patsubst %.c,%.o,$(SRC))
-ARCH_FLAGS:=${CFLAGS} -I$(TOPDIR)/include -I$(TOPDIR)/s_alloc
+ARCH_FLAGS:=${CFLAGS} -I$(TOPDIR)/include -I$(TOPDIR)/s_alloc -I./include/
 
 all: $(OBJS)
 	echo "Building arch specific"
