@@ -9,6 +9,8 @@
 #include <errno.h>
 #include <stdlib.h>
 
+#include <core_cm4.h>
+
 /* Scheduler task_list */
 
 LIST_HEAD(g_tcb_list);
@@ -114,7 +116,7 @@ int sched_create_task(void (*task_entry_point)(void), uint32_t stack_size)
   task_tcb->mcu_context[7] = (uint32_t *)0x1000000;
 
   /* Stack context in interrupt */
-
+  const int unstacked_regs = 8;   /* R4-R11 */
   int i = 0;
   void *ptr_after_int = task_tcb->stack_ptr_top -
     sizeof(void *) * MCU_CONTEXT_SIZE;
@@ -126,7 +128,7 @@ int sched_create_task(void (*task_entry_point)(void), uint32_t stack_size)
     *((uint32_t *)ptr) = (uint32_t)task_tcb->mcu_context[i++];
   }
 
-  task_tcb->sp = ptr_after_int;
+  task_tcb->sp = ptr_after_int - unstacked_regs * sizeof(void *);
 
   /* Insert the task in the list */
 
@@ -204,3 +206,30 @@ int sched_desroy(void)
 {
   return 0;
 }
+
+/**************************************************************************
+ * Name:
+ *  disable_int
+ *
+ * Description:
+ *  Disable all interrupts.
+ *
+ *************************************************************************/
+void disable_int(void)
+{
+  __disable_irq();
+}
+
+/**************************************************************************
+ * Name:
+ *  enable_int
+ *
+ * Description:
+ *  Enable all interrupts.
+ *
+ *************************************************************************/
+void enable_int(void)
+{
+  __enable_irq();
+}
+

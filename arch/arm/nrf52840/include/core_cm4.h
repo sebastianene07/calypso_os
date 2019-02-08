@@ -23,17 +23,14 @@
 #if defined __CHECK_DEVICE_DEFINES
   #ifndef __CM4_REV
     #define __CM4_REV               0x0000
-    #warning "__CM4_REV not defined in device header file; using default!"
   #endif
 
   #ifndef __FPU_PRESENT
     #define __FPU_PRESENT             0
-    #warning "__FPU_PRESENT not defined in device header file; using default!"
   #endif
 
   #ifndef __MPU_PRESENT
     #define __MPU_PRESENT             0
-    #warning "__MPU_PRESENT not defined in device header file; using default!"
   #endif
 
   #ifndef __NVIC_PRIO_BITS
@@ -42,7 +39,6 @@
 
   #ifndef __Vendor_SysTickConfig
     #define __Vendor_SysTickConfig    0
-    #warning "__Vendor_SysTickConfig not defined in device header file; using default!"
   #endif
 #endif
 

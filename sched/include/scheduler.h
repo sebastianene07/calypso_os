@@ -13,7 +13,7 @@
 #include <list.h>
 
 #define CONFIG_SCHEDULER_TASK_COLORATION      (1)
-#define CONFIG_SCHEDULER_IDLE_TASK_STACK_SIZE (128)
+#define CONFIG_SCHEDULER_IDLE_TASK_STACK_SIZE (512)
 #define MCU_CONTEXT_SIZE                      (8)
 
 enum task_state_e {
@@ -43,5 +43,9 @@ struct tcb_s *sched_get_current_task(void);
 struct tcb_s *sched_get_next_task(void);
 
 int sched_desroy(void);
+
+void disable_int(void);
+
+void enable_int(void);
 
 #endif /* SCHEDULER_H_ */
