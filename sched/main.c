@@ -4,7 +4,6 @@
 #include <timer.h>
 
 #include <scheduler.h>
-#include <core_cm4.h>
 
 #include "uart.h"
 #include "gpio.h"
@@ -20,7 +19,6 @@ void led_blink(void)
 
   while(1)
   {
-
     if (!change)
     {
       gpio_toogle(0, LED);
@@ -29,11 +27,12 @@ void led_blink(void)
     {
       gpio_toogle(1, LED);
     }
+
     change = !change;
   }
 }
 
-int os_startup(void)
+void os_startup(void)
 {
     uart_init();
     gpio_init();
@@ -44,10 +43,7 @@ int os_startup(void)
     int incr = 0;
 
     char *bau = malloc(100);
-
-    __disable_irq();
     sched_create_task(led_blink, 1024);
-    __enable_irq();
 
     while(1)
     {
@@ -58,6 +54,4 @@ int os_startup(void)
 
       incr = (incr + 1) % 26;
     }
-
-    return 0;
-}
+ }

@@ -5,11 +5,11 @@
  *  Author: sene
  */
 
+#include <board.h>
+
 #include <scheduler.h>
 #include <errno.h>
 #include <stdlib.h>
-
-#include <core_cm4.h>
 
 /* Scheduler task_list */
 
@@ -17,7 +17,7 @@ LIST_HEAD(g_tcb_list);
 
 /* Current running task */
 
-static volatile struct list_head *g_current_tcb = NULL;
+static struct list_head *g_current_tcb = NULL;
 
 /**************************************************************************
  * Name:
@@ -111,7 +111,7 @@ int sched_create_task(void (*task_entry_point)(void), uint32_t stack_size)
   task_tcb->mcu_context[2] = NULL;
   task_tcb->mcu_context[3] = NULL;
   task_tcb->mcu_context[4] = NULL;
-  task_tcb->mcu_context[5] = 0xffffffff;//sched_default_task_exit_point;
+  task_tcb->mcu_context[5] = (uint32_t *)0xffffffff;//sched_default_task_exit_point;
   task_tcb->mcu_context[6] = task_entry_point;
   task_tcb->mcu_context[7] = (uint32_t *)0x1000000;
 
@@ -132,7 +132,11 @@ int sched_create_task(void (*task_entry_point)(void), uint32_t stack_size)
 
   /* Insert the task in the list */
 
+  __disable_irq();
+
   list_add(&task_tcb->next_tcb, &g_tcb_list);
+
+  __enable_irq();
 
   return 0;
 }

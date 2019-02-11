@@ -1,6 +1,8 @@
+#include <board.h>
+
 #include <stdint.h>
 #include <s_heap.h>
-#include <core_cm4.h>
+#include <scheduler.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -42,7 +44,7 @@ void c_startup(void);
 
 void dummy_fn(void);
 
-int os_startup(void);
+void os_startup(void);
 
 void SysTick_Handler(void);
 
@@ -105,7 +107,7 @@ void c_startup(void)
 
   /* Configure Sys Tick */
 
-  SysTick_Config(SystemCoreClock / 10);
+  SysTick_Config(SystemCoreClock / 100);
 
   /* Schedule tasks */
 
