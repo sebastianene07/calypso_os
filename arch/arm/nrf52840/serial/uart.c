@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <board.h>
 
 #define UART_BASE                           (0x40002000)
 
@@ -78,6 +79,11 @@ int uart_init(void)
 
 int uart_send(char *msg, int msg_len)
 {
+  __disable_irq();
+
+  UART_EVENTS_TXSTOPPED = 0;
+  *g_uart_end_tx = 0;
+
   for (int i = 0; i < msg_len; i++)
   {
     g_uart_tx_buffer[i] = *(msg++);
@@ -91,6 +97,16 @@ int uart_send(char *msg, int msg_len)
   {
     ;;
   }
+
+  // Stop the UART TX
+  UART_STOP_TX_TASK = 1;
+
+  // Wait until we receive the stopped event
+  while (UART_EVENTS_TXSTOPPED == 0);
+
+  UART_TX_START_TASK = 0;
+
+  __enable_irq();
 
   return 0;
 }

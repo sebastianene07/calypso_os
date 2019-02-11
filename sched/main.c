@@ -14,14 +14,16 @@ extern int is_enabled;
 
 volatile int change = 0;
 
-void led_blink(void)
+void task_1(void)
 {
-
   while(1)
   {
     if (!change)
     {
+      char msg[] = "[TASK_1] running\n";
+
       gpio_toogle(0, LED);
+      uart_send(msg, 17);
     }
     else
     {
@@ -32,6 +34,15 @@ void led_blink(void)
   }
 }
 
+void task_2(void)
+{
+  while (1)
+  {
+    char msg[] = "[TASK_2] running\n";
+    uart_send(msg, 17);
+  }
+}
+
 void os_startup(void)
 {
     uart_init();
@@ -39,19 +50,12 @@ void os_startup(void)
     gpio_configure(LED);
     timer_init();
 
-    int code = 65;
-    int incr = 0;
-
-    char *bau = malloc(100);
-    sched_create_task(led_blink, 1024);
+    sched_create_task(task_1, 1024);
+    sched_create_task(task_2, 1024);
 
     while(1)
     {
-      memset(bau, code + incr, 10);
-      bau[11] = 10;
-
-      uart_send(bau, 12);
-
-      incr = (incr + 1) % 26;
+      char msg[] = "[TASK_0] running\n";
+      uart_send(msg, 17);
     }
  }
