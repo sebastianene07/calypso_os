@@ -83,7 +83,7 @@ int uart_send(char *msg, int msg_len)
     g_uart_tx_buffer[i] = *(msg++);
   }
 
-  UART_TXD_PTR_CONFIG     = g_uart_tx_buffer;
+  UART_TXD_PTR_CONFIG     = (uint32_t)g_uart_tx_buffer;
   UART_TXD_MAXCNT_CONFIG  = msg_len;
   UART_TX_START_TASK      = 1;
 

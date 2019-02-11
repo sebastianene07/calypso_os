@@ -4,3 +4,5 @@
 *.elf
 *.a
 *.ld
+tags
+*.out
