@@ -10,3 +10,13 @@ void *memset(void *s, int c, size_t n)
 
   return s;
 }
+
+void *memcpy(void *dest, const void *src, size_t len)
+{
+  for (int i = 0; i < len; i++)
+  {
+    *((uint8_t *)dest + i) = *((uint8_t *)src + i);
+  }
+
+  return dest;
+}
