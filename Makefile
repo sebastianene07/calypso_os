@@ -3,8 +3,9 @@ TOPDIR=$(shell pwd)
 DEBUG_PORT=2771
 
 # Include user config
-
+ifeq ($(MACHINE_TYPE),)
 include .config
+endif
 $(info machine_type=$(MACHINE_TYPE))
 TARGET=$(MACHINE_TYPE)
 
@@ -41,10 +42,13 @@ create_board_file:
 load:
 	nrfprog -f nrf52 --program build/build.hex --sectorerase
 
+config:
+	cp config/$(MACHINE_TYPE)/release/defconfig .config
+
 debug:
 	JLinkGDBServer -device nRF52 -speed 4000 -if SWD -select usb=683388138 -port ${DEBUG_PORT} -RTTTelnetPort 56481
 
-.PHONY: clean
+.PHONY: clean debug config load create_board_file distclean
 
 clean:
 	rm -rf build/ && rm linker* tmp_lib*

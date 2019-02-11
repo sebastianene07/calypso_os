@@ -2,6 +2,15 @@ This OS embedded project is started from scratch and its purpose is for
 learning. I started by targeting the nordic nRF52 board because it has good
 documentation and there are multiple examples out there on the web.
 
+## Building
+
+Example for building CATOS for Norfic NrF52 board:
+
+```
+make config MACHINE_TYPE=nrf52840
+make -j
+```
+
 ## TODO's
 
 1. Task scheduling, synchronization primitives
