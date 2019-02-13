@@ -10,27 +10,12 @@
 
 unsigned int LED = 13;
 
-extern int is_enabled;
-
-volatile int change = 0;
-
 void task_1(void)
 {
   while(1)
   {
-    if (!change)
-    {
-      char msg[] = "[TASK_1] running\n";
-
-      gpio_toogle(0, LED);
-      uart_send(msg, 17);
-    }
-    else
-    {
-      gpio_toogle(1, LED);
-    }
-
-    change = !change;
+    char msg[] = "[TASK_1] running\n";
+    uart_send(msg, 17);
   }
 }
 
@@ -50,8 +35,8 @@ void os_startup(void)
     gpio_configure(LED);
     timer_init();
 
-    sched_create_task(task_1, 1024);
-    sched_create_task(task_2, 1024);
+    sched_create_task(task_1, 256);
+    sched_create_task(task_2, 256);
 
     while(1)
     {
