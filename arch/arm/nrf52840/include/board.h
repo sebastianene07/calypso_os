@@ -3,6 +3,23 @@
 
 #include <stdint.h>
 
+#ifndef NULL
+#define NULL (0)
+#endif
+
+/* E-ink 2.7 inch Waveshare display pin assignment */
+
+#define SPIM_SCK_PIN           (15)
+#define SPIM_SCK_PORT          (1)
+
+#define SPIM_MOSI_PIN          (13)
+#define SPIM_MOSI_PORT         (1)
+
+#define SPIM_CS_PIN            (12)
+#define SPIM_CS_PORT           (1)
+
+#define ARRAY_LEN(X)           (sizeof(X)/sizeof(X[0]))
+
 #define __CHECK_DEVICE_DEFINES             (1)
 
 #define SysTick_CTRL_CLKSOURCE_Pos          2U                                            /*!< SysTick CTRL: CLKSOURCE Position */
