@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <timer.h>
+#include <unistd.h>
 
 #include <scheduler.h>
 
@@ -32,7 +33,7 @@ void os_startup(void)
 {
     uart_init();
     gpio_init();
-    gpio_configure(LED);
+    gpio_configure(LED, GPIO_OUT);
     timer_init();
 
     sched_create_task(task_1, 256);
@@ -41,6 +42,15 @@ void os_startup(void)
     while(1)
     {
       char msg[] = "[TASK_0] running\n";
+
+      gpio_toogle(0, LED);
+
+      usleep(500000); /* 500 MS */
+
+      gpio_toogle(1, LED);
+
+      usleep(500000); /* 500 MS */
+
       uart_send(msg, 17);
     }
  }

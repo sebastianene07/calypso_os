@@ -36,6 +36,8 @@ extern unsigned long _srodata;
 
 heap_t g_my_heap;
 
+typedef uint32_t useconds_t;
+
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
@@ -78,6 +80,11 @@ void dummy_fn(void)
         {
 
         }
+}
+
+void usleep(const useconds_t sec)
+{
+  for (int i = 0; i < (uint32_t)sec; i++);
 }
 
 void c_startup(void)
