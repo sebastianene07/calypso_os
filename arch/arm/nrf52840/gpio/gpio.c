@@ -10,6 +10,8 @@
 #define GPIO_DIR    (*((uint32_t*) (GPIO_BASE + 0x514)))
 #define GPIO_PIN_CNF(pin) (*((uint32_t*) (GPIO_BASE + 0x700 + pin * 4)))
 
+#define GPIO_PULLUP_VALUE   (3)
+#define GPIO_PULLUP_OFFSET  (2)
 
 void gpio_init(void)
 {
@@ -18,8 +20,14 @@ void gpio_init(void)
 
 void gpio_configure(int pin, gpio_direction_t cfg)
 {
-  GPIO_PIN_CNF(pin) = cfg;
-  GPIO_DIR |= (cfg << pin);
+  if (cfg == GPIO_DIRECTION_IN)
+  {
+    GPIO_PIN_CNF(pin) = GPIO_DIRECTION_IN | (GPIO_PULLUP_VALUE << GPIO_PULLUP_OFFSET);
+  }
+  else
+  {
+    GPIO_PIN_CNF(pin) = GPIO_DIRECTION_OUT;
+  }
 }
 
 int gpio_read(int pin)

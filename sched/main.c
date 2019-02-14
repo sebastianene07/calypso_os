@@ -10,6 +10,7 @@
 #include "gpio.h"
 
 unsigned int LED = 13;
+unsigned int BUTTON_1 = 11;
 
 void task_1(void)
 {
@@ -33,7 +34,10 @@ void os_startup(void)
 {
     uart_init();
     gpio_init();
-    gpio_configure(LED, GPIO_OUT);
+
+    gpio_configure(LED, GPIO_DIRECTION_OUT);
+    gpio_configure(BUTTON_1, GPIO_DIRECTION_IN);
+
     timer_init();
 
     sched_create_task(task_1, 256);
@@ -43,11 +47,15 @@ void os_startup(void)
     {
       char msg[] = "[TASK_0] running\n";
 
-      gpio_toogle(0, LED);
+      gpio_toogle(1, LED);
 
       usleep(500000); /* 500 MS */
 
-      gpio_toogle(1, LED);
+      while (gpio_read(BUTTON_1) == 1)
+      {
+      }
+
+      gpio_toogle(0, LED);
 
       usleep(500000); /* 500 MS */
 
