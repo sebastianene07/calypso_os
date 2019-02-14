@@ -42,9 +42,9 @@
 
 #define SPI_REG_SET(BASE, OFFSET) (*(uint32_t *)((BASE) + (OFFSET)))
 
-static uint32_t* g_spi_peripherals[] =
+static uint8_t* g_spi_peripherals[] =
 {
-  (uint32_t *)SPI_M0_BASE,
+  (uint8_t *)SPI_M0_BASE,
 };
 
 void spi_initialize(void)
@@ -129,4 +129,23 @@ int spi_configure(spi_master_config_t *cfg, uint8_t peripheral_id)
   }
 
   SPI_REG_SET(SPI_M0_BASE, FREQUENCY) = freq_cfg;
+  SPI_REG_SET(SPI_M0_BASE, ENABLE)     = 7;
+}
+
+#define SPI_TX_BUF_SIZXE (2)
+static uint8_t g_rx_spi_buffer[SPI_TX_BUF_SIZXE];
+
+void spi_send(void *data, uint32_t len)
+{
+  SPI_REG_SET(SPI_M0_BASE, EVENTS_ENDTX) = 0;
+  SPI_REG_SET(SPI_M0_BASE, RXD_PTR)    = &g_rx_spi_buffer[0];
+  SPI_REG_SET(SPI_M0_BASE, RXD_MAXCNT) = 0;
+  SPI_REG_SET(SPI_M0_BASE, TXD_PTR)    = data;
+  SPI_REG_SET(SPI_M0_BASE, TXD_MAXCNT) = len;
+  SPI_REG_SET(SPI_M0_BASE, ORC)        = 0;
+  SPI_REG_SET(SPI_M0_BASE, TASKS_START) = 1;
+
+  while (SPI_REG_SET(SPI_M0_BASE, EVENTS_ENDTX) == 0);
+
+  SPI_REG_SET(SPI_M0_BASE, TASKS_START) = 0;
 }
