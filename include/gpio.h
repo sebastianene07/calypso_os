@@ -2,8 +2,8 @@
 #define __GPIO_H
 
 typedef enum gpio_direction_e {
-  GPIO_IN,
-  GPIO_OUT
+  GPIO_DIRECTION_IN,
+  GPIO_DIRECTION_OUT
 } gpio_direction_t;
 
 void gpio_init(void);
