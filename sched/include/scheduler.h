@@ -19,6 +19,7 @@
 enum task_state_e {
   READY,
   RUNNING,
+  WAITING_FOR_SEM,
   HALTED
 };
 

@@ -11,9 +11,13 @@
 #include <errno.h>
 #include <stdlib.h>
 
-/* Scheduler task_list */
+/* Running task list */
 
 LIST_HEAD(g_tcb_list);
+
+/* Waiting for sem task list */
+
+LIST_HEAD(g_tcb_waiting_list);
 
 /* Current running task */
 
