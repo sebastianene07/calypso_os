@@ -8,10 +8,10 @@ typedef enum gpio_direction_e {
 
 void gpio_init(void);
 
-void gpio_configure(int pin, gpio_direction_t cfg);
+void gpio_configure(int pin, int port, gpio_direction_t cfg);
 
-void gpio_toogle(int enable, int pin);
+void gpio_toogle(int enable, int pin, int port);
 
-int gpio_read(int pin);
+int gpio_read(int pin, int port);
 
 #endif /* __GPIO_H */

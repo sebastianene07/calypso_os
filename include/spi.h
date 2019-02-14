@@ -54,4 +54,6 @@ void spi_initialize(void);
 
 int spi_configure(spi_master_config_t *cfg, uint8_t peripheral_id);
 
+void spi_send(void *data, uint32_t len);
+
 #endif /* __SPI_H */
