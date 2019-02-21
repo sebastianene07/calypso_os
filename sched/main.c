@@ -3,9 +3,9 @@
 #include <string.h>
 #include <timer.h>
 #include <unistd.h>
+#include <semaphore.h>
 
 #include <scheduler.h>
-
 
 #include <uart.h>
 #include <gpio.h>
@@ -39,12 +39,15 @@ void os_startup(void)
 
     gpio_configure(LED, 0, GPIO_DIRECTION_OUT);
     gpio_configure(BUTTON_1, 0, GPIO_DIRECTION_IN);
-    display_init();
+//    display_init();
 
     timer_init();
 
     sched_create_task(task_1, 256);
     sched_create_task(task_2, 256);
+
+    sem_t sema;
+    sem_init(&sema, 0, 0);
 
     while(1)
     {
@@ -62,6 +65,8 @@ void os_startup(void)
 
       usleep(500000); /* 500 MS */
 
+      sem_wait(&sema);
       uart_send(msg, 17);
+      sem_post(&sema);
     }
  }

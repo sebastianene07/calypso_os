@@ -39,12 +39,31 @@ int sem_wait(sem_t *sem)
 
     /* Switch context to the next running task */
 
-
+    sched_context_switch();
   }
-
-  enable_int();
 }
 
 int sem_trywait(sem_t *sem)
 {
+  return -1;
+}
+
+int sem_post(sem_t *sem)
+{
+  /* Disable context switch */
+
+  disable_int();
+
+  sem->count += 1;
+
+  if (sem->count == 1)
+  {
+    /* Unblock task from waiting list that is blocked by this semaphore and
+     * place it in the running list
+     */
+
+
+  }
+
+  enable_int();
 }

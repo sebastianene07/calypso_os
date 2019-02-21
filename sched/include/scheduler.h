@@ -49,4 +49,6 @@ void disable_int(void);
 
 void enable_int(void);
 
+void sched_context_switch(void);
+
 #endif /* SCHEDULER_H_ */
