@@ -49,6 +49,7 @@ void dummy_fn(void);
 void os_startup(void);
 
 void SysTick_Handler(void);
+void SVC_Handler(void);
 
 volatile int is_enabled = 0;
 
@@ -65,7 +66,7 @@ void (*vectors[])(void) = {
         dummy_fn,
         dummy_fn,
         dummy_fn,
-        dummy_fn,
+        SVC_Handler,
         dummy_fn,
         dummy_fn,
         dummy_fn,
@@ -84,7 +85,7 @@ void dummy_fn(void)
 
 void usleep(const useconds_t sec)
 {
-  for (int i = 0; i < (uint32_t)sec; i++);
+  for (uint32_t i = 0; i < (uint32_t)sec; i++);
 }
 
 void c_startup(void)

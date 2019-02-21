@@ -13,11 +13,7 @@ int sem_wait(sem_t *sem);
 
 int sem_trywait(sem_t *sem);
 
-#if 0 /* NOT IMPLEMENTED */
-
 int sem_timedwait(sem_t *sem, const struct timespec *abs_timeout);
-
-#endif
 
 int sem_post(sem_t *sem);
 

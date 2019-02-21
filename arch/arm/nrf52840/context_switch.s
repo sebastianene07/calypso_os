@@ -9,6 +9,8 @@
 .syntax unified
 
 .global SysTick_Handler
+.global SVC_Handler
+.global sched_context_switch
 .extern sched_get_next_task
 .extern sched_run
 .section .text
@@ -46,7 +48,7 @@
 .align 4
 .thumb_func
 
- SysTick_Handler:
+SysTick_Handler:
 
 	stmdb sp!, {lr}					    // Store the link register on the stack
 	bl sched_get_current_task		// Get current TCB address in R0
@@ -95,3 +97,47 @@ SysTick_Handle_context_switch:
 
 SysTick_Handler_ret:
 	bx lr							          // Return from handler
+
+SVC_Handler:
+  push {R4-R11}
+
+	stmdb sp!, {lr}					    // Store the link register on the stack
+	bl sched_get_next_task			// Get the next TCB address in R0
+	ldmia sp!, {lr}					    // Restore the link register from the stack
+
+  cmp r0, #0
+  beq SVC_Handler_ret
+
+  bl SysTick_Handle_context_switch
+
+SVC_Handler_ret:
+  bx lr
+
+
+sched_context_switch:
+/* Stacking the CPU registers */
+  cpsie i
+  svc    #1
+
+	mov r1, #1
+	str r1, [r0, #4]				// Switch task state to running
+	mov r5, r0						  // Save task TCB ptr in r5
+	add r5, #16						  // Get the address of the sp from TCB struct in r5
+
+/* The SP of the new task should have already some stacking values */
+
+	ldr r0, [r5]							  // Set SP to point to the task SP
+	mov sp, r0								  //
+  pop {R4-R11}                // Pop R4-R11
+  pop {r0}
+  pop {r1}
+  pop {r2}
+  pop {r3}
+  pop {r12}
+  pop {lr}
+  pop {pc}
+  pop {ip}
+
+
+sched_context_switch_ret:
+  bx lr
