@@ -1,8 +1,6 @@
 #ifndef __SEMAPHORE_H
 #define __SEMAPHORE_H
 
-#include <scheduler.h>
-
 typedef struct sem_s {
   int count;
 } sem_t;

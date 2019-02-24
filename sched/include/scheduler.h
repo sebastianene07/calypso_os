@@ -11,6 +11,7 @@
 
 #include <stdint.h>
 #include <list.h>
+#include <semaphore.h>
 
 #define CONFIG_SCHEDULER_TASK_COLORATION      (1)
 #define CONFIG_SCHEDULER_IDLE_TASK_STACK_SIZE (512)
@@ -31,6 +32,7 @@ struct tcb_s {
   void *sp;
   void *mcu_context[MCU_CONTEXT_SIZE];
   struct list_head next_tcb;
+  sem_t *waiting_tcb_sema;
 } __attribute__((aligned(4)));
 
 int sched_init(void);
