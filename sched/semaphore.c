@@ -2,6 +2,7 @@
 #include <scheduler.h>
 
 extern struct list_head g_tcb_waiting_list;
+extern struct list_head *g_current_tcb;
 
 int sem_init(sem_t *sem, int pshared, unsigned int value)
 {
@@ -33,6 +34,8 @@ int sem_wait(sem_t *sem)
 
     struct tcb_s *tcb = sched_get_current_task();
     tcb->t_state = WAITING_FOR_SEM;
+
+    g_current_tcb = &sched_get_next_task()->next_tcb;
 
     list_del(&tcb->next_tcb);
     list_add(&tcb->next_tcb, &g_tcb_waiting_list);

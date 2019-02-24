@@ -102,13 +102,13 @@ SVC_Handler:
   push {R4-R11}
 
 	stmdb sp!, {lr}					    // Store the link register on the stack
-	bl sched_get_next_task			// Get the next TCB address in R0
+	bl sched_get_current_task			// Get the next TCB address in R0
 	ldmia sp!, {lr}					    // Restore the link register from the stack
 
   cmp r0, #0
   beq SVC_Handler_ret
 
-  bl SysTick_Handle_context_switch
+  b SysTick_Handle_context_switch
 
 SVC_Handler_ret:
   bx lr
