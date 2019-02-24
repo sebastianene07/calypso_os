@@ -21,7 +21,7 @@ LIST_HEAD(g_tcb_waiting_list);
 
 /* Current running task */
 
-static struct list_head *g_current_tcb = NULL;
+struct list_head *g_current_tcb = NULL;
 
 /**************************************************************************
  * Name:
