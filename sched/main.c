@@ -14,10 +14,13 @@
 unsigned int LED = 13;
 unsigned int BUTTON_1 = 11;
 
+sem_t sema;
+
 void task_1(void)
 {
   while(1)
   {
+    sem_wait(&sema);
     char msg[] = "[TASK_1] running\n";
     uart_send(msg, 17);
   }
@@ -39,34 +42,28 @@ void os_startup(void)
 
     gpio_configure(LED, 0, GPIO_DIRECTION_OUT);
     gpio_configure(BUTTON_1, 0, GPIO_DIRECTION_IN);
-//    display_init();
 
     timer_init();
-
-    sched_create_task(task_1, 256);
-    sched_create_task(task_2, 256);
-
-    sem_t sema;
     sem_init(&sema, 0, 0);
+
+    sched_create_task(task_1, 1024);
+    sched_create_task(task_2, 1024);
 
     while(1)
     {
-      char msg[] = "[TASK_0] running\n";
+      char msg[] = "[TASK_0] press button to unblock task 1\n";
 
       gpio_toogle(1, LED, 0);
 
       usleep(500000); /* 500 MS */
+      uart_send(msg, 17);
 
       while (gpio_read(BUTTON_1, 0) == 1)
       {
       }
-
+      sem_post(&sema);
       gpio_toogle(0, LED, 0);
 
       usleep(500000); /* 500 MS */
-
-      sem_wait(&sema);
-      uart_send(msg, 17);
-      sem_post(&sema);
     }
  }

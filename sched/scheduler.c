@@ -215,6 +215,18 @@ int sched_desroy(void)
   return 0;
 }
 
+struct tcb_s *sched_preempt_task(void)
+{
+  struct tcb_s *tcb = sched_get_current_task();
+
+  g_current_tcb = &sched_get_next_task()->next_tcb;
+
+  list_del(&tcb->next_tcb);
+  list_add(&tcb->next_tcb, &g_tcb_waiting_list);
+
+  return tcb;
+}
+
 /**************************************************************************
  * Name:
  *  disable_int
