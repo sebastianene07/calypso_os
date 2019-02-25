@@ -37,10 +37,6 @@ int sem_wait(sem_t *sem)
     struct tcb_s *tcb     = sched_get_current_task();
     tcb->t_state          = WAITING_FOR_SEM;
     tcb->waiting_tcb_sema = sem;
-    g_current_tcb = &sched_get_next_task()->next_tcb;
-
-    list_del(&tcb->next_tcb);
-    list_add(&tcb->next_tcb, &g_tcb_waiting_list);
 
     /* Switch context to the next running task */
 
@@ -74,8 +70,11 @@ int sem_post(sem_t *sem)
 
           list_for_each_entry(current, &g_tcb_waiting_list, next_tcb)
           {
-            if (current->waiting_tcb_sema == sem)
+            if (current != NULL && current->waiting_tcb_sema == sem)
             {
+              current->waiting_tcb_sema = NULL;
+              current->t_state          = READY;
+
               list_del(&current->next_tcb);
               list_add(&current->next_tcb, &g_tcb_list);
               is_waiting_for_sem = true;

@@ -12,7 +12,13 @@
 .global SVC_Handler
 .global sched_context_switch
 .extern sched_get_next_task
+.extern sched_preempt_task
 .extern sched_run
+
+.data
+
+tmp_data: .word 0
+
 .section .text
 
 /* We are not using floating point stacking so here is the order of the registers saved:
@@ -99,25 +105,29 @@ SysTick_Handler_ret:
 	bx lr							          // Return from handler
 
 SVC_Handler:
+  cpsid i
   push {R4-R11}
 
-	stmdb sp!, {lr}					    // Store the link register on the stack
-	bl sched_get_current_task			// Get the next TCB address in R0
-	ldmia sp!, {lr}					    // Restore the link register from the stack
+  /* Save the SP in the TCB structure */
+
+  stmdb sp!, {lr}
+  bl sched_preempt_task
+  ldmia sp!, {lr}
 
   cmp r0, #0
   beq SVC_Handler_ret
 
-  b SysTick_Handle_context_switch
+/* Save the SP in the TCB */
 
-SVC_Handler_ret:
-  bx lr
+  mov r1, sp
+  str r1, [r0, #16]
 
+	stmdb sp!, {lr}					    // Store the link register on the stack
+	bl sched_get_current_task		// Get the next TCB address in R0
+	ldmia sp!, {lr}					    // Restore the link register from the stack
 
-sched_context_switch:
-/* Stacking the CPU registers */
-  cpsie i
-  svc    #1
+  cmp r0, #0
+  beq SVC_Handler_ret
 
 	mov r1, #1
 	str r1, [r0, #4]				// Switch task state to running
@@ -129,15 +139,18 @@ sched_context_switch:
 	ldr r0, [r5]							  // Set SP to point to the task SP
 	mov sp, r0								  //
   pop {R4-R11}                // Pop R4-R11
-  pop {r0}
-  pop {r1}
-  pop {r2}
-  pop {r3}
-  pop {r12}
-  pop {lr}
-  pop {pc}
-  pop {ip}
 
+SVC_Handler_ret:
+  cpsie i
+  bx lr
+
+sched_context_switch:
+/* Stacking the CPU registers */
+  isb
+  cpsie i
+  svc #1
 
 sched_context_switch_ret:
   bx lr
+
+addr_tmp: .word tmp_data
