@@ -9,11 +9,10 @@
 .syntax unified
 
 .global SysTick_Handler
-.global SVC_Handler
 .global sched_context_switch
+
 .extern sched_get_next_task
 .extern sched_preempt_task
-.extern sched_run
 
 .data
 
@@ -55,7 +54,6 @@ tmp_data: .word 0
 .thumb_func
 
 SysTick_Handler:
-
 	stmdb sp!, {lr}					    // Store the link register on the stack
 	bl sched_get_current_task		// Get current TCB address in R0
 	ldmia sp!, {lr}					    // Restore the link register from the stack
@@ -63,6 +61,9 @@ SysTick_Handler:
 	cmp r0, #0						      // Verify NULL pointer TCB
 	beq SysTick_Handler_ret			// Handle NULL pointer to return from handler
 	ldr r1, [r0, #4]				    // Load the state of the task
+  cmp r1, 2
+  beq SysTick_Handler_ret
+
 	cmp r1, 1						        // If task is not running then we must plan it
 	bne SysTick_Handle_context_switch
 
@@ -104,8 +105,24 @@ SysTick_Handle_context_switch:
 SysTick_Handler_ret:
 	bx lr							          // Return from handler
 
-SVC_Handler:
-  cpsid i
+sched_context_switch:
+  /* Stack all the registers */
+  push {r0}
+  mov r0, #0x1000000
+  push {r0}
+  mov r0, pc
+  add r0, #0x62
+  push {r0}
+  push {lr}
+  push {r12}
+  push {r3}
+  push {r2}
+  push {r1}
+  ldr r0, [sp, #28]
+  push {r0}
+
+  /* Stack extra registers */
+
   push {R4-R11}
 
   /* Save the SP in the TCB structure */
@@ -115,9 +132,9 @@ SVC_Handler:
   ldmia sp!, {lr}
 
   cmp r0, #0
-  beq SVC_Handler_ret
+  beq sched_context_switch_ret
 
-/* Save the SP in the TCB */
+  /* Save the SP in the TCB */
 
   mov r1, sp
   str r1, [r0, #16]
@@ -127,30 +144,28 @@ SVC_Handler:
 	ldmia sp!, {lr}					    // Restore the link register from the stack
 
   cmp r0, #0
-  beq SVC_Handler_ret
+  beq sched_context_switch_ret
 
 	mov r1, #1
 	str r1, [r0, #4]				// Switch task state to running
 	mov r5, r0						  // Save task TCB ptr in r5
 	add r5, #16						  // Get the address of the sp from TCB struct in r5
 
-/* The SP of the new task should have already some stacking values */
+  /* The SP of the new task should have already some stacking values */
 
 	ldr r0, [r5]							  // Set SP to point to the task SP
 	mov sp, r0								  //
   pop {R4-R11}                // Pop R4-R11
 
-SVC_Handler_ret:
-  cpsie i
-  bx lr
-
-sched_context_switch:
-/* Stacking the CPU registers */
-  isb
-  cpsie i
-  svc #1
+  pop {r0}
+  pop {r1}
+  pop {r2}
+  pop {r3}
+  pop {r12}
+  pop {lr}
+  pop {pc}                    // Place the PC in R0
 
 sched_context_switch_ret:
   bx lr
 
-addr_tmp: .word tmp_data
+g_addr_tmp: .word tmp_data

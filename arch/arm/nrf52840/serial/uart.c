@@ -79,8 +79,6 @@ int uart_init(void)
 
 int uart_send(char *msg, int msg_len)
 {
-  __disable_irq();
-
   UART_EVENTS_TXSTOPPED = 0;
   *g_uart_end_tx = 0;
 
@@ -105,8 +103,6 @@ int uart_send(char *msg, int msg_len)
   while (UART_EVENTS_TXSTOPPED == 0);
 
   UART_TX_START_TASK = 0;
-
-  __enable_irq();
 
   return 0;
 }

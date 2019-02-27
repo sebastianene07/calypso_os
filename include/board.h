@@ -36,6 +36,9 @@
 #define SysTick_LOAD_RELOAD_Pos             0U                                            /*!< SysTick LOAD: RELOAD Position */
 #define SysTick_LOAD_RELOAD_Msk            (0xFFFFFFUL /*<< SysTick_LOAD_RELOAD_Pos*/)    /*!< SysTick LOAD: RELOAD Mask */
 
+#define SCB_ICSR_PENDSVSET_Pos             28U                                            /*!< SCB ICSR: PENDSVSET Position */
+#define SCB_ICSR_PENDSVSET_Msk             (1UL << SCB_ICSR_PENDSVSET_Pos)                /*!< SCB ICSR: PENDSVSET Mask */
+
 /* check device defines and use defaults */
 #if defined __CHECK_DEVICE_DEFINES
   #ifndef __CM4_REV
@@ -218,6 +221,7 @@ static inline uint32_t SysTick_Config(uint32_t ticks)
   }
 
   SysTick->LOAD  = (uint32_t)(ticks - 1UL);                         /* set reload register */
+  NVIC_SetPriority (PendSV_IRQn, 0x1);
   NVIC_SetPriority (SysTick_IRQn, (1UL << __NVIC_PRIO_BITS) - 1UL); /* set Priority for Systick Interrupt */
   SysTick->VAL   = 0UL;                                             /* Load the SysTick Counter Value */
   SysTick->CTRL  = SysTick_CTRL_CLKSOURCE_Msk |
@@ -256,6 +260,11 @@ static inline void __disable_irq(void)
 static inline void NVIC_ClearPendingIRQ(IRQn_Type IRQn)
 {
   NVIC->ICPR[(((uint32_t)(int32_t)IRQn) >> 5UL)] = (uint32_t)(1UL << (((uint32_t)(int32_t)IRQn) & 0x1FUL));
+}
+
+static inline void NVIC_TriggerSysTick(void)
+{
+  SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
 }
 
 #endif /* __CORE_CM4 */

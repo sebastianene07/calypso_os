@@ -2,7 +2,7 @@
 #define __SEMAPHORE_H
 
 typedef struct sem_s {
-  int count;
+  volatile int count;
 } sem_t;
 
 int sem_init(sem_t *sem, int pshared, unsigned int value);
