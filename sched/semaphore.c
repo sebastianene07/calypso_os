@@ -1,3 +1,4 @@
+#include <board.h>
 #include <semaphore.h>
 #include <scheduler.h>
 #include <stdbool.h>
@@ -5,6 +6,10 @@
 extern struct list_head g_tcb_list;
 extern struct list_head g_tcb_waiting_list;
 extern struct list_head *g_current_tcb;
+
+static volatile uint32_t g_lost_cycles = 0;
+
+void sched_context_switch(void);
 
 int sem_init(sem_t *sem, int pshared, unsigned int value)
 {
@@ -41,6 +46,7 @@ int sem_wait(sem_t *sem)
     /* Switch context to the next running task */
 
     sched_context_switch();
+    enable_int();
   }
 }
 
@@ -83,6 +89,5 @@ int sem_post(sem_t *sem)
           }
       } while (is_waiting_for_sem);
   }
-
   enable_int();
 }
