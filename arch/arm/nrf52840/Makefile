@@ -2,6 +2,7 @@ SRC := $(wildcard *.c)
 SRC += $(wildcard */*.c)
 OBJS += $(patsubst %.c,%.o,$(SRC))
 ARCH_FLAGS:=${CFLAGS} -I$(TOPDIR)/include -I$(TOPDIR)/s_alloc -I./include/ -I$(TOPDIR)/sched/include
+ASM_FLAGS :=-mcpu=cortex-m4 -mthumb -mfloat-abi=soft
 
 SRC_ASM:=$(wildcard *.s)
 OBJS_ASM:=$(patsubst %.s,%.o,$(SRC_ASM))
@@ -14,7 +15,7 @@ all: $(OBJS) $(OBJS_ASM)
 	${PREFIX}gcc $(ARCH_FLAGS) -c $< -o $@
 
 %.o : %.s
-	${PREFIX}as $(SCHED_FLAGS) -c $< -o $@
+	${PREFIX}as $(ASM_FLAGS) -c $< -o $@
 
 clean:
 	find . -iname "*.o" -exec rm -f {} \;
