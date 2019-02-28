@@ -47,7 +47,7 @@
 
 
 .align 4
-#.thumb_func
+.thumb_func
 
 SysTick_Handler:
 	stmdb sp!, {lr}					    // Store the link register on the stack
@@ -58,7 +58,7 @@ SysTick_Handler:
 	beq SysTick_Handler_ret			// Handle NULL pointer to return from handler
 	ldr r1, [r0, #4]				    // Load the state of the task
   cmp r1, 2
-  beq SysTick_Handler_ret
+  beq sched_do_switch
 
 	cmp r1, 1						        // If task is not running then we must plan it
 	bne SysTick_Handle_context_switch
@@ -107,7 +107,7 @@ sched_context_switch:
   mrs r0, xpsr
   push {r0}
   mov r0, pc
-  add r0, #0x72
+  add r0, #0x17
   push {r0}
   push {lr}
   push {r12}
@@ -116,9 +116,18 @@ sched_context_switch:
   push {r1}
   ldr r0, [sp, #28]
   push {r0}
+  cpsie i
+
+repeat:
+  b repeat
+
+  bx lr
+
+sched_do_switch:
+  ldr r0, [sp, #60]
+  str r0, [sp, #24]
 
   /* Stack extra registers */
-
   push {R4-R11}
 
   /* Save the SP in the TCB structure */
@@ -153,22 +162,24 @@ sched_context_switch:
 	mov sp, r0								  //
   pop {R4-R11}                // Pop R4-R11
 
-  pop {r0}
-  pop {r1}
-  pop {r2}
-  pop {r3}
-  pop {r12}
-  pop {lr}
-
-  /* Save the value of the R0 at SP + 0xC */
-
-  str r0, [sp, #0x8]
-  ldr r0, [sp, #0x4]  /* OLD XPSR */
-  msr xpsr, r0        /* Restore XPSR */
-  add sp, #0x4        /* SP points at XPSR on the stack */
-  ldr r0, [sp, #0x4]  /* Restore R0 */
-  cpsie i
-  ldr pc, [sp, #-0x4]
-
 sched_context_switch_ret:
   bx lr
+
+//  pop {r0}
+//  pop {r1}
+//  pop {r2}
+//  pop {r3}
+//  pop {r12}
+//  pop {lr}
+//
+//  /* Save the value of the R0 at SP + 0xC */
+//
+//  str r0, [sp, #0x8]
+//  ldr r0, [sp, #0x4]  /* OLD XPSR */
+//  msr xpsr, r0        /* Restore XPSR */
+//  add sp, #0x4        /* SP points at XPSR on the stack */
+//  ldr r0, [sp, #0x4]  /* Restore R0 */
+//  cpsie i
+//  ldr pc, [sp, #-0x4]
+//
+
