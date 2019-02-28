@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <board.h>
+#include <semaphore.h>
 
 #define UART_BASE                           (0x40002000)
 
@@ -52,6 +53,7 @@ static volatile uint32_t *g_uart_end_tx = UART_ENDTX;
 
 static char g_uart_tx_buffer[UART_TX_BUFFER];
 static char g_uart_rx_buffer[UART_RX_BUFFER];
+static sem_t g_uart_sema;
 
 /* Public functions */
 
@@ -73,12 +75,15 @@ int uart_init(void)
   /* Enable UART0 */
 
   UART_ENABLE = 0x08;
+  sem_init(&g_uart_sema, 0, 1);
 
   return 0;
 }
 
 int uart_send(char *msg, int msg_len)
 {
+  sem_wait(&g_uart_sema);
+
   UART_EVENTS_TXSTOPPED = 0;
   *g_uart_end_tx = 0;
 
@@ -103,6 +108,7 @@ int uart_send(char *msg, int msg_len)
   while (UART_EVENTS_TXSTOPPED == 0);
 
   UART_TX_START_TASK = 0;
+  sem_post(&g_uart_sema);
 
   return 0;
 }
