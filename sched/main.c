@@ -23,7 +23,7 @@ void task_1(void)
   {
     usleep(500000); /* 500 ms */
     sem_wait(&sema);
-    gpio_toogle(0, LED, 0);
+    gpio_toogle(0, LED, 1);
 
     char msg[] = "[TASK_1] running\n";
     uart_send(msg, 17);
@@ -57,7 +57,7 @@ void os_startup(void)
     {
       char msg[] = "[TASK_0] press button to unblock task 1\n";
 
-      gpio_toogle(1, LED, 0);
+      gpio_toogle(0, LED, 0);
 
       usleep(500000); /* 500 MS */
       uart_send(msg, 17);

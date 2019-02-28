@@ -138,9 +138,9 @@ static uint8_t g_rx_spi_buffer[SPI_TX_BUF_SIZXE];
 void spi_send(void *data, uint32_t len)
 {
   SPI_REG_SET(SPI_M0_BASE, EVENTS_ENDTX) = 0;
-  SPI_REG_SET(SPI_M0_BASE, RXD_PTR)    = &g_rx_spi_buffer[0];
+  SPI_REG_SET(SPI_M0_BASE, RXD_PTR)    = (uint32_t)&g_rx_spi_buffer[0];
   SPI_REG_SET(SPI_M0_BASE, RXD_MAXCNT) = 0;
-  SPI_REG_SET(SPI_M0_BASE, TXD_PTR)    = data;
+  SPI_REG_SET(SPI_M0_BASE, TXD_PTR)    = (uint32_t)data;
   SPI_REG_SET(SPI_M0_BASE, TXD_MAXCNT) = len;
   SPI_REG_SET(SPI_M0_BASE, ORC)        = 0;
   SPI_REG_SET(SPI_M0_BASE, TASKS_START) = 1;
