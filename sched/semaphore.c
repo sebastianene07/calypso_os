@@ -19,6 +19,8 @@ int sem_init(sem_t *sem, int pshared, unsigned int value)
   }
 
   sem->count = value;
+
+  return 0;
 }
 
 int sem_wait(sem_t *sem)
@@ -47,7 +49,11 @@ int sem_wait(sem_t *sem)
 
     sched_context_switch();
     enable_int();
+
+    return -1;
   }
+
+  return 0;
 }
 
 int sem_trywait(sem_t *sem)
@@ -90,4 +96,6 @@ int sem_post(sem_t *sem)
       } while (is_waiting_for_sem);
   }
   enable_int();
+
+  return 0;
 }

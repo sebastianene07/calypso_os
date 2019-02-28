@@ -107,7 +107,7 @@ sched_context_switch:
   mrs r0, xpsr
   push {r0}
   mov r0, pc
-  add r0, #0x17
+  add r0, #0x18
   push {r0}
   push {lr}
   push {r12}
@@ -120,12 +120,12 @@ sched_context_switch:
 
 repeat:
   b repeat
-
   bx lr
 
 sched_do_switch:
-  ldr r0, [sp, #60]
-  str r0, [sp, #24]
+  ldr r0, [sp, #28]    /* Load the XPSR in r0 - PC is at offset 60 from SP */
+  str r0, [sp, #64]
+  add sp, #36
 
   /* Stack extra registers */
   push {R4-R11}
