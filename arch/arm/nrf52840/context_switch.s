@@ -14,10 +14,6 @@
 .extern sched_get_next_task
 .extern sched_preempt_task
 
-.data
-
-tmp_data: .word 0
-
 .section .text
 
 /* We are not using floating point stacking so here is the order of the registers saved:
@@ -51,7 +47,7 @@ tmp_data: .word 0
 
 
 .align 4
-.thumb_func
+#.thumb_func
 
 SysTick_Handler:
 	stmdb sp!, {lr}					    // Store the link register on the stack
@@ -108,10 +104,10 @@ SysTick_Handler_ret:
 sched_context_switch:
   /* Stack all the registers */
   push {r0}
-  mov r0, #0x1000000
+  mrs r0, xpsr
   push {r0}
   mov r0, pc
-  add r0, #0x62
+  add r0, #0x72
   push {r0}
   push {lr}
   push {r12}
@@ -163,9 +159,16 @@ sched_context_switch:
   pop {r3}
   pop {r12}
   pop {lr}
-  pop {pc}                    // Place the PC in R0
+
+  /* Save the value of the R0 at SP + 0xC */
+
+  str r0, [sp, #0x8]
+  ldr r0, [sp, #0x4]  /* OLD XPSR */
+  msr xpsr, r0        /* Restore XPSR */
+  add sp, #0x4        /* SP points at XPSR on the stack */
+  ldr r0, [sp, #0x4]  /* Restore R0 */
+  cpsie i
+  ldr pc, [sp, #-0x4]
 
 sched_context_switch_ret:
   bx lr
-
-g_addr_tmp: .word tmp_data
