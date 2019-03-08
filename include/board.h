@@ -36,7 +36,7 @@
 #define SysTick_LOAD_RELOAD_Pos             0U                                            /*!< SysTick LOAD: RELOAD Position */
 #define SysTick_LOAD_RELOAD_Msk            (0xFFFFFFUL /*<< SysTick_LOAD_RELOAD_Pos*/)    /*!< SysTick LOAD: RELOAD Mask */
 
-#define SCB_ICSR_PENDSVSET_Pos             28U                                            /*!< SCB ICSR: PENDSVSET Position */
+#define SCB_ICSR_PENDSVSET_Pos             26U                                            /*!< SCB ICSR: PENDSVSET Position */
 #define SCB_ICSR_PENDSVSET_Msk             (1UL << SCB_ICSR_PENDSVSET_Pos)                /*!< SCB ICSR: PENDSVSET Mask */
 
 /* check device defines and use defaults */
@@ -262,7 +262,7 @@ static inline void NVIC_ClearPendingIRQ(IRQn_Type IRQn)
   NVIC->ICPR[(((uint32_t)(int32_t)IRQn) >> 5UL)] = (uint32_t)(1UL << (((uint32_t)(int32_t)IRQn) & 0x1FUL));
 }
 
-static inline void NVIC_TriggerSysTick(void)
+static inline void NVIC_TriggerPendSV(void)
 {
   SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
 }

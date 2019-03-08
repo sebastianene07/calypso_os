@@ -9,6 +9,7 @@
 .syntax unified
 
 .global SysTick_Handler
+.global Pend_SV_Handler
 .global sched_context_switch
 
 .extern sched_get_next_task
@@ -183,3 +184,10 @@ sched_context_switch_ret:
 //  ldr pc, [sp, #-0x4]
 //
 
+Pend_SV_Handler:
+  nop
+  nop
+  nop
+
+  b sched_do_switch
+  bx lr
