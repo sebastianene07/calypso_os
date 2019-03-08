@@ -13,16 +13,29 @@
 #include <list.h>
 #include <semaphore.h>
 
+/* Fill the stack with 0xDEADBEEF */
+
 #define CONFIG_SCHEDULER_TASK_COLORATION      (1)
-#define CONFIG_SCHEDULER_IDLE_TASK_STACK_SIZE (512)
+
+/* The idle task stack size */
+
+#define CONFIG_SCHEDULER_IDLE_TASK_STACK_SIZE (128)
+
+/* Used when we start a task */
+
 #define MCU_CONTEXT_SIZE                      (8)
 
+
+/* The task can be in one of the following states */
+
 enum task_state_e {
-  READY,
-  RUNNING,
-  WAITING_FOR_SEM,
-  HALTED
+  READY,            /* It is not currenly running on the CPU */
+  RUNNING,          /* The task was plannend on the CPU and is running */
+  WAITING_FOR_SEM,  /* The task is waiting for an event to wake up */
+  HALTED            /* NOT USED currently */
 };
+
+/* Task container that holds the entry point and other resources */
 
 struct tcb_s {
   void (*entry_point)(void);
@@ -34,6 +47,7 @@ struct tcb_s {
   struct list_head next_tcb;
   sem_t *waiting_tcb_sema;
 } __attribute__((aligned(4)));
+
 
 int sched_init(void);
 
