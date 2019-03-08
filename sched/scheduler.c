@@ -164,7 +164,8 @@ struct tcb_s *sched_get_next_task(void)
     }
 
   struct tcb_s *next_tcb = (struct tcb_s *)container_of(g_current_tcb,
-    struct tcb_s, next_tcb);
+                                                        struct tcb_s,
+                                                        next_tcb);
   return next_tcb;
 }
 
