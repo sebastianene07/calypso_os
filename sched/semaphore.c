@@ -47,6 +47,7 @@ int sem_wait(sem_t *sem)
 
     /* Switch context to the next running task */
 
+    NVIC_TriggerPendSV();
     sched_context_switch();
     enable_int();
 

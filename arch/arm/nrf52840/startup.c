@@ -48,6 +48,7 @@ void dummy_fn(void);
 
 void os_startup(void);
 
+void Pend_SV_Handler(void);
 void SysTick_Handler(void);
 
 volatile int is_enabled = 0;
@@ -118,7 +119,7 @@ void (*vectors[])(void) = {
         dummy_fn,
         dummy_fn,
         dummy_fn,
-        dummy_fn,
+        Pend_SV_Handler,
         SysTick_Handler,
 
         /* External interrupts */
