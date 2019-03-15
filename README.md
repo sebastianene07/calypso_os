@@ -11,11 +11,24 @@ make config MACHINE_TYPE=nrf52840
 make -j
 ```
 
+## Current features
+
+1. Task scheduling and basic synchronization primitives
+
+The scheduler is preemptive and each task has a fixed allocated time slot.
+The scheduler keeps track of two lists g_tcb_waiting_list and g_tcb_list:
+
+g_tcb_waiting_list - holds the tasks waiting for a semaphore
+g_tcb_list         - holds the tasks in pending state
+
+The g_current_tcb pointer points to the current running task.
+
 ## TODO's
 
-1. Task scheduling, synchronization primitives
-2. Driver lower half/upper half separation
-3. File system support
+1. Virtual file system support
+2. Refactorization & Driver lower half/upper half separation
+3. Tickless kernel
+4. Tasks prioritization
 
 ## Contents
 
@@ -25,4 +38,5 @@ make -j
 
 ## Contributions
 
-Contributions are really welcome. You can email me on: Sebastian Ene <sebastian.ene07@gmail.com>
+Contributions are welcome.
+You can email me on: Sebastian Ene <sebastian.ene07@gmail.com>
