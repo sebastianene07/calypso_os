@@ -2,30 +2,35 @@
 #define __VFS_H
 
 #include <list.h>
-#if 0 /* TODO add poll */
-#include <poll.h>
-#endif
 
+typedef int mode_t;
 
-/* A device driver comes and registers this node in the VFS tree */
+/* A device driver it's supposed to registers a new node in the VFS tree */
 
 struct vfs_ops_s {
-  int (*open)(void);
-  int (*read)(size_t nread, void *buffer, size_t buff_len);
-  int (*write)(size_t nwrite, const void *buffer);
-#if 0 /* TODO add poll */
-  int (*poll)(struct poll_fds *poll, size);
-  int (*ioctl)();
-#endif
-  int (*close)(void);
+  int (*open)(const char *pathname, int flags, mode_t mode);
+  int (*close)(int fd);
+};
+
+enum vfs_node_type {
+  VFS_TYPE_DIR,
+  VFS_TYPE_FILE,
+  VFS_TYPE_DEVICE,
+  NUM_VFS_TYPES,
 };
 
 /* This represents the node structure for the virtual file system tree */
 
 struct vfs_node_s {
-  struct list_head vfs_node;
   const char *name;
+  enum vfs_node_type node_type;
   struct vfs_ops_s *ops;
 };
+
+int vfs_init(void);
+
+int vfs_register_node(const char *name);
+
+int vfs_unregister_node(const char *name);
 
 #endif /* __VFS_H */
