@@ -22,12 +22,14 @@ enum vfs_node_type {
 /* This represents the node structure for the virtual file system tree */
 
 struct vfs_node_s {
+  struct list_head parent_node;
+  struct list_head child_node;
   const char *name;
   enum vfs_node_type node_type;
   struct vfs_ops_s *ops;
 };
 
-int vfs_init(void);
+int vfs_init(const char *node_name[], size_t num_nodes);
 
 int vfs_register_node(const char *name);
 
