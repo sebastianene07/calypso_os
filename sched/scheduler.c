@@ -32,6 +32,7 @@ struct list_head *g_current_tcb = NULL;
  *
  * Return Value:
  *  OK in case of success otherwise a negate value.
+ *
  *************************************************************************/
 static void sched_idle_task(void)
 {
@@ -50,6 +51,7 @@ static void sched_idle_task(void)
  *
  * Return Value:
  *  OK in case of success otherwise a negate value.
+ *
  *************************************************************************/
 int sched_init(void)
 {
@@ -83,6 +85,7 @@ int sched_init(void)
  *
  * Return Value:
  *  OK in case of success otherwise a negate value.
+ *
  *************************************************************************/
 int sched_create_task(void (*task_entry_point)(void), uint32_t stack_size)
 {
@@ -154,6 +157,7 @@ int sched_create_task(void (*task_entry_point)(void), uint32_t stack_size)
 *
 * Return Value:
 *  The TCB of the next task or NULL if the scheduler is not initialized.
+*
 *************************************************************************/
 struct tcb_s *sched_get_next_task(void)
 {
@@ -178,6 +182,7 @@ struct tcb_s *sched_get_next_task(void)
 *
 * Return Value:
 *  The TCB of the next task or NULL if the scheduler is not initialized.
+*
 *************************************************************************/
 void sched_run(void)
 {
@@ -193,6 +198,7 @@ void sched_run(void)
 *
 * Return Value:
 *  The TCB of the next task or NULL if the scheduler is not initialized.
+*
 *************************************************************************/
 struct tcb_s *sched_get_current_task(void)
 {
@@ -210,12 +216,24 @@ struct tcb_s *sched_get_current_task(void)
  *
  * Return Value:
  *  OK in case of success otherwise a negate value.
+ *
  *************************************************************************/
 int sched_desroy(void)
 {
   return 0;
 }
 
+/**************************************************************************
+ * Name:
+ *  sched_preempt_task
+ *
+ * Description:
+ *  Move the task from running to waiting list.
+ *
+ * Return Value:
+ *  The task that was moved from running to ready.
+ *
+ *************************************************************************/
 struct tcb_s *sched_preempt_task(void)
 {
   struct tcb_s *tcb = sched_get_current_task();
@@ -253,4 +271,3 @@ void enable_int(void)
 {
   __enable_irq();
 }
-
