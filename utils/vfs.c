@@ -10,6 +10,13 @@ static struct vfs_node_s g_root_vfs;
 
 static sem_t g_vfs_sema;
 
+/* VFS default mountpoints */
+
+static struct vfs_init_mountpoint_s g_vfs_default_mtpt = {
+  .node_name = {"dev", "mnt", "bin", "otp", "home"},
+  .num_nodes = 5,
+};
+
 /*
  * vfs_get_ops - get the node operations
  *
@@ -23,12 +30,25 @@ static struct vfs_ops_s *vfs_get_ops(enum vfs_node_type node_type)
 /*
  * vfs_init - initialize the root nodes
  *
+ * @node_name - pointer to an array of names
+ * @num_nodes - the length of the array
+ *
  *  This function initializes the virtual file system
- *  and creates the nodes: /, /dev, /mnt, /var, /bin
+ *  and creates the initial nodes. If NULL is specified
+ *  the function will use the default mountpoints.
  *
  */
 int vfs_init(const char *node_name[], size_t num_nodes)
 {
+  /* Verify is we use the default mount points */
+
+  if (node_name == NULL)
+  {
+    struct vfs_init_mountpoint_s *default_mtpt = vfs_get_default();
+    node_name = default_mtpt->node_name;
+    num_nodes = default_mtpt->num_nodes;
+  }
+
   sem_init(&g_vfs_sema, 0, 1);
 
   INIT_LIST_HEAD(&g_root_vfs.parent_node);
@@ -57,4 +77,9 @@ int vfs_init(const char *node_name[], size_t num_nodes)
   }
 
   return OK;
+}
+
+struct vfs_init_mountpoint_s *vfs_get_default(void)
+{
+  return &g_vfs_default_mtpt;
 }
