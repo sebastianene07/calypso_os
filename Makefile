@@ -5,6 +5,7 @@ DEBUG_PORT=2771
 # Include user config
 ifeq ($(MACHINE_TYPE),)
 include .config
+include Make.defs
 endif
 $(info machine_type=$(MACHINE_TYPE))
 TARGET=$(MACHINE_TYPE)
@@ -44,6 +45,7 @@ load:
 
 config:
 	cp config/$(MACHINE_TYPE)/release/defconfig .config
+	cat .config | awk '{split($$0,a,"="); print "export " a[1]}' > Make.defs
 
 debug:
 	JLinkGDBServer -device nRF52 -speed 4000 -if SWD -select usb=683388138 -port ${DEBUG_PORT} -RTTTelnetPort 56481
@@ -58,3 +60,4 @@ clean:
 
 distclean:
 	rm .config
+	rm -f Make.defs
