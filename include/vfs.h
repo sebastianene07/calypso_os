@@ -2,8 +2,7 @@
 #define __VFS_H
 
 #include <list.h>
-
-typedef int mode_t;
+#include <unistd.h>
 
 /* A device driver it's supposed to registers a new node in the VFS tree */
 
@@ -29,10 +28,20 @@ struct vfs_node_s {
   struct vfs_ops_s *ops;
 };
 
+/* The initial VFS mountpoints */
+
+struct vfs_init_mountpoint_s
+{
+  size_t num_nodes;
+  const char *node_name[];
+};
+
 int vfs_init(const char *node_name[], size_t num_nodes);
 
 int vfs_register_node(const char *name);
 
 int vfs_unregister_node(const char *name);
+
+struct vfs_init_mountpoint_s *vfs_get_default(void);
 
 #endif /* __VFS_H */

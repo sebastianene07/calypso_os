@@ -271,4 +271,6 @@ static inline void NVIC_TriggerSysTick(void)
   SCB->ICSR |= SCB_ICSR_SYSTICKSET_Msk;
 }
 
+void board_init(void);
+
 #endif /* __CORE_CM4 */
