@@ -19,7 +19,7 @@
 
 /* The idle task stack size */
 
-#define CONFIG_SCHEDULER_IDLE_TASK_STACK_SIZE (128)
+#define CONFIG_SCHEDULER_IDLE_TASK_STACK_SIZE (1024)
 
 /* Used when we start a task */
 

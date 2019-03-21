@@ -7,6 +7,8 @@
 #define NULL (0)
 #endif
 
+#define CONFIG_CONSOLE_APP
+
 /* E-ink 2.7 inch Waveshare display pin assignment */
 
 #define SPIM_SCK_PIN           (15)

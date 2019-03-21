@@ -4,7 +4,7 @@
 #include <board.h>
 
 #ifdef CONFIG_CONSOLE_APP
-  #include <console_main.h>
+  #include <console_app/console_main.h>
 #endif
 
 #endif /* __BUILTIN_APPS */

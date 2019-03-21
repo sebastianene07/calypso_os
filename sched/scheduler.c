@@ -63,8 +63,6 @@ static void sched_idle_task(void)
       }
     } while (is_halt_task);
 
-    NVIC_TriggerSysTick();
-
     enable_int();
   }
 }
