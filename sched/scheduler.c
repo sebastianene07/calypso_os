@@ -10,6 +10,7 @@
 #include <scheduler.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 /* Running task list */
 
@@ -28,16 +29,41 @@ struct list_head *g_current_tcb = NULL;
  *  sched_idle_task
  *
  * Description:
- *  Idle task.
+ *  This task is responsible for cleaning up resources used by the tasks. It
+ *  can also be used to monitor the HEAP usage, scan for corruptions and
+ *  asking the CPU to enter deep sleep mode if no other operation is pending
+ *  to be executed.
  *
- * Return Value:
- *  OK in case of success otherwise a negate value.
+ * Assumptions:
+ *  This task should never exit.
+ *
  *************************************************************************/
 static void sched_idle_task(void)
 {
   while (1)
   {
-    ;;
+
+    /* Check if we need to free any HALTED tasks */
+
+    disable_int();
+
+    bool is_halt_task;
+    do {
+      is_halt_task = false;
+      struct tcb_s *current = NULL;
+      list_for_each_entry(current, &g_tcb_waiting_list, next_tcb)
+      {
+        if (current != NULL && current->t_state == HALTED)
+        {
+          list_del(&current->next_tcb);
+          free(current);
+          is_halt_task = true;
+          break;
+        }
+      }
+    } while (is_halt_task);
+
+    enable_int();
   }
 }
 
@@ -50,6 +76,7 @@ static void sched_idle_task(void)
  *
  * Return Value:
  *  OK in case of success otherwise a negate value.
+ *
  *************************************************************************/
 int sched_init(void)
 {
@@ -69,6 +96,37 @@ int sched_init(void)
 
 /**************************************************************************
  * Name:
+ *  sched_default_task_exit_point
+ *
+ * Description:
+ *  Called when a task has finished executing the task entry point and it's
+ *  about to tear down it's resources. This function should do the cleanup
+ *  look for opened file descriptors and release the accessed resources.
+ *
+ * Assumptions:
+ *  This function does not exit.
+ *
+ *************************************************************************/
+void sched_default_task_exit_point(void)
+{
+  __disable_irq();
+
+  /* Move this task in the HALT state and wait for the idle task to clean up
+   * it's memory.
+   */
+
+  struct tcb_s *this_tcb = sched_get_current_task();
+  this_tcb->t_state           = HALTED;
+  this_tcb->waiting_tcb_sema  = NULL;
+
+  /* Switch context to the next running task */
+
+  NVIC_TriggerSysTick();
+  sched_context_switch();
+}
+
+/**************************************************************************
+ * Name:
  *  sched_create_task
  *
  * Description:
@@ -83,6 +141,7 @@ int sched_init(void)
  *
  * Return Value:
  *  OK in case of success otherwise a negate value.
+ *
  *************************************************************************/
 int sched_create_task(void (*task_entry_point)(void), uint32_t stack_size)
 {
@@ -115,7 +174,7 @@ int sched_create_task(void (*task_entry_point)(void), uint32_t stack_size)
   task_tcb->mcu_context[2] = NULL;
   task_tcb->mcu_context[3] = NULL;
   task_tcb->mcu_context[4] = NULL;
-  task_tcb->mcu_context[5] = (uint32_t *)0xffffffff;//sched_default_task_exit_point;
+  task_tcb->mcu_context[5] = (uint32_t *)sched_default_task_exit_point;
   task_tcb->mcu_context[6] = task_entry_point;
   task_tcb->mcu_context[7] = (uint32_t *)0x1000000;
 
@@ -154,6 +213,7 @@ int sched_create_task(void (*task_entry_point)(void), uint32_t stack_size)
 *
 * Return Value:
 *  The TCB of the next task or NULL if the scheduler is not initialized.
+*
 *************************************************************************/
 struct tcb_s *sched_get_next_task(void)
 {
@@ -164,7 +224,8 @@ struct tcb_s *sched_get_next_task(void)
     }
 
   struct tcb_s *next_tcb = (struct tcb_s *)container_of(g_current_tcb,
-    struct tcb_s, next_tcb);
+                                                        struct tcb_s,
+                                                        next_tcb);
   return next_tcb;
 }
 
@@ -177,6 +238,7 @@ struct tcb_s *sched_get_next_task(void)
 *
 * Return Value:
 *  The TCB of the next task or NULL if the scheduler is not initialized.
+*
 *************************************************************************/
 void sched_run(void)
 {
@@ -192,12 +254,13 @@ void sched_run(void)
 *
 * Return Value:
 *  The TCB of the next task or NULL if the scheduler is not initialized.
+*
 *************************************************************************/
 struct tcb_s *sched_get_current_task(void)
 {
-  struct tcb_s *next_tcb = (struct tcb_s *)container_of(g_current_tcb,
+  struct tcb_s *current_tcb = (struct tcb_s *)container_of(g_current_tcb,
     struct tcb_s, next_tcb);
-  return next_tcb;
+  return current_tcb;
 }
 
 /**************************************************************************
@@ -209,12 +272,24 @@ struct tcb_s *sched_get_current_task(void)
  *
  * Return Value:
  *  OK in case of success otherwise a negate value.
+ *
  *************************************************************************/
 int sched_desroy(void)
 {
   return 0;
 }
 
+/**************************************************************************
+ * Name:
+ *  sched_preempt_task
+ *
+ * Description:
+ *  Move the task from running to waiting list.
+ *
+ * Return Value:
+ *  The task that was moved from running to ready.
+ *
+ *************************************************************************/
 struct tcb_s *sched_preempt_task(void)
 {
   struct tcb_s *tcb = sched_get_current_task();
@@ -252,4 +327,3 @@ void enable_int(void)
 {
   __enable_irq();
 }
-

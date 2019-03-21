@@ -7,6 +7,8 @@
 #define NULL (0)
 #endif
 
+#define CONFIG_CONSOLE_APP
+
 /* E-ink 2.7 inch Waveshare display pin assignment */
 
 #define SPIM_SCK_PIN           (15)
@@ -270,5 +272,7 @@ static inline void NVIC_TriggerSysTick(void)
 {
   SCB->ICSR |= SCB_ICSR_SYSTICKSET_Msk;
 }
+
+void board_init(void);
 
 #endif /* __CORE_CM4 */

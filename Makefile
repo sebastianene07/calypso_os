@@ -1,10 +1,11 @@
 PREFIX := arm-none-eabi-
 TOPDIR=$(shell pwd)
-DEBUG_PORT=2771
+DEBUG_PORT=2331
 
 # Include user config
 ifeq ($(MACHINE_TYPE),)
 include .config
+include Make.defs
 endif
 $(info machine_type=$(MACHINE_TYPE))
 TARGET=$(MACHINE_TYPE)
@@ -12,7 +13,7 @@ TARGET=$(MACHINE_TYPE)
 # List the directories that contain the MACHINE_TYPE name
 
 SRC_DIRS := $(shell find . -iname $(MACHINE_TYPE))
-SRC_DIRS += sched s_alloc utils
+SRC_DIRS += sched s_alloc utils apps
 
 # This is the archive where we will bundle the object files
 
@@ -44,9 +45,10 @@ load:
 
 config:
 	cp config/$(MACHINE_TYPE)/release/defconfig .config
+	cat .config | awk '{split($$0,a,"="); print "export " a[1]}' > Make.defs
 
 debug:
-	JLinkGDBServer -device nRF52 -speed 4000 -if SWD -select usb=683388138 -port ${DEBUG_PORT} -RTTTelnetPort 56481
+	JLinkGDBServer -device nRF52 -speed 4000 -if SWD -port ${DEBUG_PORT}
 
 .PHONY: clean debug config load create_board_file distclean
 
@@ -58,3 +60,4 @@ clean:
 
 distclean:
 	rm .config
+	rm -f Make.defs

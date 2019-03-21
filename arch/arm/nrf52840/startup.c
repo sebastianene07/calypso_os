@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <s_heap.h>
 #include <scheduler.h>
+#include <os_start.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -45,8 +46,6 @@ typedef uint32_t useconds_t;
 void c_startup(void);
 
 void dummy_fn(void);
-
-void os_startup(void);
 
 void Pend_SV_Handler(void);
 void SysTick_Handler(void);
@@ -161,16 +160,10 @@ void c_startup(void)
          HEAP_BLOCK_SIZE);
 
   sched_init();
-  sched_create_task(os_startup, 1024);
 
   /* Configure Sys Tick */
 
   SysTick_Config(SystemCoreClock / 100);
 
-  /* Schedule tasks */
-
-  while (1)
-  {
-    ;;
-  }
+  os_startup();
 }
