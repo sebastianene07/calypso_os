@@ -69,6 +69,26 @@ int sched_init(void)
   return 0;
 }
 
+void sched_default_task_exit_point(void)
+{
+  __disable_irq();
+
+  struct tcb_s *this_tcb = sched_get_current_task();
+
+  list_del(&this_tcb->next_tcb);
+  free(this_tcb);
+
+  /* Switch context to the next running task */
+
+  NVIC_TriggerSysTick();
+
+  /* Entering an ISR will cause register stacking but we already freed the
+   * stack memory. Maybe ? Let the high priority thread clean the resources ?
+   */
+
+  __enable_irq();
+}
+
 /**************************************************************************
  * Name:
  *  sched_create_task
@@ -118,7 +138,7 @@ int sched_create_task(void (*task_entry_point)(void), uint32_t stack_size)
   task_tcb->mcu_context[2] = NULL;
   task_tcb->mcu_context[3] = NULL;
   task_tcb->mcu_context[4] = NULL;
-  task_tcb->mcu_context[5] = (uint32_t *)0xffffffff;//sched_default_task_exit_point;
+  task_tcb->mcu_context[5] = (uint32_t *)sched_default_task_exit_point;
   task_tcb->mcu_context[6] = task_entry_point;
   task_tcb->mcu_context[7] = (uint32_t *)0x1000000;
 
@@ -202,9 +222,9 @@ void sched_run(void)
 *************************************************************************/
 struct tcb_s *sched_get_current_task(void)
 {
-  struct tcb_s *next_tcb = (struct tcb_s *)container_of(g_current_tcb,
+  struct tcb_s *current_tcb = (struct tcb_s *)container_of(g_current_tcb,
     struct tcb_s, next_tcb);
-  return next_tcb;
+  return current_tcb;
 }
 
 /**************************************************************************

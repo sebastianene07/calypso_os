@@ -6,3 +6,4 @@
 *.ld
 tags
 *.out
+Make.defs
