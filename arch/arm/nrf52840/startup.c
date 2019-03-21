@@ -160,11 +160,10 @@ void c_startup(void)
          HEAP_BLOCK_SIZE);
 
   sched_init();
-  sched_create_task(os_startup, 1024);
 
   /* Configure Sys Tick */
 
   SysTick_Config(SystemCoreClock / 100);
 
-  while (1) {}
+  os_startup();
 }
