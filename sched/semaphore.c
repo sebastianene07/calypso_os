@@ -9,8 +9,23 @@ extern struct list_head *g_current_tcb;
 
 static volatile uint32_t g_lost_cycles = 0;
 
+/* Extern function implemented by the context switch mechanism. This method
+ * suspends the execution for the current process saves it's context on the
+ * stack and triggers an interrupt to begin the context switch.
+ */
+
 void sched_context_switch(void);
 
+/*
+ * sem_init - initialize the semaphore
+ *
+ * @sem       - the semaphore address
+ * @pshared   - ignored
+ * @value     - the semaphore initial value
+ *
+ * Initialize the semaphore with a specified value.
+ *
+ */
 int sem_init(sem_t *sem, int pshared, unsigned int value)
 {
   if (sem == NULL)
@@ -23,6 +38,16 @@ int sem_init(sem_t *sem, int pshared, unsigned int value)
   return 0;
 }
 
+/*
+ * sem_wait - decrement the semaphore
+ *
+ * @sem       - the semaphore address
+ *
+ * The call of this function can suspend the current execution if the semaphore
+ * value is less than or equal to 0. Use this primitive for signalling purpose
+ * or for locking implementation.
+ *
+ */
 int sem_wait(sem_t *sem)
 {
   /* Disable context switch */
@@ -57,14 +82,30 @@ int sem_wait(sem_t *sem)
   return 0;
 }
 
+/*
+ * sem_trywait - decrement the semaphore
+ *
+ * @sem       - the semaphore address
+ *
+ * Not implemneted yet.
+ *
+ */
 int sem_trywait(sem_t *sem)
 {
   return -1;
 }
 
+/*
+ * sem_post - increment the value of the semaphore
+ *
+ * @sem       - the semaphore address
+ *
+ * This function increments the semaphore value and unblocks all the tasks
+ * that are holding it.
+ */
 int sem_post(sem_t *sem)
 {
-  /* Disable context switch */
+  /* Disable interrupts for this task */
 
   disable_int();
 
@@ -96,6 +137,9 @@ int sem_post(sem_t *sem)
           }
       } while (is_waiting_for_sem);
   }
+
+  /* Re-enable interrupts for the current task */
+
   enable_int();
 
   return 0;

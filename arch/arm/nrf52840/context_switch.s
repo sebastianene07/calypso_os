@@ -58,10 +58,12 @@ SysTick_Handler:
 	cmp r0, #0						      // Verify NULL pointer TCB
 	beq SysTick_Handler_ret			// Handle NULL pointer to return from handler
 	ldr r1, [r0, #4]				    // Load the state of the task
-  cmp r1, 2
-  beq sched_do_switch
+  cmp r1, 2                   // Is this task waiting for sem ?
+  beq sched_do_switch         //
+  cmp r1, 3                   // Is this task shutting down ?
+  beq sched_do_switch         //
 
-	cmp r1, 1						        // If task is not running then we must plan it
+	cmp r1, 1						        // Is this task currently running ?
 	bne SysTick_Handle_context_switch
 
 /* Task is running so switch it to (not running) READY */
