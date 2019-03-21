@@ -10,6 +10,7 @@
 #include <scheduler.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 /* Running task list */
 
@@ -28,17 +29,43 @@ struct list_head *g_current_tcb = NULL;
  *  sched_idle_task
  *
  * Description:
- *  Idle task.
+ *  This task is responsible for cleaning up resources used by the tasks. It
+ *  can also be used to monitor the HEAP usage, scan for corruptions and
+ *  asking the CPU to enter deep sleep mode if no other operation is pending
+ *  to be executed.
  *
- * Return Value:
- *  OK in case of success otherwise a negate value.
+ * Assumptions:
+ *  This task should never exit.
  *
  *************************************************************************/
 static void sched_idle_task(void)
 {
   while (1)
   {
-    ;;
+
+    /* Check if we need to free any HALTED tasks */
+
+    disable_int();
+
+    bool is_halt_task;
+    do {
+      is_halt_task = false;
+      struct tcb_s *current = NULL;
+      list_for_each_entry(current, &g_tcb_waiting_list, next_tcb)
+      {
+        if (current != NULL && current->t_state == HALTED)
+        {
+          list_del(&current->next_tcb);
+          free(current);
+          is_halt_task = true;
+          break;
+        }
+      }
+    } while (is_halt_task);
+
+    NVIC_TriggerSysTick();
+
+    enable_int();
   }
 }
 
@@ -69,24 +96,35 @@ int sched_init(void)
   return 0;
 }
 
+/**************************************************************************
+ * Name:
+ *  sched_default_task_exit_point
+ *
+ * Description:
+ *  Called when a task has finished executing the task entry point and it's
+ *  about to tear down it's resources. This function should do the cleanup
+ *  look for opened file descriptors and release the accessed resources.
+ *
+ * Assumptions:
+ *  This function does not exit.
+ *
+ *************************************************************************/
 void sched_default_task_exit_point(void)
 {
   __disable_irq();
 
-  struct tcb_s *this_tcb = sched_get_current_task();
+  /* Move this task in the HALT state and wait for the idle task to clean up
+   * it's memory.
+   */
 
-  list_del(&this_tcb->next_tcb);
-  free(this_tcb);
+  struct tcb_s *this_tcb = sched_get_current_task();
+  this_tcb->t_state           = HALTED;
+  this_tcb->waiting_tcb_sema  = NULL;
 
   /* Switch context to the next running task */
 
   NVIC_TriggerSysTick();
-
-  /* Entering an ISR will cause register stacking but we already freed the
-   * stack memory. Maybe ? Let the high priority thread clean the resources ?
-   */
-
-  __enable_irq();
+  sched_context_switch();
 }
 
 /**************************************************************************
