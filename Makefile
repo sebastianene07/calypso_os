@@ -1,6 +1,6 @@
 PREFIX := arm-none-eabi-
 TOPDIR=$(shell pwd)
-DEBUG_PORT=2771
+DEBUG_PORT=2331
 
 # Include user config
 ifeq ($(MACHINE_TYPE),)
@@ -48,7 +48,7 @@ config:
 	cat .config | awk '{split($$0,a,"="); print "export " a[1]}' > Make.defs
 
 debug:
-	JLinkGDBServer -device nRF52 -speed 4000 -if SWD -select usb=683388138 -port ${DEBUG_PORT} -RTTTelnetPort 56481
+	JLinkGDBServer -device nRF52 -speed 4000 -if SWD -port ${DEBUG_PORT}
 
 .PHONY: clean debug config load create_board_file distclean
 
