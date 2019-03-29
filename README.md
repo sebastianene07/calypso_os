@@ -26,6 +26,7 @@ The g_current_tcb pointer points to the current running task.
 ## TODO's
 
 1. Virtual file system support
+  1.1 Add support for FatFS (generic filesystem http://elm-chan.org/fsw/ff/00index_e.html)
 2. Refactorization & Driver lower half/upper half separation
 3. Tickless kernel
 4. Tasks prioritization
