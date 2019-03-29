@@ -18,16 +18,6 @@ static struct vfs_init_mountpoint_s g_vfs_default_mtpt = {
 };
 
 /*
- * vfs_get_ops - get the node operations
- *
- *
- */
-static struct vfs_ops_s *vfs_get_ops(enum vfs_node_type node_type)
-{ /* TODO */
-  return NULL;
-}
-
-/*
  * vfs_init - initialize the root nodes
  *
  * @node_name - pointer to an array of names
@@ -79,6 +69,12 @@ int vfs_init(const char *node_name[], size_t num_nodes)
   return OK;
 }
 
+/*
+ * vfs_get_default - get the paths mounted under "/"
+ *
+ *  The function returns the mounted paths under the root directory.
+ *
+ */
 struct vfs_init_mountpoint_s *vfs_get_default(void)
 {
   return &g_vfs_default_mtpt;

@@ -35,7 +35,6 @@ void console_main(void)
 
     /* If the character was a terminator interpret the command */
 
-
   } while (g_is_shutdown_set);
 
   /* This app will exit on a reboot/shutdown command */
