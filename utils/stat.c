@@ -1,5 +1,6 @@
 #include <board.h>
 #include <errno.h>
+#include <string.h>
 
 /*
  * open - search for an entry specified by pathname and open it
@@ -12,9 +13,12 @@
  */
 int open(const char *pathname, int flags)
 {
+
   /* 1. Look through VFS and find the node identified by pathname */
 
-  struct vfs_init_mountpoint_s *node = vfs_get_matching_node(pathname);
+  size_t name_len = strlen(pathname);
+  struct vfs_init_mountpoint_s *node = vfs_get_matching_node(pathname,
+                                                             name_len);
   if (node == NULL)
   {
     return -ENOENT;

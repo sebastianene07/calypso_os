@@ -15,6 +15,7 @@ struct vfs_ops_s {
 
 enum vfs_node_type {
   VFS_TYPE_FILE,
+  VFS_TYPE_DIR,
   VFS_TYPE_DEVICE,
   NUM_VFS_TYPES,
 };

@@ -79,3 +79,16 @@ struct vfs_init_mountpoint_s *vfs_get_default(void)
 {
   return &g_vfs_default_mtpt;
 }
+
+/*
+ * vfs_get_matching_node - get the node by specified path
+ *
+ * @name      - path name
+ * @name_len  - the name length
+ *
+ *  The function returns the VFS node from the specified name.
+ *
+ */
+struct vfs_node_s vfs_get_matching_node(const char *name, size_t name_len)
+{
+}
