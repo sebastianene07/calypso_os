@@ -36,6 +36,48 @@ void *memcpy(void *dest, const void *src, size_t len);
  *  Return the length of the string without the terminating character.
  *
  */
-size_t strlen(const char *s)
+size_t strlen(const char *s);
+
+/*
+ * strtok - tokenize the input str with the specified delim
+ *
+ * @str   - the content of the string
+ * @delim - the delimiters buffer
+ *
+ *  The function breaks a string into a sequence of zero or more nonempty
+ *  tokens.  On the first call to strtok(), the string to be parsed should
+ *  be specified in str.  In each subsequent call that should parse the same
+ *  string, str must be NULL.
+ *
+ *  The delim argument specifies a set of bytes that delimit the tokens in the
+ *  parsed string. The caller may specify different strings in delim in
+ *  successive calls that parse the same string.
+ *
+ *  Each call to strtok() returns a pointer to a null-terminated string
+ *  containing the next token. This string does not include the delimiting
+ *  byte.  If no more tokens are found, strtok() returns NULL
+ *
+ */
+char *strtok(char *str, const char *delim);
+
+/*
+ * strtok_r - re-entrant version of strtok
+ *
+ * @str     - the content of the string
+ * @delim   - the delimiters buffer
+ * @saveptr - the context of strtok_r
+ *
+ *  The strtok_r() function is a reentrant version strtok(). The saveptr
+ *  argument is a pointer to a char * variable that is used internally by
+ *  strtok_r() in order to maintain context between successive calls that
+ *  parse the same string. On the first call to strtok_r(), str should point
+ *  to the string to be parsed, and the value of saveptr is ignored. In
+ *  subsequent calls, str should be NULL, and saveptr should be unchanged
+ *  since the previous call.
+ *
+ *  Different strings may be parsed concurrently using sequences of calls to
+ *  strtok_r() that specify different saveptr arguments
+ */
+char *strtok_r(char *str, const char *delim, char **saveptr);
 
 #endif /* __STRING_H */

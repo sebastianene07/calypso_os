@@ -1,5 +1,9 @@
+#include <board.h>
+
 #include <string.h>
+#include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 /*
  * memset - fill a buffer with a value
@@ -83,7 +87,8 @@ size_t strlen(const char *s)
  */
 char *strtok(char *str, const char *delim)
 {
-  return NULL;
+  static char *olds;
+  return strtok_r(str, delim, &olds);
 }
 
 /*
@@ -106,5 +111,44 @@ char *strtok(char *str, const char *delim)
  */
 char *strtok_r(char *str, const char *delim, char **saveptr)
 {
-  return NULL;
+  if (*saveptr == NULL)
+  {
+    return NULL;
+  }
+
+  if (str != NULL)
+  {
+    *saveptr = str;
+  }
+  else
+  {
+    size_t delim_len = strlen(delim);
+    char *begin = *saveptr;
+    bool delim_not_found = true;
+
+    do {
+
+      if (*str == '\0')
+      {
+        *saveptr = NULL;
+        return begin;
+      }
+
+      for (int i = 0; i < delim_len; i++)
+      {
+        if (*str == delim[i])
+        {
+          delim_not_found = false;
+          break;
+        }
+      }
+
+      str++;
+    } while (!delim_not_found);
+
+    *str     = '\0';
+    *saveptr = str + 1;
+
+    return begin;
+  }
 }
