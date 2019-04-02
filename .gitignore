@@ -7,3 +7,8 @@
 tags
 *.out
 Make.defs
+tests/my_output
+tests/original_output
+tests/original_test
+tests/string_test
+

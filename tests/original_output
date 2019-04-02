@@ -1,0 +1,68 @@
+
+[Test 1]
+Before tokenize size 247
+===========
+First word:https:
+Extracted word:www.google.ro
+Extracted word:search?client=ubuntu&ei=0PSiXLnjEeihrgSkq7SADA&q=parameters+in+get+request&oq=parameters+in+get+reques&gs_l=psy-ab.1.0.0l2j0i22i30l8.2370.8875..9446...4.0..0.107.2488.27j1......0....1..gws-wiz.......0i71j0i67j0i10.KoheGnwf3to
+===========
+After tokenize
+
+[Test 2]
+Before tokenize size 247
+===========
+First word:https://www.google.ro/search?client
+Extracted word:ubuntu&ei
+Extracted word:0PSiXLnjEeihrgSkq7SADA&q
+Extracted word:parameters+in+get+request&oq
+Extracted word:parameters+in+get+reques&gs_l
+Extracted word:psy-ab.1.0.0l2j0i22i30l8.2370.8875..9446...4.0..0.107.2488.27j1......0....1..gws-wiz.......0i71j0i67j0i10.KoheGnwf3to
+===========
+After tokenize
+
+[Test 3]
+Before tokenize size 247
+===========
+First word:https://www.google.ro/search
+Extracted word:client=ubuntu&ei=0PSiXLnjEeihrgSkq7SADA&q=parameters+in+get+request&oq=parameters+in+get+reques&gs_l=psy-ab.1.0.0l2j0i22i30l8.2370.8875..9446...4.0..0.107.2488.27j1......0....1..gws-wiz.......0i71j0i67j0i10.KoheGnwf3to
+===========
+After tokenize
+
+[Test 4]
+Before tokenize size 247
+===========
+First word:https
+Extracted word:www.google.ro
+Extracted word:search?client
+Extracted word:ubuntu&ei
+Extracted word:0PSiXLnjEeihrgSkq7SADA&q
+Extracted word:parameters+in+get+request&oq
+Extracted word:parameters+in+get+reques&gs_l
+Extracted word:psy-ab.1.0.0l2j0i22i30l8.2370.8875..9446...4.0..0.107.2488.27j1......0....1..gws-wiz.......0i71j0i67j0i10.KoheGnwf3to
+===========
+After tokenize
+
+[Test 5]
+Before tokenize size 247
+===========
+First word:https
+Extracted word:www.google.ro
+Extracted word:search
+Extracted word:client
+Extracted word:ubuntu
+Extracted word:ei
+Extracted word:0PSiXLnjEeihrgSkq7SADA
+Extracted word:q
+Extracted word:parameters
+Extracted word:in
+Extracted word:get
+Extracted word:request
+Extracted word:oq
+Extracted word:parameters
+Extracted word:in
+Extracted word:get
+Extracted word:reques
+Extracted word:gs_l
+Extracted word:psy-ab.1.0.0l2j0i22i30l8.2370.8875..9446...4.0..0.107.2488.27j1......0....1..gws-wiz.......0i71j0i67j0i10.KoheGnwf3to
+===========
+After tokenize

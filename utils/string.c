@@ -119,38 +119,36 @@ char *strtok_r(char *str, const char *delim, char **saveptr)
     {
       return NULL;
     }
-
-    size_t delim_len = strlen(delim);
-    char *begin = *saveptr;
-    str = begin;
-    bool delim_not_found = false;
-
-    do {
-
-      if (*str == '\0')
-      {
-        *saveptr = NULL;
-        return begin;
-      }
-
-      for (int i = 0; i < delim_len; i++)
-      {
-        if (*str == delim[i])
-        {
-          delim_not_found = true;
-          str--;
-          break;
-        }
-      }
-
-      str++;
-    } while (!delim_not_found);
-
-    *str     = '\0';
-    *saveptr = str + 1;
-
-    return begin;
   }
 
-  return str;
+  size_t delim_len = strlen(delim);
+  char *begin = *saveptr;
+  str = begin;
+  bool delim_not_found = false;
+
+  do {
+
+    if (*str == '\0')
+    {
+      *saveptr = NULL;
+      return begin;
+    }
+
+    for (int i = 0; i < delim_len; i++)
+    {
+      if (*str == delim[i])
+      {
+        delim_not_found = true;
+        str--;
+        break;
+      }
+    }
+
+    str++;
+  } while (!delim_not_found);
+
+  *str     = '\0';
+  *saveptr = str + 1;
+
+  return begin;
 }
