@@ -13,17 +13,18 @@ make -j
 
 ## Current features
 
-1. Task scheduling and basic synchronization primitives
+### 1. Task scheduling and basic synchronization primitives
 
-The scheduler is preemptive and each task has a fixed allocated time slot. &nbsp;
+The scheduler is preemptive and each task has a fixed allocated time slot.
 The scheduler keeps track of two lists g_tcb_waiting_list and g_tcb_list:  &nbsp;
 
 g_tcb_waiting_list - holds the tasks waiting for a semaphore &nbsp;
+
 g_tcb_list         - holds the tasks in pending state        &nbsp;
 
 The g_current_tcb pointer points to the current running task. &nbsp;
 
-2. Dynamic memory allocation with garbage collection
+### 2. Dynamic memory allocation with garbage collection
 
 The idle task is responsible for monitoring allocated resources and will free
 unused objects when it detects that there are no references. This is usefull
@@ -40,17 +41,17 @@ A task contains an array of struct file_s which keep track of the opened
 files. A file is the abstraction of any device in the same way as Linux
 provides the.
 
-'''
+```
 struct file_s
 {
   struct vfs_node_s *node;
   uint32_t seek_pos;
 }
-'''
+```
 
-The open device flow: &nbsp;
+The open device flow:
 
-'''
+```
 open(..) -> file_open(..dev_name..)
                 /\
          Allocate a new file_s structure
@@ -64,11 +65,11 @@ open(..) -> file_open(..dev_name..)
                 -> vfs_node_open()
                       /\
                    Call the appropriate node open function.
-'''
+```
 
 ## TODO's
 
-'''
+```
 1. Virtual file system support
   1.1 Add support for FatFS http://elm-chan.org/fsw/ff/00index_e.html
   1.2 Add functional tests
@@ -79,7 +80,7 @@ open(..) -> file_open(..dev_name..)
 3. Tickless kernel
 4. Tasks prioritization
 
-'''
+```
 
 ## Contents
 
