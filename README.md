@@ -18,15 +18,23 @@ make -j
 The scheduler is preemptive and each task has a fixed allocated time slot.
 The scheduler keeps track of two lists g_tcb_waiting_list and g_tcb_list:
 
-g_tcb_waiting_list - holds the tasks waiting for a semaphore
-g_tcb_list         - holds the tasks in pending state
+g_tcb_waiting_list - holds the tasks waiting for a semaphore \r\n
+g_tcb_list         - holds the tasks in pending state        \r\n
 
 The g_current_tcb pointer points to the current running task.
+
+2. Dynamic memory allocation with garbage collection
+
+The idle task is responsible for monitoring allocated resources and will free
+unused objects when it detects that there are no references. This is usefull
+for debugging purpose but when running low on memory I suggest to turn off this
+feature.
 
 ## TODO's
 
 1. Virtual file system support
   1.1 Add support for FatFS (generic filesystem http://elm-chan.org/fsw/ff/00index_e.html)
+  1.2 Add functional tests
 2. Refactorization & Driver lower half/upper half separation
 3. Tickless kernel
 4. Tasks prioritization
