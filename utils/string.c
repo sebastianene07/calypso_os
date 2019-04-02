@@ -1,5 +1,3 @@
-#include <board.h>
-
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -111,20 +109,21 @@ char *strtok(char *str, const char *delim)
  */
 char *strtok_r(char *str, const char *delim, char **saveptr)
 {
-  if (*saveptr == NULL)
-  {
-    return NULL;
-  }
-
   if (str != NULL)
   {
     *saveptr = str;
   }
   else
   {
+    if (*saveptr == NULL)
+    {
+      return NULL;
+    }
+
     size_t delim_len = strlen(delim);
     char *begin = *saveptr;
-    bool delim_not_found = true;
+    str = begin;
+    bool delim_not_found = false;
 
     do {
 
@@ -138,7 +137,8 @@ char *strtok_r(char *str, const char *delim, char **saveptr)
       {
         if (*str == delim[i])
         {
-          delim_not_found = false;
+          delim_not_found = true;
+          str--;
           break;
         }
       }
@@ -151,4 +151,6 @@ char *strtok_r(char *str, const char *delim, char **saveptr)
 
     return begin;
   }
+
+  return str;
 }

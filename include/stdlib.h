@@ -1,6 +1,10 @@
 #ifndef __STDLIB_H
 #define __STDLIB_H
 
+#ifndef NULL
+#define NULL (0)
+#endif
+
 typedef unsigned int size_t;
 
 void *malloc(size_t size);
