@@ -15,13 +15,13 @@ make -j
 
 1. Task scheduling and basic synchronization primitives
 
-The scheduler is preemptive and each task has a fixed allocated time slot.
-The scheduler keeps track of two lists g_tcb_waiting_list and g_tcb_list:
+The scheduler is preemptive and each task has a fixed allocated time slot. &nbsp;
+The scheduler keeps track of two lists g_tcb_waiting_list and g_tcb_list:  &nbsp;
 
-g_tcb_waiting_list - holds the tasks waiting for a semaphore \r\n
-g_tcb_list         - holds the tasks in pending state        \r\n
+g_tcb_waiting_list - holds the tasks waiting for a semaphore &nbsp;
+g_tcb_list         - holds the tasks in pending state        &nbsp;
 
-The g_current_tcb pointer points to the current running task.
+The g_current_tcb pointer points to the current running task. &nbsp;
 
 2. Dynamic memory allocation with garbage collection
 
@@ -30,14 +30,7 @@ unused objects when it detects that there are no references. This is usefull
 for debugging purpose but when running low on memory I suggest to turn off this
 feature.
 
-## TODO's
-
-1. Virtual file system support
-  1.1 Add support for FatFS (generic filesystem http://elm-chan.org/fsw/ff/00index_e.html)
-  1.2 Add functional tests
-2. Refactorization & Driver lower half/upper half separation
-3. Tickless kernel
-4. Tasks prioritization
+## Currently in progress
 
 Virtual File System
 
@@ -47,14 +40,17 @@ A task contains an array of struct file_s which keep track of the opened
 files. A file is the abstraction of any device in the same way as Linux
 provides the.
 
+'''
 struct file_s
 {
   struct vfs_node_s *node;
   uint32_t seek_pos;
 }
+'''
 
-The open device flow:
+The open device flow: &nbsp;
 
+'''
 open(..) -> file_open(..dev_name..)
                 /\
          Allocate a new file_s structure
@@ -68,10 +64,22 @@ open(..) -> file_open(..dev_name..)
                 -> vfs_node_open()
                       /\
                    Call the appropriate node open function.
+'''
 
-The read/write device flow:
+## TODO's
 
-Polling from devices:
+'''
+1. Virtual file system support
+  1.1 Add support for FatFS http://elm-chan.org/fsw/ff/00index_e.html
+  1.2 Add functional tests
+  1.4 The read/write device flow
+  1.5 Polling from devices
+
+2. Refactorization & Driver lower half/upper half separation
+3. Tickless kernel
+4. Tasks prioritization
+
+'''
 
 ## Contents
 
