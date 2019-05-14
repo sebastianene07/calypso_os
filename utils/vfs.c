@@ -1,6 +1,7 @@
 #include <vfs.h>
 #include <semaphore.h>
 #include <errno.h>
+#include <list.h>
 
 /* Virtual file system tree */
 
@@ -89,6 +90,40 @@ struct vfs_init_mountpoint_s *vfs_get_default(void)
  *  The function returns the VFS node from the specified name.
  *
  */
-struct vfs_node_s vfs_get_matching_node(const char *name, size_t name_len)
+struct vfs_node_s *vfs_get_matching_node(const char *name, size_t name_len)
 {
+  const char *delim = "/";
+  char *olds;
+
+  /* We should do a copy of the path to prevent the string from being
+   * changed.
+   */
+
+  char *name_copy = calloc(1, strlen(name) + 1);
+  memcpy(name_copy, name, strlen(name));
+
+  char *ptr_copy = name_copy;
+  struct vfs_node_s *current_node = NULL;
+  struct vfs_node_s *parent= &g_root_vfs;
+  char *node_name = NULL;
+
+  do {
+    node_name = strtok_r(ptr_copy, delim, &olds);
+    ptr_copy = NULL;
+
+    /* Look at the names of the child nodes and verify which one has the name
+     * 'node_name'.
+     */
+
+    list_for_each_entry(current_node, &parent->child_node, parent_node) {
+      if (!strcmp(current_node->name, node_name)) {
+        break;
+      }
+    }
+
+    parent = current_node;
+  } while (node_name != NULL);
+
+  free(name_copy);
+  return current_node;
 }

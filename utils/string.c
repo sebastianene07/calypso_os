@@ -152,3 +152,39 @@ char *strtok_r(char *str, const char *delim, char **saveptr)
 
   return begin;
 }
+
+int strcmp(const char *s1, const char *s2)
+{
+  while(*s1)
+  {
+    // if characters differ or end of second string is reached
+    if (*s1 != *s2)
+      break;
+
+    // move to next pair of characters
+    s1++;
+    s2++;
+  }
+
+  // return the ASCII difference after converting char* to unsigned char*
+  return *(const unsigned char*)s1 - *(const unsigned char*)s2;
+}
+
+int strncmp(const char *s1, const char *s2, size_t n)
+{
+  while ( n && *s1 && ( *s1 == *s2 ) )
+  {
+    ++s1;
+    ++s2;
+    --n;
+  }
+
+  if (n == 0)
+  {
+    return 0;
+  }
+  else
+  {
+    return ( *(unsigned char *)s1 - *(unsigned char *)s2 );
+  }
+}

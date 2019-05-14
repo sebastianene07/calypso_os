@@ -91,7 +91,7 @@ int vfs_unregister_node(const char *name, size_t name_len);
  *  The function returns the VFS node from the specified name.
  *
  */
-struct vfs_node_s vfs_get_matching_node(const char *name, size_t name_len);
+struct vfs_node_s *vfs_get_matching_node(const char *name, size_t name_len);
 
 /*
  * vfs_get_default - get the paths mounted under "/"
