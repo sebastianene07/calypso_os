@@ -2,6 +2,7 @@
 #include <semaphore.h>
 #include <errno.h>
 #include <list.h>
+#include <string.h>
 
 /* Virtual file system tree */
 
