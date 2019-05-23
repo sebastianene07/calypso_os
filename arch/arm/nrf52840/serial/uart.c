@@ -59,7 +59,7 @@ static sem_t g_uart_sema;
 
 int uart_init(void)
 {
-  /* Configure UART - hardware flow control, no pairty, one stop bit */
+  /* Configure UART - no hardware flow control, no pairty, one stop bit */
 
   UART_CONFIG = 0;//(0 << UART_HWFC);
 
@@ -116,6 +116,10 @@ int uart_send(char *msg, int msg_len)
 char uart_receive(void)
 {
   char c = 0;
+
+  /* This function should sleep until a character is received
+   * from the UART peripheral
+   */
 
   return c;
 }
