@@ -17,9 +17,11 @@ void free(void *ptr)
 void *calloc(size_t nmemb, size_t size)
 {
   uint8_t *ptr = malloc(nmemb * size);
+  if (ptr == NULL)
+    return NULL;
 
-  for (int i = 0; i < size; i++)
-    memset(ptr + nmemb * i, 0, nmemb);
+  memset(ptr, 0, nmemb * size);
+  return ptr;
 }
 
 void *realloc(void *ptr, size_t size)

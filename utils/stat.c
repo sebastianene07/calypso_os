@@ -20,16 +20,24 @@ int open(const char *pathname, int flags)
   size_t name_len = strlen(pathname);
   struct vfs_node_s *node = vfs_get_matching_node(pathname,
                                                   name_len);
-  if (node == NULL)
-  {
+  if (node == NULL) {
     return -ENOENT;
   }
 
   /* Call the vfs open method */
 
+  int ret = OK;
   if (node->ops != NULL && node->ops->open != NULL) {
-    return node->ops->open(pathname, flags, 0);
+    ret = node->ops->open(pathname, flags, 0);
   }
 
-  return -ENOSYS;
+  if (ret < 0) {
+    return ret;
+  }
+
+  /* Store the vfs_node_s in a file structure from this task */
+
+
+
+  return ret;;
 }

@@ -57,7 +57,7 @@ static sem_t g_uart_sema;
 
 /* Public functions */
 
-int uart_init(void)
+int uart_low_init(void)
 {
   /* Configure UART - no hardware flow control, no pairty, one stop bit */
 
@@ -80,20 +80,22 @@ int uart_init(void)
   return 0;
 }
 
-int uart_send(char *msg, int msg_len)
+int uart_low_send(char *msg)
 {
   sem_wait(&g_uart_sema);
 
   UART_EVENTS_TXSTOPPED = 0;
   *g_uart_end_tx = 0;
 
-  for (int i = 0; i < msg_len; i++)
+  int i = 0;
+  for (msg; *msg != NULL; msg++)
   {
-    g_uart_tx_buffer[i] = *(msg++);
+    g_uart_tx_buffer[i] = *msg;
+    i++;
   }
 
   UART_TXD_PTR_CONFIG     = (uint32_t)g_uart_tx_buffer;
-  UART_TXD_MAXCNT_CONFIG  = msg_len;
+  UART_TXD_MAXCNT_CONFIG  = i;
   UART_TX_START_TASK      = 1;
 
   while (*g_uart_end_tx == 0)
@@ -113,7 +115,7 @@ int uart_send(char *msg, int msg_len)
   return 0;
 }
 
-char uart_receive(void)
+char uart_low_receive(void)
 {
   char c = 0;
 
@@ -122,4 +124,9 @@ char uart_receive(void)
    */
 
   return c;
+}
+
+int uart_init(void)
+{
+  return 0;
 }

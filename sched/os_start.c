@@ -1,5 +1,6 @@
 #include <board.h>
 
+#include <uart.h>
 #include <vfs.h>
 #include <os_start.h>
 
@@ -14,7 +15,15 @@
  */
 void os_startup(void)
 {
+    /* Init dummy serial console */
+
+    uart_low_init();
+    uart_low_send("^-^\n");
+
+    /* Virtual file system initialization */
+
     vfs_init(NULL, 0);
+    uart_low_send("Cat OS v0.0.1\n");
 
     /* This function should be implemented by each board config. It contains
      * the board specific initialization logic and it initializes the drivers.

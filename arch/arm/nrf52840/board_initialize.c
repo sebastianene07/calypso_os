@@ -15,8 +15,12 @@ void board_init(void)
   /* Driver initialization logic */
 
   uart_init();
+  uart_low_send(".");
+
   gpio_init();
+  uart_low_send(".");
 
   gpio_configure(LED, 0, GPIO_DIRECTION_OUT);
   gpio_configure(BUTTON_1, 0, GPIO_DIRECTION_IN);
+  uart_low_send(".");
 }

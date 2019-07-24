@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <list.h>
 #include <string.h>
+#include <stdlib.h>
 
 /* Virtual file system tree */
 
@@ -61,11 +62,12 @@ int vfs_init(const char *node_name[], size_t num_nodes)
 
   for (int i = 0; i < num_nodes; ++i)
   {
-    INIT_LIST_HEAD(&new_node->child_node);
-    new_node->name      = node_name[i];
-    new_node->node_type = VFS_TYPE_DIR;
+    INIT_LIST_HEAD(&new_node[i].child_node);
+    INIT_LIST_HEAD(&new_node[i].parent_node);
+    new_node[i].name      = node_name[i];
+    new_node[i].node_type = VFS_TYPE_DIR;
 
-    list_add(&new_node->parent_node, &g_root_vfs.child_node);
+    list_add(&new_node[i].parent_node, &g_root_vfs.child_node);
   }
 
   return OK;
@@ -103,6 +105,11 @@ struct vfs_node_s *vfs_get_matching_node(const char *name, size_t name_len)
   char *name_copy = calloc(1, strlen(name) + 1);
   memcpy(name_copy, name, strlen(name));
 
+  /* TODO : implement reader-writer with readers priority */
+  /* Prevent concurent access to VFS while we iterate through nodes */
+
+  sem_wait(&g_vfs_sema);
+
   char *ptr_copy = name_copy;
   struct vfs_node_s *current_node = NULL;
   struct vfs_node_s *parent= &g_root_vfs;
@@ -117,13 +124,17 @@ struct vfs_node_s *vfs_get_matching_node(const char *name, size_t name_len)
      */
 
     list_for_each_entry(current_node, &parent->child_node, parent_node) {
-      if (!strcmp(current_node->name, node_name)) {
+      if (node_name && !strcmp(current_node->name, node_name)) {
         break;
       }
     }
 
     parent = current_node;
   } while (node_name != NULL);
+
+  /* Give back VFS access */
+
+  sem_post(&g_vfs_sema);
 
   free(name_copy);
   return current_node;
