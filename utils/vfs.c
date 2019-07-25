@@ -4,6 +4,7 @@
 #include <list.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 /* Virtual file system tree */
 
@@ -44,8 +45,7 @@ int vfs_init(const char *node_name[], size_t num_nodes)
 
   sem_init(&g_vfs_sema, 0, 1);
 
-  INIT_LIST_HEAD(&g_root_vfs.parent_node);
-  INIT_LIST_HEAD(&g_root_vfs.child_node);
+  g_root_vfs.parent = NULL;
 
   g_root_vfs.name       = "/";
   g_root_vfs.node_type  = VFS_TYPE_DIR;
@@ -60,14 +60,14 @@ int vfs_init(const char *node_name[], size_t num_nodes)
     return -ENOMEM;
   }
 
+  g_root_vfs.leaf       = new_node;
+  g_root_vfs.num_leafs  = num_nodes;
+
   for (int i = 0; i < num_nodes; ++i)
   {
-    INIT_LIST_HEAD(&new_node[i].child_node);
-    INIT_LIST_HEAD(&new_node[i].parent_node);
-    new_node[i].name      = node_name[i];
-    new_node[i].node_type = VFS_TYPE_DIR;
-
-    list_add(&new_node[i].parent_node, &g_root_vfs.child_node);
+    new_node[i].parent      = &g_root_vfs;
+    new_node[i].name        = node_name[i];
+    new_node[i].node_type   = VFS_TYPE_DIR;
   }
 
   return OK;
@@ -112,8 +112,9 @@ struct vfs_node_s *vfs_get_matching_node(const char *name, size_t name_len)
 
   char *ptr_copy = name_copy;
   struct vfs_node_s *current_node = NULL;
-  struct vfs_node_s *parent= &g_root_vfs;
+  struct vfs_node_s *parent = &g_root_vfs;
   char *node_name = NULL;
+  bool not_found;
 
   do {
     node_name = strtok_r(ptr_copy, delim, &olds);
@@ -123,19 +124,27 @@ struct vfs_node_s *vfs_get_matching_node(const char *name, size_t name_len)
      * 'node_name'.
      */
 
-    list_for_each_entry(current_node, &parent->child_node, parent_node) {
+    not_found = true;
+    for (int i = 0; i < parent->num_leafs; ++i) {
+      current_node = &parent->leaf[i];
+
       if (node_name && !strcmp(current_node->name, node_name)) {
+        not_found = false;
         break;
       }
+    }
+
+    if (not_found) {
+      current_node = NULL;
+      goto free_with_sem;
     }
 
     parent = current_node;
   } while (node_name != NULL);
 
-  /* Give back VFS access */
-
+free_with_sem:
   sem_post(&g_vfs_sema);
-
   free(name_copy);
+
   return current_node;
 }

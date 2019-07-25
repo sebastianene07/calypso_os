@@ -23,8 +23,9 @@ enum vfs_node_type {
 /* This represents the node structure for the virtual file system tree */
 
 struct vfs_node_s {
-  struct list_head parent_node;
-  struct list_head child_node;
+  struct vfs_node_s *parent;
+  struct vfs_node_s *leaf;
+  unsigned int num_leafs;
   const char *name;
   enum vfs_node_type node_type;
   struct vfs_ops_s *ops;
