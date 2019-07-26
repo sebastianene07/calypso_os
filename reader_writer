@@ -1,0 +1,32 @@
+int nr_readers;
+
+sem_t g_read_count_lock;
+sem_t g_writer;
+
+reader(obiect, do_read)
+{
+  sem_wait(&g_read_count_lock);
+    nr_readers++;
+    if (nr_readers == 1) {
+      sem_wait(&g_writer);
+    }
+  sem_post(&g_read_count_lock);
+
+  do_read(obiect);
+
+  sem_wait(&g_read_count_lock);
+    nr_readers--;
+    if (nr_readers == 0) {
+      sem_post(&g_writer);
+    }
+  sem_post(&g_read_count_lock);
+}
+
+writer(obiect, do_write)
+{
+  sem_wait(&g_writer);
+
+  do_write(obiect);
+
+  sem_post(&g_writer);
+}

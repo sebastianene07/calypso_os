@@ -37,7 +37,5 @@ int open(const char *pathname, int flags)
 
   /* Store the vfs_node_s in a file structure from this task */
 
-
-
-  return ret;;
+  return ret;
 }

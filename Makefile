@@ -13,7 +13,7 @@ TARGET=$(MACHINE_TYPE)
 # List the directories that contain the MACHINE_TYPE name
 
 SRC_DIRS := $(shell find . -iname $(MACHINE_TYPE))
-SRC_DIRS += sched s_alloc utils apps lib
+SRC_DIRS += sched s_alloc utils apps lib drivers
 
 # This is the archive where we will bundle the object files
 

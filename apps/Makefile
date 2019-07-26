@@ -13,5 +13,3 @@ clean:
 	for name in $(APPS); do			\
 		make -C $$name clean;		  \
 	done;												\
-
-

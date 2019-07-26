@@ -1,8 +1,17 @@
 #include <stdint.h>
 #include <board.h>
 #include <semaphore.h>
+#include <serial.h>
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+/* Uart 0 base register */
 
 #define UART_BASE                           (0x40002000)
+
+/* Uart configuration options register offsets */
 
 #define UART_ENABLE_OFFSET                  (0x500)
 #define UART_PIN_SEL_RTS_OFSSET             (0x508)
@@ -22,21 +31,19 @@
 
 /* UART configuration fields */
 
-#define UART_HWFC                           (0x00)
+#define UART_CONFIG(offset_r)  ((*((volatile uint32_t *)(UART_BASE + (offset_r)))))
 
-#define UART_ENABLE (*((uint32_t *)(UART_BASE + UART_ENABLE_OFFSET)))
-#define UART_CONFIG (*((uint32_t *) (UART_BASE + UART_CONFIG_OFFSET)))
-#define UART_BAUDRATE (*((uint32_t *)(UART_BASE + UART_BAUDRATE_OFFSET)))
-#define UART_TX_PORT_CONFIG (*((uint32_t *)(UART_BASE + UART_PIN_SEL_TXD_OFFSET)))
-#define UART_RX_PORT_CONFIG (*((uint32_t *)(UART_BASE + UART_PIN_SEL_RXD_OFFSET)))
-#define UART_TXD_PTR_CONFIG (*((uint32_t *)(UART_BASE + UART_TXD_OFFSET)))
-#define UART_TXD_MAXCNT_CONFIG (*((uint32_t *)(UART_BASE + UART_TXD_MAXCNT)))
-#define UART_TX_START_TASK (*((uint32_t *)(UART_BASE + UART_TASK_START_TX_OFFSET)))
-#define UART_ENDTX (((uint32_t *)(UART_BASE + UART_ENDTX_OFFSET)))
-#define UART_STOP_TX_TASK (*((uint32_t *)(UART_BASE + 0x00C)))
-#define UART_EVENTS_TXSTOPPED (*((uint32_t *)(UART_BASE + UART_EVENTS_TXSTOPPED_OFFSET)))
-
-static volatile uint32_t *g_uart_end_tx = UART_ENDTX;
+#define UART_ENABLE            UART_CONFIG(UART_ENABLE_OFFSET)
+#define UART_CONFIG_REG        UART_CONFIG(UART_CONFIG_OFFSET)
+#define UART_BAUDRATE          UART_CONFIG(UART_BAUDRATE_OFFSET)
+#define UART_TX_PORT_CONFIG    UART_CONFIG(UART_PIN_SEL_TXD_OFFSET)
+#define UART_RX_PORT_CONFIG    UART_CONFIG(UART_PIN_SEL_RXD_OFFSET)
+#define UART_TXD_PTR_CONFIG    UART_CONFIG(UART_TXD_OFFSET)
+#define UART_TXD_MAXCNT_CONFIG UART_CONFIG(UART_TXD_MAXCNT)
+#define UART_TX_START_TASK     UART_CONFIG(UART_TASK_START_TX_OFFSET)
+#define UART_ENDTX             UART_CONFIG(UART_ENDTX_OFFSET)
+#define UART_STOP_TX_TASK      UART_CONFIG(UART_TASK_STOP_TX_OFFSET)
+#define UART_EVENTS_TXSTOPPED  UART_CONFIG(UART_EVENTS_TXSTOPPED_OFFSET)
 
 /* Board configs : this should not stay in driver code */
 
@@ -46,22 +53,25 @@ static volatile uint32_t *g_uart_end_tx = UART_ENDTX;
 #define UART_RX_PIN                         (8)   /* range 0 - 31 */
 #define UART_RX_PORT                        (0)   /* range 0 - 1  */
 
-#define UART_TX_BUFFER                      (128)
-#define UART_RX_BUFFER                      (128)
-
-/* Private types */
+/****************************************************************************
+ * Private Data
+ ****************************************************************************/
 
 static char g_uart_tx_buffer[UART_TX_BUFFER];
 static char g_uart_rx_buffer[UART_RX_BUFFER];
 static sem_t g_uart_sema;
 
-/* Public functions */
+static struct uart_lower_s g_uart_low_0;
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
 
 int uart_low_init(void)
 {
   /* Configure UART - no hardware flow control, no pairty, one stop bit */
 
-  UART_CONFIG = 0;//(0 << UART_HWFC);
+  UART_CONFIG_REG = 0;
 
   /* Configure UART baud rate 115200 */
 
@@ -85,7 +95,7 @@ int uart_low_send(char *msg)
   sem_wait(&g_uart_sema);
 
   UART_EVENTS_TXSTOPPED = 0;
-  *g_uart_end_tx = 0;
+  UART_ENDTX            = 0;
 
   int i = 0;
   for (msg; *msg != NULL; msg++)
@@ -98,15 +108,12 @@ int uart_low_send(char *msg)
   UART_TXD_MAXCNT_CONFIG  = i;
   UART_TX_START_TASK      = 1;
 
-  while (*g_uart_end_tx == 0)
-  {
-    ;;
-  }
+  while (UART_ENDTX == 0);
 
-  // Stop the UART TX
+  /* Stop the UART TX */
   UART_STOP_TX_TASK = 1;
 
-  // Wait until we receive the stopped event
+  /* Wait until we receive the stopped event */
   while (UART_EVENTS_TXSTOPPED == 0);
 
   UART_TX_START_TASK = 0;
@@ -119,14 +126,11 @@ char uart_low_receive(void)
 {
   char c = 0;
 
-  /* This function should sleep until a character is received
-   * from the UART peripheral
-   */
-
+  /* Not implemented */
   return c;
 }
 
 int uart_init(void)
 {
-  return 0;
+  return uart_register("/dev/ttyUSB0", &g_uart_low_0);
 }

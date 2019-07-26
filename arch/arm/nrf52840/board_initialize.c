@@ -1,5 +1,5 @@
 #include <board.h>
-#include <uart.h>
+#include <serial.h>
 #include <gpio.h>
 
 unsigned int LED = 13;
@@ -14,7 +14,7 @@ void board_init(void)
 {
   /* Driver initialization logic */
 
-  uart_init();
+  uart_low_init();
   uart_low_send(".");
 
   gpio_init();

@@ -1,6 +1,6 @@
 #include <board.h>
 
-#include <uart.h>
+#include <serial.h>
 #include <vfs.h>
 #include <os_start.h>
 
