@@ -28,14 +28,12 @@ int open(const char *pathname, int flags)
 
   int ret = OK;
   if (node->ops != NULL && node->ops->open != NULL) {
-    ret = node->ops->open(pathname, flags, 0);
+    ret = node->ops->open(node->priv, pathname, flags, 0);
   }
 
   if (ret < 0) {
     return ret;
   }
-
-  /* Store the vfs_node_s in a file structure from this task */
 
   return ret;
 }

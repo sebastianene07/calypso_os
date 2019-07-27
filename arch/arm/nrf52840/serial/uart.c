@@ -125,8 +125,6 @@ int uart_low_send(char *msg)
 char uart_low_receive(void)
 {
   char c = 0;
-
-  /* Not implemented */
   return c;
 }
 

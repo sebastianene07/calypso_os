@@ -4,11 +4,18 @@
 #include <list.h>
 #include <unistd.h>
 
+/****************************************************************************
+ * Private Types
+ ****************************************************************************/
+
 /* A device driver it's supposed to registers a new node in the VFS tree */
 
 struct vfs_ops_s {
-  int (*open)(const char *pathname, int flags, mode_t mode);
-  int (*close)(int fd);
+  int (*open)(void *priv, const char *pathname, int flags, mode_t mode);
+  int (*close)(void *priv, int fd);
+  int (*write)(void *priv, int fd, const void *buf, size_t count);
+  int (*read)(void *priv, int fd, void *buf, size_t count);
+/*  int (*poll)(struct pollfd *fds, nfds_t nfds, int timeout); */
 };
 
 /* Type of the nodes */
@@ -29,6 +36,7 @@ struct vfs_node_s {
   const char *name;
   enum vfs_node_type node_type;
   struct vfs_ops_s *ops;
+  void *priv;
 };
 
 /* The initial VFS mountpoints */
@@ -38,6 +46,10 @@ struct vfs_init_mountpoint_s
   size_t num_nodes;
   const char *node_name[];
 };
+
+/****************************************************************************
+ * Public Function Definitions
+ ****************************************************************************/
 
 /*
  * vfs_init - initialize the root nodes
@@ -67,7 +79,8 @@ int vfs_init(const char *node_name[], size_t num_nodes);
 int vfs_register_node(const char *name,
                       size_t name_len,
                       struct vfs_ops_s *ops,
-                      enum vfs_node_type node_type);
+                      enum vfs_node_type node_type,
+                      void *priv);
 
 /*
  * vfs_unregister_node - remove a node from the virtual file system

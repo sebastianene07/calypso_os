@@ -148,3 +148,26 @@ free_with_sem:
 
   return current_node;
 }
+
+/*
+ * vfs_register_node - register a node with the virual file system
+ *
+ * @name      - path name
+ * @name_len  - the name length
+ * @ops       - supported node operations
+ * @node_type - the type of the node
+ *
+ *  The function creates a new node entry in the virtual file system.
+ *  Returns OK if the node is registered -ENOMEM if we run out of memory and
+ *  we can't register the node, -EINVAL if the given arguments are wrong.
+ */
+int vfs_register_node(const char *name,
+                      size_t name_len,
+                      struct vfs_ops_s *ops,
+                      enum vfs_node_type node_type,
+                      void *priv)
+{
+  /* Create and populate the new node */
+
+  /* Find the place where we should insert the node */
+}

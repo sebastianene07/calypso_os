@@ -25,6 +25,11 @@
 
 #define MCU_CONTEXT_SIZE                      (8)
 
+struct opened_resource_s {
+  int open_mode;
+  void *priv;
+  struct vfs_ops_s *ops;
+};
 
 /* The task can be in one of the following states */
 
@@ -46,6 +51,8 @@ struct tcb_s {
   void *mcu_context[MCU_CONTEXT_SIZE];
   struct list_head next_tcb;
   sem_t *waiting_tcb_sema;
+  struct opened_resource_s *res;
+  uint32_t curr_resource_opened;
 } __attribute__((aligned(4)));
 
 
