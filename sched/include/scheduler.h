@@ -29,6 +29,7 @@ struct opened_resource_s {
   int open_mode;
   void *priv;
   struct vfs_ops_s *ops;
+  int fd;
 };
 
 /* The task can be in one of the following states */
@@ -73,5 +74,7 @@ void disable_int(void);
 void enable_int(void);
 
 void sched_context_switch(void);
+
+struct opened_resource_s *sched_allocate_resource(void);
 
 #endif /* SCHEDULER_H_ */

@@ -37,9 +37,15 @@ static int uart_open(void *priv, const char *pathname, int flags, mode_t mode)
 
   /* Grab an entry from the tcb FILE structure */
 
-  disable_int();
-  struct tcb_s *curr_tcb = sched_get_current_task();
-  enable_int();
+  struct opened_resource_s *res = sched_allocate_resource();
+  if (res == NULL) {
+    return -ENOMEM;
+  }
+
+  res->open_mode = mode;
+  res->priv      = priv;
+  res->ops       = &g_uart_ops;
+  return res->fd;
 }
 
 static int uart_close(void *priv, int fd)

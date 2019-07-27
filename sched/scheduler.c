@@ -231,6 +231,42 @@ struct tcb_s *sched_get_next_task(void)
 
 /**************************************************************************
 * Name:
+* sched_allocate_resource
+*
+* Description:
+*  Allocate a new resource and store the file desscriptor in the resource
+*  structure.
+*
+* Return Value:
+*  The opened container resource or NULL in case we are running out of memory.
+*
+*************************************************************************/
+struct opened_resource_s *sched_allocate_resource(void)
+{
+  disable_int();
+  struct tcb_s *curr_tcb = sched_get_current_task();
+  assert(curr_tcb->curr_resource_opened >= 0);
+
+  size_t new_size = sizeof(struct opened_resource_s) *
+    (curr_tcb->curr_resource_opened + 1);
+  struct opened_resource_s *new_res = realloc(curr_tcb->res,
+                                              new_size);
+  if (!res) {
+    enable_int();
+    return NULL;
+  }
+
+  curr_tcb->res = new_res;
+  new_res[curr_tcb->curr_resource_opened].fd = curr_tcb->curr_resource_opened;
+  curr_tcb->curr_resource_opened++;
+
+  enable_int();
+
+  return &new_res[curr_tcb->curr_resource_opened - 1];
+}
+
+/**************************************************************************
+* Name:
 * sched_run
 *
 * Description:
