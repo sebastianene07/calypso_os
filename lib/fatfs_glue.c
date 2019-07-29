@@ -1,5 +1,6 @@
 #include "fatfs/source/ff.h"
 #include "fatfs/source/diskio.h"
+#include <stdio.h>
 
 /* The Fat FS device shructure holding some file descriptiors to opened devices
  */

@@ -44,7 +44,7 @@ struct uart_lower_s {
 struct uart_upper_s {
   uint8_t rx_buffer[UART_RX_BUFFER];
   uint8_t tx_buffer[UART_TX_BUFFER];
-  struct uart_lower_s *lower;
+  const struct uart_lower_s *lower;
 };
 
 /****************************************************************************

@@ -178,6 +178,7 @@ CONFIG_CONSOLE_UART_PATH	apps/console_app/console_main.h	10;"	d
 CONFIG_SCHEDULER_IDLE_TASK_STACK_SIZE	sched/include/scheduler.h	22;"	d
 CONFIG_SCHEDULER_TASK_COLORATION	sched/include/scheduler.h	18;"	d
 CONSOLE_FLAGS	apps/console_app/Makefile	/^CONSOLE_FLAGS := ${CFLAGS}																					\\$/;"	m
+CONSOLE_FLAGS	drivers/serial/Makefile	/^CONSOLE_FLAGS := ${CFLAGS}																					\\$/;"	m
 CPACR	arch/arm/nrf52840/include/board.h	/^  uint32_t CPACR;                   \/*!< Offset: 0x088 (R\/W)  Coprocessor Access Control Register                   *\/$/;"	m	struct:__anon28
 CPACR	include/board.h	/^  uint32_t CPACR;                   \/*!< Offset: 0x088 (R\/W)  Coprocessor Access Control Register                   *\/$/;"	m	struct:__anon2
 CPUID	arch/arm/nrf52840/include/board.h	/^  uint32_t CPUID;                   \/*!< Offset: 0x000 (R\/ )  CPUID Base Register                                   *\/$/;"	m	struct:__anon28
@@ -895,11 +896,13 @@ NonMaskableInt_IRQn	include/board.h	/^  NonMaskableInt_IRQn          = -14,     
 NotAvail_IRQn	arch/arm/nrf52840/include/board.h	/^  NotAvail_IRQn                = -128,             \/**< Not available device specific interrupt *\/$/;"	e	enum:IRQn
 NotAvail_IRQn	include/board.h	/^  NotAvail_IRQn                = -128,             \/**< Not available device specific interrupt *\/$/;"	e	enum:IRQn
 OBJS	apps/console_app/Makefile	/^OBJS:=$(patsubst %.c,%.o,$(SRC))$/;"	m
+OBJS	drivers/serial/Makefile	/^OBJS:=$(patsubst %.c,%.o,$(SRC))$/;"	m
 OBJS	s_alloc/Makefile	/^OBJS := $(patsubst %.c,%.o,$(SRC))$/;"	m
 OBJS	sched/Makefile	/^OBJS:=$(patsubst %.c,%.o,$(SRC))$/;"	m
 OBJS	utils/Makefile	/^OBJS:=$(patsubst %.c,%.o,$(SRC))$/;"	m
 OBJS_ASM	apps/console_app/Makefile	/^OBJS_ASM:=$(patsubst %.s,%.o,$(SRC_ASM))$/;"	m
 OBJS_ASM	arch/arm/nrf52840/Makefile	/^OBJS_ASM:=$(patsubst %.s,%.o,$(SRC_ASM))$/;"	m
+OBJS_ASM	drivers/serial/Makefile	/^OBJS_ASM:=$(patsubst %.s,%.o,$(SRC_ASM))$/;"	m
 OBJS_ASM	sched/Makefile	/^OBJS_ASM:=$(patsubst %.s,%.o,$(SRC_ASM))$/;"	m
 OBJS_FATFS	lib/Makefile	/^OBJS_FATFS := $(patsubst %.c, %.o, $(SRCS_FATFS))$/;"	m
 OK	include/errno.h	26;"	d
@@ -1040,6 +1043,7 @@ SPI_REG_SET	arch/arm/nrf52840/spi/spi.c	43;"	d	file:
 SPI_TX_BUF_SIZXE	arch/arm/nrf52840/spi/spi.c	135;"	d	file:
 SRC	apps/console_app/Makefile	/^SRC:=$(wildcard *.c)$/;"	m
 SRC	arch/arm/nrf52840/Makefile	/^SRC := $(wildcard *.c)$/;"	m
+SRC	drivers/serial/Makefile	/^SRC:=$(wildcard *.c)$/;"	m
 SRC	s_alloc/Makefile	/^	SRC := $(wildcard *.c)$/;"	m
 SRC	s_alloc/Makefile	/^	SRC := $(wildcard s_heap*.c)$/;"	m
 SRC	sched/Makefile	/^SRC:=$(wildcard *.c)$/;"	m
@@ -1047,8 +1051,10 @@ SRC	utils/Makefile	/^SRC:=$(wildcard *.c)$/;"	m
 SRCS_FATFS	lib/Makefile	/^SRCS_FATFS := $(wildcard $(PATH_FATFS)\/*.c) fatfs_glue.c$/;"	m
 SRC_ASM	apps/console_app/Makefile	/^SRC_ASM:=$(wildcard *.s)$/;"	m
 SRC_ASM	arch/arm/nrf52840/Makefile	/^SRC_ASM:=$(wildcard *.s)$/;"	m
+SRC_ASM	drivers/serial/Makefile	/^SRC_ASM:=$(wildcard *.s)$/;"	m
 SRC_ASM	sched/Makefile	/^SRC_ASM:=$(wildcard *.s)$/;"	m
 SRC_DIRS	Makefile	/^SRC_DIRS := $(shell find . -iname $(MACHINE_TYPE))$/;"	m
+SRC_DIRS	drivers/Makefile	/^SRC_DIRS := $(shell find . -type d | tail -n +2)$/;"	m
 SS	fatfs/source/ff.c	238;"	d	file:
 SS	fatfs/source/ff.c	240;"	d	file:
 SS	lib/fatfs/source/ff.c	238;"	d	file:
@@ -1172,40 +1178,40 @@ TXD_AMOUNT	arch/arm/nrf52840/spi/spi.c	34;"	d	file:
 TXD_LIST	arch/arm/nrf52840/spi/spi.c	35;"	d	file:
 TXD_MAXCNT	arch/arm/nrf52840/spi/spi.c	33;"	d	file:
 TXD_PTR	arch/arm/nrf52840/spi/spi.c	32;"	d	file:
-UART_BASE	arch/arm/nrf52840/serial/uart.c	11;"	d	file:
-UART_BAUDRATE	arch/arm/nrf52840/serial/uart.c	37;"	d	file:
-UART_BAUDRATE_OFFSET	arch/arm/nrf52840/serial/uart.c	25;"	d	file:
-UART_CONFIG	arch/arm/nrf52840/serial/uart.c	33;"	d	file:
-UART_CONFIG	arch/arm/nrf52840/serial/uart.c	36;"	d	file:
-UART_CONFIG_OFFSET	arch/arm/nrf52840/serial/uart.c	24;"	d	file:
-UART_ENABLE	arch/arm/nrf52840/serial/uart.c	35;"	d	file:
-UART_ENABLE_OFFSET	arch/arm/nrf52840/serial/uart.c	15;"	d	file:
-UART_ENDTX	arch/arm/nrf52840/serial/uart.c	43;"	d	file:
-UART_ENDTX_OFFSET	arch/arm/nrf52840/serial/uart.c	28;"	d	file:
-UART_EVENTS_TXSTOPPED	arch/arm/nrf52840/serial/uart.c	45;"	d	file:
-UART_EVENTS_TXSTOPPED_OFFSET	arch/arm/nrf52840/serial/uart.c	29;"	d	file:
-UART_PIN_SEL_CTS_OFFSET	arch/arm/nrf52840/serial/uart.c	18;"	d	file:
-UART_PIN_SEL_RTS_OFSSET	arch/arm/nrf52840/serial/uart.c	16;"	d	file:
-UART_PIN_SEL_RXD_OFFSET	arch/arm/nrf52840/serial/uart.c	19;"	d	file:
-UART_PIN_SEL_TXD_OFFSET	arch/arm/nrf52840/serial/uart.c	17;"	d	file:
-UART_RX_BUFFER	arch/arm/nrf52840/serial/uart.c	56;"	d	file:
-UART_RX_PIN	arch/arm/nrf52840/serial/uart.c	52;"	d	file:
-UART_RX_PORT	arch/arm/nrf52840/serial/uart.c	53;"	d	file:
-UART_RX_PORT_CONFIG	arch/arm/nrf52840/serial/uart.c	39;"	d	file:
-UART_STOP_TX_TASK	arch/arm/nrf52840/serial/uart.c	44;"	d	file:
-UART_TASK_START_RX_OFFSET	arch/arm/nrf52840/serial/uart.c	20;"	d	file:
-UART_TASK_START_TX_OFFSET	arch/arm/nrf52840/serial/uart.c	22;"	d	file:
-UART_TASK_STOP_RX_OFFSET	arch/arm/nrf52840/serial/uart.c	21;"	d	file:
-UART_TASK_STOP_TX_OFFSET	arch/arm/nrf52840/serial/uart.c	23;"	d	file:
-UART_TXD_MAXCNT	arch/arm/nrf52840/serial/uart.c	27;"	d	file:
-UART_TXD_MAXCNT_CONFIG	arch/arm/nrf52840/serial/uart.c	41;"	d	file:
-UART_TXD_OFFSET	arch/arm/nrf52840/serial/uart.c	26;"	d	file:
-UART_TXD_PTR_CONFIG	arch/arm/nrf52840/serial/uart.c	40;"	d	file:
-UART_TX_BUFFER	arch/arm/nrf52840/serial/uart.c	55;"	d	file:
-UART_TX_PIN	arch/arm/nrf52840/serial/uart.c	49;"	d	file:
-UART_TX_PORT	arch/arm/nrf52840/serial/uart.c	50;"	d	file:
-UART_TX_PORT_CONFIG	arch/arm/nrf52840/serial/uart.c	38;"	d	file:
-UART_TX_START_TASK	arch/arm/nrf52840/serial/uart.c	42;"	d	file:
+UART_BASE	arch/arm/nrf52840/serial/uart.c	12;"	d	file:
+UART_BAUDRATE	arch/arm/nrf52840/serial/uart.c	38;"	d	file:
+UART_BAUDRATE_OFFSET	arch/arm/nrf52840/serial/uart.c	26;"	d	file:
+UART_CONFIG	arch/arm/nrf52840/serial/uart.c	34;"	d	file:
+UART_CONFIG_OFFSET	arch/arm/nrf52840/serial/uart.c	25;"	d	file:
+UART_CONFIG_REG	arch/arm/nrf52840/serial/uart.c	37;"	d	file:
+UART_ENABLE	arch/arm/nrf52840/serial/uart.c	36;"	d	file:
+UART_ENABLE_OFFSET	arch/arm/nrf52840/serial/uart.c	16;"	d	file:
+UART_ENDTX	arch/arm/nrf52840/serial/uart.c	44;"	d	file:
+UART_ENDTX_OFFSET	arch/arm/nrf52840/serial/uart.c	29;"	d	file:
+UART_EVENTS_TXSTOPPED	arch/arm/nrf52840/serial/uart.c	46;"	d	file:
+UART_EVENTS_TXSTOPPED_OFFSET	arch/arm/nrf52840/serial/uart.c	30;"	d	file:
+UART_PIN_SEL_CTS_OFFSET	arch/arm/nrf52840/serial/uart.c	19;"	d	file:
+UART_PIN_SEL_RTS_OFSSET	arch/arm/nrf52840/serial/uart.c	17;"	d	file:
+UART_PIN_SEL_RXD_OFFSET	arch/arm/nrf52840/serial/uart.c	20;"	d	file:
+UART_PIN_SEL_TXD_OFFSET	arch/arm/nrf52840/serial/uart.c	18;"	d	file:
+UART_RX_BUFFER	include/serial.h	9;"	d
+UART_RX_PIN	arch/arm/nrf52840/serial/uart.c	53;"	d	file:
+UART_RX_PORT	arch/arm/nrf52840/serial/uart.c	54;"	d	file:
+UART_RX_PORT_CONFIG	arch/arm/nrf52840/serial/uart.c	40;"	d	file:
+UART_STOP_TX_TASK	arch/arm/nrf52840/serial/uart.c	45;"	d	file:
+UART_TASK_START_RX_OFFSET	arch/arm/nrf52840/serial/uart.c	21;"	d	file:
+UART_TASK_START_TX_OFFSET	arch/arm/nrf52840/serial/uart.c	23;"	d	file:
+UART_TASK_STOP_RX_OFFSET	arch/arm/nrf52840/serial/uart.c	22;"	d	file:
+UART_TASK_STOP_TX_OFFSET	arch/arm/nrf52840/serial/uart.c	24;"	d	file:
+UART_TXD_MAXCNT	arch/arm/nrf52840/serial/uart.c	28;"	d	file:
+UART_TXD_MAXCNT_CONFIG	arch/arm/nrf52840/serial/uart.c	42;"	d	file:
+UART_TXD_OFFSET	arch/arm/nrf52840/serial/uart.c	27;"	d	file:
+UART_TXD_PTR_CONFIG	arch/arm/nrf52840/serial/uart.c	41;"	d	file:
+UART_TX_BUFFER	include/serial.h	8;"	d
+UART_TX_PIN	arch/arm/nrf52840/serial/uart.c	50;"	d	file:
+UART_TX_PORT	arch/arm/nrf52840/serial/uart.c	51;"	d	file:
+UART_TX_PORT_CONFIG	arch/arm/nrf52840/serial/uart.c	39;"	d	file:
+UART_TX_START_TASK	arch/arm/nrf52840/serial/uart.c	43;"	d	file:
 UINT	fatfs/source/ff.h	/^typedef unsigned int	UINT;	\/* int must be 16-bit or 32-bit *\/$/;"	t
 UINT	lib/fatfs/source/ff.h	/^typedef unsigned int	UINT;	\/* int must be 16-bit or 32-bit *\/$/;"	t
 USB_disk_initialize	lib/fatfs_glue.c	/^DSTATUS USB_disk_initialize(void)$/;"	f
@@ -1325,7 +1331,6 @@ __STD_BOOL	include/stdbool.h	2;"	d
 __STRING_H	include/string.h	2;"	d
 __S_HEAP_H	s_alloc/s_heap.h	20;"	d
 __TIMER_H	include/timer.h	2;"	d
-__UART_H	include/uart.h	2;"	d
 __UNISTD_H	include/unistd.h	2;"	d
 __VERSATILE_PB	arch/arm/versatilepb/include/board.h	2;"	d
 __VFS_H	include/vfs.h	2;"	d
@@ -1390,8 +1395,9 @@ clear_lock	fatfs/source/ff.c	/^static void clear_lock (	\/* Clear lock entries o
 clear_lock	lib/fatfs/source/ff.c	/^static void clear_lock (	\/* Clear lock entries of the volume *\/$/;"	f	file:
 clmt_clust	fatfs/source/ff.c	/^static DWORD clmt_clust (	\/* <2:Error, >=2:Cluster number *\/$/;"	f	file:
 clmt_clust	lib/fatfs/source/ff.c	/^static DWORD clmt_clust (	\/* <2:Error, >=2:Cluster number *\/$/;"	f	file:
-close	include/vfs.h	/^  int (*close)(int fd);$/;"	m	struct:vfs_ops_s
+close	include/vfs.h	/^  int (*close)(void *priv, int fd);$/;"	m	struct:vfs_ops_s
 close	utils/unistd.c	/^int close(int fd)$/;"	f
+close_cb	include/serial.h	/^  uart_lowerhalf_close close_cb;$/;"	m	struct:uart_lower_s
 clst2sect	fatfs/source/ff.c	/^static DWORD clst2sect (	\/* !=0:Sector number, 0:Failed (invalid cluster#) *\/$/;"	f	file:
 clst2sect	lib/fatfs/source/ff.c	/^static DWORD clst2sect (	\/* !=0:Sector number, 0:Failed (invalid cluster#) *\/$/;"	f	file:
 cltbl	fatfs/source/ff.h	/^	DWORD*	cltbl;			\/* Pointer to the cluster link map table (nulled on open, set by application) *\/$/;"	m	struct:__anon10
@@ -1427,6 +1433,7 @@ ct	fatfs/source/ff.c	/^	UINT wi, ct;$/;"	m	struct:__anon6	file:
 ct	lib/fatfs/source/ff.c	/^	UINT wi, ct;$/;"	m	struct:__anon16	file:
 ctr	fatfs/source/ff.c	/^	WORD ctr;		\/* Object open counter, 0:none, 0x01..0xFF:read mode open count, 0x100:write mode *\/$/;"	m	struct:__anon5	file:
 ctr	lib/fatfs/source/ff.c	/^	WORD ctr;		\/* Object open counter, 0:none, 0x01..0xFF:read mode open count, 0x100:write mode *\/$/;"	m	struct:__anon15	file:
+curr_resource_opened	sched/include/scheduler.h	/^  uint32_t curr_resource_opened;$/;"	m	struct:tcb_s
 database	fatfs/source/ff.h	/^	DWORD	database;		\/* Data base sector *\/$/;"	m	struct:__anon8
 database	lib/fatfs/source/ff.h	/^	DWORD	database;		\/* Data base sector *\/$/;"	m	struct:__anon18
 dbc_1st	fatfs/source/ff.c	/^static int dbc_1st (BYTE c)$/;"	f	file:
@@ -1574,6 +1581,7 @@ fatbase	lib/fatfs/source/ff.h	/^	DWORD	fatbase;		\/* FAT base sector *\/$/;"	m	s
 fatfs_device_s	lib/fatfs_glue.c	/^struct fatfs_device_s$/;"	s	file:
 fattrib	fatfs/source/ff.h	/^	BYTE	fattrib;		\/* File attribute *\/$/;"	m	struct:__anon12
 fattrib	lib/fatfs/source/ff.h	/^	BYTE	fattrib;		\/* File attribute *\/$/;"	m	struct:__anon22
+fd	sched/include/scheduler.h	/^  int fd;$/;"	m	struct:opened_resource_s
 fdate	fatfs/source/ff.h	/^	WORD	fdate;			\/* Modified date *\/$/;"	m	struct:__anon12
 fdate	lib/fatfs/source/ff.h	/^	WORD	fdate;			\/* Modified date *\/$/;"	m	struct:__anon22
 ff_cre_syncobj	fatfs/source/ffsystem.c	/^int ff_cre_syncobj (	\/* 1:Function succeeded, 0:Could not create the sync object *\/$/;"	f
@@ -1647,6 +1655,8 @@ g_rx_spi_buffer	arch/arm/nrf52840/spi/spi.c	/^static uint8_t g_rx_spi_buffer[SPI
 g_spi_peripherals	arch/arm/nrf52840/spi/spi.c	/^static uint8_t* g_spi_peripherals[] =$/;"	v	file:
 g_tcb_list	sched/scheduler.c	/^LIST_HEAD(g_tcb_list);$/;"	v
 g_tcb_waiting_list	sched/scheduler.c	/^LIST_HEAD(g_tcb_waiting_list);$/;"	v
+g_uart_low_0	arch/arm/nrf52840/serial/uart.c	/^static struct uart_lower_s g_uart_low_0;$/;"	v	typeref:struct:uart_lower_s	file:
+g_uart_ops	drivers/serial/serial.c	/^struct vfs_ops_s g_uart_ops = {$/;"	v	typeref:struct:vfs_ops_s
 g_uart_rx_buffer	arch/arm/nrf52840/serial/uart.c	/^static char g_uart_rx_buffer[UART_RX_BUFFER];$/;"	v	file:
 g_uart_sema	arch/arm/nrf52840/serial/uart.c	/^static sem_t g_uart_sema;$/;"	v	file:
 g_uart_tx_buffer	arch/arm/nrf52840/serial/uart.c	/^static char g_uart_tx_buffer[UART_TX_BUFFER];$/;"	v	file:
@@ -1704,6 +1714,7 @@ inc_lock	fatfs/source/ff.c	/^static UINT inc_lock (	\/* Increment object open co
 inc_lock	lib/fatfs/source/ff.c	/^static UINT inc_lock (	\/* Increment object open counter and returns its index (0:Internal error) *\/$/;"	f	file:
 init_alloc_info	fatfs/source/ff.c	/^static void init_alloc_info ($/;"	f	file:
 init_alloc_info	lib/fatfs/source/ff.c	/^static void init_alloc_info ($/;"	f	file:
+ioctl_cb	include/serial.h	/^  uart_lowerhalf_ioctl ioctl_cb;$/;"	m	struct:uart_lower_s
 is_enabled	arch/arm/nrf52840/startup.c	/^volatile int is_enabled = 0;$/;"	v
 last_clst	fatfs/source/ff.h	/^	DWORD	last_clst;		\/* Last allocated cluster *\/$/;"	m	struct:__anon8
 last_clst	lib/fatfs/source/ff.h	/^	DWORD	last_clst;		\/* Last allocated cluster *\/$/;"	m	struct:__anon18
@@ -1751,6 +1762,7 @@ lock_fs	fatfs/source/ff.c	/^static int lock_fs (		\/* 1:Ok, 0:timeout *\/$/;"	f	
 lock_fs	lib/fatfs/source/ff.c	/^static int lock_fs (		\/* 1:Ok, 0:timeout *\/$/;"	f	file:
 lockid	fatfs/source/ff.h	/^	UINT	lockid;			\/* File lock ID origin from 1 (index of file semaphore table Files[]) *\/$/;"	m	struct:__anon9
 lockid	lib/fatfs/source/ff.h	/^	UINT	lockid;			\/* File lock ID origin from 1 (index of file semaphore table Files[]) *\/$/;"	m	struct:__anon19
+lower	include/serial.h	/^  struct uart_lower_s *lower;$/;"	m	struct:uart_upper_s	typeref:struct:uart_upper_s::uart_lower_s
 main	fatfs/documents/res/app1.c	/^int main (void)$/;"	f
 main	fatfs/documents/res/app2.c	/^int main (void) \/* How to use *\/$/;"	f
 main	fatfs/documents/res/app3.c	/^int main (void)$/;"	f
@@ -1801,6 +1813,7 @@ nchr	lib/fatfs/source/ff.c	/^	int idx, nchr;	\/* Write index of buf[] (-1:error)
 next	s_alloc/list.h	/^  struct hlist_node *next, **pprev;$/;"	m	struct:hlist_node	typeref:struct:hlist_node::hlist_node
 next	s_alloc/list.h	/^  struct list_head *next, *prev;$/;"	m	struct:list_head	typeref:struct:list_head::list_head
 next_tcb	sched/include/scheduler.h	/^  struct list_head next_tcb;$/;"	m	struct:tcb_s	typeref:struct:tcb_s::list_head
+node	sched/include/scheduler.h	/^  struct list_head node;$/;"	m	struct:opened_resource_s	typeref:struct:opened_resource_s::list_head
 node_list	s_alloc/s_heap.h	/^  struct list_head node_list; \/* Next\/Prev chunk node *\/$/;"	m	struct:mem_node_info_s	typeref:struct:mem_node_info_s::list_head
 node_name	include/vfs.h	/^  const char *node_name[];$/;"	m	struct:vfs_init_mountpoint_s
 node_type	include/vfs.h	/^  enum vfs_node_type node_type;$/;"	m	struct:vfs_node_s	typeref:enum:vfs_node_s::vfs_node_type
@@ -1824,11 +1837,16 @@ oem2uni950	lib/fatfs/source/ffunicode.c	/^static const WCHAR oem2uni950[] = {	\/
 offsetof	s_alloc/list.h	40;"	d
 ofs	fatfs/source/ff.c	/^	DWORD ofs;		\/* Object ID 3, offset in the directory *\/$/;"	m	struct:__anon5	file:
 ofs	lib/fatfs/source/ff.c	/^	DWORD ofs;		\/* Object ID 3, offset in the directory *\/$/;"	m	struct:__anon15	file:
-open	include/vfs.h	/^  int (*open)(const char *pathname, int flags, mode_t mode);$/;"	m	struct:vfs_ops_s
+open	include/vfs.h	/^  int (*open)(void *priv, const char *pathname, int flags, mode_t mode);$/;"	m	struct:vfs_ops_s
 open	utils/stat.c	/^int open(const char *pathname, int flags)$/;"	f
 open_append	fatfs/documents/res/app1.c	/^FRESULT open_append ($/;"	f
 open_append	lib/fatfs/documents/res/app1.c	/^FRESULT open_append ($/;"	f
+open_cb	include/serial.h	/^  uart_lowerhalf_open  open_cb;$/;"	m	struct:uart_lower_s
+open_mode	sched/include/scheduler.h	/^  int open_mode;$/;"	m	struct:opened_resource_s
+opened_resource	sched/include/scheduler.h	/^  struct list_head opened_resource;$/;"	m	struct:tcb_s	typeref:struct:tcb_s::list_head
+opened_resource_s	sched/include/scheduler.h	/^struct opened_resource_s {$/;"	s
 ops	include/vfs.h	/^  struct vfs_ops_s *ops;$/;"	m	struct:vfs_node_s	typeref:struct:vfs_node_s::vfs_ops_s
+ops	sched/include/scheduler.h	/^  struct vfs_ops_s *ops;$/;"	m	struct:opened_resource_s	typeref:struct:opened_resource_s::vfs_ops_s
 os_appstart	sched/os_appstart.c	/^void os_appstart(void)$/;"	f
 os_startup	sched/os_start.c	/^void os_startup(void)$/;"	f
 parent	include/vfs.h	/^  struct vfs_node_s *parent;$/;"	m	struct:vfs_node_s	typeref:struct:vfs_node_s::vfs_node_s
@@ -1847,6 +1865,9 @@ pn	lib/fatfs/documents/res/app4.c	/^DWORD pn (		\/* Pseudo random number generat
 pprev	s_alloc/list.h	/^  struct hlist_node *next, **pprev;$/;"	m	struct:hlist_node	typeref:struct:hlist_node::
 prev	s_alloc/list.h	/^  struct list_head *next, *prev;$/;"	m	struct:list_head	typeref:struct:list_head::
 printf	utils/stdio.c	/^int printf(const char * format, ... )$/;"	f
+priv	include/serial.h	/^  void *priv;$/;"	m	struct:uart_lower_s
+priv	include/vfs.h	/^  void *priv;$/;"	m	struct:vfs_node_s
+priv	sched/include/scheduler.h	/^  void *priv;$/;"	m	struct:opened_resource_s
 prvGetRegistersFromStack	arch/arm/nrf52840/startup.c	/^void prvGetRegistersFromStack( uint32_t *pulFaultStackAddress )$/;"	f
 pt	fatfs/source/ff.h	/^	BYTE pt;	\/* Partition: 0:Auto detect, 1-4:Forced partition) *\/$/;"	m	struct:__anon7
 pt	lib/fatfs/source/ff.h	/^	BYTE pt;	\/* Partition: 0:Auto detect, 1-4:Forced partition) *\/$/;"	m	struct:__anon17
@@ -1866,22 +1887,28 @@ putc_init	fatfs/source/ff.c	/^static void putc_init (		\/* Initialize write buff
 putc_init	lib/fatfs/source/ff.c	/^static void putc_init (		\/* Initialize write buffer *\/$/;"	f	file:
 puts	utils/stdio.c	/^int puts(const char *s)$/;"	f
 ramdev_fd	lib/fatfs_glue.c	/^  int ramdev_fd;$/;"	m	struct:fatfs_device_s	file:
+read	include/vfs.h	/^  int (*read)(void *priv, int fd, void *buf, size_t count);$/;"	m	struct:vfs_ops_s
 read	utils/unistd.c	/^ssize_t read(int fd, void *buf, size_t count)$/;"	f
+read_cb	include/serial.h	/^  uart_lowerhalf_read  read_cb;$/;"	m	struct:uart_lower_s
 realloc	utils/stdlib.c	/^void *realloc(void *ptr, size_t size)$/;"	f
 reallocarray	utils/stdlib.c	/^void *reallocarray(void *ptr, size_t nmemb, size_t size)$/;"	f
 remove_chain	fatfs/source/ff.c	/^static FRESULT remove_chain (	\/* FR_OK(0):succeeded, !=0:error *\/$/;"	f	file:
 remove_chain	lib/fatfs/source/ff.c	/^static FRESULT remove_chain (	\/* FR_OK(0):succeeded, !=0:error *\/$/;"	f	file:
 repeat	arch/arm/nrf52840/context_switch.s	/^repeat:$/;"	l
+rx_buffer	include/serial.h	/^  uint8_t rx_buffer[UART_RX_BUFFER];$/;"	m	struct:uart_upper_s
 s_alloc	s_alloc/s_heap.c	/^void *s_alloc(size_t len, heap_t *my_heap)$/;"	f
 s_dbg_heap	s_alloc/main.c	/^void s_dbg_heap(heap_t *my_heap)$/;"	f
 s_free	s_alloc/s_heap.c	/^void s_free(void *ptr, heap_t *my_heap)$/;"	f
 s_init	s_alloc/s_heap.c	/^void s_init(heap_t *my_heap,$/;"	f
+s_realloc	s_alloc/s_heap.c	/^void *s_realloc(void *ptr, size_t size, heap_t *my_heap)$/;"	f
+sched_allocate_resource	sched/scheduler.c	/^struct opened_resource_s *sched_allocate_resource(void *priv_data,$/;"	f
 sched_context_switch	arch/arm/nrf52840/context_switch.s	/^sched_context_switch:$/;"	l
 sched_context_switch_ret	arch/arm/nrf52840/context_switch.s	/^sched_context_switch_ret:$/;"	l
 sched_create_task	sched/scheduler.c	/^int sched_create_task(void (*task_entry_point)(void), uint32_t stack_size)$/;"	f
 sched_default_task_exit_point	sched/scheduler.c	/^void sched_default_task_exit_point(void)$/;"	f
 sched_desroy	sched/scheduler.c	/^int sched_desroy(void)$/;"	f
 sched_do_switch	arch/arm/nrf52840/context_switch.s	/^sched_do_switch:$/;"	l
+sched_free_resource	sched/scheduler.c	/^int sched_free_resource(int fd)$/;"	f
 sched_get_current_task	sched/scheduler.c	/^struct tcb_s *sched_get_current_task(void)$/;"	f
 sched_get_next_task	sched/scheduler.c	/^struct tcb_s *sched_get_next_task(void)$/;"	f
 sched_idle_task	sched/scheduler.c	/^static void sched_idle_task(void)$/;"	f	file:
@@ -1957,11 +1984,23 @@ test_diskio	lib/fatfs/documents/res/app4.c	/^int test_diskio ($/;"	f
 timer_init	arch/arm/nrf52840/timer/timer.c	/^int timer_init(void)$/;"	f
 total_size	s_alloc/s_heap.h	/^  size_t total_size;$/;"	m	struct:__anon26
 true	include/stdbool.h	7;"	d
+tx_buffer	include/serial.h	/^  uint8_t tx_buffer[UART_TX_BUFFER];$/;"	m	struct:uart_upper_s
+uart_close	drivers/serial/serial.c	/^static int uart_close(void *priv, int fd)$/;"	f	file:
 uart_init	arch/arm/nrf52840/serial/uart.c	/^int uart_init(void)$/;"	f
 uart_low_init	arch/arm/nrf52840/serial/uart.c	/^int uart_low_init(void)$/;"	f
 uart_low_receive	arch/arm/nrf52840/serial/uart.c	/^char uart_low_receive(void)$/;"	f
 uart_low_send	arch/arm/nrf52840/serial/uart.c	/^int uart_low_send(char *msg)$/;"	f
+uart_lower_s	include/serial.h	/^struct uart_lower_s {$/;"	s
+uart_lowerhalf_close	include/serial.h	/^typedef int (*uart_lowerhalf_close)(const struct uart_lower_s *lower);$/;"	t
+uart_lowerhalf_ioctl	include/serial.h	/^typedef int (*uart_lowerhalf_ioctl)(const struct uart_lower_s *lower);$/;"	t
+uart_lowerhalf_open	include/serial.h	/^typedef int (*uart_lowerhalf_open)(const struct uart_lower_s *lower);$/;"	t
+uart_lowerhalf_read	include/serial.h	/^typedef int (*uart_lowerhalf_read)(const struct uart_lower_s *lower,$/;"	t
+uart_lowerhalf_write	include/serial.h	/^typedef int (*uart_lowerhalf_write)(const struct uart_lower_s *lower,$/;"	t
+uart_open	drivers/serial/serial.c	/^static int uart_open(void *priv, const char *pathname, int flags, mode_t mode)$/;"	f	file:
+uart_read	drivers/serial/serial.c	/^static int uart_read(void *priv, int fd, void *buf, size_t count)$/;"	f	file:
 uart_register	drivers/serial/serial.c	/^int uart_register(const char *name, const struct uart_lower_s *uart_lowerhalf)$/;"	f
+uart_upper_s	include/serial.h	/^struct uart_upper_s {$/;"	s
+uart_write	drivers/serial/serial.c	/^static int uart_write(void *priv, int fd, const void *buf, size_t count)$/;"	f	file:
 uc437	fatfs/source/ffunicode.c	/^static const WCHAR uc437[] = {	\/*  CP437(U.S.) to Unicode conversion table *\/$/;"	v	file:
 uc437	lib/fatfs/source/ffunicode.c	/^static const WCHAR uc437[] = {	\/*  CP437(U.S.) to Unicode conversion table *\/$/;"	v	file:
 uc720	fatfs/source/ffunicode.c	/^static const WCHAR uc720[] = {	\/*  CP720(Arabic) to Unicode conversion table *\/$/;"	v	file:
@@ -2020,6 +2059,7 @@ vfs_init_mountpoint_s	include/vfs.h	/^struct vfs_init_mountpoint_s$/;"	s
 vfs_node_s	include/vfs.h	/^struct vfs_node_s {$/;"	s
 vfs_node_type	include/vfs.h	/^enum vfs_node_type {$/;"	g
 vfs_ops_s	include/vfs.h	/^struct vfs_ops_s {$/;"	s
+vfs_register_node	utils/vfs.c	/^int vfs_register_node(const char *name,$/;"	f
 volbase	fatfs/source/ff.h	/^	DWORD	volbase;		\/* Volume base sector *\/$/;"	m	struct:__anon8
 volbase	lib/fatfs/source/ff.h	/^	DWORD	volbase;		\/* Volume base sector *\/$/;"	m	struct:__anon18
 waiting_tcb_sema	sched/include/scheduler.h	/^  sem_t *waiting_tcb_sema;$/;"	m	struct:tcb_s
@@ -2031,6 +2071,8 @@ win	fatfs/source/ff.h	/^	BYTE	win[FF_MAX_SS];	\/* Disk access window for Directo
 win	lib/fatfs/source/ff.h	/^	BYTE	win[FF_MAX_SS];	\/* Disk access window for Directory, FAT (and file data at tiny cfg) *\/$/;"	m	struct:__anon18
 winsect	fatfs/source/ff.h	/^	DWORD	winsect;		\/* Current sector appearing in the win[] *\/$/;"	m	struct:__anon8
 winsect	lib/fatfs/source/ff.h	/^	DWORD	winsect;		\/* Current sector appearing in the win[] *\/$/;"	m	struct:__anon18
+write	include/vfs.h	/^  int (*write)(void *priv, int fd, const void *buf, size_t count);$/;"	m	struct:vfs_ops_s
+write_cb	include/serial.h	/^  uart_lowerhalf_write write_cb;$/;"	m	struct:uart_lower_s
 xdir_sum	fatfs/source/ff.c	/^static WORD xdir_sum (	\/* Get checksum of the directoly entry block *\/$/;"	f	file:
 xdir_sum	lib/fatfs/source/ff.c	/^static WORD xdir_sum (	\/* Get checksum of the directoly entry block *\/$/;"	f	file:
 xname_sum	fatfs/source/ff.c	/^static WORD xname_sum (	\/* Get check sum (to be used as hash) of the file name *\/$/;"	f	file:

@@ -31,8 +31,8 @@ enum vfs_node_type {
 
 struct vfs_node_s {
   struct vfs_node_s *parent;
-  struct vfs_node_s *leaf;
-  unsigned int num_leafs;
+  struct vfs_node_s *child;
+  unsigned int num_children;
   const char *name;
   enum vfs_node_type node_type;
   struct vfs_ops_s *ops;

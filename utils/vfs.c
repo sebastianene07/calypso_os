@@ -21,6 +21,8 @@ static struct vfs_init_mountpoint_s g_vfs_default_mtpt = {
   .num_nodes = 5,
 };
 
+static const char *delim = "/";
+
 /*
  * vfs_init - initialize the root nodes
  *
@@ -54,14 +56,14 @@ int vfs_init(const char *node_name[], size_t num_nodes)
 
   struct vfs_node_s *new_node;
 
-  new_node = calloc(sizeof(struct vfs_node_s), num_nodes);
+  new_node = calloc(num_nodes, sizeof(struct vfs_node_s));
   if (new_node == NULL)
   {
     return -ENOMEM;
   }
 
-  g_root_vfs.leaf       = new_node;
-  g_root_vfs.num_leafs  = num_nodes;
+  g_root_vfs.child         = new_node;
+  g_root_vfs.num_children  = num_nodes;
 
   for (int i = 0; i < num_nodes; ++i)
   {
@@ -95,7 +97,6 @@ struct vfs_init_mountpoint_s *vfs_get_default(void)
  */
 struct vfs_node_s *vfs_get_matching_node(const char *name, size_t name_len)
 {
-  const char *delim = "/";
   char *olds;
 
   /* We should do a copy of the path to prevent the string from being
@@ -125,8 +126,8 @@ struct vfs_node_s *vfs_get_matching_node(const char *name, size_t name_len)
      */
 
     not_found = true;
-    for (int i = 0; i < parent->num_leafs; ++i) {
-      current_node = &parent->leaf[i];
+    for (int i = 0; i < parent->num_children; ++i) {
+      current_node = &parent->child[i];
 
       if (node_name && !strcmp(current_node->name, node_name)) {
         not_found = false;
@@ -167,7 +168,84 @@ int vfs_register_node(const char *name,
                       enum vfs_node_type node_type,
                       void *priv)
 {
-  /* Create and populate the new node */
+  /* Extract the name */
+
+  bool is_delim_found = false;
+  int i;
+  for (i = name_len; i > 0; i--) {
+    if (*(name + i) == '/') {
+      is_delim_found = true;
+      break;
+    }
+  }
+
+  if (!is_delim_found) {
+    /* Bad path name */
+    return -EINVAL;
+  }
+
+  /* We found the deimiter now we can extract the name */
+
+  char *node_name = (char *)(name + i + 1);
 
   /* Find the place where we should insert the node */
+
+  char *name_copy = calloc(1, i);
+  memcpy(name_copy, name, i);
+
+  sem_wait(&g_vfs_sema);
+
+  char *ptr_copy = name_copy;
+  bool not_found = false;
+  struct vfs_node_s *current_node = NULL;
+  struct vfs_node_s *parent = &g_root_vfs;
+  char *olds;
+
+  do {
+    node_name = strtok_r(ptr_copy, delim, &olds);
+    ptr_copy = NULL;
+
+    not_found = true;
+    for (int i = 0; i < parent->num_children; ++i) {
+      current_node = &parent->child[i];
+
+      if (node_name && !strcmp(current_node->name, node_name)) {
+        not_found = false;
+        break;
+      }
+    }
+
+    if (not_found) {
+      current_node = NULL;
+      goto free_with_sem;
+    }
+
+    parent = current_node;
+  } while (node_name != NULL);
+
+free_with_sem:
+  sem_post(&g_vfs_sema);
+  free(name_copy);
+
+  if (!current_node) {
+    return -ENOENT;
+  }
+  struct vfs_node_s *new_child = realloc(current_node->child,
+    (current_node->num_children + 1) * sizeof(struct vfs_node_s));
+  if (new_child == NULL) {
+    return -ENOMEM;
+  }
+
+  struct vfs_node_s *new_node = &new_child[current_node->num_children];
+
+  /* Create and populate the new node */
+
+  new_node->num_children = 0;
+  new_node->ops          = ops;
+  new_node->priv         = priv;
+  new_node->name         = node_name;
+
+  current_node->child = new_child;
+
+  return OK;
 }

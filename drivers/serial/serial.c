@@ -2,6 +2,7 @@
 
 #include <semaphore.h>
 #include <serial.h>
+#include <string.h>
 #include <scheduler.h>
 #include <stdlib.h>
 #include <vfs.h>
