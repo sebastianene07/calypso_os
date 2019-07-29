@@ -11,6 +11,8 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <vfs.h>
+#include <assert.h>
 
 /* Running task list */
 
@@ -178,6 +180,9 @@ int sched_create_task(void (*task_entry_point)(void), uint32_t stack_size)
   task_tcb->mcu_context[6] = task_entry_point;
   task_tcb->mcu_context[7] = (uint32_t *)0x1000000;
 
+  /* Init resource list */
+  INIT_LIST_HEAD(&task_tcb->opened_resource);
+
   /* Stack context in interrupt */
   const int unstacked_regs = 8;   /* R4-R11 */
   int i = 0;
@@ -241,28 +246,68 @@ struct tcb_s *sched_get_next_task(void)
 *  The opened container resource or NULL in case we are running out of memory.
 *
 *************************************************************************/
-struct opened_resource_s *sched_allocate_resource(void)
+struct opened_resource_s *sched_allocate_resource(void *priv_data,
+                                                  struct vfs_ops_s *ops,
+                                                  int open_mode)
 {
   disable_int();
   struct tcb_s *curr_tcb = sched_get_current_task();
   assert(curr_tcb->curr_resource_opened >= 0);
 
-  size_t new_size = sizeof(struct opened_resource_s) *
-    (curr_tcb->curr_resource_opened + 1);
-  struct opened_resource_s *new_res = realloc(curr_tcb->res,
-                                              new_size);
-  if (!res) {
+  struct opened_resource_s *new_res =
+    calloc(1, sizeof(struct opened_resource_s));
+  if (!new_res) {
     enable_int();
     return NULL;
   }
 
-  curr_tcb->res = new_res;
-  new_res[curr_tcb->curr_resource_opened].fd = curr_tcb->curr_resource_opened;
+  new_res->fd         = curr_tcb->curr_resource_opened;
+  new_res->open_mode = open_mode;
+  new_res->priv      = priv_data;
+  new_res->ops       = ops;
+
   curr_tcb->curr_resource_opened++;
 
+  list_add(&new_res->node ,&curr_tcb->opened_resource);
   enable_int();
 
-  return &new_res[curr_tcb->curr_resource_opened - 1];
+  return new_res;
+}
+
+int sched_free_resource(int fd)
+{
+  disable_int();
+
+  struct tcb_s *curr_tcb = sched_get_current_task();
+  assert(curr_tcb->curr_resource_opened >= 0);
+
+  /* Iterate over opened resource list find the fd and free the resource */
+
+  bool is_found = false;
+  struct opened_resource_s *resource = NULL;
+  list_for_each_entry(resource, &curr_tcb->opened_resource, node)
+  {
+    if (resource && resource->fd == fd) {
+      is_found = true;
+      break;
+    }
+  }
+
+  if (is_found) {
+    list_del(&resource->node);
+
+    if (resource->ops != NULL &&
+        resource->ops->close != NULL) {
+          resource->ops->close(resource->priv, fd);
+    }
+
+    free(resource);
+    enable_int();
+    return OK;
+  }
+
+  enable_int();
+  return -ENOENT;
 }
 
 /**************************************************************************

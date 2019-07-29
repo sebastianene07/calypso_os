@@ -35,21 +35,28 @@ static int uart_open(void *priv, const char *pathname, int flags, mode_t mode)
 {
   struct uart_upper_s *uart_upper = (struct uart_upper_s *)priv;
 
-  /* Grab an entry from the tcb FILE structure */
+  /* Grab an entry from the tcb FILE structure. This should be wrapped inside
+   * generic open call. */
 
-  struct opened_resource_s *res = sched_allocate_resource();
+  struct opened_resource_s *res =
+    sched_allocate_resource(priv, &g_uart_ops, mode);
   if (res == NULL) {
     return -ENOMEM;
   }
 
-  res->open_mode = mode;
-  res->priv      = priv;
-  res->ops       = &g_uart_ops;
+  /* Call into the lowerhalf open method */
+
+  int ret = uart_upper->lower->open_cb(uart_upper->lower);
+  if (ret != OK) {
+    return ret;
+  }
+
   return res->fd;
 }
 
 static int uart_close(void *priv, int fd)
 {
+  return sched_free_resource(fd);
 }
 
 static int uart_write(void *priv, int fd, const void *buf, size_t count)

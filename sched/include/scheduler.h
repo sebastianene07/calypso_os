@@ -29,6 +29,7 @@ struct opened_resource_s {
   int open_mode;
   void *priv;
   struct vfs_ops_s *ops;
+  struct list_head node;
   int fd;
 };
 
@@ -52,7 +53,7 @@ struct tcb_s {
   void *mcu_context[MCU_CONTEXT_SIZE];
   struct list_head next_tcb;
   sem_t *waiting_tcb_sema;
-  struct opened_resource_s *res;
+  struct list_head opened_resource;
   uint32_t curr_resource_opened;
 } __attribute__((aligned(4)));
 
@@ -75,6 +76,10 @@ void enable_int(void);
 
 void sched_context_switch(void);
 
-struct opened_resource_s *sched_allocate_resource(void);
+struct opened_resource_s *sched_allocate_resource(void *priv_data,
+                                                  struct vfs_ops_s *ops,
+                                                  int open_mode);
+
+int sched_free_resource(int fd);
 
 #endif /* SCHEDULER_H_ */
