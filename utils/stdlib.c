@@ -26,7 +26,7 @@ void *calloc(size_t nmemb, size_t size)
 
 void *realloc(void *ptr, size_t size)
 {
-//  return s_realloc(ptr, size);
+  return s_realloc(ptr, size, &g_my_heap);
 }
 
 void *reallocarray(void *ptr, size_t nmemb, size_t size)
