@@ -24,45 +24,53 @@ g_tcb_list         - holds the tasks in pending state        &nbsp;
 
 The g_current_tcb pointer points to the current running task. &nbsp;
 
-### 2. Dynamic memory allocation with garbage collection
+### 2. Dynamic memory allocation
 
 The idle task is responsible for monitoring allocated resources and will free
-unused objects when it detects that there are no references. This is usefull
-for debugging purpose but when running low on memory I suggest to turn off this
-feature.
+unused objects when a task is tearing down.
 
-## Currently in progress
+### 3. Virtual File System
 
-Virtual File System
+The virtual file system contains a tree like structure with nodes that allows
+us to interract with the system resources. The current nodes are:
 
-The virtual file system contains all the registered nodes that we can interract
-with.
-A task contains an array of struct file_s which keep track of the opened
-files. A file is the abstraction of any device in the same way as Linux
-provides the.
+```    root node
+          "/"
+   --------------------
+   |    |    |    |    |
+  dev  mnt  bin  otp  home
+ /
+ttyUSB0
 
 ```
-struct file_s
-{
-  struct vfs_node_s *node;
-  uint32_t seek_pos;
-}
-```
+
+A task contains a list of ```struct opened_resource_s``` which is essentially
+the struct file from Linux and has the same role.
+The registered nodes in the virtual file sytem are described by
+``` struct vfs_node_s ``` and these keep informations such as:
+- device type
+- supported operations
+- name
+- private data
 
 The open device flow:
 
 ```
-open(..) -> file_open(..dev_name..)
-                /\
-         Allocate a new file_s structure
-         in the calling process. Search
-         for the registered device_name
-         of type vfs_node_s and call the
-         open function on that node.
-         Return the index of the file_s
-         structure from the current task.
-
-                -> vfs_node_open()
+open(..) -> vfs_get_matching_node(..) -------
+            /\                              |
+         Extract the node from the VFS      |
+         and call into ops open_cb(..)      |
+                                            |
+                                      sched_allocate_resource() -----
+                                      /\                            |
+                               Allocate a new opened_resource_s     |
+                               in the calling process.              |
+                               Return the index of the              |
+                               opened_resource_s structure as       |
+                               the file descriptor.                 |
+                                                                    |
+                -----------------------------------------------------
+                |-> vfs_node_open()
                       /\
                    Call the appropriate node open function.
 ```
@@ -71,12 +79,14 @@ open(..) -> file_open(..dev_name..)
 
 ```
 1. Virtual file system support
-  1.1 Add support for FatFS http://elm-chan.org/fsw/ff/00index_e.html
-  1.2 Add functional tests
+  1.1 Add support for FatFS http://elm-chan.org/fsw/ff/00index_e.html (DONE)
+  1.1.1 Need SD/MMC driver support to get FatFS fully functional
+
+  1.2 Add functional tests for memory allocator                       (DONE)
   1.4 The read/write device flow
   1.5 Polling from devices
 
-2. Refactorization & Driver lower half/upper half separation
+2. Refactorization & Driver lower half/upper half separation          (DONE)
 3. Tickless kernel
 4. Tasks prioritization
 
@@ -91,4 +101,5 @@ open(..) -> file_open(..dev_name..)
 ## Contributions
 
 Contributions are welcome.
+
 You can email me on: Sebastian Ene <sebastian.ene07@gmail.com>
