@@ -121,6 +121,12 @@ struct vfs_node_s *vfs_get_matching_node(const char *name, size_t name_len)
     node_name = strtok_r(ptr_copy, delim, &olds);
     ptr_copy = NULL;
 
+    if (node_name && strlen(node_name) == 0)
+      continue;
+    else if (node_name == NULL)
+      break;
+
+
     /* Look at the names of the child nodes and verify which one has the name
      * 'node_name'.
      */
@@ -187,6 +193,7 @@ int vfs_register_node(const char *name,
   /* We found the deimiter now we can extract the name */
 
   char *node_name = (char *)(name + i + 1);
+  char *node_name_copy = node_name;
 
   /* Find the place where we should insert the node */
 
@@ -204,6 +211,11 @@ int vfs_register_node(const char *name,
   do {
     node_name = strtok_r(ptr_copy, delim, &olds);
     ptr_copy = NULL;
+
+    if (node_name && strlen(node_name) == 0)
+      continue;
+    else if (node_name == NULL)
+      break;
 
     not_found = true;
     for (int i = 0; i < parent->num_children; ++i) {
@@ -243,9 +255,10 @@ free_with_sem:
   new_node->num_children = 0;
   new_node->ops          = ops;
   new_node->priv         = priv;
-  new_node->name         = node_name;
+  new_node->name         = node_name_copy;
 
   current_node->child = new_child;
+  current_node->num_children++;
 
   return OK;
 }

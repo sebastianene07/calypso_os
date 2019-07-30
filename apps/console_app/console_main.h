@@ -7,7 +7,7 @@
 
 /* Uart console path */
 
-#define CONFIG_CONSOLE_UART_PATH        "/dev/ttyS0"
+#define CONFIG_CONSOLE_UART_PATH        "/dev/ttyUSB0"
 
 /* Buffer size for commands */
 
