@@ -1,5 +1,6 @@
 #include <spi.h>
 #include <board.h>
+#include <stdlib.h>
 
 #define SPI_M0_BASE            (0x40003000)
 

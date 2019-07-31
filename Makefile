@@ -38,7 +38,10 @@ all: create_board_file
 	${PREFIX}objcopy -O ihex build.elf build.hex
 
 create_board_file:
-	cp arch/*/$(MACHINE_TYPE)/include/board.h include/.
+	cp arch/*/$(MACHINE_TYPE)/include/*.h include/.
+	echo "#ifndef __BOARD_CFG_H\n#define __BOARD_CFG_H" > include/board_cfg.h
+	cat .config | awk '/CONFIG_/ {print}' | awk -F: '{st=index($$0, "="); print "#define "substr($$0, 0, st) " " substr($$0, st + 1, length($$0))}' >> include/board_cfg.h
+	echo "#endif /* __BOARD_CFG_H */" >> include/board_cfg.h
 
 load:
 	nrfprog -f nrf52 --program build/build.hex --sectorerase

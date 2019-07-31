@@ -1,8 +1,31 @@
 #include <board.h>
 
+#include <s_heap.h>
 #include <serial.h>
 #include <vfs.h>
 #include <os_start.h>
+
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+/* Heap definition */
+
+heap_t g_my_heap;
+
+/* Linker script segments */
+
+extern unsigned long _stext;
+extern unsigned long _sbss;
+extern unsigned long _sdata;
+extern unsigned long _etext;
+extern unsigned long _ebss;
+extern unsigned long _edata;
+extern unsigned long _srodata;
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
 
 /*
  * os_startup - initialize the OS resources
@@ -15,23 +38,48 @@
  */
 void os_startup(void)
 {
-    /* Init dummy serial console */
+  unsigned long *src, *dst;
 
-    uart_low_init();
-    uart_low_send("^-^\n");
+  /* Copy initialized variable data from flash to ram */
 
-    /* Virtual file system initialization */
+  src = &_etext;
+  dst = &_sdata;
+  while(dst < &_edata)
+      *(dst++) = *(src++);
 
-    vfs_init(NULL, 0);
-    uart_low_send("Cat OS v0.0.1\n");
+  /* Zero out bss segment */
 
-    /* This function should be implemented by each board config. It contains
-     * the board specific initialization logic and it initializes the drivers.
-     */
+  src = &_sbss;
+  while(src < &_ebss)
+      *(src++) = 0;
 
-    board_init();
+  /* Init dummy serial console */
 
-    /* Start the application logic and spawn child tasks */
+  uart_low_init();
+  uart_low_send("\n^-^\n");
 
-    os_appstart();
+  /* Initialize the HEAP memory */
+
+  s_init(&g_my_heap,
+         HEAP_START,
+         HEAP_END,
+         HEAP_BLOCK_SIZE);
+
+  /* Initialize the scheduler */
+
+  sched_init();
+
+  /* Virtual file system initialization */
+
+  vfs_init(NULL, 0);
+
+  /* This function should be implemented by each board config. It contains
+   * the board specific initialization logic and it initializes the drivers.
+   */
+
+  board_init();
+
+  /* Start the application logic and spawn child tasks */
+
+  os_appstart();
  }

@@ -2,8 +2,25 @@
 #include <serial.h>
 #include <gpio.h>
 
-unsigned int LED = 13;
-unsigned int BUTTON_1 = 11;
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define XTAL                  (50000000UL)     /* Oscillator frequency */
+#define SYSTEM_CLOCK          (XTAL / 2U)
+
+/****************************************************************************
+ * Private Data
+ ****************************************************************************/
+
+static unsigned int LED = 13;
+static unsigned int BUTTON_1 = 11;
+
+static uint32_t SystemCoreClock = SYSTEM_CLOCK;  /* System Core Clock Frequency */
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
 
 /*
  * board_init - initialize the board resources
@@ -25,4 +42,6 @@ void board_init(void)
   uart_low_send(".");
 
   uart_init();
+
+  SysTick_Config(SystemCoreClock / 100);
 }

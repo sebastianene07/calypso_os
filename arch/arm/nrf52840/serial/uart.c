@@ -2,6 +2,7 @@
 #include <board.h>
 #include <semaphore.h>
 #include <serial.h>
+#include <stdlib.h>
 
 /****************************************************************************
  * Pre-processor Definitions

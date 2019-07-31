@@ -59,4 +59,6 @@ char uart_low_receive(void);
 
 int uart_register(const char *name, const struct uart_lower_s *uart_lowerhalf);
 
+int uart_init(void);
+
 #endif /* __SERIAL_H */
