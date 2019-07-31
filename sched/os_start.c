@@ -1,6 +1,7 @@
 #include <board.h>
 
 #include <s_heap.h>
+#include <scheduler.h>
 #include <serial.h>
 #include <vfs.h>
 #include <os_start.h>
@@ -13,7 +14,7 @@
 
 heap_t g_my_heap;
 
-/* Linker script segments */
+/* Linker script sections */
 
 extern unsigned long _stext;
 extern unsigned long _sbss;
