@@ -53,10 +53,10 @@ debug:
 .PHONY: clean debug config load create_board_file distclean
 
 clean:
-	rm -rf build/ && rm linker* tmp_lib*
 	for src_dir in $(SRC_DIRS) ; do \
 		$(MAKE) -C $$src_dir	clean;	\
 	done ;
+	rm -rf build/ && rm linker* tmp_lib*
 
 distclean:
 	rm .config

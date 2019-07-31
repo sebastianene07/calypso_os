@@ -17,6 +17,6 @@ fatfs: $(OBJS_FATFS)
 	${PREFIX}gcc $(FATFS_FLAGS) -c $< -o $@
 
 clean:
-	find . -iname "*.o" -exec rm -f {} \;
+	find $(TOPDIR)/$(PATH_FATFS) -iname "*.o" -exec rm -f {} \;
 
 .PHONY: fatfs clean all
