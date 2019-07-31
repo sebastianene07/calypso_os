@@ -128,6 +128,13 @@ char uart_low_receive(void)
   return c;
 }
 
+static int uart_open(const struct uart_lower_s *lower)
+{
+  /* Initialize the semaphore */
+
+  /* Attach the uart interrupt */
+}
+
 int uart_init(void)
 {
   return uart_register("/dev/ttyUSB0", &g_uart_low_0);

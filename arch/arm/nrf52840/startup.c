@@ -9,15 +9,15 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define RAM_BASE   (void *)(0x20000000)
-#define STACK_TOP  (void *)(RAM_BASE + 0x5000)
+#define RAM_BASE              (void *)(0x20000000)
+#define STACK_TOP             (void *)(RAM_BASE + 0x5000)
 
-#define HEAP_START (void *)(RAM_BASE + 0x5004)
-#define HEAP_END   (void *)(RAM_BASE + 0x19000)
-#define HEAP_BLOCK_SIZE (16)
+#define HEAP_START            (void *)(RAM_BASE + 0x5004)
+#define HEAP_END              (void *)(RAM_BASE + 0x19000)
+#define HEAP_BLOCK_SIZE       (16)
 
-#define XTAL            (50000000UL)     /* Oscillator frequency */
-#define SYSTEM_CLOCK    (XTAL / 2U)
+#define XTAL                  (50000000UL)     /* Oscillator frequency */
+#define SYSTEM_CLOCK          (XTAL / 2U)
 
 /****************************************************************************
  * Public Data
@@ -134,6 +134,8 @@ void dummy_fn(void)
 
 void usleep(const useconds_t sec)
 {
+  /* This is dumb and it should not be used */
+
   for (uint32_t i = 0; i < (uint32_t)sec; i++);
 }
 
