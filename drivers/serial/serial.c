@@ -38,7 +38,7 @@ static int uart_open(void *priv, const char *pathname, int flags, mode_t mode)
 
   /* Call into the lowerhalf open method */
 
-  if (uart_upper->lower->open_cb) {
+  if (uart_upper->lower->open_cb == NULL) {
     return -ENODEV;
   }
 

@@ -3,6 +3,7 @@
 #include <semaphore.h>
 #include <serial.h>
 #include <stdlib.h>
+#include <scheduler.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -55,6 +56,12 @@
 #define UART_RX_PORT                        (0)   /* range 0 - 1  */
 
 /****************************************************************************
+ * Private Functions Definition
+ ****************************************************************************/
+
+static int nrf52840_lpuart_open(const struct uart_lower_s *lower);
+
+/****************************************************************************
  * Private Data
  ****************************************************************************/
 
@@ -62,7 +69,10 @@ static char g_uart_tx_buffer[UART_TX_BUFFER];
 static char g_uart_rx_buffer[UART_RX_BUFFER];
 static sem_t g_uart_sema;
 
-static struct uart_lower_s g_uart_low_0;
+static struct uart_lower_s g_uart_low_0 =
+{
+  .open_cb = nrf52840_lpuart_open,
+};
 
 /****************************************************************************
  * Public Functions
@@ -129,11 +139,18 @@ char uart_low_receive(void)
   return c;
 }
 
-static int uart_open(const struct uart_lower_s *lower)
+static void nrf52840_lpuart_int(void)
+{
+}
+
+static int nrf52840_lpuart_open(const struct uart_lower_s *lower)
 {
   /* Initialize the semaphore */
 
   /* Attach the uart interrupt */
+
+  attach_int(UARTE0_UART0_IRQn, nrf52840_lpuart_int);
+  NVIC_EnableIRQ(UARTE0_UART0_IRQn);
 }
 
 int uart_init(void)

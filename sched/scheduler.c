@@ -26,6 +26,10 @@ LIST_HEAD(g_tcb_waiting_list);
 
 struct list_head *g_current_tcb = NULL;
 
+/* The interrupt vector table */
+
+extern void (*g_vectors[NUM_IRQS])(void);
+
 /**************************************************************************
  * Name:
  *  sched_idle_task
@@ -408,3 +412,21 @@ void enable_int(void)
 {
   __enable_irq();
 }
+
+/**************************************************************************
+ * Name:
+ *  attach_int
+ *
+ * Description:
+ *  Attach an interrupt callback. If handler is NULL, the dummy
+ *  interrupt handler should be installed and the function should
+ *  act as detach.
+ *
+ *************************************************************************/
+void attach_int(IRQn_Type irq_num, irq_cb handler)
+{
+  disable_int();
+  g_vectors[irq_num + 16] = handler;
+  enable_int();
+}
+

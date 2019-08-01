@@ -1,6 +1,7 @@
 #ifndef __NRF52840_H
 #define __NRF52840_H
 
+#define NUM_IRQS                           (64)
 #define __CHECK_DEVICE_DEFINES             (1)
 
 #define SysTick_CTRL_CLKSOURCE_Pos          2U                                            /*!< SysTick CTRL: CLKSOURCE Position */

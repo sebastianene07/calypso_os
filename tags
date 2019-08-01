@@ -6,14 +6,14 @@
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
 ABORT	fatfs/source/ff.c	209;"	d	file:
 ABORT	lib/fatfs/source/ff.c	209;"	d	file:
-ACTLR	arch/arm/nrf52840/include/board.h	/^  uint32_t ACTLR;                   \/*!< Offset: 0x008 (R\/W)  Auxiliary Control Register              *\/$/;"	m	struct:__anon27
-ACTLR	include/board.h	/^  uint32_t ACTLR;                   \/*!< Offset: 0x008 (R\/W)  Auxiliary Control Register              *\/$/;"	m	struct:__anon1
-ADR	arch/arm/nrf52840/include/board.h	/^  uint32_t ADR;                     \/*!< Offset: 0x04C (R\/ )  Auxiliary Feature Register                            *\/$/;"	m	struct:__anon28
-ADR	include/board.h	/^  uint32_t ADR;                     \/*!< Offset: 0x04C (R\/ )  Auxiliary Feature Register                            *\/$/;"	m	struct:__anon2
-AFSR	arch/arm/nrf52840/include/board.h	/^  uint32_t AFSR;                    \/*!< Offset: 0x03C (R\/W)  Auxiliary Fault Status Register                       *\/$/;"	m	struct:__anon28
-AFSR	include/board.h	/^  uint32_t AFSR;                    \/*!< Offset: 0x03C (R\/W)  Auxiliary Fault Status Register                       *\/$/;"	m	struct:__anon2
-AIRCR	arch/arm/nrf52840/include/board.h	/^  uint32_t AIRCR;                   \/*!< Offset: 0x00C (R\/W)  Application Interrupt and Reset Control Register      *\/$/;"	m	struct:__anon28
-AIRCR	include/board.h	/^  uint32_t AIRCR;                   \/*!< Offset: 0x00C (R\/W)  Application Interrupt and Reset Control Register      *\/$/;"	m	struct:__anon2
+ACTLR	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t ACTLR;                   \/*!< Offset: 0x008 (R\/W)  Auxiliary Control Register              *\/$/;"	m	struct:__anon29
+ACTLR	include/nrf52840.h	/^  uint32_t ACTLR;                   \/*!< Offset: 0x008 (R\/W)  Auxiliary Control Register              *\/$/;"	m	struct:__anon2
+ADR	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t ADR;                     \/*!< Offset: 0x04C (R\/ )  Auxiliary Feature Register                            *\/$/;"	m	struct:__anon30
+ADR	include/nrf52840.h	/^  uint32_t ADR;                     \/*!< Offset: 0x04C (R\/ )  Auxiliary Feature Register                            *\/$/;"	m	struct:__anon3
+AFSR	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t AFSR;                    \/*!< Offset: 0x03C (R\/W)  Auxiliary Fault Status Register                       *\/$/;"	m	struct:__anon30
+AFSR	include/nrf52840.h	/^  uint32_t AFSR;                    \/*!< Offset: 0x03C (R\/W)  Auxiliary Fault Status Register                       *\/$/;"	m	struct:__anon3
+AIRCR	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t AIRCR;                   \/*!< Offset: 0x00C (R\/W)  Application Interrupt and Reset Control Register      *\/$/;"	m	struct:__anon30
+AIRCR	include/nrf52840.h	/^  uint32_t AIRCR;                   \/*!< Offset: 0x00C (R\/W)  Application Interrupt and Reset Control Register      *\/$/;"	m	struct:__anon3
 AM_ARC	fatfs/source/ff.h	398;"	d
 AM_ARC	lib/fatfs/source/ff.h	398;"	d
 AM_DIR	fatfs/source/ff.h	397;"	d
@@ -34,8 +34,7 @@ APPS	apps/Makefile	/^APPS:= 'console_app'$/;"	m
 APPS	apps/Makefile	/^APPS:=$/;"	m
 ARCH_FLAGS	arch/arm/nrf52840/Makefile	/^ARCH_FLAGS:=${CFLAGS} -I$(TOPDIR)\/include -I$(TOPDIR)\/s_alloc -I.\/include\/ -I$(TOPDIR)\/sched\/include$/;"	m
 ARCH_FLAGS	s_alloc/Makefile	/^ARCH_FLAGS:=${CFLAGS} -I$(TOPDIR)\/include$/;"	m
-ARRAY_LEN	arch/arm/nrf52840/include/board.h	23;"	d
-ARRAY_LEN	include/board.h	23;"	d
+ARRAY_LEN	include/stdlib.h	13;"	d
 ASM_FLAGS	arch/arm/nrf52840/Makefile	/^ASM_FLAGS :=-mcpu=cortex-m4 -mthumb -mfloat-abi=soft$/;"	m
 ATA_GET_MODEL	fatfs/source/diskio.h	70;"	d
 ATA_GET_MODEL	lib/fatfs/source/diskio.h	70;"	d
@@ -43,8 +42,8 @@ ATA_GET_REV	fatfs/source/diskio.h	69;"	d
 ATA_GET_REV	lib/fatfs/source/diskio.h	69;"	d
 ATA_GET_SN	fatfs/source/diskio.h	71;"	d
 ATA_GET_SN	lib/fatfs/source/diskio.h	71;"	d
-BFAR	arch/arm/nrf52840/include/board.h	/^  uint32_t BFAR;                    \/*!< Offset: 0x038 (R\/W)  BusFault Address Register                             *\/$/;"	m	struct:__anon28
-BFAR	include/board.h	/^  uint32_t BFAR;                    \/*!< Offset: 0x038 (R\/W)  BusFault Address Register                             *\/$/;"	m	struct:__anon2
+BFAR	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t BFAR;                    \/*!< Offset: 0x038 (R\/W)  BusFault Address Register                             *\/$/;"	m	struct:__anon30
+BFAR	include/nrf52840.h	/^  uint32_t BFAR;                    \/*!< Offset: 0x038 (R\/W)  BusFault Address Register                             *\/$/;"	m	struct:__anon3
 BPB_BkBootSec32	fatfs/source/ff.c	119;"	d	file:
 BPB_BkBootSec32	lib/fatfs/source/ff.c	119;"	d	file:
 BPB_BytsPerSec	fatfs/source/ff.c	93;"	d	file:
@@ -151,42 +150,47 @@ BS_VolLab	fatfs/source/ff.c	109;"	d	file:
 BS_VolLab	lib/fatfs/source/ff.c	109;"	d	file:
 BS_VolLab32	fatfs/source/ff.c	124;"	d	file:
 BS_VolLab32	lib/fatfs/source/ff.c	124;"	d	file:
-BUTTON_1	arch/arm/nrf52840/board_initialize.c	/^unsigned int BUTTON_1 = 11;$/;"	v
+BUTTON_1	arch/arm/nrf52840/board_initialize.c	/^static unsigned int BUTTON_1 = 11;$/;"	v	file:
 BYTE	fatfs/source/ff.h	/^typedef unsigned char	BYTE;	\/* char must be 8-bit *\/$/;"	t
 BYTE	lib/fatfs/source/ff.h	/^typedef unsigned char	BYTE;	\/* char must be 8-bit *\/$/;"	t
-BusFault_IRQn	arch/arm/nrf52840/include/board.h	/^  BusFault_IRQn                = -11,              \/**< Cortex-M4 Bus Fault Interrupt *\/$/;"	e	enum:IRQn
-BusFault_IRQn	include/board.h	/^  BusFault_IRQn                = -11,              \/**< Cortex-M4 Bus Fault Interrupt *\/$/;"	e	enum:IRQn
-CALIB	arch/arm/nrf52840/include/board.h	/^  uint32_t CALIB;                   \/*!< Offset: 0x00C (R\/ )  SysTick Calibration Register        *\/$/;"	m	struct:__anon29
-CALIB	include/board.h	/^  uint32_t CALIB;                   \/*!< Offset: 0x00C (R\/ )  SysTick Calibration Register        *\/$/;"	m	struct:__anon3
-CCR	arch/arm/nrf52840/include/board.h	/^  uint32_t CCR;                     \/*!< Offset: 0x014 (R\/W)  Configuration Control Register                        *\/$/;"	m	struct:__anon28
-CCR	include/board.h	/^  uint32_t CCR;                     \/*!< Offset: 0x014 (R\/W)  Configuration Control Register                        *\/$/;"	m	struct:__anon2
+BusFault_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  BusFault_IRQn             = -11,              \/*!< -11  Bus Fault, Pre-Fetch-, Memory Access Fault, other address\/memory$/;"	e	enum:__anon28
+BusFault_IRQn	include/nrf52840.h	/^  BusFault_IRQn             = -11,              \/*!< -11  Bus Fault, Pre-Fetch-, Memory Access Fault, other address\/memory$/;"	e	enum:__anon1
+CALIB	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t CALIB;                   \/*!< Offset: 0x00C (R\/ )  SysTick Calibration Register        *\/$/;"	m	struct:__anon31
+CALIB	include/nrf52840.h	/^  uint32_t CALIB;                   \/*!< Offset: 0x00C (R\/ )  SysTick Calibration Register        *\/$/;"	m	struct:__anon4
+CCM_AAR_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  CCM_AAR_IRQn              =  15,              \/*!< 15 CCM_AAR                                                                *\/$/;"	e	enum:__anon28
+CCM_AAR_IRQn	include/nrf52840.h	/^  CCM_AAR_IRQn              =  15,              \/*!< 15 CCM_AAR                                                                *\/$/;"	e	enum:__anon1
+CCR	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t CCR;                     \/*!< Offset: 0x014 (R\/W)  Configuration Control Register                        *\/$/;"	m	struct:__anon30
+CCR	include/nrf52840.h	/^  uint32_t CCR;                     \/*!< Offset: 0x014 (R\/W)  Configuration Control Register                        *\/$/;"	m	struct:__anon3
 CFLAGS	tests/Makefile	/^CFLAGS = -I..\/$/;"	m
-CFSR	arch/arm/nrf52840/include/board.h	/^  uint32_t CFSR;                    \/*!< Offset: 0x028 (R\/W)  Configurable Fault Status Register                    *\/$/;"	m	struct:__anon28
-CFSR	include/board.h	/^  uint32_t CFSR;                    \/*!< Offset: 0x028 (R\/W)  Configurable Fault Status Register                    *\/$/;"	m	struct:__anon2
+CFSR	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t CFSR;                    \/*!< Offset: 0x028 (R\/W)  Configurable Fault Status Register                    *\/$/;"	m	struct:__anon30
+CFSR	include/nrf52840.h	/^  uint32_t CFSR;                    \/*!< Offset: 0x028 (R\/W)  Configurable Fault Status Register                    *\/$/;"	m	struct:__anon3
 CODEPAGE	fatfs/source/ff.c	530;"	d	file:
 CODEPAGE	fatfs/source/ff.c	557;"	d	file:
 CODEPAGE	fatfs/source/ff.c	561;"	d	file:
 CODEPAGE	lib/fatfs/source/ff.c	530;"	d	file:
 CODEPAGE	lib/fatfs/source/ff.c	557;"	d	file:
 CODEPAGE	lib/fatfs/source/ff.c	561;"	d	file:
-CONFIG	arch/arm/nrf52840/spi/spi.c	36;"	d	file:
+COMP_LPCOMP_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  COMP_LPCOMP_IRQn          =  19,              \/*!< 19 COMP_LPCOMP                                                            *\/$/;"	e	enum:__anon28
+COMP_LPCOMP_IRQn	include/nrf52840.h	/^  COMP_LPCOMP_IRQn          =  19,              \/*!< 19 COMP_LPCOMP                                                            *\/$/;"	e	enum:__anon1
+CONFIG	arch/arm/nrf52840/spi/spi.c	37;"	d	file:
 CONFIG_CMD_BUFER_LEN	apps/console_app/console_main.h	14;"	d
-CONFIG_CONSOLE_APP	arch/arm/nrf52840/include/board.h	10;"	d
-CONFIG_CONSOLE_APP	include/board.h	10;"	d
+CONFIG_CONSOLE_APP	include/board_cfg.h	3;"	d
 CONFIG_CONSOLE_STACK_SIZE	apps/console_app/console_main.h	6;"	d
 CONFIG_CONSOLE_UART_PATH	apps/console_app/console_main.h	10;"	d
 CONFIG_SCHEDULER_IDLE_TASK_STACK_SIZE	sched/include/scheduler.h	22;"	d
 CONFIG_SCHEDULER_TASK_COLORATION	sched/include/scheduler.h	18;"	d
 CONSOLE_FLAGS	apps/console_app/Makefile	/^CONSOLE_FLAGS := ${CFLAGS}																					\\$/;"	m
 CONSOLE_FLAGS	drivers/serial/Makefile	/^CONSOLE_FLAGS := ${CFLAGS}																					\\$/;"	m
-CPACR	arch/arm/nrf52840/include/board.h	/^  uint32_t CPACR;                   \/*!< Offset: 0x088 (R\/W)  Coprocessor Access Control Register                   *\/$/;"	m	struct:__anon28
-CPACR	include/board.h	/^  uint32_t CPACR;                   \/*!< Offset: 0x088 (R\/W)  Coprocessor Access Control Register                   *\/$/;"	m	struct:__anon2
-CPUID	arch/arm/nrf52840/include/board.h	/^  uint32_t CPUID;                   \/*!< Offset: 0x000 (R\/ )  CPUID Base Register                                   *\/$/;"	m	struct:__anon28
-CPUID	include/board.h	/^  uint32_t CPUID;                   \/*!< Offset: 0x000 (R\/ )  CPUID Base Register                                   *\/$/;"	m	struct:__anon2
+CPACR	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t CPACR;                   \/*!< Offset: 0x088 (R\/W)  Coprocessor Access Control Register                   *\/$/;"	m	struct:__anon30
+CPACR	include/nrf52840.h	/^  uint32_t CPACR;                   \/*!< Offset: 0x088 (R\/W)  Coprocessor Access Control Register                   *\/$/;"	m	struct:__anon3
+CPUID	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t CPUID;                   \/*!< Offset: 0x000 (R\/ )  CPUID Base Register                                   *\/$/;"	m	struct:__anon30
+CPUID	include/nrf52840.h	/^  uint32_t CPUID;                   \/*!< Offset: 0x000 (R\/ )  CPUID Base Register                                   *\/$/;"	m	struct:__anon3
 CREATE_LINKMAP	fatfs/source/ff.h	378;"	d
 CREATE_LINKMAP	lib/fatfs/source/ff.h	378;"	d
-CTRL	arch/arm/nrf52840/include/board.h	/^  uint32_t CTRL;                    \/*!< Offset: 0x000 (R\/W)  SysTick Control and Status Register *\/$/;"	m	struct:__anon29
-CTRL	include/board.h	/^  uint32_t CTRL;                    \/*!< Offset: 0x000 (R\/W)  SysTick Control and Status Register *\/$/;"	m	struct:__anon3
+CRYPTOCELL_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  CRYPTOCELL_IRQn           =  42,              \/*!< 42 CRYPTOCELL                                                             *\/$/;"	e	enum:__anon28
+CRYPTOCELL_IRQn	include/nrf52840.h	/^  CRYPTOCELL_IRQn           =  42,              \/*!< 42 CRYPTOCELL                                                             *\/$/;"	e	enum:__anon1
+CTRL	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t CTRL;                    \/*!< Offset: 0x000 (R\/W)  SysTick Control and Status Register *\/$/;"	m	struct:__anon31
+CTRL	include/nrf52840.h	/^  uint32_t CTRL;                    \/*!< Offset: 0x000 (R\/W)  SysTick Control and Status Register *\/$/;"	m	struct:__anon4
 CTRL_EJECT	fatfs/source/diskio.h	55;"	d
 CTRL_EJECT	lib/fatfs/source/diskio.h	55;"	d
 CTRL_FORMAT	fatfs/source/diskio.h	56;"	d
@@ -203,8 +207,8 @@ CVTBL	fatfs/source/ffunicode.c	35;"	d	file:
 CVTBL	lib/fatfs/source/ffunicode.c	35;"	d	file:
 CodePage	fatfs/source/ff.c	/^static WORD CodePage;	\/* Current code page *\/$/;"	v	file:
 CodePage	lib/fatfs/source/ff.c	/^static WORD CodePage;	\/* Current code page *\/$/;"	v	file:
-CoreDebug_BASE	arch/arm/nrf52840/include/board.h	154;"	d
-CoreDebug_BASE	include/board.h	154;"	d
+CoreDebug_BASE	arch/arm/nrf52840/include/nrf52840.h	177;"	d
+CoreDebug_BASE	include/nrf52840.h	177;"	d
 Ct437	fatfs/source/ff.c	/^static const BYTE Ct437[] = TBL_CT437;$/;"	v	file:
 Ct437	lib/fatfs/source/ff.c	/^static const BYTE Ct437[] = TBL_CT437;$/;"	v	file:
 Ct720	fatfs/source/ff.c	/^static const BYTE Ct720[] = TBL_CT720;$/;"	v	file:
@@ -262,12 +266,12 @@ DEV_RAM	fatfs/source/diskio.c	14;"	d	file:
 DEV_RAM	lib/fatfs/source/diskio.c	14;"	d	file:
 DEV_USB	fatfs/source/diskio.c	16;"	d	file:
 DEV_USB	lib/fatfs/source/diskio.c	16;"	d	file:
-DFR	arch/arm/nrf52840/include/board.h	/^  uint32_t DFR;                     \/*!< Offset: 0x048 (R\/ )  Debug Feature Register                                *\/$/;"	m	struct:__anon28
-DFR	include/board.h	/^  uint32_t DFR;                     \/*!< Offset: 0x048 (R\/ )  Debug Feature Register                                *\/$/;"	m	struct:__anon2
-DFSR	arch/arm/nrf52840/include/board.h	/^  uint32_t DFSR;                    \/*!< Offset: 0x030 (R\/W)  Debug Fault Status Register                           *\/$/;"	m	struct:__anon28
-DFSR	include/board.h	/^  uint32_t DFSR;                    \/*!< Offset: 0x030 (R\/W)  Debug Fault Status Register                           *\/$/;"	m	struct:__anon2
-DIR	fatfs/source/ff.h	/^} DIR;$/;"	t	typeref:struct:__anon11
-DIR	lib/fatfs/source/ff.h	/^} DIR;$/;"	t	typeref:struct:__anon21
+DFR	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t DFR;                     \/*!< Offset: 0x048 (R\/ )  Debug Feature Register                                *\/$/;"	m	struct:__anon30
+DFR	include/nrf52840.h	/^  uint32_t DFR;                     \/*!< Offset: 0x048 (R\/ )  Debug Feature Register                                *\/$/;"	m	struct:__anon3
+DFSR	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t DFSR;                    \/*!< Offset: 0x030 (R\/W)  Debug Fault Status Register                           *\/$/;"	m	struct:__anon30
+DFSR	include/nrf52840.h	/^  uint32_t DFSR;                    \/*!< Offset: 0x030 (R\/W)  Debug Fault Status Register                           *\/$/;"	m	struct:__anon3
+DIR	fatfs/source/ff.h	/^} DIR;$/;"	t	typeref:struct:__anon12
+DIR	lib/fatfs/source/ff.h	/^} DIR;$/;"	t	typeref:struct:__anon22
 DIR_Attr	fatfs/source/ff.c	148;"	d	file:
 DIR_Attr	lib/fatfs/source/ff.c	148;"	d	file:
 DIR_CrtTime	fatfs/source/ff.c	151;"	d	file:
@@ -292,16 +296,16 @@ DIR_READ_FILE	fatfs/source/ff.c	2331;"	d	file:
 DIR_READ_FILE	lib/fatfs/source/ff.c	2331;"	d	file:
 DIR_READ_LABEL	fatfs/source/ff.c	2332;"	d	file:
 DIR_READ_LABEL	lib/fatfs/source/ff.c	2332;"	d	file:
-DRESULT	fatfs/source/diskio.h	/^} DRESULT;$/;"	t	typeref:enum:__anon14
-DRESULT	lib/fatfs/source/diskio.h	/^} DRESULT;$/;"	t	typeref:enum:__anon24
+DRESULT	fatfs/source/diskio.h	/^} DRESULT;$/;"	t	typeref:enum:__anon15
+DRESULT	lib/fatfs/source/diskio.h	/^} DRESULT;$/;"	t	typeref:enum:__anon25
 DSTATUS	fatfs/source/diskio.h	/^typedef BYTE	DSTATUS;$/;"	t
 DSTATUS	lib/fatfs/source/diskio.h	/^typedef BYTE	DSTATUS;$/;"	t
 DWORD	fatfs/source/ff.h	/^typedef uint32_t		DWORD;	\/* 32-bit unsigned integer *\/$/;"	t
 DWORD	fatfs/source/ff.h	/^typedef unsigned long	DWORD;	\/* 32-bit unsigned integer *\/$/;"	t
 DWORD	lib/fatfs/source/ff.h	/^typedef uint32_t		DWORD;	\/* 32-bit unsigned integer *\/$/;"	t
 DWORD	lib/fatfs/source/ff.h	/^typedef unsigned long	DWORD;	\/* 32-bit unsigned integer *\/$/;"	t
-DWT_BASE	arch/arm/nrf52840/include/board.h	152;"	d
-DWT_BASE	include/board.h	152;"	d
+DWT_BASE	arch/arm/nrf52840/include/nrf52840.h	175;"	d
+DWT_BASE	include/nrf52840.h	175;"	d
 DbcTbl	fatfs/source/ff.c	/^static const BYTE *ExCvt, *DbcTbl;	\/* Pointer to current SBCS up-case table and DBCS code range table below *\/$/;"	v	file:
 DbcTbl	fatfs/source/ff.c	/^static const BYTE DbcTbl[] = MKCVTBL(TBL_DC, FF_CODE_PAGE);$/;"	v	file:
 DbcTbl	lib/fatfs/source/ff.c	/^static const BYTE *ExCvt, *DbcTbl;	\/* Pointer to current SBCS up-case table and DBCS code range table below *\/$/;"	v	file:
@@ -314,8 +318,8 @@ Dc949	fatfs/source/ff.c	/^static const BYTE Dc949[] = TBL_DC949;$/;"	v	file:
 Dc949	lib/fatfs/source/ff.c	/^static const BYTE Dc949[] = TBL_DC949;$/;"	v	file:
 Dc950	fatfs/source/ff.c	/^static const BYTE Dc950[] = TBL_DC950;$/;"	v	file:
 Dc950	lib/fatfs/source/ff.c	/^static const BYTE Dc950[] = TBL_DC950;$/;"	v	file:
-DebugMonitor_IRQn	arch/arm/nrf52840/include/board.h	/^  DebugMonitor_IRQn            = -4,               \/**< Cortex-M4 Debug Monitor Interrupt *\/$/;"	e	enum:IRQn
-DebugMonitor_IRQn	include/board.h	/^  DebugMonitor_IRQn            = -4,               \/**< Cortex-M4 Debug Monitor Interrupt *\/$/;"	e	enum:IRQn
+DebugMonitor_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  DebugMonitor_IRQn         =  -4,              \/*!< -4 Debug Monitor                                                          *\/$/;"	e	enum:__anon28
+DebugMonitor_IRQn	include/nrf52840.h	/^  DebugMonitor_IRQn         =  -4,              \/*!< -4 Debug Monitor                                                          *\/$/;"	e	enum:__anon1
 DirBuf	fatfs/source/ff.c	/^static BYTE	DirBuf[MAXDIRB(FF_MAX_LFN)];	\/* Directory entry block scratchpad buffer *\/$/;"	v	file:
 DirBuf	lib/fatfs/source/ff.c	/^static BYTE	DirBuf[MAXDIRB(FF_MAX_LFN)];	\/* Directory entry block scratchpad buffer *\/$/;"	v	file:
 E2BIG	include/errno.h	36;"	d
@@ -336,6 +340,8 @@ EBADSLT	include/errno.h	81;"	d
 EBFONT	include/errno.h	83;"	d
 EBUSY	include/errno.h	45;"	d
 ECASECLASH	include/errno.h	149;"	d
+ECB_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  ECB_IRQn                  =  14,              \/*!< 14 ECB                                                                    *\/$/;"	e	enum:__anon28
+ECB_IRQn	include/nrf52840.h	/^  ECB_IRQn                  =  14,              \/*!< 14 ECB                                                                    *\/$/;"	e	enum:__anon1
 ECHILD	include/errno.h	39;"	d
 ECHRNG	include/errno.h	66;"	d
 ECOMM	include/errno.h	94;"	d
@@ -378,7 +384,7 @@ EMFILE	include/errno.h	53;"	d
 EMLINK	include/errno.h	60;"	d
 EMSGSIZE	include/errno.h	134;"	d
 EMULTIHOP	include/errno.h	96;"	d
-ENABLE	arch/arm/nrf52840/spi/spi.c	22;"	d	file:
+ENABLE	arch/arm/nrf52840/spi/spi.c	23;"	d	file:
 ENAMETOOLONG	include/errno.h	112;"	d
 ENETDOWN	include/errno.h	127;"	d
 ENETRESET	include/errno.h	138;"	d
@@ -453,11 +459,11 @@ ET_VLABEL	fatfs/source/ff.c	82;"	d	file:
 ET_VLABEL	lib/fatfs/source/ff.c	82;"	d	file:
 EUNATCH	include/errno.h	71;"	d
 EUSERS	include/errno.h	143;"	d
-EVENTS_END	arch/arm/nrf52840/spi/spi.c	14;"	d	file:
-EVENTS_ENDRX	arch/arm/nrf52840/spi/spi.c	13;"	d	file:
-EVENTS_ENDTX	arch/arm/nrf52840/spi/spi.c	15;"	d	file:
-EVENTS_STARTED	arch/arm/nrf52840/spi/spi.c	16;"	d	file:
-EVENTS_STOPPED	arch/arm/nrf52840/spi/spi.c	12;"	d	file:
+EVENTS_END	arch/arm/nrf52840/spi/spi.c	15;"	d	file:
+EVENTS_ENDRX	arch/arm/nrf52840/spi/spi.c	14;"	d	file:
+EVENTS_ENDTX	arch/arm/nrf52840/spi/spi.c	16;"	d	file:
+EVENTS_STARTED	arch/arm/nrf52840/spi/spi.c	17;"	d	file:
+EVENTS_STOPPED	arch/arm/nrf52840/spi/spi.c	13;"	d	file:
 EWOULDBLOCK	include/errno.h	152;"	d
 EXDEV	include/errno.h	47;"	d
 EXFULL	include/errno.h	78;"	d
@@ -465,8 +471,8 @@ ExCvt	fatfs/source/ff.c	/^static const BYTE *ExCvt, *DbcTbl;	\/* Pointer to curr
 ExCvt	fatfs/source/ff.c	/^static const BYTE ExCvt[] = MKCVTBL(TBL_CT, FF_CODE_PAGE);$/;"	v	file:
 ExCvt	lib/fatfs/source/ff.c	/^static const BYTE *ExCvt, *DbcTbl;	\/* Pointer to current SBCS up-case table and DBCS code range table below *\/$/;"	v	file:
 ExCvt	lib/fatfs/source/ff.c	/^static const BYTE ExCvt[] = MKCVTBL(TBL_CT, FF_CODE_PAGE);$/;"	v	file:
-FATFS	fatfs/source/ff.h	/^} FATFS;$/;"	t	typeref:struct:__anon8
-FATFS	lib/fatfs/source/ff.h	/^} FATFS;$/;"	t	typeref:struct:__anon18
+FATFS	fatfs/source/ff.h	/^} FATFS;$/;"	t	typeref:struct:__anon9
+FATFS	lib/fatfs/source/ff.h	/^} FATFS;$/;"	t	typeref:struct:__anon19
 FATFS_FLAGS	lib/Makefile	/^FATFS_FLAGS := ${CFLAGS}																					\\$/;"	m
 FA_CREATE_ALWAYS	fatfs/source/ff.h	373;"	d
 FA_CREATE_ALWAYS	lib/fatfs/source/ff.h	373;"	d
@@ -490,8 +496,8 @@ FA_WRITE	fatfs/source/ff.h	370;"	d
 FA_WRITE	lib/fatfs/source/ff.h	370;"	d
 FFCONF_DEF	fatfs/source/ffconf.h	5;"	d
 FFCONF_DEF	lib/fatfs/source/ffconf.h	5;"	d
-FFOBJID	fatfs/source/ff.h	/^} FFOBJID;$/;"	t	typeref:struct:__anon9
-FFOBJID	lib/fatfs/source/ff.h	/^} FFOBJID;$/;"	t	typeref:struct:__anon19
+FFOBJID	fatfs/source/ff.h	/^} FFOBJID;$/;"	t	typeref:struct:__anon10
+FFOBJID	lib/fatfs/source/ff.h	/^} FFOBJID;$/;"	t	typeref:struct:__anon20
 FF_CODE_PAGE	fatfs/source/ffconf.h	71;"	d
 FF_CODE_PAGE	lib/fatfs/source/ffconf.h	71;"	d
 FF_DEFINED	fatfs/source/ff.h	23;"	d
@@ -572,12 +578,12 @@ FF_VOLUMES	fatfs/source/ffconf.h	166;"	d
 FF_VOLUMES	lib/fatfs/source/ffconf.h	166;"	d
 FF_VOLUME_STRS	fatfs/source/ffconf.h	171;"	d
 FF_VOLUME_STRS	lib/fatfs/source/ffconf.h	171;"	d
-FIL	fatfs/source/ff.h	/^} FIL;$/;"	t	typeref:struct:__anon10
-FIL	lib/fatfs/source/ff.h	/^} FIL;$/;"	t	typeref:struct:__anon20
-FILESEM	fatfs/source/ff.c	/^} FILESEM;$/;"	t	typeref:struct:__anon5	file:
-FILESEM	lib/fatfs/source/ff.c	/^} FILESEM;$/;"	t	typeref:struct:__anon15	file:
-FILINFO	fatfs/source/ff.h	/^} FILINFO;$/;"	t	typeref:struct:__anon12
-FILINFO	lib/fatfs/source/ff.h	/^} FILINFO;$/;"	t	typeref:struct:__anon22
+FIL	fatfs/source/ff.h	/^} FIL;$/;"	t	typeref:struct:__anon11
+FIL	lib/fatfs/source/ff.h	/^} FIL;$/;"	t	typeref:struct:__anon21
+FILESEM	fatfs/source/ff.c	/^} FILESEM;$/;"	t	typeref:struct:__anon6	file:
+FILESEM	lib/fatfs/source/ff.c	/^} FILESEM;$/;"	t	typeref:struct:__anon16	file:
+FILINFO	fatfs/source/ff.h	/^} FILINFO;$/;"	t	typeref:struct:__anon13
+FILINFO	lib/fatfs/source/ff.h	/^} FILINFO;$/;"	t	typeref:struct:__anon23
 FM_ANY	fatfs/source/ff.h	384;"	d
 FM_ANY	lib/fatfs/source/ff.h	384;"	d
 FM_EXFAT	fatfs/source/ff.h	383;"	d
@@ -588,6 +594,8 @@ FM_FAT32	fatfs/source/ff.h	382;"	d
 FM_FAT32	lib/fatfs/source/ff.h	382;"	d
 FM_SFD	fatfs/source/ff.h	385;"	d
 FM_SFD	lib/fatfs/source/ff.h	385;"	d
+FPU_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  FPU_IRQn                  =  38,              \/*!< 38 FPU                                                                    *\/$/;"	e	enum:__anon28
+FPU_IRQn	include/nrf52840.h	/^  FPU_IRQn                  =  38,              \/*!< 38 FPU                                                                    *\/$/;"	e	enum:__anon1
 FREE_NAMBUF	fatfs/source/ff.c	466;"	d	file:
 FREE_NAMBUF	fatfs/source/ff.c	489;"	d	file:
 FREE_NAMBUF	fatfs/source/ff.c	496;"	d	file:
@@ -600,49 +608,49 @@ FREE_NAMBUF	lib/fatfs/source/ff.c	496;"	d	file:
 FREE_NAMBUF	lib/fatfs/source/ff.c	500;"	d	file:
 FREE_NAMBUF	lib/fatfs/source/ff.c	508;"	d	file:
 FREE_NAMBUF	lib/fatfs/source/ff.c	512;"	d	file:
-FREQUENCY	arch/arm/nrf52840/spi/spi.c	27;"	d	file:
-FRESULT	fatfs/source/ff.h	/^} FRESULT;$/;"	t	typeref:enum:__anon13
-FRESULT	lib/fatfs/source/ff.h	/^} FRESULT;$/;"	t	typeref:enum:__anon23
-FR_DENIED	fatfs/source/ff.h	/^	FR_DENIED,				\/* (7) Access denied due to prohibited access or directory full *\/$/;"	e	enum:__anon13
-FR_DENIED	lib/fatfs/source/ff.h	/^	FR_DENIED,				\/* (7) Access denied due to prohibited access or directory full *\/$/;"	e	enum:__anon23
-FR_DISK_ERR	fatfs/source/ff.h	/^	FR_DISK_ERR,			\/* (1) A hard error occurred in the low level disk I\/O layer *\/$/;"	e	enum:__anon13
-FR_DISK_ERR	lib/fatfs/source/ff.h	/^	FR_DISK_ERR,			\/* (1) A hard error occurred in the low level disk I\/O layer *\/$/;"	e	enum:__anon23
-FR_EXIST	fatfs/source/ff.h	/^	FR_EXIST,				\/* (8) Access denied due to prohibited access *\/$/;"	e	enum:__anon13
-FR_EXIST	lib/fatfs/source/ff.h	/^	FR_EXIST,				\/* (8) Access denied due to prohibited access *\/$/;"	e	enum:__anon23
-FR_INT_ERR	fatfs/source/ff.h	/^	FR_INT_ERR,				\/* (2) Assertion failed *\/$/;"	e	enum:__anon13
-FR_INT_ERR	lib/fatfs/source/ff.h	/^	FR_INT_ERR,				\/* (2) Assertion failed *\/$/;"	e	enum:__anon23
-FR_INVALID_DRIVE	fatfs/source/ff.h	/^	FR_INVALID_DRIVE,		\/* (11) The logical drive number is invalid *\/$/;"	e	enum:__anon13
-FR_INVALID_DRIVE	lib/fatfs/source/ff.h	/^	FR_INVALID_DRIVE,		\/* (11) The logical drive number is invalid *\/$/;"	e	enum:__anon23
-FR_INVALID_NAME	fatfs/source/ff.h	/^	FR_INVALID_NAME,		\/* (6) The path name format is invalid *\/$/;"	e	enum:__anon13
-FR_INVALID_NAME	lib/fatfs/source/ff.h	/^	FR_INVALID_NAME,		\/* (6) The path name format is invalid *\/$/;"	e	enum:__anon23
-FR_INVALID_OBJECT	fatfs/source/ff.h	/^	FR_INVALID_OBJECT,		\/* (9) The file\/directory object is invalid *\/$/;"	e	enum:__anon13
-FR_INVALID_OBJECT	lib/fatfs/source/ff.h	/^	FR_INVALID_OBJECT,		\/* (9) The file\/directory object is invalid *\/$/;"	e	enum:__anon23
-FR_INVALID_PARAMETER	fatfs/source/ff.h	/^	FR_INVALID_PARAMETER	\/* (19) Given parameter is invalid *\/$/;"	e	enum:__anon13
-FR_INVALID_PARAMETER	lib/fatfs/source/ff.h	/^	FR_INVALID_PARAMETER	\/* (19) Given parameter is invalid *\/$/;"	e	enum:__anon23
-FR_LOCKED	fatfs/source/ff.h	/^	FR_LOCKED,				\/* (16) The operation is rejected according to the file sharing policy *\/$/;"	e	enum:__anon13
-FR_LOCKED	lib/fatfs/source/ff.h	/^	FR_LOCKED,				\/* (16) The operation is rejected according to the file sharing policy *\/$/;"	e	enum:__anon23
-FR_MKFS_ABORTED	fatfs/source/ff.h	/^	FR_MKFS_ABORTED,		\/* (14) The f_mkfs() aborted due to any problem *\/$/;"	e	enum:__anon13
-FR_MKFS_ABORTED	lib/fatfs/source/ff.h	/^	FR_MKFS_ABORTED,		\/* (14) The f_mkfs() aborted due to any problem *\/$/;"	e	enum:__anon23
-FR_NOT_ENABLED	fatfs/source/ff.h	/^	FR_NOT_ENABLED,			\/* (12) The volume has no work area *\/$/;"	e	enum:__anon13
-FR_NOT_ENABLED	lib/fatfs/source/ff.h	/^	FR_NOT_ENABLED,			\/* (12) The volume has no work area *\/$/;"	e	enum:__anon23
-FR_NOT_ENOUGH_CORE	fatfs/source/ff.h	/^	FR_NOT_ENOUGH_CORE,		\/* (17) LFN working buffer could not be allocated *\/$/;"	e	enum:__anon13
-FR_NOT_ENOUGH_CORE	lib/fatfs/source/ff.h	/^	FR_NOT_ENOUGH_CORE,		\/* (17) LFN working buffer could not be allocated *\/$/;"	e	enum:__anon23
-FR_NOT_READY	fatfs/source/ff.h	/^	FR_NOT_READY,			\/* (3) The physical drive cannot work *\/$/;"	e	enum:__anon13
-FR_NOT_READY	lib/fatfs/source/ff.h	/^	FR_NOT_READY,			\/* (3) The physical drive cannot work *\/$/;"	e	enum:__anon23
-FR_NO_FILE	fatfs/source/ff.h	/^	FR_NO_FILE,				\/* (4) Could not find the file *\/$/;"	e	enum:__anon13
-FR_NO_FILE	lib/fatfs/source/ff.h	/^	FR_NO_FILE,				\/* (4) Could not find the file *\/$/;"	e	enum:__anon23
-FR_NO_FILESYSTEM	fatfs/source/ff.h	/^	FR_NO_FILESYSTEM,		\/* (13) There is no valid FAT volume *\/$/;"	e	enum:__anon13
-FR_NO_FILESYSTEM	lib/fatfs/source/ff.h	/^	FR_NO_FILESYSTEM,		\/* (13) There is no valid FAT volume *\/$/;"	e	enum:__anon23
-FR_NO_PATH	fatfs/source/ff.h	/^	FR_NO_PATH,				\/* (5) Could not find the path *\/$/;"	e	enum:__anon13
-FR_NO_PATH	lib/fatfs/source/ff.h	/^	FR_NO_PATH,				\/* (5) Could not find the path *\/$/;"	e	enum:__anon23
-FR_OK	fatfs/source/ff.h	/^	FR_OK = 0,				\/* (0) Succeeded *\/$/;"	e	enum:__anon13
-FR_OK	lib/fatfs/source/ff.h	/^	FR_OK = 0,				\/* (0) Succeeded *\/$/;"	e	enum:__anon23
-FR_TIMEOUT	fatfs/source/ff.h	/^	FR_TIMEOUT,				\/* (15) Could not get a grant to access the volume within defined period *\/$/;"	e	enum:__anon13
-FR_TIMEOUT	lib/fatfs/source/ff.h	/^	FR_TIMEOUT,				\/* (15) Could not get a grant to access the volume within defined period *\/$/;"	e	enum:__anon23
-FR_TOO_MANY_OPEN_FILES	fatfs/source/ff.h	/^	FR_TOO_MANY_OPEN_FILES,	\/* (18) Number of open files > FF_FS_LOCK *\/$/;"	e	enum:__anon13
-FR_TOO_MANY_OPEN_FILES	lib/fatfs/source/ff.h	/^	FR_TOO_MANY_OPEN_FILES,	\/* (18) Number of open files > FF_FS_LOCK *\/$/;"	e	enum:__anon23
-FR_WRITE_PROTECTED	fatfs/source/ff.h	/^	FR_WRITE_PROTECTED,		\/* (10) The physical drive is write protected *\/$/;"	e	enum:__anon13
-FR_WRITE_PROTECTED	lib/fatfs/source/ff.h	/^	FR_WRITE_PROTECTED,		\/* (10) The physical drive is write protected *\/$/;"	e	enum:__anon23
+FREQUENCY	arch/arm/nrf52840/spi/spi.c	28;"	d	file:
+FRESULT	fatfs/source/ff.h	/^} FRESULT;$/;"	t	typeref:enum:__anon14
+FRESULT	lib/fatfs/source/ff.h	/^} FRESULT;$/;"	t	typeref:enum:__anon24
+FR_DENIED	fatfs/source/ff.h	/^	FR_DENIED,				\/* (7) Access denied due to prohibited access or directory full *\/$/;"	e	enum:__anon14
+FR_DENIED	lib/fatfs/source/ff.h	/^	FR_DENIED,				\/* (7) Access denied due to prohibited access or directory full *\/$/;"	e	enum:__anon24
+FR_DISK_ERR	fatfs/source/ff.h	/^	FR_DISK_ERR,			\/* (1) A hard error occurred in the low level disk I\/O layer *\/$/;"	e	enum:__anon14
+FR_DISK_ERR	lib/fatfs/source/ff.h	/^	FR_DISK_ERR,			\/* (1) A hard error occurred in the low level disk I\/O layer *\/$/;"	e	enum:__anon24
+FR_EXIST	fatfs/source/ff.h	/^	FR_EXIST,				\/* (8) Access denied due to prohibited access *\/$/;"	e	enum:__anon14
+FR_EXIST	lib/fatfs/source/ff.h	/^	FR_EXIST,				\/* (8) Access denied due to prohibited access *\/$/;"	e	enum:__anon24
+FR_INT_ERR	fatfs/source/ff.h	/^	FR_INT_ERR,				\/* (2) Assertion failed *\/$/;"	e	enum:__anon14
+FR_INT_ERR	lib/fatfs/source/ff.h	/^	FR_INT_ERR,				\/* (2) Assertion failed *\/$/;"	e	enum:__anon24
+FR_INVALID_DRIVE	fatfs/source/ff.h	/^	FR_INVALID_DRIVE,		\/* (11) The logical drive number is invalid *\/$/;"	e	enum:__anon14
+FR_INVALID_DRIVE	lib/fatfs/source/ff.h	/^	FR_INVALID_DRIVE,		\/* (11) The logical drive number is invalid *\/$/;"	e	enum:__anon24
+FR_INVALID_NAME	fatfs/source/ff.h	/^	FR_INVALID_NAME,		\/* (6) The path name format is invalid *\/$/;"	e	enum:__anon14
+FR_INVALID_NAME	lib/fatfs/source/ff.h	/^	FR_INVALID_NAME,		\/* (6) The path name format is invalid *\/$/;"	e	enum:__anon24
+FR_INVALID_OBJECT	fatfs/source/ff.h	/^	FR_INVALID_OBJECT,		\/* (9) The file\/directory object is invalid *\/$/;"	e	enum:__anon14
+FR_INVALID_OBJECT	lib/fatfs/source/ff.h	/^	FR_INVALID_OBJECT,		\/* (9) The file\/directory object is invalid *\/$/;"	e	enum:__anon24
+FR_INVALID_PARAMETER	fatfs/source/ff.h	/^	FR_INVALID_PARAMETER	\/* (19) Given parameter is invalid *\/$/;"	e	enum:__anon14
+FR_INVALID_PARAMETER	lib/fatfs/source/ff.h	/^	FR_INVALID_PARAMETER	\/* (19) Given parameter is invalid *\/$/;"	e	enum:__anon24
+FR_LOCKED	fatfs/source/ff.h	/^	FR_LOCKED,				\/* (16) The operation is rejected according to the file sharing policy *\/$/;"	e	enum:__anon14
+FR_LOCKED	lib/fatfs/source/ff.h	/^	FR_LOCKED,				\/* (16) The operation is rejected according to the file sharing policy *\/$/;"	e	enum:__anon24
+FR_MKFS_ABORTED	fatfs/source/ff.h	/^	FR_MKFS_ABORTED,		\/* (14) The f_mkfs() aborted due to any problem *\/$/;"	e	enum:__anon14
+FR_MKFS_ABORTED	lib/fatfs/source/ff.h	/^	FR_MKFS_ABORTED,		\/* (14) The f_mkfs() aborted due to any problem *\/$/;"	e	enum:__anon24
+FR_NOT_ENABLED	fatfs/source/ff.h	/^	FR_NOT_ENABLED,			\/* (12) The volume has no work area *\/$/;"	e	enum:__anon14
+FR_NOT_ENABLED	lib/fatfs/source/ff.h	/^	FR_NOT_ENABLED,			\/* (12) The volume has no work area *\/$/;"	e	enum:__anon24
+FR_NOT_ENOUGH_CORE	fatfs/source/ff.h	/^	FR_NOT_ENOUGH_CORE,		\/* (17) LFN working buffer could not be allocated *\/$/;"	e	enum:__anon14
+FR_NOT_ENOUGH_CORE	lib/fatfs/source/ff.h	/^	FR_NOT_ENOUGH_CORE,		\/* (17) LFN working buffer could not be allocated *\/$/;"	e	enum:__anon24
+FR_NOT_READY	fatfs/source/ff.h	/^	FR_NOT_READY,			\/* (3) The physical drive cannot work *\/$/;"	e	enum:__anon14
+FR_NOT_READY	lib/fatfs/source/ff.h	/^	FR_NOT_READY,			\/* (3) The physical drive cannot work *\/$/;"	e	enum:__anon24
+FR_NO_FILE	fatfs/source/ff.h	/^	FR_NO_FILE,				\/* (4) Could not find the file *\/$/;"	e	enum:__anon14
+FR_NO_FILE	lib/fatfs/source/ff.h	/^	FR_NO_FILE,				\/* (4) Could not find the file *\/$/;"	e	enum:__anon24
+FR_NO_FILESYSTEM	fatfs/source/ff.h	/^	FR_NO_FILESYSTEM,		\/* (13) There is no valid FAT volume *\/$/;"	e	enum:__anon14
+FR_NO_FILESYSTEM	lib/fatfs/source/ff.h	/^	FR_NO_FILESYSTEM,		\/* (13) There is no valid FAT volume *\/$/;"	e	enum:__anon24
+FR_NO_PATH	fatfs/source/ff.h	/^	FR_NO_PATH,				\/* (5) Could not find the path *\/$/;"	e	enum:__anon14
+FR_NO_PATH	lib/fatfs/source/ff.h	/^	FR_NO_PATH,				\/* (5) Could not find the path *\/$/;"	e	enum:__anon24
+FR_OK	fatfs/source/ff.h	/^	FR_OK = 0,				\/* (0) Succeeded *\/$/;"	e	enum:__anon14
+FR_OK	lib/fatfs/source/ff.h	/^	FR_OK = 0,				\/* (0) Succeeded *\/$/;"	e	enum:__anon24
+FR_TIMEOUT	fatfs/source/ff.h	/^	FR_TIMEOUT,				\/* (15) Could not get a grant to access the volume within defined period *\/$/;"	e	enum:__anon14
+FR_TIMEOUT	lib/fatfs/source/ff.h	/^	FR_TIMEOUT,				\/* (15) Could not get a grant to access the volume within defined period *\/$/;"	e	enum:__anon24
+FR_TOO_MANY_OPEN_FILES	fatfs/source/ff.h	/^	FR_TOO_MANY_OPEN_FILES,	\/* (18) Number of open files > FF_FS_LOCK *\/$/;"	e	enum:__anon14
+FR_TOO_MANY_OPEN_FILES	lib/fatfs/source/ff.h	/^	FR_TOO_MANY_OPEN_FILES,	\/* (18) Number of open files > FF_FS_LOCK *\/$/;"	e	enum:__anon24
+FR_WRITE_PROTECTED	fatfs/source/ff.h	/^	FR_WRITE_PROTECTED,		\/* (10) The physical drive is write protected *\/$/;"	e	enum:__anon14
+FR_WRITE_PROTECTED	lib/fatfs/source/ff.h	/^	FR_WRITE_PROTECTED,		\/* (10) The physical drive is write protected *\/$/;"	e	enum:__anon24
 FSIZE_t	fatfs/source/ff.h	/^typedef DWORD FSIZE_t;$/;"	t
 FSIZE_t	fatfs/source/ff.h	/^typedef QWORD FSIZE_t;$/;"	t
 FSIZE_t	lib/fatfs/source/ff.h	/^typedef DWORD FSIZE_t;$/;"	t
@@ -679,6 +687,8 @@ GET_SECTOR_COUNT	fatfs/source/diskio.h	47;"	d
 GET_SECTOR_COUNT	lib/fatfs/source/diskio.h	47;"	d
 GET_SECTOR_SIZE	fatfs/source/diskio.h	48;"	d
 GET_SECTOR_SIZE	lib/fatfs/source/diskio.h	48;"	d
+GPIOTE_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  GPIOTE_IRQn               =   6,              \/*!< 6  GPIOTE                                                                 *\/$/;"	e	enum:__anon28
+GPIOTE_IRQn	include/nrf52840.h	/^  GPIOTE_IRQn               =   6,              \/*!< 6  GPIOTE                                                                 *\/$/;"	e	enum:__anon1
 GPIO_BASE_PORT0	arch/arm/nrf52840/gpio/gpio.c	5;"	d	file:
 GPIO_BASE_PORT1	arch/arm/nrf52840/gpio/gpio.c	6;"	d	file:
 GPIO_DIR	arch/arm/nrf52840/gpio/gpio.c	11;"	d	file:
@@ -691,28 +701,33 @@ GPIO_PIN_CNF	arch/arm/nrf52840/gpio/gpio.c	12;"	d	file:
 GPIO_PULLUP_OFFSET	arch/arm/nrf52840/gpio/gpio.c	15;"	d	file:
 GPIO_PULLUP_VALUE	arch/arm/nrf52840/gpio/gpio.c	14;"	d	file:
 HALTED	sched/include/scheduler.h	/^  HALTED            \/* NOT USED currently *\/$/;"	e	enum:task_state_e
-HEAP_BLOCK_SIZE	arch/arm/nrf52840/startup.c	17;"	d	file:
-HEAP_END	arch/arm/nrf52840/startup.c	16;"	d	file:
-HEAP_START	arch/arm/nrf52840/startup.c	15;"	d	file:
-HFSR	arch/arm/nrf52840/include/board.h	/^  uint32_t HFSR;                    \/*!< Offset: 0x02C (R\/W)  HardFault Status Register                             *\/$/;"	m	struct:__anon28
-HFSR	include/board.h	/^  uint32_t HFSR;                    \/*!< Offset: 0x02C (R\/W)  HardFault Status Register                             *\/$/;"	m	struct:__anon2
+HEAP_BLOCK_SIZE	arch/arm/nrf52840/include/board.h	17;"	d
+HEAP_BLOCK_SIZE	include/board.h	17;"	d
+HEAP_END	arch/arm/nrf52840/include/board.h	16;"	d
+HEAP_END	include/board.h	16;"	d
+HEAP_START	arch/arm/nrf52840/include/board.h	15;"	d
+HEAP_START	include/board.h	15;"	d
+HFSR	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t HFSR;                    \/*!< Offset: 0x02C (R\/W)  HardFault Status Register                             *\/$/;"	m	struct:__anon30
+HFSR	include/nrf52840.h	/^  uint32_t HFSR;                    \/*!< Offset: 0x02C (R\/W)  HardFault Status Register                             *\/$/;"	m	struct:__anon3
 HLIST_HEAD	s_alloc/list.h	408;"	d
 HLIST_HEAD_INIT	s_alloc/list.h	407;"	d
 HardFault_Handler	arch/arm/nrf52840/startup.c	/^static void HardFault_Handler(void)$/;"	f	file:
-HardFault_IRQn	arch/arm/nrf52840/include/board.h	/^  HardFault_IRQn               = -13,              \/**< Cortex-M4 SV Hard Fault Interrupt *\/$/;"	e	enum:IRQn
-HardFault_IRQn	include/board.h	/^  HardFault_IRQn               = -13,              \/**< Cortex-M4 SV Hard Fault Interrupt *\/$/;"	e	enum:IRQn
-IABR	arch/arm/nrf52840/include/board.h	/^  uint32_t IABR[8];                 \/*!< Offset: 0x200 (R\/W)  Interrupt Active bit Register           *\/$/;"	m	struct:__anon30
-IABR	include/board.h	/^  uint32_t IABR[8];                 \/*!< Offset: 0x200 (R\/W)  Interrupt Active bit Register           *\/$/;"	m	struct:__anon4
-ICER	arch/arm/nrf52840/include/board.h	/^  uint32_t ICER[8];                 \/*!< Offset: 0x080 (R\/W)  Interrupt Clear Enable Register         *\/$/;"	m	struct:__anon30
-ICER	include/board.h	/^  uint32_t ICER[8];                 \/*!< Offset: 0x080 (R\/W)  Interrupt Clear Enable Register         *\/$/;"	m	struct:__anon4
-ICPR	arch/arm/nrf52840/include/board.h	/^  uint32_t ICPR[8];                 \/*!< Offset: 0x180 (R\/W)  Interrupt Clear Pending Register        *\/$/;"	m	struct:__anon30
-ICPR	include/board.h	/^  uint32_t ICPR[8];                 \/*!< Offset: 0x180 (R\/W)  Interrupt Clear Pending Register        *\/$/;"	m	struct:__anon4
-ICSR	arch/arm/nrf52840/include/board.h	/^  uint32_t ICSR;                    \/*!< Offset: 0x004 (R\/W)  Interrupt Control and State Register                  *\/$/;"	m	struct:__anon28
-ICSR	include/board.h	/^  uint32_t ICSR;                    \/*!< Offset: 0x004 (R\/W)  Interrupt Control and State Register                  *\/$/;"	m	struct:__anon2
-ICTR	arch/arm/nrf52840/include/board.h	/^  uint32_t ICTR;                    \/*!< Offset: 0x004 (R\/ )  Interrupt Controller Type Register      *\/$/;"	m	struct:__anon27
-ICTR	include/board.h	/^  uint32_t ICTR;                    \/*!< Offset: 0x004 (R\/ )  Interrupt Controller Type Register      *\/$/;"	m	struct:__anon1
-IFTIMING_CSNDUR	arch/arm/nrf52840/spi/spi.c	38;"	d	file:
-IFTIMING_RXDELAY	arch/arm/nrf52840/spi/spi.c	37;"	d	file:
+HardFault_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  HardFault_IRQn            = -13,              \/*!< -13  Hard Fault, all classes of Fault                                     *\/$/;"	e	enum:__anon28
+HardFault_IRQn	include/nrf52840.h	/^  HardFault_IRQn            = -13,              \/*!< -13  Hard Fault, all classes of Fault                                     *\/$/;"	e	enum:__anon1
+I2S_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  I2S_IRQn                  =  37,              \/*!< 37 I2S                                                                    *\/$/;"	e	enum:__anon28
+I2S_IRQn	include/nrf52840.h	/^  I2S_IRQn                  =  37,              \/*!< 37 I2S                                                                    *\/$/;"	e	enum:__anon1
+IABR	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t IABR[8];                 \/*!< Offset: 0x200 (R\/W)  Interrupt Active bit Register           *\/$/;"	m	struct:__anon32
+IABR	include/nrf52840.h	/^  uint32_t IABR[8];                 \/*!< Offset: 0x200 (R\/W)  Interrupt Active bit Register           *\/$/;"	m	struct:__anon5
+ICER	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t ICER[8];                 \/*!< Offset: 0x080 (R\/W)  Interrupt Clear Enable Register         *\/$/;"	m	struct:__anon32
+ICER	include/nrf52840.h	/^  uint32_t ICER[8];                 \/*!< Offset: 0x080 (R\/W)  Interrupt Clear Enable Register         *\/$/;"	m	struct:__anon5
+ICPR	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t ICPR[8];                 \/*!< Offset: 0x180 (R\/W)  Interrupt Clear Pending Register        *\/$/;"	m	struct:__anon32
+ICPR	include/nrf52840.h	/^  uint32_t ICPR[8];                 \/*!< Offset: 0x180 (R\/W)  Interrupt Clear Pending Register        *\/$/;"	m	struct:__anon5
+ICSR	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t ICSR;                    \/*!< Offset: 0x004 (R\/W)  Interrupt Control and State Register                  *\/$/;"	m	struct:__anon30
+ICSR	include/nrf52840.h	/^  uint32_t ICSR;                    \/*!< Offset: 0x004 (R\/W)  Interrupt Control and State Register                  *\/$/;"	m	struct:__anon3
+ICTR	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t ICTR;                    \/*!< Offset: 0x004 (R\/ )  Interrupt Controller Type Register      *\/$/;"	m	struct:__anon29
+ICTR	include/nrf52840.h	/^  uint32_t ICTR;                    \/*!< Offset: 0x004 (R\/ )  Interrupt Controller Type Register      *\/$/;"	m	struct:__anon2
+IFTIMING_CSNDUR	arch/arm/nrf52840/spi/spi.c	39;"	d	file:
+IFTIMING_RXDELAY	arch/arm/nrf52840/spi/spi.c	38;"	d	file:
 INIT_HLIST_HEAD	s_alloc/list.h	409;"	d
 INIT_HLIST_NODE	s_alloc/list.h	410;"	d
 INIT_LIST_HEAD	s_alloc/list.h	86;"	d
@@ -728,29 +743,27 @@ INIT_NAMBUF	lib/fatfs/source/ff.c	495;"	d	file:
 INIT_NAMBUF	lib/fatfs/source/ff.c	499;"	d	file:
 INIT_NAMBUF	lib/fatfs/source/ff.c	507;"	d	file:
 INIT_NAMBUF	lib/fatfs/source/ff.c	511;"	d	file:
-INTENCLR	arch/arm/nrf52840/spi/spi.c	20;"	d	file:
-INTENSET	arch/arm/nrf52840/spi/spi.c	19;"	d	file:
+INTENCLR	arch/arm/nrf52840/spi/spi.c	21;"	d	file:
+INTENSET	arch/arm/nrf52840/spi/spi.c	20;"	d	file:
 INVALID_SPI_CFG	include/spi.h	8;"	d
-IP	arch/arm/nrf52840/include/board.h	/^  uint8_t  IP[240];                 \/*!< Offset: 0x300 (R\/W)  Interrupt Priority Register (8Bit wide) *\/$/;"	m	struct:__anon30
-IP	include/board.h	/^  uint8_t  IP[240];                 \/*!< Offset: 0x300 (R\/W)  Interrupt Priority Register (8Bit wide) *\/$/;"	m	struct:__anon4
-IRQn	arch/arm/nrf52840/include/board.h	/^typedef enum IRQn {$/;"	g
-IRQn	include/board.h	/^typedef enum IRQn {$/;"	g
-IRQn_Type	arch/arm/nrf52840/include/board.h	/^} IRQn_Type;$/;"	t	typeref:enum:IRQn
-IRQn_Type	include/board.h	/^} IRQn_Type;$/;"	t	typeref:enum:IRQn
-ISAR	arch/arm/nrf52840/include/board.h	/^  uint32_t ISAR[5];                 \/*!< Offset: 0x060 (R\/ )  Instruction Set Attributes Register                   *\/$/;"	m	struct:__anon28
-ISAR	include/board.h	/^  uint32_t ISAR[5];                 \/*!< Offset: 0x060 (R\/ )  Instruction Set Attributes Register                   *\/$/;"	m	struct:__anon2
+IP	arch/arm/nrf52840/include/nrf52840.h	/^  uint8_t  IP[240];                 \/*!< Offset: 0x300 (R\/W)  Interrupt Priority Register (8Bit wide) *\/$/;"	m	struct:__anon32
+IP	include/nrf52840.h	/^  uint8_t  IP[240];                 \/*!< Offset: 0x300 (R\/W)  Interrupt Priority Register (8Bit wide) *\/$/;"	m	struct:__anon5
+IRQn_Type	arch/arm/nrf52840/include/nrf52840.h	/^} IRQn_Type;$/;"	t	typeref:enum:__anon28
+IRQn_Type	include/nrf52840.h	/^} IRQn_Type;$/;"	t	typeref:enum:__anon1
+ISAR	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t ISAR[5];                 \/*!< Offset: 0x060 (R\/ )  Instruction Set Attributes Register                   *\/$/;"	m	struct:__anon30
+ISAR	include/nrf52840.h	/^  uint32_t ISAR[5];                 \/*!< Offset: 0x060 (R\/ )  Instruction Set Attributes Register                   *\/$/;"	m	struct:__anon3
 ISDIO_MRITE	fatfs/source/diskio.h	66;"	d
 ISDIO_MRITE	lib/fatfs/source/diskio.h	66;"	d
 ISDIO_READ	fatfs/source/diskio.h	64;"	d
 ISDIO_READ	lib/fatfs/source/diskio.h	64;"	d
 ISDIO_WRITE	fatfs/source/diskio.h	65;"	d
 ISDIO_WRITE	lib/fatfs/source/diskio.h	65;"	d
-ISER	arch/arm/nrf52840/include/board.h	/^  uint32_t ISER[8];                 \/*!< Offset: 0x000 (R\/W)  Interrupt Set Enable Register           *\/$/;"	m	struct:__anon30
-ISER	include/board.h	/^  uint32_t ISER[8];                 \/*!< Offset: 0x000 (R\/W)  Interrupt Set Enable Register           *\/$/;"	m	struct:__anon4
-ISPR	arch/arm/nrf52840/include/board.h	/^  uint32_t ISPR[8];                 \/*!< Offset: 0x100 (R\/W)  Interrupt Set Pending Register          *\/$/;"	m	struct:__anon30
-ISPR	include/board.h	/^  uint32_t ISPR[8];                 \/*!< Offset: 0x100 (R\/W)  Interrupt Set Pending Register          *\/$/;"	m	struct:__anon4
-ITM_BASE	arch/arm/nrf52840/include/board.h	151;"	d
-ITM_BASE	include/board.h	151;"	d
+ISER	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t ISER[8];                 \/*!< Offset: 0x000 (R\/W)  Interrupt Set Enable Register           *\/$/;"	m	struct:__anon32
+ISER	include/nrf52840.h	/^  uint32_t ISER[8];                 \/*!< Offset: 0x000 (R\/W)  Interrupt Set Enable Register           *\/$/;"	m	struct:__anon5
+ISPR	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t ISPR[8];                 \/*!< Offset: 0x100 (R\/W)  Interrupt Set Pending Register          *\/$/;"	m	struct:__anon32
+ISPR	include/nrf52840.h	/^  uint32_t ISPR[8];                 \/*!< Offset: 0x100 (R\/W)  Interrupt Set Pending Register          *\/$/;"	m	struct:__anon5
+ITM_BASE	arch/arm/nrf52840/include/nrf52840.h	174;"	d
+ITM_BASE	include/nrf52840.h	174;"	d
 IsDigit	fatfs/source/ff.c	49;"	d	file:
 IsDigit	lib/fatfs/source/ff.c	49;"	d	file:
 IsLower	fatfs/source/ff.c	48;"	d	file:
@@ -793,15 +806,15 @@ LEAVE_MKFS	lib/fatfs/source/ff.c	467;"	d	file:
 LEAVE_MKFS	lib/fatfs/source/ff.c	490;"	d	file:
 LEAVE_MKFS	lib/fatfs/source/ff.c	502;"	d	file:
 LEAVE_MKFS	lib/fatfs/source/ff.c	514;"	d	file:
-LED	arch/arm/nrf52840/board_initialize.c	/^unsigned int LED = 13;$/;"	v
+LED	arch/arm/nrf52840/board_initialize.c	/^static unsigned int LED = 13;$/;"	v	file:
 LIST_HEAD	s_alloc/list.h	83;"	d
 LIST_HEAD_INIT	s_alloc/list.h	81;"	d
 LIST_POISON1	s_alloc/list.h	61;"	d
 LIST_POISON2	s_alloc/list.h	62;"	d
 LLEF	fatfs/source/ff.c	187;"	d	file:
 LLEF	lib/fatfs/source/ff.c	187;"	d	file:
-LOAD	arch/arm/nrf52840/include/board.h	/^  uint32_t LOAD;                    \/*!< Offset: 0x004 (R\/W)  SysTick Reload Value Register       *\/$/;"	m	struct:__anon29
-LOAD	include/board.h	/^  uint32_t LOAD;                    \/*!< Offset: 0x004 (R\/W)  SysTick Reload Value Register       *\/$/;"	m	struct:__anon3
+LOAD	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t LOAD;                    \/*!< Offset: 0x004 (R\/W)  SysTick Reload Value Register       *\/$/;"	m	struct:__anon31
+LOAD	include/nrf52840.h	/^  uint32_t LOAD;                    \/*!< Offset: 0x004 (R\/W)  SysTick Reload Value Register       *\/$/;"	m	struct:__anon4
 LfnBuf	fatfs/source/ff.c	/^static WCHAR LfnBuf[FF_MAX_LFN + 1];		\/* LFN working buffer *\/$/;"	v	file:
 LfnBuf	lib/fatfs/source/ff.c	/^static WCHAR LfnBuf[FF_MAX_LFN + 1];		\/* LFN working buffer *\/$/;"	v	file:
 LfnOfs	fatfs/source/ff.c	/^static const BYTE LfnOfs[] = {1,3,5,7,9,14,16,18,20,22,24,28,30};	\/* FAT: Offset of LFN characters in the directory entry *\/$/;"	v	file:
@@ -846,12 +859,16 @@ MMC_disk_ioctl	lib/fatfs_glue.c	/^DRESULT MMC_disk_ioctl(BYTE ctrl, void *buff)$
 MMC_disk_read	lib/fatfs_glue.c	/^DRESULT MMC_disk_read(BYTE *buff, DWORD sector, BYTE count)$/;"	f
 MMC_disk_status	lib/fatfs_glue.c	/^DSTATUS MMC_disk_status(void)$/;"	f
 MMC_disk_write	lib/fatfs_glue.c	/^DRESULT MMC_disk_write(const BYTE *buff, DWORD sector, BYTE count)$/;"	f
-MMFAR	arch/arm/nrf52840/include/board.h	/^  uint32_t MMFAR;                   \/*!< Offset: 0x034 (R\/W)  MemManage Fault Address Register                      *\/$/;"	m	struct:__anon28
-MMFAR	include/board.h	/^  uint32_t MMFAR;                   \/*!< Offset: 0x034 (R\/W)  MemManage Fault Address Register                      *\/$/;"	m	struct:__anon2
-MMFR	arch/arm/nrf52840/include/board.h	/^  uint32_t MMFR[4];                 \/*!< Offset: 0x050 (R\/ )  Memory Model Feature Register                         *\/$/;"	m	struct:__anon28
-MMFR	include/board.h	/^  uint32_t MMFR[4];                 \/*!< Offset: 0x050 (R\/ )  Memory Model Feature Register                         *\/$/;"	m	struct:__anon2
-MemoryManagement_IRQn	arch/arm/nrf52840/include/board.h	/^  MemoryManagement_IRQn        = -12,              \/**< Cortex-M4 Memory Management Interrupt *\/$/;"	e	enum:IRQn
-MemoryManagement_IRQn	include/board.h	/^  MemoryManagement_IRQn        = -12,              \/**< Cortex-M4 Memory Management Interrupt *\/$/;"	e	enum:IRQn
+MMFAR	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t MMFAR;                   \/*!< Offset: 0x034 (R\/W)  MemManage Fault Address Register                      *\/$/;"	m	struct:__anon30
+MMFAR	include/nrf52840.h	/^  uint32_t MMFAR;                   \/*!< Offset: 0x034 (R\/W)  MemManage Fault Address Register                      *\/$/;"	m	struct:__anon3
+MMFR	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t MMFR[4];                 \/*!< Offset: 0x050 (R\/ )  Memory Model Feature Register                         *\/$/;"	m	struct:__anon30
+MMFR	include/nrf52840.h	/^  uint32_t MMFR[4];                 \/*!< Offset: 0x050 (R\/ )  Memory Model Feature Register                         *\/$/;"	m	struct:__anon3
+MWU_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  MWU_IRQn                  =  32,              \/*!< 32 MWU                                                                    *\/$/;"	e	enum:__anon28
+MWU_IRQn	include/nrf52840.h	/^  MWU_IRQn                  =  32,              \/*!< 32 MWU                                                                    *\/$/;"	e	enum:__anon1
+MemoryManagement_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  MemoryManagement_IRQn     = -12,              \/*!< -12  Memory Management, MPU mismatch, including Access Violation$/;"	e	enum:__anon28
+MemoryManagement_IRQn	include/nrf52840.h	/^  MemoryManagement_IRQn     = -12,              \/*!< -12  Memory Management, MPU mismatch, including Access Violation$/;"	e	enum:__anon1
+NFCT_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  NFCT_IRQn                 =   5,              \/*!< 5  NFCT                                                                   *\/$/;"	e	enum:__anon28
+NFCT_IRQn	include/nrf52840.h	/^  NFCT_IRQn                 =   5,              \/*!< 5  NFCT                                                                   *\/$/;"	e	enum:__anon1
 NSFLAG	fatfs/source/ff.c	68;"	d	file:
 NSFLAG	lib/fatfs/source/ff.c	68;"	d	file:
 NS_BODY	fatfs/source/ff.c	72;"	d	file:
@@ -870,31 +887,27 @@ NS_NOLFN	fatfs/source/ff.c	75;"	d	file:
 NS_NOLFN	lib/fatfs/source/ff.c	75;"	d	file:
 NS_NONAME	fatfs/source/ff.c	76;"	d	file:
 NS_NONAME	lib/fatfs/source/ff.c	76;"	d	file:
-NULL	arch/arm/nrf52840/include/board.h	7;"	d
-NULL	include/board.h	7;"	d
-NULL	include/stdlib.h	5;"	d
+NULL	include/stdlib.h	9;"	d
 NULL	s_alloc/list.h	27;"	d
 NUM_VFS_TYPES	include/vfs.h	/^  NUM_VFS_TYPES,$/;"	e	enum:vfs_node_type
-NVIC	arch/arm/nrf52840/include/board.h	162;"	d
-NVIC	include/board.h	162;"	d
-NVIC_BASE	arch/arm/nrf52840/include/board.h	156;"	d
-NVIC_BASE	include/board.h	156;"	d
-NVIC_ClearPendingIRQ	arch/arm/nrf52840/include/board.h	/^static inline void NVIC_ClearPendingIRQ(IRQn_Type IRQn)$/;"	f
-NVIC_ClearPendingIRQ	include/board.h	/^static inline void NVIC_ClearPendingIRQ(IRQn_Type IRQn)$/;"	f
-NVIC_DisableIRQ	arch/arm/nrf52840/include/board.h	/^static inline void NVIC_DisableIRQ(IRQn_Type IRQn)$/;"	f
-NVIC_DisableIRQ	include/board.h	/^static inline void NVIC_DisableIRQ(IRQn_Type IRQn)$/;"	f
-NVIC_EnableIRQ	arch/arm/nrf52840/include/board.h	/^static inline void NVIC_EnableIRQ(IRQn_Type IRQn)$/;"	f
-NVIC_EnableIRQ	include/board.h	/^static inline void NVIC_EnableIRQ(IRQn_Type IRQn)$/;"	f
-NVIC_SetPriority	arch/arm/nrf52840/include/board.h	/^static inline void NVIC_SetPriority(IRQn_Type IRQn, uint32_t priority)$/;"	f
-NVIC_SetPriority	include/board.h	/^static inline void NVIC_SetPriority(IRQn_Type IRQn, uint32_t priority)$/;"	f
-NVIC_TriggerSysTick	arch/arm/nrf52840/include/board.h	/^static inline void NVIC_TriggerSysTick(void)$/;"	f
-NVIC_TriggerSysTick	include/board.h	/^static inline void NVIC_TriggerSysTick(void)$/;"	f
-NVIC_Type	arch/arm/nrf52840/include/board.h	/^} NVIC_Type;$/;"	t	typeref:struct:__anon30
-NVIC_Type	include/board.h	/^} NVIC_Type;$/;"	t	typeref:struct:__anon4
-NonMaskableInt_IRQn	arch/arm/nrf52840/include/board.h	/^  NonMaskableInt_IRQn          = -14,              \/**< Non Maskable Interrupt *\/$/;"	e	enum:IRQn
-NonMaskableInt_IRQn	include/board.h	/^  NonMaskableInt_IRQn          = -14,              \/**< Non Maskable Interrupt *\/$/;"	e	enum:IRQn
-NotAvail_IRQn	arch/arm/nrf52840/include/board.h	/^  NotAvail_IRQn                = -128,             \/**< Not available device specific interrupt *\/$/;"	e	enum:IRQn
-NotAvail_IRQn	include/board.h	/^  NotAvail_IRQn                = -128,             \/**< Not available device specific interrupt *\/$/;"	e	enum:IRQn
+NVIC	arch/arm/nrf52840/include/nrf52840.h	185;"	d
+NVIC	include/nrf52840.h	185;"	d
+NVIC_BASE	arch/arm/nrf52840/include/nrf52840.h	179;"	d
+NVIC_BASE	include/nrf52840.h	179;"	d
+NVIC_ClearPendingIRQ	arch/arm/nrf52840/include/nrf52840.h	/^static inline void NVIC_ClearPendingIRQ(IRQn_Type IRQn)$/;"	f
+NVIC_ClearPendingIRQ	include/nrf52840.h	/^static inline void NVIC_ClearPendingIRQ(IRQn_Type IRQn)$/;"	f
+NVIC_DisableIRQ	arch/arm/nrf52840/include/nrf52840.h	/^static inline void NVIC_DisableIRQ(IRQn_Type IRQn)$/;"	f
+NVIC_DisableIRQ	include/nrf52840.h	/^static inline void NVIC_DisableIRQ(IRQn_Type IRQn)$/;"	f
+NVIC_EnableIRQ	arch/arm/nrf52840/include/nrf52840.h	/^static inline void NVIC_EnableIRQ(IRQn_Type IRQn)$/;"	f
+NVIC_EnableIRQ	include/nrf52840.h	/^static inline void NVIC_EnableIRQ(IRQn_Type IRQn)$/;"	f
+NVIC_SetPriority	arch/arm/nrf52840/include/nrf52840.h	/^static inline void NVIC_SetPriority(IRQn_Type IRQn, uint32_t priority)$/;"	f
+NVIC_SetPriority	include/nrf52840.h	/^static inline void NVIC_SetPriority(IRQn_Type IRQn, uint32_t priority)$/;"	f
+NVIC_TriggerSysTick	arch/arm/nrf52840/include/nrf52840.h	/^static inline void NVIC_TriggerSysTick(void)$/;"	f
+NVIC_TriggerSysTick	include/nrf52840.h	/^static inline void NVIC_TriggerSysTick(void)$/;"	f
+NVIC_Type	arch/arm/nrf52840/include/nrf52840.h	/^} NVIC_Type;$/;"	t	typeref:struct:__anon32
+NVIC_Type	include/nrf52840.h	/^} NVIC_Type;$/;"	t	typeref:struct:__anon5
+NonMaskableInt_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  NonMaskableInt_IRQn       = -14,              \/*!< -14  Non maskable Interrupt, cannot be stopped or preempted               *\/$/;"	e	enum:__anon28
+NonMaskableInt_IRQn	include/nrf52840.h	/^  NonMaskableInt_IRQn       = -14,              \/*!< -14  Non maskable Interrupt, cannot be stopped or preempted               *\/$/;"	e	enum:__anon1
 OBJS	apps/console_app/Makefile	/^OBJS:=$(patsubst %.c,%.o,$(SRC))$/;"	m
 OBJS	drivers/serial/Makefile	/^OBJS:=$(patsubst %.c,%.o,$(SRC))$/;"	m
 OBJS	s_alloc/Makefile	/^OBJS := $(patsubst %.c,%.o,$(SRC))$/;"	m
@@ -906,18 +919,22 @@ OBJS_ASM	drivers/serial/Makefile	/^OBJS_ASM:=$(patsubst %.s,%.o,$(SRC_ASM))$/;"	
 OBJS_ASM	sched/Makefile	/^OBJS_ASM:=$(patsubst %.s,%.o,$(SRC_ASM))$/;"	m
 OBJS_FATFS	lib/Makefile	/^OBJS_FATFS := $(patsubst %.c, %.o, $(SRCS_FATFS))$/;"	m
 OK	include/errno.h	26;"	d
-ORC	arch/arm/nrf52840/spi/spi.c	39;"	d	file:
+ORC	arch/arm/nrf52840/spi/spi.c	40;"	d	file:
 OUT	s_alloc/Makefile	/^OUT = allocator$/;"	m
-PARTITION	fatfs/source/ff.h	/^} PARTITION;$/;"	t	typeref:struct:__anon7
-PARTITION	lib/fatfs/source/ff.h	/^} PARTITION;$/;"	t	typeref:struct:__anon17
+PARTITION	fatfs/source/ff.h	/^} PARTITION;$/;"	t	typeref:struct:__anon8
+PARTITION	lib/fatfs/source/ff.h	/^} PARTITION;$/;"	t	typeref:struct:__anon18
 PATH_FATFS	lib/Makefile	/^PATH_FATFS = .\/fatfs\/source$/;"	m
-PFR	arch/arm/nrf52840/include/board.h	/^  uint32_t PFR[2];                  \/*!< Offset: 0x040 (R\/ )  Processor Feature Register                            *\/$/;"	m	struct:__anon28
-PFR	include/board.h	/^  uint32_t PFR[2];                  \/*!< Offset: 0x040 (R\/ )  Processor Feature Register                            *\/$/;"	m	struct:__anon2
+PDM_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  PDM_IRQn                  =  29,              \/*!< 29 PDM                                                                    *\/$/;"	e	enum:__anon28
+PDM_IRQn	include/nrf52840.h	/^  PDM_IRQn                  =  29,              \/*!< 29 PDM                                                                    *\/$/;"	e	enum:__anon1
+PFR	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t PFR[2];                  \/*!< Offset: 0x040 (R\/ )  Processor Feature Register                            *\/$/;"	m	struct:__anon30
+PFR	include/nrf52840.h	/^  uint32_t PFR[2];                  \/*!< Offset: 0x040 (R\/ )  Processor Feature Register                            *\/$/;"	m	struct:__anon3
+POWER_CLOCK_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  POWER_CLOCK_IRQn          =   0,              \/*!< 0  POWER_CLOCK                                                            *\/$/;"	e	enum:__anon28
+POWER_CLOCK_IRQn	include/nrf52840.h	/^  POWER_CLOCK_IRQn          =   0,              \/*!< 0  POWER_CLOCK                                                            *\/$/;"	e	enum:__anon1
 PREFIX	Makefile	/^PREFIX := arm-none-eabi-$/;"	m
-PSEL_CSN	arch/arm/nrf52840/spi/spi.c	26;"	d	file:
-PSEL_MISO	arch/arm/nrf52840/spi/spi.c	25;"	d	file:
-PSEL_MOSI	arch/arm/nrf52840/spi/spi.c	24;"	d	file:
-PSEL_SCK	arch/arm/nrf52840/spi/spi.c	23;"	d	file:
+PSEL_CSN	arch/arm/nrf52840/spi/spi.c	27;"	d	file:
+PSEL_MISO	arch/arm/nrf52840/spi/spi.c	26;"	d	file:
+PSEL_MOSI	arch/arm/nrf52840/spi/spi.c	25;"	d	file:
+PSEL_SCK	arch/arm/nrf52840/spi/spi.c	24;"	d	file:
 PTE_Boot	fatfs/source/ff.c	196;"	d	file:
 PTE_Boot	lib/fatfs/source/ff.c	196;"	d	file:
 PTE_EdCyl	fatfs/source/ff.c	203;"	d	file:
@@ -938,14 +955,29 @@ PTE_StSec	fatfs/source/ff.c	198;"	d	file:
 PTE_StSec	lib/fatfs/source/ff.c	198;"	d	file:
 PTE_System	fatfs/source/ff.c	200;"	d	file:
 PTE_System	lib/fatfs/source/ff.c	200;"	d	file:
-PendSV_IRQn	arch/arm/nrf52840/include/board.h	/^  PendSV_IRQn                  = -2,               \/**< Cortex-M4 Pend SV Interrupt *\/$/;"	e	enum:IRQn
-PendSV_IRQn	include/board.h	/^  PendSV_IRQn                  = -2,               \/**< Cortex-M4 Pend SV Interrupt *\/$/;"	e	enum:IRQn
+PWM0_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  PWM0_IRQn                 =  28,              \/*!< 28 PWM0                                                                   *\/$/;"	e	enum:__anon28
+PWM0_IRQn	include/nrf52840.h	/^  PWM0_IRQn                 =  28,              \/*!< 28 PWM0                                                                   *\/$/;"	e	enum:__anon1
+PWM1_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  PWM1_IRQn                 =  33,              \/*!< 33 PWM1                                                                   *\/$/;"	e	enum:__anon28
+PWM1_IRQn	include/nrf52840.h	/^  PWM1_IRQn                 =  33,              \/*!< 33 PWM1                                                                   *\/$/;"	e	enum:__anon1
+PWM2_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  PWM2_IRQn                 =  34,              \/*!< 34 PWM2                                                                   *\/$/;"	e	enum:__anon28
+PWM2_IRQn	include/nrf52840.h	/^  PWM2_IRQn                 =  34,              \/*!< 34 PWM2                                                                   *\/$/;"	e	enum:__anon1
+PWM3_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  PWM3_IRQn                 =  45,              \/*!< 45 PWM3                                                                   *\/$/;"	e	enum:__anon28
+PWM3_IRQn	include/nrf52840.h	/^  PWM3_IRQn                 =  45,              \/*!< 45 PWM3                                                                   *\/$/;"	e	enum:__anon1
+PendSV_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  PendSV_IRQn               =  -2,              \/*!< -2 Pendable request for system service                                    *\/$/;"	e	enum:__anon28
+PendSV_IRQn	include/nrf52840.h	/^  PendSV_IRQn               =  -2,              \/*!< -2 Pendable request for system service                                    *\/$/;"	e	enum:__anon1
 Pend_SV_Handler	arch/arm/nrf52840/context_switch.s	/^Pend_SV_Handler:$/;"	l
+QDEC_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  QDEC_IRQn                 =  18,              \/*!< 18 QDEC                                                                   *\/$/;"	e	enum:__anon28
+QDEC_IRQn	include/nrf52840.h	/^  QDEC_IRQn                 =  18,              \/*!< 18 QDEC                                                                   *\/$/;"	e	enum:__anon1
+QSPI_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  QSPI_IRQn                 =  41,              \/*!< 41 QSPI                                                                   *\/$/;"	e	enum:__anon28
+QSPI_IRQn	include/nrf52840.h	/^  QSPI_IRQn                 =  41,              \/*!< 41 QSPI                                                                   *\/$/;"	e	enum:__anon1
 QWORD	fatfs/source/ff.h	/^typedef uint64_t		QWORD;	\/* 64-bit unsigned integer *\/$/;"	t
 QWORD	fatfs/source/ff.h	/^typedef unsigned __int64 QWORD;$/;"	t
 QWORD	lib/fatfs/source/ff.h	/^typedef uint64_t		QWORD;	\/* 64-bit unsigned integer *\/$/;"	t
 QWORD	lib/fatfs/source/ff.h	/^typedef unsigned __int64 QWORD;$/;"	t
-RAM_BASE	arch/arm/nrf52840/startup.c	12;"	d	file:
+RADIO_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  RADIO_IRQn                =   1,              \/*!< 1  RADIO                                                                  *\/$/;"	e	enum:__anon28
+RADIO_IRQn	include/nrf52840.h	/^  RADIO_IRQn                =   1,              \/*!< 1  RADIO                                                                  *\/$/;"	e	enum:__anon1
+RAM_BASE	arch/arm/nrf52840/include/board.h	12;"	d
+RAM_BASE	include/board.h	12;"	d
 RAM_disk_initialize	lib/fatfs_glue.c	/^DSTATUS RAM_disk_initialize(void)$/;"	f
 RAM_disk_ioctl	lib/fatfs_glue.c	/^DRESULT RAM_disk_ioctl(BYTE ctrl, void *buff)$/;"	f
 RAM_disk_read	lib/fatfs_glue.c	/^DRESULT RAM_disk_read(BYTE *buff, DWORD sector, BYTE count)$/;"	f
@@ -954,80 +986,88 @@ RAM_disk_write	lib/fatfs_glue.c	/^DRESULT RAM_disk_write(const BYTE *buff, DWORD
 RDDEM	fatfs/source/ff.c	186;"	d	file:
 RDDEM	lib/fatfs/source/ff.c	186;"	d	file:
 READY	sched/include/scheduler.h	/^  READY,            \/* It is not currenly running on the CPU *\/$/;"	e	enum:task_state_e
-RESERVED0	arch/arm/nrf52840/include/board.h	/^  uint32_t RESERVED0[1];$/;"	m	struct:__anon27
-RESERVED0	arch/arm/nrf52840/include/board.h	/^  uint32_t RESERVED0[24];$/;"	m	struct:__anon30
-RESERVED0	arch/arm/nrf52840/include/board.h	/^  uint32_t RESERVED0[5];$/;"	m	struct:__anon28
-RESERVED0	include/board.h	/^  uint32_t RESERVED0[1];$/;"	m	struct:__anon1
-RESERVED0	include/board.h	/^  uint32_t RESERVED0[24];$/;"	m	struct:__anon4
-RESERVED0	include/board.h	/^  uint32_t RESERVED0[5];$/;"	m	struct:__anon2
-RESERVED2	arch/arm/nrf52840/include/board.h	/^  uint32_t RESERVED2[24];$/;"	m	struct:__anon30
-RESERVED2	include/board.h	/^  uint32_t RESERVED2[24];$/;"	m	struct:__anon4
-RESERVED3	arch/arm/nrf52840/include/board.h	/^  uint32_t RESERVED3[24];$/;"	m	struct:__anon30
-RESERVED3	include/board.h	/^  uint32_t RESERVED3[24];$/;"	m	struct:__anon4
-RESERVED4	arch/arm/nrf52840/include/board.h	/^  uint32_t RESERVED4[56];$/;"	m	struct:__anon30
-RESERVED4	include/board.h	/^  uint32_t RESERVED4[56];$/;"	m	struct:__anon4
-RESERVED5	arch/arm/nrf52840/include/board.h	/^  uint32_t RESERVED5[644];$/;"	m	struct:__anon30
-RESERVED5	include/board.h	/^  uint32_t RESERVED5[644];$/;"	m	struct:__anon4
-RES_ERROR	fatfs/source/diskio.h	/^	RES_ERROR,		\/* 1: R\/W Error *\/$/;"	e	enum:__anon14
-RES_ERROR	lib/fatfs/source/diskio.h	/^	RES_ERROR,		\/* 1: R\/W Error *\/$/;"	e	enum:__anon24
-RES_NOTRDY	fatfs/source/diskio.h	/^	RES_NOTRDY,		\/* 3: Not Ready *\/$/;"	e	enum:__anon14
-RES_NOTRDY	lib/fatfs/source/diskio.h	/^	RES_NOTRDY,		\/* 3: Not Ready *\/$/;"	e	enum:__anon24
-RES_OK	fatfs/source/diskio.h	/^	RES_OK = 0,		\/* 0: Successful *\/$/;"	e	enum:__anon14
-RES_OK	lib/fatfs/source/diskio.h	/^	RES_OK = 0,		\/* 0: Successful *\/$/;"	e	enum:__anon24
-RES_PARERR	fatfs/source/diskio.h	/^	RES_PARERR		\/* 4: Invalid Parameter *\/$/;"	e	enum:__anon14
-RES_PARERR	lib/fatfs/source/diskio.h	/^	RES_PARERR		\/* 4: Invalid Parameter *\/$/;"	e	enum:__anon24
-RES_WRPRT	fatfs/source/diskio.h	/^	RES_WRPRT,		\/* 2: Write Protected *\/$/;"	e	enum:__anon14
-RES_WRPRT	lib/fatfs/source/diskio.h	/^	RES_WRPRT,		\/* 2: Write Protected *\/$/;"	e	enum:__anon24
-RSERVED1	arch/arm/nrf52840/include/board.h	/^  uint32_t RSERVED1[24];$/;"	m	struct:__anon30
-RSERVED1	include/board.h	/^  uint32_t RSERVED1[24];$/;"	m	struct:__anon4
+RESERVED0	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t RESERVED0[1];$/;"	m	struct:__anon29
+RESERVED0	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t RESERVED0[24];$/;"	m	struct:__anon32
+RESERVED0	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t RESERVED0[5];$/;"	m	struct:__anon30
+RESERVED0	include/nrf52840.h	/^  uint32_t RESERVED0[1];$/;"	m	struct:__anon2
+RESERVED0	include/nrf52840.h	/^  uint32_t RESERVED0[24];$/;"	m	struct:__anon5
+RESERVED0	include/nrf52840.h	/^  uint32_t RESERVED0[5];$/;"	m	struct:__anon3
+RESERVED2	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t RESERVED2[24];$/;"	m	struct:__anon32
+RESERVED2	include/nrf52840.h	/^  uint32_t RESERVED2[24];$/;"	m	struct:__anon5
+RESERVED3	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t RESERVED3[24];$/;"	m	struct:__anon32
+RESERVED3	include/nrf52840.h	/^  uint32_t RESERVED3[24];$/;"	m	struct:__anon5
+RESERVED4	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t RESERVED4[56];$/;"	m	struct:__anon32
+RESERVED4	include/nrf52840.h	/^  uint32_t RESERVED4[56];$/;"	m	struct:__anon5
+RESERVED5	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t RESERVED5[644];$/;"	m	struct:__anon32
+RESERVED5	include/nrf52840.h	/^  uint32_t RESERVED5[644];$/;"	m	struct:__anon5
+RES_ERROR	fatfs/source/diskio.h	/^	RES_ERROR,		\/* 1: R\/W Error *\/$/;"	e	enum:__anon15
+RES_ERROR	lib/fatfs/source/diskio.h	/^	RES_ERROR,		\/* 1: R\/W Error *\/$/;"	e	enum:__anon25
+RES_NOTRDY	fatfs/source/diskio.h	/^	RES_NOTRDY,		\/* 3: Not Ready *\/$/;"	e	enum:__anon15
+RES_NOTRDY	lib/fatfs/source/diskio.h	/^	RES_NOTRDY,		\/* 3: Not Ready *\/$/;"	e	enum:__anon25
+RES_OK	fatfs/source/diskio.h	/^	RES_OK = 0,		\/* 0: Successful *\/$/;"	e	enum:__anon15
+RES_OK	lib/fatfs/source/diskio.h	/^	RES_OK = 0,		\/* 0: Successful *\/$/;"	e	enum:__anon25
+RES_PARERR	fatfs/source/diskio.h	/^	RES_PARERR		\/* 4: Invalid Parameter *\/$/;"	e	enum:__anon15
+RES_PARERR	lib/fatfs/source/diskio.h	/^	RES_PARERR		\/* 4: Invalid Parameter *\/$/;"	e	enum:__anon25
+RES_WRPRT	fatfs/source/diskio.h	/^	RES_WRPRT,		\/* 2: Write Protected *\/$/;"	e	enum:__anon15
+RES_WRPRT	lib/fatfs/source/diskio.h	/^	RES_WRPRT,		\/* 2: Write Protected *\/$/;"	e	enum:__anon25
+RNG_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  RNG_IRQn                  =  13,              \/*!< 13 RNG                                                                    *\/$/;"	e	enum:__anon28
+RNG_IRQn	include/nrf52840.h	/^  RNG_IRQn                  =  13,              \/*!< 13 RNG                                                                    *\/$/;"	e	enum:__anon1
+RSERVED1	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t RSERVED1[24];$/;"	m	struct:__anon32
+RSERVED1	include/nrf52840.h	/^  uint32_t RSERVED1[24];$/;"	m	struct:__anon5
+RTC0_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  RTC0_IRQn                 =  11,              \/*!< 11 RTC0                                                                   *\/$/;"	e	enum:__anon28
+RTC0_IRQn	include/nrf52840.h	/^  RTC0_IRQn                 =  11,              \/*!< 11 RTC0                                                                   *\/$/;"	e	enum:__anon1
+RTC1_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  RTC1_IRQn                 =  17,              \/*!< 17 RTC1                                                                   *\/$/;"	e	enum:__anon28
+RTC1_IRQn	include/nrf52840.h	/^  RTC1_IRQn                 =  17,              \/*!< 17 RTC1                                                                   *\/$/;"	e	enum:__anon1
+RTC2_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  RTC2_IRQn                 =  36,              \/*!< 36 RTC2                                                                   *\/$/;"	e	enum:__anon28
+RTC2_IRQn	include/nrf52840.h	/^  RTC2_IRQn                 =  36,              \/*!< 36 RTC2                                                                   *\/$/;"	e	enum:__anon1
 RUNNING	sched/include/scheduler.h	/^  RUNNING,          \/* The task was plannend on the CPU and is running *\/$/;"	e	enum:task_state_e
-RXD_AMOUNT	arch/arm/nrf52840/spi/spi.c	30;"	d	file:
-RXD_LIST	arch/arm/nrf52840/spi/spi.c	31;"	d	file:
-RXD_MAXCNT	arch/arm/nrf52840/spi/spi.c	29;"	d	file:
-RXD_PTR	arch/arm/nrf52840/spi/spi.c	28;"	d	file:
-SCB	arch/arm/nrf52840/include/board.h	160;"	d
-SCB	include/board.h	160;"	d
-SCB_BASE	arch/arm/nrf52840/include/board.h	157;"	d
-SCB_BASE	include/board.h	157;"	d
-SCB_ICSR_PENDSVSET_Msk	arch/arm/nrf52840/include/board.h	45;"	d
-SCB_ICSR_PENDSVSET_Msk	include/board.h	45;"	d
-SCB_ICSR_PENDSVSET_Pos	arch/arm/nrf52840/include/board.h	44;"	d
-SCB_ICSR_PENDSVSET_Pos	include/board.h	44;"	d
-SCB_ICSR_SYSTICKSET_Msk	arch/arm/nrf52840/include/board.h	42;"	d
-SCB_ICSR_SYSTICKSET_Msk	include/board.h	42;"	d
-SCB_ICSR_SYSTICKSET_Pos	arch/arm/nrf52840/include/board.h	41;"	d
-SCB_ICSR_SYSTICKSET_Pos	include/board.h	41;"	d
-SCB_Type	arch/arm/nrf52840/include/board.h	/^} SCB_Type;$/;"	t	typeref:struct:__anon28
-SCB_Type	include/board.h	/^} SCB_Type;$/;"	t	typeref:struct:__anon2
+RXD_AMOUNT	arch/arm/nrf52840/spi/spi.c	31;"	d	file:
+RXD_LIST	arch/arm/nrf52840/spi/spi.c	32;"	d	file:
+RXD_MAXCNT	arch/arm/nrf52840/spi/spi.c	30;"	d	file:
+RXD_PTR	arch/arm/nrf52840/spi/spi.c	29;"	d	file:
+Reset_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  Reset_IRQn                = -15,              \/*!< -15  Reset Vector, invoked on Power up and warm reset                     *\/$/;"	e	enum:__anon28
+Reset_IRQn	include/nrf52840.h	/^  Reset_IRQn                = -15,              \/*!< -15  Reset Vector, invoked on Power up and warm reset                     *\/$/;"	e	enum:__anon1
+SAADC_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  SAADC_IRQn                =   7,              \/*!< 7  SAADC                                                                  *\/$/;"	e	enum:__anon28
+SAADC_IRQn	include/nrf52840.h	/^  SAADC_IRQn                =   7,              \/*!< 7  SAADC                                                                  *\/$/;"	e	enum:__anon1
+SCB	arch/arm/nrf52840/include/nrf52840.h	183;"	d
+SCB	include/nrf52840.h	183;"	d
+SCB_BASE	arch/arm/nrf52840/include/nrf52840.h	180;"	d
+SCB_BASE	include/nrf52840.h	180;"	d
+SCB_ICSR_PENDSVSET_Msk	arch/arm/nrf52840/include/nrf52840.h	24;"	d
+SCB_ICSR_PENDSVSET_Msk	include/nrf52840.h	24;"	d
+SCB_ICSR_PENDSVSET_Pos	arch/arm/nrf52840/include/nrf52840.h	23;"	d
+SCB_ICSR_PENDSVSET_Pos	include/nrf52840.h	23;"	d
+SCB_ICSR_SYSTICKSET_Msk	arch/arm/nrf52840/include/nrf52840.h	21;"	d
+SCB_ICSR_SYSTICKSET_Msk	include/nrf52840.h	21;"	d
+SCB_ICSR_SYSTICKSET_Pos	arch/arm/nrf52840/include/nrf52840.h	20;"	d
+SCB_ICSR_SYSTICKSET_Pos	include/nrf52840.h	20;"	d
+SCB_Type	arch/arm/nrf52840/include/nrf52840.h	/^} SCB_Type;$/;"	t	typeref:struct:__anon30
+SCB_Type	include/nrf52840.h	/^} SCB_Type;$/;"	t	typeref:struct:__anon3
 SCHEDULER_H_	sched/include/scheduler.h	10;"	d
 SCHED_FLAGS	sched/Makefile	/^SCHED_FLAGS := ${CFLAGS}																					\\$/;"	m
 SCHED_FLAGS	utils/Makefile	/^SCHED_FLAGS := ${CFLAGS} -I$(TOPDIR)\/include -I$(TOPDIR)\/s_alloc$/;"	m
-SCR	arch/arm/nrf52840/include/board.h	/^  uint32_t SCR;                     \/*!< Offset: 0x010 (R\/W)  System Control Register                               *\/$/;"	m	struct:__anon28
-SCR	include/board.h	/^  uint32_t SCR;                     \/*!< Offset: 0x010 (R\/W)  System Control Register                               *\/$/;"	m	struct:__anon2
-SCS_BASE	arch/arm/nrf52840/include/board.h	150;"	d
-SCS_BASE	include/board.h	150;"	d
-SCnSCB	arch/arm/nrf52840/include/board.h	159;"	d
-SCnSCB	include/board.h	159;"	d
-SCnSCB_Type	arch/arm/nrf52840/include/board.h	/^} SCnSCB_Type;$/;"	t	typeref:struct:__anon27
-SCnSCB_Type	include/board.h	/^} SCnSCB_Type;$/;"	t	typeref:struct:__anon1
-SHCSR	arch/arm/nrf52840/include/board.h	/^  uint32_t SHCSR;                   \/*!< Offset: 0x024 (R\/W)  System Handler Control and State Register             *\/$/;"	m	struct:__anon28
-SHCSR	include/board.h	/^  uint32_t SHCSR;                   \/*!< Offset: 0x024 (R\/W)  System Handler Control and State Register             *\/$/;"	m	struct:__anon2
-SHORTS	arch/arm/nrf52840/spi/spi.c	18;"	d	file:
-SHP	arch/arm/nrf52840/include/board.h	/^  uint8_t  SHP[12];                 \/*!< Offset: 0x018 (R\/W)  System Handlers Priority Registers (4-7, 8-11, 12-15) *\/$/;"	m	struct:__anon28
-SHP	include/board.h	/^  uint8_t  SHP[12];                 \/*!< Offset: 0x018 (R\/W)  System Handlers Priority Registers (4-7, 8-11, 12-15) *\/$/;"	m	struct:__anon2
-SPIM_CS_PIN	arch/arm/nrf52840/include/board.h	20;"	d
-SPIM_CS_PIN	include/board.h	20;"	d
-SPIM_CS_PORT	arch/arm/nrf52840/include/board.h	21;"	d
-SPIM_CS_PORT	include/board.h	21;"	d
-SPIM_MOSI_PIN	arch/arm/nrf52840/include/board.h	17;"	d
-SPIM_MOSI_PIN	include/board.h	17;"	d
-SPIM_MOSI_PORT	arch/arm/nrf52840/include/board.h	18;"	d
-SPIM_MOSI_PORT	include/board.h	18;"	d
-SPIM_SCK_PIN	arch/arm/nrf52840/include/board.h	14;"	d
-SPIM_SCK_PIN	include/board.h	14;"	d
-SPIM_SCK_PORT	arch/arm/nrf52840/include/board.h	15;"	d
-SPIM_SCK_PORT	include/board.h	15;"	d
-SPI_M0_BASE	arch/arm/nrf52840/spi/spi.c	4;"	d	file:
+SCR	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t SCR;                     \/*!< Offset: 0x010 (R\/W)  System Control Register                               *\/$/;"	m	struct:__anon30
+SCR	include/nrf52840.h	/^  uint32_t SCR;                     \/*!< Offset: 0x010 (R\/W)  System Control Register                               *\/$/;"	m	struct:__anon3
+SCS_BASE	arch/arm/nrf52840/include/nrf52840.h	173;"	d
+SCS_BASE	include/nrf52840.h	173;"	d
+SCnSCB	arch/arm/nrf52840/include/nrf52840.h	182;"	d
+SCnSCB	include/nrf52840.h	182;"	d
+SCnSCB_Type	arch/arm/nrf52840/include/nrf52840.h	/^} SCnSCB_Type;$/;"	t	typeref:struct:__anon29
+SCnSCB_Type	include/nrf52840.h	/^} SCnSCB_Type;$/;"	t	typeref:struct:__anon2
+SHCSR	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t SHCSR;                   \/*!< Offset: 0x024 (R\/W)  System Handler Control and State Register             *\/$/;"	m	struct:__anon30
+SHCSR	include/nrf52840.h	/^  uint32_t SHCSR;                   \/*!< Offset: 0x024 (R\/W)  System Handler Control and State Register             *\/$/;"	m	struct:__anon3
+SHORTS	arch/arm/nrf52840/spi/spi.c	19;"	d	file:
+SHP	arch/arm/nrf52840/include/nrf52840.h	/^  uint8_t  SHP[12];                 \/*!< Offset: 0x018 (R\/W)  System Handlers Priority Registers (4-7, 8-11, 12-15) *\/$/;"	m	struct:__anon30
+SHP	include/nrf52840.h	/^  uint8_t  SHP[12];                 \/*!< Offset: 0x018 (R\/W)  System Handlers Priority Registers (4-7, 8-11, 12-15) *\/$/;"	m	struct:__anon3
+SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQn=   3,  \/*!< 3  SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0                                      *\/$/;"	e	enum:__anon28
+SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQn	include/nrf52840.h	/^  SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQn=   3,  \/*!< 3  SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0                                      *\/$/;"	e	enum:__anon1
+SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQn=   4,  \/*!< 4  SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1                                      *\/$/;"	e	enum:__anon28
+SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQn	include/nrf52840.h	/^  SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQn=   4,  \/*!< 4  SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1                                      *\/$/;"	e	enum:__anon1
+SPIM2_SPIS2_SPI2_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  SPIM2_SPIS2_SPI2_IRQn     =  35,              \/*!< 35 SPIM2_SPIS2_SPI2                                                       *\/$/;"	e	enum:__anon28
+SPIM2_SPIS2_SPI2_IRQn	include/nrf52840.h	/^  SPIM2_SPIS2_SPI2_IRQn     =  35,              \/*!< 35 SPIM2_SPIS2_SPI2                                                       *\/$/;"	e	enum:__anon1
+SPIM3_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  SPIM3_IRQn                =  47               \/*!< 47 SPIM3                                                                  *\/$/;"	e	enum:__anon28
+SPIM3_IRQn	include/nrf52840.h	/^  SPIM3_IRQn                =  47               \/*!< 47 SPIM3                                                                  *\/$/;"	e	enum:__anon1
+SPI_M0_BASE	arch/arm/nrf52840/spi/spi.c	5;"	d	file:
 SPI_M_FREQ_125_KBPS	include/spi.h	/^  SPI_M_FREQ_125_KBPS,$/;"	e	enum:spi_frequency_e
 SPI_M_FREQ_1_MBPS	include/spi.h	/^  SPI_M_FREQ_1_MBPS,$/;"	e	enum:spi_frequency_e
 SPI_M_FREQ_250_KBPS	include/spi.h	/^  SPI_M_FREQ_250_KBPS,$/;"	e	enum:spi_frequency_e
@@ -1039,8 +1079,8 @@ SPI_M_MODE_0	include/spi.h	/^  SPI_M_MODE_0,$/;"	e	enum:spi_mode_e
 SPI_M_MODE_1	include/spi.h	/^  SPI_M_MODE_1,$/;"	e	enum:spi_mode_e
 SPI_M_MODE_2	include/spi.h	/^  SPI_M_MODE_2,$/;"	e	enum:spi_mode_e
 SPI_M_MODE_3	include/spi.h	/^  SPI_M_MODE_3,$/;"	e	enum:spi_mode_e
-SPI_REG_SET	arch/arm/nrf52840/spi/spi.c	43;"	d	file:
-SPI_TX_BUF_SIZXE	arch/arm/nrf52840/spi/spi.c	135;"	d	file:
+SPI_REG_SET	arch/arm/nrf52840/spi/spi.c	44;"	d	file:
+SPI_TX_BUF_SIZXE	arch/arm/nrf52840/spi/spi.c	136;"	d	file:
 SRC	apps/console_app/Makefile	/^SRC:=$(wildcard *.c)$/;"	m
 SRC	arch/arm/nrf52840/Makefile	/^SRC := $(wildcard *.c)$/;"	m
 SRC	drivers/serial/Makefile	/^SRC:=$(wildcard *.c)$/;"	m
@@ -1059,59 +1099,72 @@ SS	fatfs/source/ff.c	238;"	d	file:
 SS	fatfs/source/ff.c	240;"	d	file:
 SS	lib/fatfs/source/ff.c	238;"	d	file:
 SS	lib/fatfs/source/ff.c	240;"	d	file:
-STACK_TOP	arch/arm/nrf52840/startup.c	13;"	d	file:
-STALLSTAT	arch/arm/nrf52840/spi/spi.c	21;"	d	file:
+STACK_TOP	arch/arm/nrf52840/include/board.h	13;"	d
+STACK_TOP	include/board.h	13;"	d
+STALLSTAT	arch/arm/nrf52840/spi/spi.c	22;"	d	file:
 STA_NODISK	fatfs/source/diskio.h	39;"	d
 STA_NODISK	lib/fatfs/source/diskio.h	39;"	d
 STA_NOINIT	fatfs/source/diskio.h	38;"	d
 STA_NOINIT	lib/fatfs/source/diskio.h	38;"	d
 STA_PROTECT	fatfs/source/diskio.h	40;"	d
 STA_PROTECT	lib/fatfs/source/diskio.h	40;"	d
-STIR	arch/arm/nrf52840/include/board.h	/^  uint32_t STIR;                    \/*!< Offset: 0xE00 ( \/W)  Software Trigger Interrupt Register     *\/$/;"	m	struct:__anon30
-STIR	include/board.h	/^  uint32_t STIR;                    \/*!< Offset: 0xE00 ( \/W)  Software Trigger Interrupt Register     *\/$/;"	m	struct:__anon4
-SVCall_IRQn	arch/arm/nrf52840/include/board.h	/^  SVCall_IRQn                  = -5,               \/**< Cortex-M4 SV Call Interrupt *\/$/;"	e	enum:IRQn
-SVCall_IRQn	include/board.h	/^  SVCall_IRQn                  = -5,               \/**< Cortex-M4 SV Call Interrupt *\/$/;"	e	enum:IRQn
-SYSTEM_CLOCK	arch/arm/nrf52840/startup.c	20;"	d	file:
+STIR	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t STIR;                    \/*!< Offset: 0xE00 ( \/W)  Software Trigger Interrupt Register     *\/$/;"	m	struct:__anon32
+STIR	include/nrf52840.h	/^  uint32_t STIR;                    \/*!< Offset: 0xE00 ( \/W)  Software Trigger Interrupt Register     *\/$/;"	m	struct:__anon5
+SVCall_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  SVCall_IRQn               =  -5,              \/*!< -5 System Service Call via SVC instruction                                *\/$/;"	e	enum:__anon28
+SVCall_IRQn	include/nrf52840.h	/^  SVCall_IRQn               =  -5,              \/*!< -5 System Service Call via SVC instruction                                *\/$/;"	e	enum:__anon1
+SWI0_EGU0_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  SWI0_EGU0_IRQn            =  20,              \/*!< 20 SWI0_EGU0                                                              *\/$/;"	e	enum:__anon28
+SWI0_EGU0_IRQn	include/nrf52840.h	/^  SWI0_EGU0_IRQn            =  20,              \/*!< 20 SWI0_EGU0                                                              *\/$/;"	e	enum:__anon1
+SWI1_EGU1_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  SWI1_EGU1_IRQn            =  21,              \/*!< 21 SWI1_EGU1                                                              *\/$/;"	e	enum:__anon28
+SWI1_EGU1_IRQn	include/nrf52840.h	/^  SWI1_EGU1_IRQn            =  21,              \/*!< 21 SWI1_EGU1                                                              *\/$/;"	e	enum:__anon1
+SWI2_EGU2_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  SWI2_EGU2_IRQn            =  22,              \/*!< 22 SWI2_EGU2                                                              *\/$/;"	e	enum:__anon28
+SWI2_EGU2_IRQn	include/nrf52840.h	/^  SWI2_EGU2_IRQn            =  22,              \/*!< 22 SWI2_EGU2                                                              *\/$/;"	e	enum:__anon1
+SWI3_EGU3_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  SWI3_EGU3_IRQn            =  23,              \/*!< 23 SWI3_EGU3                                                              *\/$/;"	e	enum:__anon28
+SWI3_EGU3_IRQn	include/nrf52840.h	/^  SWI3_EGU3_IRQn            =  23,              \/*!< 23 SWI3_EGU3                                                              *\/$/;"	e	enum:__anon1
+SWI4_EGU4_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  SWI4_EGU4_IRQn            =  24,              \/*!< 24 SWI4_EGU4                                                              *\/$/;"	e	enum:__anon28
+SWI4_EGU4_IRQn	include/nrf52840.h	/^  SWI4_EGU4_IRQn            =  24,              \/*!< 24 SWI4_EGU4                                                              *\/$/;"	e	enum:__anon1
+SWI5_EGU5_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  SWI5_EGU5_IRQn            =  25,              \/*!< 25 SWI5_EGU5                                                              *\/$/;"	e	enum:__anon28
+SWI5_EGU5_IRQn	include/nrf52840.h	/^  SWI5_EGU5_IRQn            =  25,              \/*!< 25 SWI5_EGU5                                                              *\/$/;"	e	enum:__anon1
+SYSTEM_CLOCK	arch/arm/nrf52840/board_initialize.c	10;"	d	file:
 SYS_TICK_CSR	include/timer.h	10;"	d
 SZDIRE	fatfs/source/ff.c	184;"	d	file:
 SZDIRE	lib/fatfs/source/ff.c	184;"	d	file:
 SZ_PTE	fatfs/source/ff.c	195;"	d	file:
 SZ_PTE	lib/fatfs/source/ff.c	195;"	d	file:
-SysTick	arch/arm/nrf52840/include/board.h	161;"	d
-SysTick	include/board.h	161;"	d
-SysTick_BASE	arch/arm/nrf52840/include/board.h	155;"	d
-SysTick_BASE	include/board.h	155;"	d
-SysTick_CTRL_CLKSOURCE_Msk	arch/arm/nrf52840/include/board.h	28;"	d
-SysTick_CTRL_CLKSOURCE_Msk	include/board.h	28;"	d
-SysTick_CTRL_CLKSOURCE_Pos	arch/arm/nrf52840/include/board.h	27;"	d
-SysTick_CTRL_CLKSOURCE_Pos	include/board.h	27;"	d
-SysTick_CTRL_ENABLE_Msk	arch/arm/nrf52840/include/board.h	34;"	d
-SysTick_CTRL_ENABLE_Msk	include/board.h	34;"	d
-SysTick_CTRL_ENABLE_Pos	arch/arm/nrf52840/include/board.h	33;"	d
-SysTick_CTRL_ENABLE_Pos	include/board.h	33;"	d
-SysTick_CTRL_TICKINT_Msk	arch/arm/nrf52840/include/board.h	31;"	d
-SysTick_CTRL_TICKINT_Msk	include/board.h	31;"	d
-SysTick_CTRL_TICKINT_Pos	arch/arm/nrf52840/include/board.h	30;"	d
-SysTick_CTRL_TICKINT_Pos	include/board.h	30;"	d
-SysTick_Config	arch/arm/nrf52840/include/board.h	/^static inline uint32_t SysTick_Config(uint32_t ticks)$/;"	f
-SysTick_Config	include/board.h	/^static inline uint32_t SysTick_Config(uint32_t ticks)$/;"	f
+SysTick	arch/arm/nrf52840/include/nrf52840.h	184;"	d
+SysTick	include/nrf52840.h	184;"	d
+SysTick_BASE	arch/arm/nrf52840/include/nrf52840.h	178;"	d
+SysTick_BASE	include/nrf52840.h	178;"	d
+SysTick_CTRL_CLKSOURCE_Msk	arch/arm/nrf52840/include/nrf52840.h	7;"	d
+SysTick_CTRL_CLKSOURCE_Msk	include/nrf52840.h	7;"	d
+SysTick_CTRL_CLKSOURCE_Pos	arch/arm/nrf52840/include/nrf52840.h	6;"	d
+SysTick_CTRL_CLKSOURCE_Pos	include/nrf52840.h	6;"	d
+SysTick_CTRL_ENABLE_Msk	arch/arm/nrf52840/include/nrf52840.h	13;"	d
+SysTick_CTRL_ENABLE_Msk	include/nrf52840.h	13;"	d
+SysTick_CTRL_ENABLE_Pos	arch/arm/nrf52840/include/nrf52840.h	12;"	d
+SysTick_CTRL_ENABLE_Pos	include/nrf52840.h	12;"	d
+SysTick_CTRL_TICKINT_Msk	arch/arm/nrf52840/include/nrf52840.h	10;"	d
+SysTick_CTRL_TICKINT_Msk	include/nrf52840.h	10;"	d
+SysTick_CTRL_TICKINT_Pos	arch/arm/nrf52840/include/nrf52840.h	9;"	d
+SysTick_CTRL_TICKINT_Pos	include/nrf52840.h	9;"	d
+SysTick_Config	arch/arm/nrf52840/include/nrf52840.h	/^static inline uint32_t SysTick_Config(uint32_t ticks)$/;"	f
+SysTick_Config	include/nrf52840.h	/^static inline uint32_t SysTick_Config(uint32_t ticks)$/;"	f
 SysTick_Handle_context_switch	arch/arm/nrf52840/context_switch.s	/^SysTick_Handle_context_switch:$/;"	l
 SysTick_Handler	arch/arm/nrf52840/context_switch.s	/^SysTick_Handler:$/;"	l
 SysTick_Handler_ret	arch/arm/nrf52840/context_switch.s	/^SysTick_Handler_ret:$/;"	l
-SysTick_IRQn	arch/arm/nrf52840/include/board.h	/^  SysTick_IRQn                 = -1,               \/**< Cortex-M4 System Tick Interrupt *\/$/;"	e	enum:IRQn
-SysTick_IRQn	include/board.h	/^  SysTick_IRQn                 = -1,               \/**< Cortex-M4 System Tick Interrupt *\/$/;"	e	enum:IRQn
-SysTick_LOAD_RELOAD_Msk	arch/arm/nrf52840/include/board.h	39;"	d
-SysTick_LOAD_RELOAD_Msk	include/board.h	39;"	d
-SysTick_LOAD_RELOAD_Pos	arch/arm/nrf52840/include/board.h	38;"	d
-SysTick_LOAD_RELOAD_Pos	include/board.h	38;"	d
-SysTick_Type	arch/arm/nrf52840/include/board.h	/^} SysTick_Type;$/;"	t	typeref:struct:__anon29
-SysTick_Type	include/board.h	/^} SysTick_Type;$/;"	t	typeref:struct:__anon3
-SystemCoreClock	arch/arm/nrf52840/startup.c	/^uint32_t SystemCoreClock = SYSTEM_CLOCK;  \/* System Core Clock Frequency *\/$/;"	v
+SysTick_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  SysTick_IRQn              =  -1,              \/*!< -1 System Tick Timer                                                      *\/$/;"	e	enum:__anon28
+SysTick_IRQn	include/nrf52840.h	/^  SysTick_IRQn              =  -1,              \/*!< -1 System Tick Timer                                                      *\/$/;"	e	enum:__anon1
+SysTick_LOAD_RELOAD_Msk	arch/arm/nrf52840/include/nrf52840.h	18;"	d
+SysTick_LOAD_RELOAD_Msk	include/nrf52840.h	18;"	d
+SysTick_LOAD_RELOAD_Pos	arch/arm/nrf52840/include/nrf52840.h	17;"	d
+SysTick_LOAD_RELOAD_Pos	include/nrf52840.h	17;"	d
+SysTick_Type	arch/arm/nrf52840/include/nrf52840.h	/^} SysTick_Type;$/;"	t	typeref:struct:__anon31
+SysTick_Type	include/nrf52840.h	/^} SysTick_Type;$/;"	t	typeref:struct:__anon4
+SystemCoreClock	arch/arm/nrf52840/board_initialize.c	/^static uint32_t SystemCoreClock = SYSTEM_CLOCK;  \/* System Core Clock Frequency *\/$/;"	v	file:
 TARGET	Makefile	/^TARGET=$(MACHINE_TYPE)$/;"	m
-TASKS_RESUME	arch/arm/nrf52840/spi/spi.c	11;"	d	file:
-TASKS_START	arch/arm/nrf52840/spi/spi.c	8;"	d	file:
-TASKS_STOP	arch/arm/nrf52840/spi/spi.c	9;"	d	file:
-TASKS_SUSPEND	arch/arm/nrf52840/spi/spi.c	10;"	d	file:
+TASKS_RESUME	arch/arm/nrf52840/spi/spi.c	12;"	d	file:
+TASKS_START	arch/arm/nrf52840/spi/spi.c	9;"	d	file:
+TASKS_STOP	arch/arm/nrf52840/spi/spi.c	10;"	d	file:
+TASKS_SUSPEND	arch/arm/nrf52840/spi/spi.c	11;"	d	file:
 TBL_CT437	fatfs/source/ff.c	270;"	d	file:
 TBL_CT437	lib/fatfs/source/ff.c	270;"	d	file:
 TBL_CT720	fatfs/source/ff.c	278;"	d	file:
@@ -1160,6 +1213,18 @@ TCHAR	fatfs/source/ff.h	/^typedef char TCHAR;$/;"	t
 TCHAR	lib/fatfs/source/ff.h	/^typedef DWORD TCHAR;$/;"	t
 TCHAR	lib/fatfs/source/ff.h	/^typedef WCHAR TCHAR;$/;"	t
 TCHAR	lib/fatfs/source/ff.h	/^typedef char TCHAR;$/;"	t
+TEMP_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  TEMP_IRQn                 =  12,              \/*!< 12 TEMP                                                                   *\/$/;"	e	enum:__anon28
+TEMP_IRQn	include/nrf52840.h	/^  TEMP_IRQn                 =  12,              \/*!< 12 TEMP                                                                   *\/$/;"	e	enum:__anon1
+TIMER0_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  TIMER0_IRQn               =   8,              \/*!< 8  TIMER0                                                                 *\/$/;"	e	enum:__anon28
+TIMER0_IRQn	include/nrf52840.h	/^  TIMER0_IRQn               =   8,              \/*!< 8  TIMER0                                                                 *\/$/;"	e	enum:__anon1
+TIMER1_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  TIMER1_IRQn               =   9,              \/*!< 9  TIMER1                                                                 *\/$/;"	e	enum:__anon28
+TIMER1_IRQn	include/nrf52840.h	/^  TIMER1_IRQn               =   9,              \/*!< 9  TIMER1                                                                 *\/$/;"	e	enum:__anon1
+TIMER2_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  TIMER2_IRQn               =  10,              \/*!< 10 TIMER2                                                                 *\/$/;"	e	enum:__anon28
+TIMER2_IRQn	include/nrf52840.h	/^  TIMER2_IRQn               =  10,              \/*!< 10 TIMER2                                                                 *\/$/;"	e	enum:__anon1
+TIMER3_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  TIMER3_IRQn               =  26,              \/*!< 26 TIMER3                                                                 *\/$/;"	e	enum:__anon28
+TIMER3_IRQn	include/nrf52840.h	/^  TIMER3_IRQn               =  26,              \/*!< 26 TIMER3                                                                 *\/$/;"	e	enum:__anon1
+TIMER4_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  TIMER4_IRQn               =  27,              \/*!< 27 TIMER4                                                                 *\/$/;"	e	enum:__anon28
+TIMER4_IRQn	include/nrf52840.h	/^  TIMER4_IRQn               =  27,              \/*!< 27 TIMER4                                                                 *\/$/;"	e	enum:__anon1
 TIMER_0_BASE_ADDRESS	include/timer.h	6;"	d
 TIMER_BITMODE	include/timer.h	14;"	d
 TIMER_COMPARE_COUNTER	include/timer.h	18;"	d
@@ -1172,62 +1237,68 @@ TIMER_TASK_START	include/timer.h	20;"	d
 TIMER_TASK_STOP	include/timer.h	21;"	d
 TMP_LIB	Makefile	/^TMP_LIB=tmp_lib.a$/;"	m
 TOPDIR	Makefile	/^TOPDIR=$(shell pwd)$/;"	m
-TPI_BASE	arch/arm/nrf52840/include/board.h	153;"	d
-TPI_BASE	include/board.h	153;"	d
-TXD_AMOUNT	arch/arm/nrf52840/spi/spi.c	34;"	d	file:
-TXD_LIST	arch/arm/nrf52840/spi/spi.c	35;"	d	file:
-TXD_MAXCNT	arch/arm/nrf52840/spi/spi.c	33;"	d	file:
-TXD_PTR	arch/arm/nrf52840/spi/spi.c	32;"	d	file:
-UART_BASE	arch/arm/nrf52840/serial/uart.c	12;"	d	file:
-UART_BAUDRATE	arch/arm/nrf52840/serial/uart.c	38;"	d	file:
-UART_BAUDRATE_OFFSET	arch/arm/nrf52840/serial/uart.c	26;"	d	file:
-UART_CONFIG	arch/arm/nrf52840/serial/uart.c	34;"	d	file:
-UART_CONFIG_OFFSET	arch/arm/nrf52840/serial/uart.c	25;"	d	file:
-UART_CONFIG_REG	arch/arm/nrf52840/serial/uart.c	37;"	d	file:
-UART_ENABLE	arch/arm/nrf52840/serial/uart.c	36;"	d	file:
-UART_ENABLE_OFFSET	arch/arm/nrf52840/serial/uart.c	16;"	d	file:
-UART_ENDTX	arch/arm/nrf52840/serial/uart.c	44;"	d	file:
-UART_ENDTX_OFFSET	arch/arm/nrf52840/serial/uart.c	29;"	d	file:
-UART_EVENTS_TXSTOPPED	arch/arm/nrf52840/serial/uart.c	46;"	d	file:
-UART_EVENTS_TXSTOPPED_OFFSET	arch/arm/nrf52840/serial/uart.c	30;"	d	file:
-UART_PIN_SEL_CTS_OFFSET	arch/arm/nrf52840/serial/uart.c	19;"	d	file:
-UART_PIN_SEL_RTS_OFSSET	arch/arm/nrf52840/serial/uart.c	17;"	d	file:
-UART_PIN_SEL_RXD_OFFSET	arch/arm/nrf52840/serial/uart.c	20;"	d	file:
-UART_PIN_SEL_TXD_OFFSET	arch/arm/nrf52840/serial/uart.c	18;"	d	file:
+TPI_BASE	arch/arm/nrf52840/include/nrf52840.h	176;"	d
+TPI_BASE	include/nrf52840.h	176;"	d
+TXD_AMOUNT	arch/arm/nrf52840/spi/spi.c	35;"	d	file:
+TXD_LIST	arch/arm/nrf52840/spi/spi.c	36;"	d	file:
+TXD_MAXCNT	arch/arm/nrf52840/spi/spi.c	34;"	d	file:
+TXD_PTR	arch/arm/nrf52840/spi/spi.c	33;"	d	file:
+UARTE0_UART0_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  UARTE0_UART0_IRQn         =   2,              \/*!< 2  UARTE0_UART0                                                           *\/$/;"	e	enum:__anon28
+UARTE0_UART0_IRQn	include/nrf52840.h	/^  UARTE0_UART0_IRQn         =   2,              \/*!< 2  UARTE0_UART0                                                           *\/$/;"	e	enum:__anon1
+UARTE1_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  UARTE1_IRQn               =  40,              \/*!< 40 UARTE1                                                                 *\/$/;"	e	enum:__anon28
+UARTE1_IRQn	include/nrf52840.h	/^  UARTE1_IRQn               =  40,              \/*!< 40 UARTE1                                                                 *\/$/;"	e	enum:__anon1
+UART_BASE	arch/arm/nrf52840/serial/uart.c	13;"	d	file:
+UART_BAUDRATE	arch/arm/nrf52840/serial/uart.c	39;"	d	file:
+UART_BAUDRATE_OFFSET	arch/arm/nrf52840/serial/uart.c	27;"	d	file:
+UART_CONFIG	arch/arm/nrf52840/serial/uart.c	35;"	d	file:
+UART_CONFIG_OFFSET	arch/arm/nrf52840/serial/uart.c	26;"	d	file:
+UART_CONFIG_REG	arch/arm/nrf52840/serial/uart.c	38;"	d	file:
+UART_ENABLE	arch/arm/nrf52840/serial/uart.c	37;"	d	file:
+UART_ENABLE_OFFSET	arch/arm/nrf52840/serial/uart.c	17;"	d	file:
+UART_ENDTX	arch/arm/nrf52840/serial/uart.c	45;"	d	file:
+UART_ENDTX_OFFSET	arch/arm/nrf52840/serial/uart.c	30;"	d	file:
+UART_EVENTS_TXSTOPPED	arch/arm/nrf52840/serial/uart.c	47;"	d	file:
+UART_EVENTS_TXSTOPPED_OFFSET	arch/arm/nrf52840/serial/uart.c	31;"	d	file:
+UART_PIN_SEL_CTS_OFFSET	arch/arm/nrf52840/serial/uart.c	20;"	d	file:
+UART_PIN_SEL_RTS_OFSSET	arch/arm/nrf52840/serial/uart.c	18;"	d	file:
+UART_PIN_SEL_RXD_OFFSET	arch/arm/nrf52840/serial/uart.c	21;"	d	file:
+UART_PIN_SEL_TXD_OFFSET	arch/arm/nrf52840/serial/uart.c	19;"	d	file:
 UART_RX_BUFFER	include/serial.h	9;"	d
-UART_RX_PIN	arch/arm/nrf52840/serial/uart.c	53;"	d	file:
-UART_RX_PORT	arch/arm/nrf52840/serial/uart.c	54;"	d	file:
-UART_RX_PORT_CONFIG	arch/arm/nrf52840/serial/uart.c	40;"	d	file:
-UART_STOP_TX_TASK	arch/arm/nrf52840/serial/uart.c	45;"	d	file:
-UART_TASK_START_RX_OFFSET	arch/arm/nrf52840/serial/uart.c	21;"	d	file:
-UART_TASK_START_TX_OFFSET	arch/arm/nrf52840/serial/uart.c	23;"	d	file:
-UART_TASK_STOP_RX_OFFSET	arch/arm/nrf52840/serial/uart.c	22;"	d	file:
-UART_TASK_STOP_TX_OFFSET	arch/arm/nrf52840/serial/uart.c	24;"	d	file:
-UART_TXD_MAXCNT	arch/arm/nrf52840/serial/uart.c	28;"	d	file:
-UART_TXD_MAXCNT_CONFIG	arch/arm/nrf52840/serial/uart.c	42;"	d	file:
-UART_TXD_OFFSET	arch/arm/nrf52840/serial/uart.c	27;"	d	file:
-UART_TXD_PTR_CONFIG	arch/arm/nrf52840/serial/uart.c	41;"	d	file:
+UART_RX_PIN	arch/arm/nrf52840/serial/uart.c	54;"	d	file:
+UART_RX_PORT	arch/arm/nrf52840/serial/uart.c	55;"	d	file:
+UART_RX_PORT_CONFIG	arch/arm/nrf52840/serial/uart.c	41;"	d	file:
+UART_STOP_TX_TASK	arch/arm/nrf52840/serial/uart.c	46;"	d	file:
+UART_TASK_START_RX_OFFSET	arch/arm/nrf52840/serial/uart.c	22;"	d	file:
+UART_TASK_START_TX_OFFSET	arch/arm/nrf52840/serial/uart.c	24;"	d	file:
+UART_TASK_STOP_RX_OFFSET	arch/arm/nrf52840/serial/uart.c	23;"	d	file:
+UART_TASK_STOP_TX_OFFSET	arch/arm/nrf52840/serial/uart.c	25;"	d	file:
+UART_TXD_MAXCNT	arch/arm/nrf52840/serial/uart.c	29;"	d	file:
+UART_TXD_MAXCNT_CONFIG	arch/arm/nrf52840/serial/uart.c	43;"	d	file:
+UART_TXD_OFFSET	arch/arm/nrf52840/serial/uart.c	28;"	d	file:
+UART_TXD_PTR_CONFIG	arch/arm/nrf52840/serial/uart.c	42;"	d	file:
 UART_TX_BUFFER	include/serial.h	8;"	d
-UART_TX_PIN	arch/arm/nrf52840/serial/uart.c	50;"	d	file:
-UART_TX_PORT	arch/arm/nrf52840/serial/uart.c	51;"	d	file:
-UART_TX_PORT_CONFIG	arch/arm/nrf52840/serial/uart.c	39;"	d	file:
-UART_TX_START_TASK	arch/arm/nrf52840/serial/uart.c	43;"	d	file:
+UART_TX_PIN	arch/arm/nrf52840/serial/uart.c	51;"	d	file:
+UART_TX_PORT	arch/arm/nrf52840/serial/uart.c	52;"	d	file:
+UART_TX_PORT_CONFIG	arch/arm/nrf52840/serial/uart.c	40;"	d	file:
+UART_TX_START_TASK	arch/arm/nrf52840/serial/uart.c	44;"	d	file:
 UINT	fatfs/source/ff.h	/^typedef unsigned int	UINT;	\/* int must be 16-bit or 32-bit *\/$/;"	t
 UINT	lib/fatfs/source/ff.h	/^typedef unsigned int	UINT;	\/* int must be 16-bit or 32-bit *\/$/;"	t
+USBD_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  USBD_IRQn                 =  39,              \/*!< 39 USBD                                                                   *\/$/;"	e	enum:__anon28
+USBD_IRQn	include/nrf52840.h	/^  USBD_IRQn                 =  39,              \/*!< 39 USBD                                                                   *\/$/;"	e	enum:__anon1
 USB_disk_initialize	lib/fatfs_glue.c	/^DSTATUS USB_disk_initialize(void)$/;"	f
 USB_disk_ioctl	lib/fatfs_glue.c	/^DRESULT USB_disk_ioctl(BYTE ctrl, void *buff)$/;"	f
 USB_disk_read	lib/fatfs_glue.c	/^DRESULT USB_disk_read(BYTE *buff, DWORD sector, BYTE count)$/;"	f
 USB_disk_status	lib/fatfs_glue.c	/^DSTATUS USB_disk_status(void)$/;"	f
 USB_disk_write	lib/fatfs_glue.c	/^DRESULT USB_disk_write(const BYTE *buff, DWORD sector, BYTE count)$/;"	f
-UsageFault_IRQn	arch/arm/nrf52840/include/board.h	/^  UsageFault_IRQn              = -10,              \/**< Cortex-M4 Usage Fault Interrupt *\/$/;"	e	enum:IRQn
-UsageFault_IRQn	include/board.h	/^  UsageFault_IRQn              = -10,              \/**< Cortex-M4 Usage Fault Interrupt *\/$/;"	e	enum:IRQn
-VAL	arch/arm/nrf52840/include/board.h	/^  uint32_t VAL;                     \/*!< Offset: 0x008 (R\/W)  SysTick Current Value Register      *\/$/;"	m	struct:__anon29
-VAL	include/board.h	/^  uint32_t VAL;                     \/*!< Offset: 0x008 (R\/W)  SysTick Current Value Register      *\/$/;"	m	struct:__anon3
+UsageFault_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  UsageFault_IRQn           = -10,              \/*!< -10  Usage Fault, i.e. Undef Instruction, Illegal State Transition        *\/$/;"	e	enum:__anon28
+UsageFault_IRQn	include/nrf52840.h	/^  UsageFault_IRQn           = -10,              \/*!< -10  Usage Fault, i.e. Undef Instruction, Illegal State Transition        *\/$/;"	e	enum:__anon1
+VAL	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t VAL;                     \/*!< Offset: 0x008 (R\/W)  SysTick Current Value Register      *\/$/;"	m	struct:__anon31
+VAL	include/nrf52840.h	/^  uint32_t VAL;                     \/*!< Offset: 0x008 (R\/W)  SysTick Current Value Register      *\/$/;"	m	struct:__anon4
 VFS_TYPE_DEVICE	include/vfs.h	/^  VFS_TYPE_DEVICE,$/;"	e	enum:vfs_node_type
 VFS_TYPE_DIR	include/vfs.h	/^  VFS_TYPE_DIR,$/;"	e	enum:vfs_node_type
 VFS_TYPE_FILE	include/vfs.h	/^  VFS_TYPE_FILE,$/;"	e	enum:vfs_node_type
-VTOR	arch/arm/nrf52840/include/board.h	/^  uint32_t VTOR;                    \/*!< Offset: 0x008 (R\/W)  Vector Table Offset Register                          *\/$/;"	m	struct:__anon28
-VTOR	include/board.h	/^  uint32_t VTOR;                    \/*!< Offset: 0x008 (R\/W)  Vector Table Offset Register                          *\/$/;"	m	struct:__anon2
+VTOR	arch/arm/nrf52840/include/nrf52840.h	/^  uint32_t VTOR;                    \/*!< Offset: 0x008 (R\/W)  Vector Table Offset Register                          *\/$/;"	m	struct:__anon30
+VTOR	include/nrf52840.h	/^  uint32_t VTOR;                    \/*!< Offset: 0x008 (R\/W)  Vector Table Offset Register                          *\/$/;"	m	struct:__anon3
 VolumeStr	fatfs/source/ff.c	/^static const char* const VolumeStr[FF_VOLUMES] = {FF_VOLUME_STRS};	\/* Pre-defined volume ID *\/$/;"	v	file:
 VolumeStr	lib/fatfs/source/ff.c	/^static const char* const VolumeStr[FF_VOLUMES] = {FF_VOLUME_STRS};	\/* Pre-defined volume ID *\/$/;"	v	file:
 WAITING_FOR_SEM	sched/include/scheduler.h	/^  WAITING_FOR_SEM,  \/* The task is waiting for an event to wake up *\/$/;"	e	enum:task_state_e
@@ -1235,6 +1306,8 @@ WCHAR	fatfs/source/ff.h	/^typedef uint16_t		WCHAR;	\/* 16-bit unsigned integer *
 WCHAR	fatfs/source/ff.h	/^typedef unsigned short	WCHAR;	\/* 16-bit unsigned integer *\/$/;"	t
 WCHAR	lib/fatfs/source/ff.h	/^typedef uint16_t		WCHAR;	\/* 16-bit unsigned integer *\/$/;"	t
 WCHAR	lib/fatfs/source/ff.h	/^typedef unsigned short	WCHAR;	\/* 16-bit unsigned integer *\/$/;"	t
+WDT_IRQn	arch/arm/nrf52840/include/nrf52840.h	/^  WDT_IRQn                  =  16,              \/*!< 16 WDT                                                                    *\/$/;"	e	enum:__anon28
+WDT_IRQn	include/nrf52840.h	/^  WDT_IRQn                  =  16,              \/*!< 16 WDT                                                                    *\/$/;"	e	enum:__anon1
 WORD	fatfs/source/ff.h	/^typedef uint16_t		WORD;	\/* 16-bit unsigned integer *\/$/;"	t
 WORD	fatfs/source/ff.h	/^typedef unsigned short	WORD;	\/* 16-bit unsigned integer *\/$/;"	t
 WORD	lib/fatfs/source/ff.h	/^typedef uint16_t		WORD;	\/* 16-bit unsigned integer *\/$/;"	t
@@ -1281,7 +1354,7 @@ XDIR_Type	fatfs/source/ff.c	162;"	d	file:
 XDIR_Type	lib/fatfs/source/ff.c	162;"	d	file:
 XDIR_ValidFileSize	fatfs/source/ff.c	180;"	d	file:
 XDIR_ValidFileSize	lib/fatfs/source/ff.c	180;"	d	file:
-XTAL	arch/arm/nrf52840/startup.c	19;"	d	file:
+XTAL	arch/arm/nrf52840/board_initialize.c	9;"	d	file:
 _DISKIO_DEFINED	fatfs/source/diskio.h	6;"	d
 _DISKIO_DEFINED	lib/fatfs/source/diskio.h	6;"	d
 _INC_TCHAR	fatfs/source/ff.h	82;"	d
@@ -1304,24 +1377,27 @@ _TEXT	lib/fatfs/source/ff.h	87;"	d
 _TEXT	lib/fatfs/source/ff.h	91;"	d
 _TEXT	lib/fatfs/source/ff.h	95;"	d
 __ASERT_H	include/assert.h	2;"	d
+__BOARD_CFG_H	include/board_cfg.h	2;"	d
 __BUILTIN_APPS	include/builtin_apps.h	2;"	d
-__CHECK_DEVICE_DEFINES	arch/arm/nrf52840/include/board.h	25;"	d
-__CHECK_DEVICE_DEFINES	include/board.h	25;"	d
-__CM4_REV	arch/arm/nrf52840/include/board.h	51;"	d
-__CM4_REV	include/board.h	51;"	d
+__CHECK_DEVICE_DEFINES	arch/arm/nrf52840/include/nrf52840.h	4;"	d
+__CHECK_DEVICE_DEFINES	include/nrf52840.h	4;"	d
+__CM4_REV	arch/arm/nrf52840/include/nrf52840.h	30;"	d
+__CM4_REV	include/nrf52840.h	30;"	d
 __CONSOLE_APP	apps/console_app/console_main.h	2;"	d
 __CORE_CM4	arch/arm/nrf52840/include/board.h	2;"	d
 __CORE_CM4	include/board.h	2;"	d
 __DISPLAY_H	include/display.h	2;"	d
 __ELASTERROR	include/errno.h	153;"	d
 __ERRNO_H	include/errno.h	24;"	d
-__FPU_PRESENT	arch/arm/nrf52840/include/board.h	55;"	d
-__FPU_PRESENT	include/board.h	55;"	d
+__FPU_PRESENT	arch/arm/nrf52840/include/nrf52840.h	34;"	d
+__FPU_PRESENT	include/nrf52840.h	34;"	d
 __GPIO_H	include/gpio.h	2;"	d
-__MPU_PRESENT	arch/arm/nrf52840/include/board.h	59;"	d
-__MPU_PRESENT	include/board.h	59;"	d
-__NVIC_PRIO_BITS	arch/arm/nrf52840/include/board.h	63;"	d
-__NVIC_PRIO_BITS	include/board.h	63;"	d
+__MPU_PRESENT	arch/arm/nrf52840/include/nrf52840.h	38;"	d
+__MPU_PRESENT	include/nrf52840.h	38;"	d
+__NRF52840_H	arch/arm/nrf52840/include/nrf52840.h	2;"	d
+__NRF52840_H	include/nrf52840.h	2;"	d
+__NVIC_PRIO_BITS	arch/arm/nrf52840/include/nrf52840.h	42;"	d
+__NVIC_PRIO_BITS	include/nrf52840.h	42;"	d
 __OS_START	include/os_start.h	2;"	d
 __SEMAPHORE_H	include/semaphore.h	2;"	d
 __SERIAL_H	include/serial.h	2;"	d
@@ -1334,12 +1410,12 @@ __TIMER_H	include/timer.h	2;"	d
 __UNISTD_H	include/unistd.h	2;"	d
 __VERSATILE_PB	arch/arm/versatilepb/include/board.h	2;"	d
 __VFS_H	include/vfs.h	2;"	d
-__Vendor_SysTickConfig	arch/arm/nrf52840/include/board.h	67;"	d
-__Vendor_SysTickConfig	include/board.h	67;"	d
-__disable_irq	arch/arm/nrf52840/include/board.h	/^static inline void __disable_irq(void)$/;"	f
-__disable_irq	include/board.h	/^static inline void __disable_irq(void)$/;"	f
-__enable_irq	arch/arm/nrf52840/include/board.h	/^static inline void __enable_irq(void)$/;"	f
-__enable_irq	include/board.h	/^static inline void __enable_irq(void)$/;"	f
+__Vendor_SysTickConfig	arch/arm/nrf52840/include/nrf52840.h	46;"	d
+__Vendor_SysTickConfig	include/nrf52840.h	46;"	d
+__disable_irq	arch/arm/nrf52840/include/nrf52840.h	/^static inline void __disable_irq(void)$/;"	f
+__disable_irq	include/nrf52840.h	/^static inline void __disable_irq(void)$/;"	f
+__enable_irq	arch/arm/nrf52840/include/nrf52840.h	/^static inline void __enable_irq(void)$/;"	f
+__enable_irq	include/nrf52840.h	/^static inline void __enable_irq(void)$/;"	f
 __hlist_del	s_alloc/list.h	/^static inline void __hlist_del(struct hlist_node *n)$/;"	f
 __list_add	s_alloc/list.h	/^static inline void __list_add(struct list_head *new,$/;"	f
 __list_del	s_alloc/list.h	/^static inline void __list_del(struct list_head * prev, struct list_head * next)$/;"	f
@@ -1348,44 +1424,44 @@ __list_splice	s_alloc/list.h	/^static inline void __list_splice(struct list_head
 addr_comparator	s_alloc/s_heap.c	/^static int addr_comparator(struct list_head *node_1, struct list_head *node_2)$/;"	f	file:
 allocate_contiguous_clusters	fatfs/documents/res/app3.c	/^DWORD allocate_contiguous_clusters (    \/* Returns the first sector in LBA (0:error or not contiguous) *\/$/;"	f
 allocate_contiguous_clusters	lib/fatfs/documents/res/app3.c	/^DWORD allocate_contiguous_clusters (    \/* Returns the first sector in LBA (0:error or not contiguous) *\/$/;"	f
-altname	fatfs/source/ff.h	/^	TCHAR	altname[FF_SFN_BUF + 1];\/* Altenative file name *\/$/;"	m	struct:__anon12
-altname	lib/fatfs/source/ff.h	/^	TCHAR	altname[FF_SFN_BUF + 1];\/* Altenative file name *\/$/;"	m	struct:__anon22
+altname	fatfs/source/ff.h	/^	TCHAR	altname[FF_SFN_BUF + 1];\/* Altenative file name *\/$/;"	m	struct:__anon13
+altname	lib/fatfs/source/ff.h	/^	TCHAR	altname[FF_SFN_BUF + 1];\/* Altenative file name *\/$/;"	m	struct:__anon23
 assert	include/assert.h	4;"	d
-attr	fatfs/source/ff.h	/^	BYTE	attr;			\/* Object attribute *\/$/;"	m	struct:__anon9
-attr	lib/fatfs/source/ff.h	/^	BYTE	attr;			\/* Object attribute *\/$/;"	m	struct:__anon19
-bitbase	fatfs/source/ff.h	/^	DWORD	bitbase;		\/* Allocation bitmap base sector *\/$/;"	m	struct:__anon8
-bitbase	lib/fatfs/source/ff.h	/^	DWORD	bitbase;		\/* Allocation bitmap base sector *\/$/;"	m	struct:__anon18
-blk_ofs	fatfs/source/ff.h	/^	DWORD	blk_ofs;		\/* Offset of current entry block being processed (0xFFFFFFFF:Invalid) *\/$/;"	m	struct:__anon11
-blk_ofs	lib/fatfs/source/ff.h	/^	DWORD	blk_ofs;		\/* Offset of current entry block being processed (0xFFFFFFFF:Invalid) *\/$/;"	m	struct:__anon21
-block_size	s_alloc/s_heap.h	/^  size_t block_size;$/;"	m	struct:__anon26
+attr	fatfs/source/ff.h	/^	BYTE	attr;			\/* Object attribute *\/$/;"	m	struct:__anon10
+attr	lib/fatfs/source/ff.h	/^	BYTE	attr;			\/* Object attribute *\/$/;"	m	struct:__anon20
+bitbase	fatfs/source/ff.h	/^	DWORD	bitbase;		\/* Allocation bitmap base sector *\/$/;"	m	struct:__anon9
+bitbase	lib/fatfs/source/ff.h	/^	DWORD	bitbase;		\/* Allocation bitmap base sector *\/$/;"	m	struct:__anon19
+blk_ofs	fatfs/source/ff.h	/^	DWORD	blk_ofs;		\/* Offset of current entry block being processed (0xFFFFFFFF:Invalid) *\/$/;"	m	struct:__anon12
+blk_ofs	lib/fatfs/source/ff.h	/^	DWORD	blk_ofs;		\/* Offset of current entry block being processed (0xFFFFFFFF:Invalid) *\/$/;"	m	struct:__anon22
+block_size	s_alloc/s_heap.h	/^  size_t block_size;$/;"	m	struct:__anon27
 board_init	arch/arm/nrf52840/board_initialize.c	/^void board_init(void)$/;"	f
 bool	include/stdbool.h	/^typedef char bool;$/;"	t
-bs	fatfs/source/ff.c	/^	BYTE bs[4];$/;"	m	struct:__anon6	file:
-bs	lib/fatfs/source/ff.c	/^	BYTE bs[4];$/;"	m	struct:__anon16	file:
-buf	fatfs/source/ff.c	/^	BYTE buf[64];	\/* Write buffer *\/$/;"	m	struct:__anon6	file:
-buf	fatfs/source/ff.h	/^	BYTE	buf[FF_MAX_SS];	\/* File private data read\/write window *\/$/;"	m	struct:__anon10
-buf	lib/fatfs/source/ff.c	/^	BYTE buf[64];	\/* Write buffer *\/$/;"	m	struct:__anon16	file:
-buf	lib/fatfs/source/ff.h	/^	BYTE	buf[FF_MAX_SS];	\/* File private data read\/write window *\/$/;"	m	struct:__anon20
-c_ofs	fatfs/source/ff.h	/^	DWORD	c_ofs;			\/* Offset in the containing directory (valid when file object and sclust != 0) *\/$/;"	m	struct:__anon9
-c_ofs	lib/fatfs/source/ff.h	/^	DWORD	c_ofs;			\/* Offset in the containing directory (valid when file object and sclust != 0) *\/$/;"	m	struct:__anon19
-c_scl	fatfs/source/ff.h	/^	DWORD	c_scl;			\/* Containing directory start cluster (valid when sclust != 0) *\/$/;"	m	struct:__anon9
-c_scl	lib/fatfs/source/ff.h	/^	DWORD	c_scl;			\/* Containing directory start cluster (valid when sclust != 0) *\/$/;"	m	struct:__anon19
-c_size	fatfs/source/ff.h	/^	DWORD	c_size;			\/* b31-b8:Size of containing directory, b7-b0: Chain status (valid when c_scl != 0) *\/$/;"	m	struct:__anon9
-c_size	lib/fatfs/source/ff.h	/^	DWORD	c_size;			\/* b31-b8:Size of containing directory, b7-b0: Chain status (valid when c_scl != 0) *\/$/;"	m	struct:__anon19
-c_startup	arch/arm/nrf52840/startup.c	/^void c_startup(void)$/;"	f
+bs	fatfs/source/ff.c	/^	BYTE bs[4];$/;"	m	struct:__anon7	file:
+bs	lib/fatfs/source/ff.c	/^	BYTE bs[4];$/;"	m	struct:__anon17	file:
+buf	fatfs/source/ff.c	/^	BYTE buf[64];	\/* Write buffer *\/$/;"	m	struct:__anon7	file:
+buf	fatfs/source/ff.h	/^	BYTE	buf[FF_MAX_SS];	\/* File private data read\/write window *\/$/;"	m	struct:__anon11
+buf	lib/fatfs/source/ff.c	/^	BYTE buf[64];	\/* Write buffer *\/$/;"	m	struct:__anon17	file:
+buf	lib/fatfs/source/ff.h	/^	BYTE	buf[FF_MAX_SS];	\/* File private data read\/write window *\/$/;"	m	struct:__anon21
+c_ofs	fatfs/source/ff.h	/^	DWORD	c_ofs;			\/* Offset in the containing directory (valid when file object and sclust != 0) *\/$/;"	m	struct:__anon10
+c_ofs	lib/fatfs/source/ff.h	/^	DWORD	c_ofs;			\/* Offset in the containing directory (valid when file object and sclust != 0) *\/$/;"	m	struct:__anon20
+c_scl	fatfs/source/ff.h	/^	DWORD	c_scl;			\/* Containing directory start cluster (valid when sclust != 0) *\/$/;"	m	struct:__anon10
+c_scl	lib/fatfs/source/ff.h	/^	DWORD	c_scl;			\/* Containing directory start cluster (valid when sclust != 0) *\/$/;"	m	struct:__anon20
+c_size	fatfs/source/ff.h	/^	DWORD	c_size;			\/* b31-b8:Size of containing directory, b7-b0: Chain status (valid when c_scl != 0) *\/$/;"	m	struct:__anon10
+c_size	lib/fatfs/source/ff.h	/^	DWORD	c_size;			\/* b31-b8:Size of containing directory, b7-b0: Chain status (valid when c_scl != 0) *\/$/;"	m	struct:__anon20
 calloc	utils/stdlib.c	/^void *calloc(size_t nmemb, size_t size)$/;"	f
-cdc_ofs	fatfs/source/ff.h	/^	DWORD	cdc_ofs;		\/* Offset in the containing directory (invalid when cdir is 0) *\/$/;"	m	struct:__anon8
-cdc_ofs	lib/fatfs/source/ff.h	/^	DWORD	cdc_ofs;		\/* Offset in the containing directory (invalid when cdir is 0) *\/$/;"	m	struct:__anon18
-cdc_scl	fatfs/source/ff.h	/^	DWORD	cdc_scl;		\/* Containing directory start cluster (invalid when cdir is 0) *\/$/;"	m	struct:__anon8
-cdc_scl	lib/fatfs/source/ff.h	/^	DWORD	cdc_scl;		\/* Containing directory start cluster (invalid when cdir is 0) *\/$/;"	m	struct:__anon18
-cdc_size	fatfs/source/ff.h	/^	DWORD	cdc_size;		\/* b31-b8:Size of containing directory, b7-b0: Chain status *\/$/;"	m	struct:__anon8
-cdc_size	lib/fatfs/source/ff.h	/^	DWORD	cdc_size;		\/* b31-b8:Size of containing directory, b7-b0: Chain status *\/$/;"	m	struct:__anon18
-cdir	fatfs/source/ff.h	/^	DWORD	cdir;			\/* Current directory start cluster (0:root) *\/$/;"	m	struct:__anon8
-cdir	lib/fatfs/source/ff.h	/^	DWORD	cdir;			\/* Current directory start cluster (0:root) *\/$/;"	m	struct:__anon18
+cdc_ofs	fatfs/source/ff.h	/^	DWORD	cdc_ofs;		\/* Offset in the containing directory (invalid when cdir is 0) *\/$/;"	m	struct:__anon9
+cdc_ofs	lib/fatfs/source/ff.h	/^	DWORD	cdc_ofs;		\/* Offset in the containing directory (invalid when cdir is 0) *\/$/;"	m	struct:__anon19
+cdc_scl	fatfs/source/ff.h	/^	DWORD	cdc_scl;		\/* Containing directory start cluster (invalid when cdir is 0) *\/$/;"	m	struct:__anon9
+cdc_scl	lib/fatfs/source/ff.h	/^	DWORD	cdc_scl;		\/* Containing directory start cluster (invalid when cdir is 0) *\/$/;"	m	struct:__anon19
+cdc_size	fatfs/source/ff.h	/^	DWORD	cdc_size;		\/* b31-b8:Size of containing directory, b7-b0: Chain status *\/$/;"	m	struct:__anon9
+cdc_size	lib/fatfs/source/ff.h	/^	DWORD	cdc_size;		\/* b31-b8:Size of containing directory, b7-b0: Chain status *\/$/;"	m	struct:__anon19
+cdir	fatfs/source/ff.h	/^	DWORD	cdir;			\/* Current directory start cluster (0:root) *\/$/;"	m	struct:__anon9
+cdir	lib/fatfs/source/ff.h	/^	DWORD	cdir;			\/* Current directory start cluster (0:root) *\/$/;"	m	struct:__anon19
 change_bitmap	fatfs/source/ff.c	/^static FRESULT change_bitmap ($/;"	f	file:
 change_bitmap	lib/fatfs/source/ff.c	/^static FRESULT change_bitmap ($/;"	f	file:
 check_fs	fatfs/source/ff.c	/^static BYTE check_fs (	\/* 0:FAT, 1:exFAT, 2:Valid BS but not FAT, 3:Not a BS, 4:Disk error *\/$/;"	f	file:
 check_fs	lib/fatfs/source/ff.c	/^static BYTE check_fs (	\/* 0:FAT, 1:exFAT, 2:Valid BS but not FAT, 3:Not a BS, 4:Disk error *\/$/;"	f	file:
+child	include/vfs.h	/^  struct vfs_node_s *child;$/;"	m	struct:vfs_node_s	typeref:struct:vfs_node_s::vfs_node_s
 chk_chr	fatfs/source/ff.c	/^static int chk_chr (const char* str, int chr)	\/* NZ:contained, ZR:not contained *\/$/;"	f	file:
 chk_chr	lib/fatfs/source/ff.c	/^static int chk_chr (const char* str, int chr)	\/* NZ:contained, ZR:not contained *\/$/;"	f	file:
 chk_lock	fatfs/source/ff.c	/^static FRESULT chk_lock (	\/* Check if the file can be accessed *\/$/;"	f	file:
@@ -1400,14 +1476,14 @@ close	utils/unistd.c	/^int close(int fd)$/;"	f
 close_cb	include/serial.h	/^  uart_lowerhalf_close close_cb;$/;"	m	struct:uart_lower_s
 clst2sect	fatfs/source/ff.c	/^static DWORD clst2sect (	\/* !=0:Sector number, 0:Failed (invalid cluster#) *\/$/;"	f	file:
 clst2sect	lib/fatfs/source/ff.c	/^static DWORD clst2sect (	\/* !=0:Sector number, 0:Failed (invalid cluster#) *\/$/;"	f	file:
-cltbl	fatfs/source/ff.h	/^	DWORD*	cltbl;			\/* Pointer to the cluster link map table (nulled on open, set by application) *\/$/;"	m	struct:__anon10
-cltbl	lib/fatfs/source/ff.h	/^	DWORD*	cltbl;			\/* Pointer to the cluster link map table (nulled on open, set by application) *\/$/;"	m	struct:__anon20
-clu	fatfs/source/ff.c	/^	DWORD clu;		\/* Object ID 2, containing directory (0:root) *\/$/;"	m	struct:__anon5	file:
-clu	lib/fatfs/source/ff.c	/^	DWORD clu;		\/* Object ID 2, containing directory (0:root) *\/$/;"	m	struct:__anon15	file:
-clust	fatfs/source/ff.h	/^	DWORD	clust;			\/* Current cluster *\/$/;"	m	struct:__anon11
-clust	fatfs/source/ff.h	/^	DWORD	clust;			\/* Current cluster of fpter (invalid when fptr is 0) *\/$/;"	m	struct:__anon10
-clust	lib/fatfs/source/ff.h	/^	DWORD	clust;			\/* Current cluster *\/$/;"	m	struct:__anon21
-clust	lib/fatfs/source/ff.h	/^	DWORD	clust;			\/* Current cluster of fpter (invalid when fptr is 0) *\/$/;"	m	struct:__anon20
+cltbl	fatfs/source/ff.h	/^	DWORD*	cltbl;			\/* Pointer to the cluster link map table (nulled on open, set by application) *\/$/;"	m	struct:__anon11
+cltbl	lib/fatfs/source/ff.h	/^	DWORD*	cltbl;			\/* Pointer to the cluster link map table (nulled on open, set by application) *\/$/;"	m	struct:__anon21
+clu	fatfs/source/ff.c	/^	DWORD clu;		\/* Object ID 2, containing directory (0:root) *\/$/;"	m	struct:__anon6	file:
+clu	lib/fatfs/source/ff.c	/^	DWORD clu;		\/* Object ID 2, containing directory (0:root) *\/$/;"	m	struct:__anon16	file:
+clust	fatfs/source/ff.h	/^	DWORD	clust;			\/* Current cluster *\/$/;"	m	struct:__anon12
+clust	fatfs/source/ff.h	/^	DWORD	clust;			\/* Current cluster of fpter (invalid when fptr is 0) *\/$/;"	m	struct:__anon11
+clust	lib/fatfs/source/ff.h	/^	DWORD	clust;			\/* Current cluster *\/$/;"	m	struct:__anon22
+clust	lib/fatfs/source/ff.h	/^	DWORD	clust;			\/* Current cluster of fpter (invalid when fptr is 0) *\/$/;"	m	struct:__anon21
 cmp_lfn	fatfs/source/ff.c	/^static int cmp_lfn (		\/* 1:matched, 0:not matched *\/$/;"	f	file:
 cmp_lfn	lib/fatfs/source/ff.c	/^static int cmp_lfn (		\/* 1:matched, 0:not matched *\/$/;"	f	file:
 comparator	s_alloc/list.h	/^int (*comparator)(struct list_head *node_1, struct list_head *node_2);$/;"	v
@@ -1427,15 +1503,15 @@ create_xdir	fatfs/source/ff.c	/^static void create_xdir ($/;"	f	file:
 create_xdir	lib/fatfs/source/ff.c	/^static void create_xdir ($/;"	f	file:
 cs_pin	include/spi.h	/^  uint32_t cs_pin;$/;"	m	struct:spi_master_config_s
 cs_port	include/spi.h	/^  uint32_t cs_port;$/;"	m	struct:spi_master_config_s
-csize	fatfs/source/ff.h	/^	WORD	csize;			\/* Cluster size [sectors] *\/$/;"	m	struct:__anon8
-csize	lib/fatfs/source/ff.h	/^	WORD	csize;			\/* Cluster size [sectors] *\/$/;"	m	struct:__anon18
-ct	fatfs/source/ff.c	/^	UINT wi, ct;$/;"	m	struct:__anon6	file:
-ct	lib/fatfs/source/ff.c	/^	UINT wi, ct;$/;"	m	struct:__anon16	file:
-ctr	fatfs/source/ff.c	/^	WORD ctr;		\/* Object open counter, 0:none, 0x01..0xFF:read mode open count, 0x100:write mode *\/$/;"	m	struct:__anon5	file:
-ctr	lib/fatfs/source/ff.c	/^	WORD ctr;		\/* Object open counter, 0:none, 0x01..0xFF:read mode open count, 0x100:write mode *\/$/;"	m	struct:__anon15	file:
+csize	fatfs/source/ff.h	/^	WORD	csize;			\/* Cluster size [sectors] *\/$/;"	m	struct:__anon9
+csize	lib/fatfs/source/ff.h	/^	WORD	csize;			\/* Cluster size [sectors] *\/$/;"	m	struct:__anon19
+ct	fatfs/source/ff.c	/^	UINT wi, ct;$/;"	m	struct:__anon7	file:
+ct	lib/fatfs/source/ff.c	/^	UINT wi, ct;$/;"	m	struct:__anon17	file:
+ctr	fatfs/source/ff.c	/^	WORD ctr;		\/* Object open counter, 0:none, 0x01..0xFF:read mode open count, 0x100:write mode *\/$/;"	m	struct:__anon6	file:
+ctr	lib/fatfs/source/ff.c	/^	WORD ctr;		\/* Object open counter, 0:none, 0x01..0xFF:read mode open count, 0x100:write mode *\/$/;"	m	struct:__anon16	file:
 curr_resource_opened	sched/include/scheduler.h	/^  uint32_t curr_resource_opened;$/;"	m	struct:tcb_s
-database	fatfs/source/ff.h	/^	DWORD	database;		\/* Data base sector *\/$/;"	m	struct:__anon8
-database	lib/fatfs/source/ff.h	/^	DWORD	database;		\/* Data base sector *\/$/;"	m	struct:__anon18
+database	fatfs/source/ff.h	/^	DWORD	database;		\/* Data base sector *\/$/;"	m	struct:__anon9
+database	lib/fatfs/source/ff.h	/^	DWORD	database;		\/* Data base sector *\/$/;"	m	struct:__anon19
 dbc_1st	fatfs/source/ff.c	/^static int dbc_1st (BYTE c)$/;"	f	file:
 dbc_1st	lib/fatfs/source/ff.c	/^static int dbc_1st (BYTE c)$/;"	f	file:
 dbc_2nd	fatfs/source/ff.c	/^static int dbc_2nd (BYTE c)$/;"	f	file:
@@ -1444,8 +1520,9 @@ dec_lock	fatfs/source/ff.c	/^static FRESULT dec_lock (	\/* Decrement object open
 dec_lock	lib/fatfs/source/ff.c	/^static FRESULT dec_lock (	\/* Decrement object open counter *\/$/;"	f	file:
 delete_node	fatfs/documents/res/app2.c	/^FRESULT delete_node ($/;"	f
 delete_node	lib/fatfs/documents/res/app2.c	/^FRESULT delete_node ($/;"	f
-dir	fatfs/source/ff.h	/^	BYTE*	dir;			\/* Pointer to the directory item in the win[] *\/$/;"	m	struct:__anon11
-dir	lib/fatfs/source/ff.h	/^	BYTE*	dir;			\/* Pointer to the directory item in the win[] *\/$/;"	m	struct:__anon21
+delim	utils/vfs.c	/^static const char *delim = "\/";$/;"	v	file:
+dir	fatfs/source/ff.h	/^	BYTE*	dir;			\/* Pointer to the directory item in the win[] *\/$/;"	m	struct:__anon12
+dir	lib/fatfs/source/ff.h	/^	BYTE*	dir;			\/* Pointer to the directory item in the win[] *\/$/;"	m	struct:__anon22
 dir_alloc	fatfs/source/ff.c	/^static FRESULT dir_alloc (	\/* FR_OK(0):succeeded, !=0:error *\/$/;"	f	file:
 dir_alloc	lib/fatfs/source/ff.c	/^static FRESULT dir_alloc (	\/* FR_OK(0):succeeded, !=0:error *\/$/;"	f	file:
 dir_clear	fatfs/source/ff.c	/^static FRESULT dir_clear (	\/* Returns FR_OK or FR_DISK_ERR *\/$/;"	f	file:
@@ -1454,8 +1531,8 @@ dir_find	fatfs/source/ff.c	/^static FRESULT dir_find (	\/* FR_OK(0):succeeded, !
 dir_find	lib/fatfs/source/ff.c	/^static FRESULT dir_find (	\/* FR_OK(0):succeeded, !=0:error *\/$/;"	f	file:
 dir_next	fatfs/source/ff.c	/^static FRESULT dir_next (	\/* FR_OK(0):succeeded, FR_NO_FILE:End of table, FR_DENIED:Could not stretch *\/$/;"	f	file:
 dir_next	lib/fatfs/source/ff.c	/^static FRESULT dir_next (	\/* FR_OK(0):succeeded, FR_NO_FILE:End of table, FR_DENIED:Could not stretch *\/$/;"	f	file:
-dir_ptr	fatfs/source/ff.h	/^	BYTE*	dir_ptr;		\/* Pointer to the directory entry in the win[] (not used at exFAT) *\/$/;"	m	struct:__anon10
-dir_ptr	lib/fatfs/source/ff.h	/^	BYTE*	dir_ptr;		\/* Pointer to the directory entry in the win[] (not used at exFAT) *\/$/;"	m	struct:__anon20
+dir_ptr	fatfs/source/ff.h	/^	BYTE*	dir_ptr;		\/* Pointer to the directory entry in the win[] (not used at exFAT) *\/$/;"	m	struct:__anon11
+dir_ptr	lib/fatfs/source/ff.h	/^	BYTE*	dir_ptr;		\/* Pointer to the directory entry in the win[] (not used at exFAT) *\/$/;"	m	struct:__anon21
 dir_read	fatfs/source/ff.c	/^static FRESULT dir_read ($/;"	f	file:
 dir_read	lib/fatfs/source/ff.c	/^static FRESULT dir_read ($/;"	f	file:
 dir_register	fatfs/source/ff.c	/^static FRESULT dir_register (	\/* FR_OK:succeeded, FR_DENIED:no free entry or too many SFN collision, FR_DISK_ERR:disk error *\/$/;"	f	file:
@@ -1464,12 +1541,12 @@ dir_remove	fatfs/source/ff.c	/^static FRESULT dir_remove (	\/* FR_OK:Succeeded, 
 dir_remove	lib/fatfs/source/ff.c	/^static FRESULT dir_remove (	\/* FR_OK:Succeeded, FR_DISK_ERR:A disk error *\/$/;"	f	file:
 dir_sdi	fatfs/source/ff.c	/^static FRESULT dir_sdi (	\/* FR_OK(0):succeeded, !=0:error *\/$/;"	f	file:
 dir_sdi	lib/fatfs/source/ff.c	/^static FRESULT dir_sdi (	\/* FR_OK(0):succeeded, !=0:error *\/$/;"	f	file:
-dir_sect	fatfs/source/ff.h	/^	DWORD	dir_sect;		\/* Sector number containing the directory entry (not used at exFAT) *\/$/;"	m	struct:__anon10
-dir_sect	lib/fatfs/source/ff.h	/^	DWORD	dir_sect;		\/* Sector number containing the directory entry (not used at exFAT) *\/$/;"	m	struct:__anon20
-dirbase	fatfs/source/ff.h	/^	DWORD	dirbase;		\/* Root directory base sector\/cluster *\/$/;"	m	struct:__anon8
-dirbase	lib/fatfs/source/ff.h	/^	DWORD	dirbase;		\/* Root directory base sector\/cluster *\/$/;"	m	struct:__anon18
-dirbuf	fatfs/source/ff.h	/^	BYTE*	dirbuf;			\/* Directory entry block scratchpad buffer for exFAT *\/$/;"	m	struct:__anon8
-dirbuf	lib/fatfs/source/ff.h	/^	BYTE*	dirbuf;			\/* Directory entry block scratchpad buffer for exFAT *\/$/;"	m	struct:__anon18
+dir_sect	fatfs/source/ff.h	/^	DWORD	dir_sect;		\/* Sector number containing the directory entry (not used at exFAT) *\/$/;"	m	struct:__anon11
+dir_sect	lib/fatfs/source/ff.h	/^	DWORD	dir_sect;		\/* Sector number containing the directory entry (not used at exFAT) *\/$/;"	m	struct:__anon21
+dirbase	fatfs/source/ff.h	/^	DWORD	dirbase;		\/* Root directory base sector\/cluster *\/$/;"	m	struct:__anon9
+dirbase	lib/fatfs/source/ff.h	/^	DWORD	dirbase;		\/* Root directory base sector\/cluster *\/$/;"	m	struct:__anon19
+dirbuf	fatfs/source/ff.h	/^	BYTE*	dirbuf;			\/* Directory entry block scratchpad buffer for exFAT *\/$/;"	m	struct:__anon9
+dirbuf	lib/fatfs/source/ff.h	/^	BYTE*	dirbuf;			\/* Directory entry block scratchpad buffer for exFAT *\/$/;"	m	struct:__anon19
 disable_int	sched/scheduler.c	/^void disable_int(void)$/;"	f
 disk_initialize	fatfs/source/diskio.c	/^DSTATUS disk_initialize ($/;"	f
 disk_initialize	lib/fatfs/source/diskio.c	/^DSTATUS disk_initialize ($/;"	f
@@ -1481,15 +1558,15 @@ disk_status	fatfs/source/diskio.c	/^DSTATUS disk_status ($/;"	f
 disk_status	lib/fatfs/source/diskio.c	/^DSTATUS disk_status ($/;"	f
 disk_write	fatfs/source/diskio.c	/^DRESULT disk_write ($/;"	f
 disk_write	lib/fatfs/source/diskio.c	/^DRESULT disk_write ($/;"	f
-dptr	fatfs/source/ff.h	/^	DWORD	dptr;			\/* Current read\/write offset *\/$/;"	m	struct:__anon11
-dptr	lib/fatfs/source/ff.h	/^	DWORD	dptr;			\/* Current read\/write offset *\/$/;"	m	struct:__anon21
+dptr	fatfs/source/ff.h	/^	DWORD	dptr;			\/* Current read\/write offset *\/$/;"	m	struct:__anon12
+dptr	lib/fatfs/source/ff.h	/^	DWORD	dptr;			\/* Current read\/write offset *\/$/;"	m	struct:__anon22
 dummy_fn	arch/arm/nrf52840/startup.c	/^void dummy_fn(void)$/;"	f
 enable_int	sched/scheduler.c	/^void enable_int(void)$/;"	f
 enq_lock	fatfs/source/ff.c	/^static int enq_lock (void)	\/* Check if an entry is available for a new object *\/$/;"	f	file:
 enq_lock	lib/fatfs/source/ff.c	/^static int enq_lock (void)	\/* Check if an entry is available for a new object *\/$/;"	f	file:
 entry_point	sched/include/scheduler.h	/^  void (*entry_point)(void);$/;"	m	struct:tcb_s
-err	fatfs/source/ff.h	/^	BYTE	err;			\/* Abort flag (error code) *\/$/;"	m	struct:__anon10
-err	lib/fatfs/source/ff.h	/^	BYTE	err;			\/* Abort flag (error code) *\/$/;"	m	struct:__anon20
+err	fatfs/source/ff.h	/^	BYTE	err;			\/* Abort flag (error code) *\/$/;"	m	struct:__anon11
+err	lib/fatfs/source/ff.h	/^	BYTE	err;			\/* Abort flag (error code) *\/$/;"	m	struct:__anon21
 errno	include/errno.h	29;"	d
 f_chdir	fatfs/source/ff.c	/^FRESULT f_chdir ($/;"	f
 f_chdir	lib/fatfs/source/ff.c	/^FRESULT f_chdir ($/;"	f
@@ -1576,14 +1653,14 @@ f_utime	lib/fatfs/source/ff.c	/^FRESULT f_utime ($/;"	f
 f_write	fatfs/source/ff.c	/^FRESULT f_write ($/;"	f
 f_write	lib/fatfs/source/ff.c	/^FRESULT f_write ($/;"	f
 false	include/stdbool.h	8;"	d
-fatbase	fatfs/source/ff.h	/^	DWORD	fatbase;		\/* FAT base sector *\/$/;"	m	struct:__anon8
-fatbase	lib/fatfs/source/ff.h	/^	DWORD	fatbase;		\/* FAT base sector *\/$/;"	m	struct:__anon18
+fatbase	fatfs/source/ff.h	/^	DWORD	fatbase;		\/* FAT base sector *\/$/;"	m	struct:__anon9
+fatbase	lib/fatfs/source/ff.h	/^	DWORD	fatbase;		\/* FAT base sector *\/$/;"	m	struct:__anon19
 fatfs_device_s	lib/fatfs_glue.c	/^struct fatfs_device_s$/;"	s	file:
-fattrib	fatfs/source/ff.h	/^	BYTE	fattrib;		\/* File attribute *\/$/;"	m	struct:__anon12
-fattrib	lib/fatfs/source/ff.h	/^	BYTE	fattrib;		\/* File attribute *\/$/;"	m	struct:__anon22
+fattrib	fatfs/source/ff.h	/^	BYTE	fattrib;		\/* File attribute *\/$/;"	m	struct:__anon13
+fattrib	lib/fatfs/source/ff.h	/^	BYTE	fattrib;		\/* File attribute *\/$/;"	m	struct:__anon23
 fd	sched/include/scheduler.h	/^  int fd;$/;"	m	struct:opened_resource_s
-fdate	fatfs/source/ff.h	/^	WORD	fdate;			\/* Modified date *\/$/;"	m	struct:__anon12
-fdate	lib/fatfs/source/ff.h	/^	WORD	fdate;			\/* Modified date *\/$/;"	m	struct:__anon22
+fdate	fatfs/source/ff.h	/^	WORD	fdate;			\/* Modified date *\/$/;"	m	struct:__anon13
+fdate	lib/fatfs/source/ff.h	/^	WORD	fdate;			\/* Modified date *\/$/;"	m	struct:__anon23
 ff_cre_syncobj	fatfs/source/ffsystem.c	/^int ff_cre_syncobj (	\/* 1:Function succeeded, 0:Could not create the sync object *\/$/;"	f
 ff_cre_syncobj	lib/fatfs/source/ffsystem.c	/^int ff_cre_syncobj (	\/* 1:Function succeeded, 0:Could not create the sync object *\/$/;"	f
 ff_del_syncobj	fatfs/source/ffsystem.c	/^int ff_del_syncobj (	\/* 1:Function succeeded, 0:Could not delete due to an error *\/$/;"	f
@@ -1611,45 +1688,45 @@ find_bitmap	lib/fatfs/source/ff.c	/^static DWORD find_bitmap (	\/* 0:Not found, 
 find_volume	fatfs/source/ff.c	/^static FRESULT find_volume (	\/* FR_OK(0): successful, !=0: an error occurred *\/$/;"	f	file:
 find_volume	lib/fatfs/source/ff.c	/^static FRESULT find_volume (	\/* FR_OK(0): successful, !=0: an error occurred *\/$/;"	f	file:
 first	s_alloc/list.h	/^  struct hlist_node *first;$/;"	m	struct:hlist_head	typeref:struct:hlist_head::hlist_node
-flag	fatfs/source/ff.h	/^	BYTE	flag;			\/* File status flags *\/$/;"	m	struct:__anon10
-flag	lib/fatfs/source/ff.h	/^	BYTE	flag;			\/* File status flags *\/$/;"	m	struct:__anon20
-fn	fatfs/source/ff.h	/^	BYTE	fn[12];			\/* SFN (in\/out) {body[8],ext[3],status[1]} *\/$/;"	m	struct:__anon11
-fn	lib/fatfs/source/ff.h	/^	BYTE	fn[12];			\/* SFN (in\/out) {body[8],ext[3],status[1]} *\/$/;"	m	struct:__anon21
-fname	fatfs/source/ff.h	/^	TCHAR	fname[12 + 1];	\/* File name *\/$/;"	m	struct:__anon12
-fname	fatfs/source/ff.h	/^	TCHAR	fname[FF_LFN_BUF + 1];	\/* Primary file name *\/$/;"	m	struct:__anon12
-fname	lib/fatfs/source/ff.h	/^	TCHAR	fname[12 + 1];	\/* File name *\/$/;"	m	struct:__anon22
-fname	lib/fatfs/source/ff.h	/^	TCHAR	fname[FF_LFN_BUF + 1];	\/* Primary file name *\/$/;"	m	struct:__anon22
+flag	fatfs/source/ff.h	/^	BYTE	flag;			\/* File status flags *\/$/;"	m	struct:__anon11
+flag	lib/fatfs/source/ff.h	/^	BYTE	flag;			\/* File status flags *\/$/;"	m	struct:__anon21
+fn	fatfs/source/ff.h	/^	BYTE	fn[12];			\/* SFN (in\/out) {body[8],ext[3],status[1]} *\/$/;"	m	struct:__anon12
+fn	lib/fatfs/source/ff.h	/^	BYTE	fn[12];			\/* SFN (in\/out) {body[8],ext[3],status[1]} *\/$/;"	m	struct:__anon22
+fname	fatfs/source/ff.h	/^	TCHAR	fname[12 + 1];	\/* File name *\/$/;"	m	struct:__anon13
+fname	fatfs/source/ff.h	/^	TCHAR	fname[FF_LFN_BUF + 1];	\/* Primary file name *\/$/;"	m	struct:__anon13
+fname	lib/fatfs/source/ff.h	/^	TCHAR	fname[12 + 1];	\/* File name *\/$/;"	m	struct:__anon23
+fname	lib/fatfs/source/ff.h	/^	TCHAR	fname[FF_LFN_BUF + 1];	\/* Primary file name *\/$/;"	m	struct:__anon23
 follow_path	fatfs/source/ff.c	/^static FRESULT follow_path (	\/* FR_OK(0): successful, !=0: error code *\/$/;"	f	file:
 follow_path	lib/fatfs/source/ff.c	/^static FRESULT follow_path (	\/* FR_OK(0): successful, !=0: error code *\/$/;"	f	file:
-fp	fatfs/source/ff.c	/^	FIL *fp;		\/* Ptr to the writing file *\/$/;"	m	struct:__anon6	file:
-fp	lib/fatfs/source/ff.c	/^	FIL *fp;		\/* Ptr to the writing file *\/$/;"	m	struct:__anon16	file:
-fptr	fatfs/source/ff.h	/^	FSIZE_t	fptr;			\/* File read\/write pointer (Zeroed on file open) *\/$/;"	m	struct:__anon10
-fptr	lib/fatfs/source/ff.h	/^	FSIZE_t	fptr;			\/* File read\/write pointer (Zeroed on file open) *\/$/;"	m	struct:__anon20
+fp	fatfs/source/ff.c	/^	FIL *fp;		\/* Ptr to the writing file *\/$/;"	m	struct:__anon7	file:
+fp	lib/fatfs/source/ff.c	/^	FIL *fp;		\/* Ptr to the writing file *\/$/;"	m	struct:__anon17	file:
+fptr	fatfs/source/ff.h	/^	FSIZE_t	fptr;			\/* File read\/write pointer (Zeroed on file open) *\/$/;"	m	struct:__anon11
+fptr	lib/fatfs/source/ff.h	/^	FSIZE_t	fptr;			\/* File read\/write pointer (Zeroed on file open) *\/$/;"	m	struct:__anon21
 free	utils/stdlib.c	/^void free(void *ptr)$/;"	f
-free_clst	fatfs/source/ff.h	/^	DWORD	free_clst;		\/* Number of free clusters *\/$/;"	m	struct:__anon8
-free_clst	lib/fatfs/source/ff.h	/^	DWORD	free_clst;		\/* Number of free clusters *\/$/;"	m	struct:__anon18
+free_clst	fatfs/source/ff.h	/^	DWORD	free_clst;		\/* Number of free clusters *\/$/;"	m	struct:__anon9
+free_clst	lib/fatfs/source/ff.h	/^	DWORD	free_clst;		\/* Number of free clusters *\/$/;"	m	struct:__anon19
 freq	include/spi.h	/^  spi_frequency_t freq;$/;"	m	struct:spi_master_config_s
-fs	fatfs/source/ff.c	/^	FATFS *fs;		\/* Object ID 1, volume (NULL:blank entry) *\/$/;"	m	struct:__anon5	file:
-fs	fatfs/source/ff.h	/^	FATFS*	fs;				\/* Pointer to the hosting volume of this object *\/$/;"	m	struct:__anon9
-fs	lib/fatfs/source/ff.c	/^	FATFS *fs;		\/* Object ID 1, volume (NULL:blank entry) *\/$/;"	m	struct:__anon15	file:
-fs	lib/fatfs/source/ff.h	/^	FATFS*	fs;				\/* Pointer to the hosting volume of this object *\/$/;"	m	struct:__anon19
-fs_type	fatfs/source/ff.h	/^	BYTE	fs_type;		\/* Filesystem type (0:not mounted) *\/$/;"	m	struct:__anon8
-fs_type	lib/fatfs/source/ff.h	/^	BYTE	fs_type;		\/* Filesystem type (0:not mounted) *\/$/;"	m	struct:__anon18
-fsi_flag	fatfs/source/ff.h	/^	BYTE	fsi_flag;		\/* FSINFO flags (b7:disabled, b0:dirty) *\/$/;"	m	struct:__anon8
-fsi_flag	lib/fatfs/source/ff.h	/^	BYTE	fsi_flag;		\/* FSINFO flags (b7:disabled, b0:dirty) *\/$/;"	m	struct:__anon18
-fsize	fatfs/source/ff.h	/^	DWORD	fsize;			\/* Size of an FAT [sectors] *\/$/;"	m	struct:__anon8
-fsize	fatfs/source/ff.h	/^	FSIZE_t	fsize;			\/* File size *\/$/;"	m	struct:__anon12
-fsize	lib/fatfs/source/ff.h	/^	DWORD	fsize;			\/* Size of an FAT [sectors] *\/$/;"	m	struct:__anon18
-fsize	lib/fatfs/source/ff.h	/^	FSIZE_t	fsize;			\/* File size *\/$/;"	m	struct:__anon22
-ftime	fatfs/source/ff.h	/^	WORD	ftime;			\/* Modified time *\/$/;"	m	struct:__anon12
-ftime	lib/fatfs/source/ff.h	/^	WORD	ftime;			\/* Modified time *\/$/;"	m	struct:__anon22
+fs	fatfs/source/ff.c	/^	FATFS *fs;		\/* Object ID 1, volume (NULL:blank entry) *\/$/;"	m	struct:__anon6	file:
+fs	fatfs/source/ff.h	/^	FATFS*	fs;				\/* Pointer to the hosting volume of this object *\/$/;"	m	struct:__anon10
+fs	lib/fatfs/source/ff.c	/^	FATFS *fs;		\/* Object ID 1, volume (NULL:blank entry) *\/$/;"	m	struct:__anon16	file:
+fs	lib/fatfs/source/ff.h	/^	FATFS*	fs;				\/* Pointer to the hosting volume of this object *\/$/;"	m	struct:__anon20
+fs_type	fatfs/source/ff.h	/^	BYTE	fs_type;		\/* Filesystem type (0:not mounted) *\/$/;"	m	struct:__anon9
+fs_type	lib/fatfs/source/ff.h	/^	BYTE	fs_type;		\/* Filesystem type (0:not mounted) *\/$/;"	m	struct:__anon19
+fsi_flag	fatfs/source/ff.h	/^	BYTE	fsi_flag;		\/* FSINFO flags (b7:disabled, b0:dirty) *\/$/;"	m	struct:__anon9
+fsi_flag	lib/fatfs/source/ff.h	/^	BYTE	fsi_flag;		\/* FSINFO flags (b7:disabled, b0:dirty) *\/$/;"	m	struct:__anon19
+fsize	fatfs/source/ff.h	/^	DWORD	fsize;			\/* Size of an FAT [sectors] *\/$/;"	m	struct:__anon9
+fsize	fatfs/source/ff.h	/^	FSIZE_t	fsize;			\/* File size *\/$/;"	m	struct:__anon13
+fsize	lib/fatfs/source/ff.h	/^	DWORD	fsize;			\/* Size of an FAT [sectors] *\/$/;"	m	struct:__anon19
+fsize	lib/fatfs/source/ff.h	/^	FSIZE_t	fsize;			\/* File size *\/$/;"	m	struct:__anon23
+ftime	fatfs/source/ff.h	/^	WORD	ftime;			\/* Modified time *\/$/;"	m	struct:__anon13
+ftime	lib/fatfs/source/ff.h	/^	WORD	ftime;			\/* Modified time *\/$/;"	m	struct:__anon23
 g_base_addr	arch/arm/nrf52840/gpio/gpio.c	/^static uint8_t *g_base_addr[] =$/;"	v	file:
 g_current_tcb	sched/scheduler.c	/^struct list_head *g_current_tcb = NULL;$/;"	v	typeref:struct:list_head
 g_fatfs_config	lib/fatfs_glue.c	/^static struct fatfs_device_s g_fatfs_config;$/;"	v	typeref:struct:fatfs_device_s	file:
-g_free_heap_list	s_alloc/s_heap.h	/^  struct list_head g_free_heap_list;$/;"	m	struct:__anon26	typeref:struct:__anon26::list_head
+g_free_heap_list	s_alloc/s_heap.h	/^  struct list_head g_free_heap_list;$/;"	m	struct:__anon27	typeref:struct:__anon27::list_head
 g_is_shutdown_set	apps/console_app/console_main.c	/^static bool g_is_shutdown_set;$/;"	v	file:
 g_lost_cycles	sched/semaphore.c	/^static volatile uint32_t g_lost_cycles = 0;$/;"	v	file:
-g_my_heap	arch/arm/nrf52840/startup.c	/^heap_t g_my_heap;$/;"	v
+g_my_heap	sched/os_start.c	/^heap_t g_my_heap;$/;"	v
 g_root_vfs	utils/vfs.c	/^static struct vfs_node_s g_root_vfs;$/;"	v	typeref:struct:vfs_node_s	file:
 g_rx_spi_buffer	arch/arm/nrf52840/spi/spi.c	/^static uint8_t g_rx_spi_buffer[SPI_TX_BUF_SIZXE];$/;"	v	file:
 g_spi_peripherals	arch/arm/nrf52840/spi/spi.c	/^static uint8_t* g_spi_peripherals[] =$/;"	v	file:
@@ -1660,7 +1737,7 @@ g_uart_ops	drivers/serial/serial.c	/^struct vfs_ops_s g_uart_ops = {$/;"	v	typer
 g_uart_rx_buffer	arch/arm/nrf52840/serial/uart.c	/^static char g_uart_rx_buffer[UART_RX_BUFFER];$/;"	v	file:
 g_uart_sema	arch/arm/nrf52840/serial/uart.c	/^static sem_t g_uart_sema;$/;"	v	file:
 g_uart_tx_buffer	arch/arm/nrf52840/serial/uart.c	/^static char g_uart_tx_buffer[UART_TX_BUFFER];$/;"	v	file:
-g_used_heap_list	s_alloc/s_heap.h	/^  struct list_head g_used_heap_list;$/;"	m	struct:__anon26	typeref:struct:__anon26::list_head
+g_used_heap_list	s_alloc/s_heap.h	/^  struct list_head g_used_heap_list;$/;"	m	struct:__anon27	typeref:struct:__anon27::list_head
 g_vfs_default_mtpt	utils/vfs.c	/^static struct vfs_init_mountpoint_s g_vfs_default_mtpt = {$/;"	v	typeref:struct:vfs_init_mountpoint_s	file:
 g_vfs_sema	utils/vfs.c	/^static sem_t g_vfs_sema;$/;"	v	file:
 gen_numname	fatfs/source/ff.c	/^static void gen_numname ($/;"	f	file:
@@ -1682,10 +1759,10 @@ gpio_direction_t	include/gpio.h	/^} gpio_direction_t;$/;"	t	typeref:enum:gpio_di
 gpio_init	arch/arm/nrf52840/gpio/gpio.c	/^void gpio_init(void)$/;"	f
 gpio_read	arch/arm/nrf52840/gpio/gpio.c	/^int gpio_read(int pin, int port)$/;"	f
 gpio_toogle	arch/arm/nrf52840/gpio/gpio.c	/^void gpio_toogle(int enable, int pin, int port)$/;"	f
-heap_mem_start	s_alloc/s_heap.h	/^  void *heap_mem_start;$/;"	m	struct:__anon26
-heap_mem_start_unaligned	s_alloc/s_heap.h	/^  void *heap_mem_start_unaligned;$/;"	m	struct:__anon26
-heap_memory_end	s_alloc/s_heap.h	/^  void *heap_memory_end;$/;"	m	struct:__anon26
-heap_t	s_alloc/s_heap.h	/^} heap_t;$/;"	t	typeref:struct:__anon26
+heap_mem_start	s_alloc/s_heap.h	/^  void *heap_mem_start;$/;"	m	struct:__anon27
+heap_mem_start_unaligned	s_alloc/s_heap.h	/^  void *heap_mem_start_unaligned;$/;"	m	struct:__anon27
+heap_memory_end	s_alloc/s_heap.h	/^  void *heap_memory_end;$/;"	m	struct:__anon27
+heap_t	s_alloc/s_heap.h	/^} heap_t;$/;"	t	typeref:struct:__anon27
 hlist_add_after	s_alloc/list.h	/^static inline void hlist_add_after(struct hlist_node *n,$/;"	f
 hlist_add_before	s_alloc/list.h	/^static inline void hlist_add_before(struct hlist_node *n,$/;"	f
 hlist_add_head	s_alloc/list.h	/^static inline void hlist_add_head(struct hlist_node *n, struct hlist_head *h)$/;"	f
@@ -1702,22 +1779,21 @@ hlist_for_each_safe	s_alloc/list.h	488;"	d
 hlist_head	s_alloc/list.h	/^struct hlist_head {$/;"	s
 hlist_node	s_alloc/list.h	/^struct hlist_node {$/;"	s
 hlist_unhashed	s_alloc/list.h	/^static inline int hlist_unhashed(const struct hlist_node *h)$/;"	f
-hs	fatfs/source/ff.c	/^	WCHAR hs;$/;"	m	struct:__anon6	file:
-hs	lib/fatfs/source/ff.c	/^	WCHAR hs;$/;"	m	struct:__anon16	file:
-id	fatfs/source/ff.h	/^	WORD	id;				\/* Hosting volume mount ID *\/$/;"	m	struct:__anon9
-id	fatfs/source/ff.h	/^	WORD	id;				\/* Volume mount ID *\/$/;"	m	struct:__anon8
-id	lib/fatfs/source/ff.h	/^	WORD	id;				\/* Hosting volume mount ID *\/$/;"	m	struct:__anon19
-id	lib/fatfs/source/ff.h	/^	WORD	id;				\/* Volume mount ID *\/$/;"	m	struct:__anon18
-idx	fatfs/source/ff.c	/^	int idx, nchr;	\/* Write index of buf[] (-1:error), number of encoding units written *\/$/;"	m	struct:__anon6	file:
-idx	lib/fatfs/source/ff.c	/^	int idx, nchr;	\/* Write index of buf[] (-1:error), number of encoding units written *\/$/;"	m	struct:__anon16	file:
+hs	fatfs/source/ff.c	/^	WCHAR hs;$/;"	m	struct:__anon7	file:
+hs	lib/fatfs/source/ff.c	/^	WCHAR hs;$/;"	m	struct:__anon17	file:
+id	fatfs/source/ff.h	/^	WORD	id;				\/* Hosting volume mount ID *\/$/;"	m	struct:__anon10
+id	fatfs/source/ff.h	/^	WORD	id;				\/* Volume mount ID *\/$/;"	m	struct:__anon9
+id	lib/fatfs/source/ff.h	/^	WORD	id;				\/* Hosting volume mount ID *\/$/;"	m	struct:__anon20
+id	lib/fatfs/source/ff.h	/^	WORD	id;				\/* Volume mount ID *\/$/;"	m	struct:__anon19
+idx	fatfs/source/ff.c	/^	int idx, nchr;	\/* Write index of buf[] (-1:error), number of encoding units written *\/$/;"	m	struct:__anon7	file:
+idx	lib/fatfs/source/ff.c	/^	int idx, nchr;	\/* Write index of buf[] (-1:error), number of encoding units written *\/$/;"	m	struct:__anon17	file:
 inc_lock	fatfs/source/ff.c	/^static UINT inc_lock (	\/* Increment object open counter and returns its index (0:Internal error) *\/$/;"	f	file:
 inc_lock	lib/fatfs/source/ff.c	/^static UINT inc_lock (	\/* Increment object open counter and returns its index (0:Internal error) *\/$/;"	f	file:
 init_alloc_info	fatfs/source/ff.c	/^static void init_alloc_info ($/;"	f	file:
 init_alloc_info	lib/fatfs/source/ff.c	/^static void init_alloc_info ($/;"	f	file:
 ioctl_cb	include/serial.h	/^  uart_lowerhalf_ioctl ioctl_cb;$/;"	m	struct:uart_lower_s
-is_enabled	arch/arm/nrf52840/startup.c	/^volatile int is_enabled = 0;$/;"	v
-last_clst	fatfs/source/ff.h	/^	DWORD	last_clst;		\/* Last allocated cluster *\/$/;"	m	struct:__anon8
-last_clst	lib/fatfs/source/ff.h	/^	DWORD	last_clst;		\/* Last allocated cluster *\/$/;"	m	struct:__anon18
+last_clst	fatfs/source/ff.h	/^	DWORD	last_clst;		\/* Last allocated cluster *\/$/;"	m	struct:__anon9
+last_clst	lib/fatfs/source/ff.h	/^	DWORD	last_clst;		\/* Last allocated cluster *\/$/;"	m	struct:__anon19
 ld_clust	fatfs/source/ff.c	/^static DWORD ld_clust (	\/* Returns the top cluster value of the SFN entry *\/$/;"	f	file:
 ld_clust	lib/fatfs/source/ff.c	/^static DWORD ld_clust (	\/* Returns the top cluster value of the SFN entry *\/$/;"	f	file:
 ld_dword	fatfs/source/ff.c	/^static DWORD ld_dword (const BYTE* ptr)	\/* Load a 4-byte little-endian word *\/$/;"	f	file:
@@ -1726,9 +1802,8 @@ ld_qword	fatfs/source/ff.c	/^static QWORD ld_qword (const BYTE* ptr)	\/* Load an
 ld_qword	lib/fatfs/source/ff.c	/^static QWORD ld_qword (const BYTE* ptr)	\/* Load an 8-byte little-endian word *\/$/;"	f	file:
 ld_word	fatfs/source/ff.c	/^static WORD ld_word (const BYTE* ptr)	\/*	 Load a 2-byte little-endian word *\/$/;"	f	file:
 ld_word	lib/fatfs/source/ff.c	/^static WORD ld_word (const BYTE* ptr)	\/*	 Load a 2-byte little-endian word *\/$/;"	f	file:
-leaf	include/vfs.h	/^  struct vfs_node_s *leaf;$/;"	m	struct:vfs_node_s	typeref:struct:vfs_node_s::vfs_node_s
-lfnbuf	fatfs/source/ff.h	/^	WCHAR*	lfnbuf;			\/* LFN working buffer *\/$/;"	m	struct:__anon8
-lfnbuf	lib/fatfs/source/ff.h	/^	WCHAR*	lfnbuf;			\/* LFN working buffer *\/$/;"	m	struct:__anon18
+lfnbuf	fatfs/source/ff.h	/^	WCHAR*	lfnbuf;			\/* LFN working buffer *\/$/;"	m	struct:__anon9
+lfnbuf	lib/fatfs/source/ff.h	/^	WCHAR*	lfnbuf;			\/* LFN working buffer *\/$/;"	m	struct:__anon19
 list_add	s_alloc/list.h	/^static inline void list_add(struct list_head *new, struct list_head *head)$/;"	f
 list_add_tail	s_alloc/list.h	/^static inline void list_add_tail(struct list_head *new, struct list_head *head)$/;"	f
 list_del	s_alloc/list.h	/^static inline void list_del(struct list_head *entry)$/;"	f
@@ -1760,9 +1835,9 @@ load_xdir	fatfs/source/ff.c	/^static FRESULT load_xdir (	\/* FR_INT_ERR: invalid
 load_xdir	lib/fatfs/source/ff.c	/^static FRESULT load_xdir (	\/* FR_INT_ERR: invalid entry block *\/$/;"	f	file:
 lock_fs	fatfs/source/ff.c	/^static int lock_fs (		\/* 1:Ok, 0:timeout *\/$/;"	f	file:
 lock_fs	lib/fatfs/source/ff.c	/^static int lock_fs (		\/* 1:Ok, 0:timeout *\/$/;"	f	file:
-lockid	fatfs/source/ff.h	/^	UINT	lockid;			\/* File lock ID origin from 1 (index of file semaphore table Files[]) *\/$/;"	m	struct:__anon9
-lockid	lib/fatfs/source/ff.h	/^	UINT	lockid;			\/* File lock ID origin from 1 (index of file semaphore table Files[]) *\/$/;"	m	struct:__anon19
-lower	include/serial.h	/^  struct uart_lower_s *lower;$/;"	m	struct:uart_upper_s	typeref:struct:uart_upper_s::uart_lower_s
+lockid	fatfs/source/ff.h	/^	UINT	lockid;			\/* File lock ID origin from 1 (index of file semaphore table Files[]) *\/$/;"	m	struct:__anon10
+lockid	lib/fatfs/source/ff.h	/^	UINT	lockid;			\/* File lock ID origin from 1 (index of file semaphore table Files[]) *\/$/;"	m	struct:__anon20
+lower	include/serial.h	/^  const struct uart_lower_s *lower;$/;"	m	struct:uart_upper_s	typeref:struct:uart_upper_s::uart_lower_s
 main	fatfs/documents/res/app1.c	/^int main (void)$/;"	f
 main	fatfs/documents/res/app2.c	/^int main (void) \/* How to use *\/$/;"	f
 main	fatfs/documents/res/app3.c	/^int main (void)$/;"	f
@@ -1780,7 +1855,7 @@ mem_cmp	fatfs/source/ff.c	/^static int mem_cmp (const void* dst, const void* src
 mem_cmp	lib/fatfs/source/ff.c	/^static int mem_cmp (const void* dst, const void* src, UINT cnt)	\/* ZR:same, NZ:different *\/$/;"	f	file:
 mem_cpy	fatfs/source/ff.c	/^static void mem_cpy (void* dst, const void* src, UINT cnt)$/;"	f	file:
 mem_cpy	lib/fatfs/source/ff.c	/^static void mem_cpy (void* dst, const void* src, UINT cnt)$/;"	f	file:
-mem_mask_t	s_alloc/s_heap.h	/^} mem_mask_t;$/;"	t	typeref:struct:__anon25
+mem_mask_t	s_alloc/s_heap.h	/^} mem_mask_t;$/;"	t	typeref:struct:__anon26
 mem_node_info_s	s_alloc/s_heap.h	/^typedef struct mem_node_info_s$/;"	s
 mem_node_t	s_alloc/s_heap.h	/^} mem_node_t;$/;"	t	typeref:struct:mem_node_info_s
 mem_set	fatfs/source/ff.c	/^static void mem_set (void* dst, int val, UINT cnt)$/;"	f	file:
@@ -1797,19 +1872,19 @@ mosi_port	include/spi.h	/^  uint32_t mosi_port;$/;"	m	struct:spi_master_config_s
 move_window	fatfs/source/ff.c	/^static FRESULT move_window (	\/* Returns FR_OK or FR_DISK_ERR *\/$/;"	f	file:
 move_window	lib/fatfs/source/ff.c	/^static FRESULT move_window (	\/* Returns FR_OK or FR_DISK_ERR *\/$/;"	f	file:
 my_text	tests/string_test.c	/^static char *my_text = "https:\/\/www.google.ro\/search?client=ubuntu&ei=0PSiXLnjEeihrgSkq7SADA&q=parameters+in+get+request&oq=parameters+in+get+reques&gs_l=psy-ab.1.0.0l2j0i22i30l8.2370.8875..9446...4.0..0.107.2488.27j1......0....1..gws-wiz.......0i71j0i67j0i10.KoheGnwf3to";$/;"	v	file:
-n_cont	fatfs/source/ff.h	/^	DWORD	n_cont;			\/* Size of first fragment - 1 (valid when stat == 3) *\/$/;"	m	struct:__anon9
-n_cont	lib/fatfs/source/ff.h	/^	DWORD	n_cont;			\/* Size of first fragment - 1 (valid when stat == 3) *\/$/;"	m	struct:__anon19
-n_fatent	fatfs/source/ff.h	/^	DWORD	n_fatent;		\/* Number of FAT entries (number of clusters + 2) *\/$/;"	m	struct:__anon8
-n_fatent	lib/fatfs/source/ff.h	/^	DWORD	n_fatent;		\/* Number of FAT entries (number of clusters + 2) *\/$/;"	m	struct:__anon18
-n_fats	fatfs/source/ff.h	/^	BYTE	n_fats;			\/* Number of FATs (1 or 2) *\/$/;"	m	struct:__anon8
-n_fats	lib/fatfs/source/ff.h	/^	BYTE	n_fats;			\/* Number of FATs (1 or 2) *\/$/;"	m	struct:__anon18
-n_frag	fatfs/source/ff.h	/^	DWORD	n_frag;			\/* Size of last fragment needs to be written to FAT (valid when not zero) *\/$/;"	m	struct:__anon9
-n_frag	lib/fatfs/source/ff.h	/^	DWORD	n_frag;			\/* Size of last fragment needs to be written to FAT (valid when not zero) *\/$/;"	m	struct:__anon19
-n_rootdir	fatfs/source/ff.h	/^	WORD	n_rootdir;		\/* Number of root directory entries (FAT12\/16) *\/$/;"	m	struct:__anon8
-n_rootdir	lib/fatfs/source/ff.h	/^	WORD	n_rootdir;		\/* Number of root directory entries (FAT12\/16) *\/$/;"	m	struct:__anon18
+n_cont	fatfs/source/ff.h	/^	DWORD	n_cont;			\/* Size of first fragment - 1 (valid when stat == 3) *\/$/;"	m	struct:__anon10
+n_cont	lib/fatfs/source/ff.h	/^	DWORD	n_cont;			\/* Size of first fragment - 1 (valid when stat == 3) *\/$/;"	m	struct:__anon20
+n_fatent	fatfs/source/ff.h	/^	DWORD	n_fatent;		\/* Number of FAT entries (number of clusters + 2) *\/$/;"	m	struct:__anon9
+n_fatent	lib/fatfs/source/ff.h	/^	DWORD	n_fatent;		\/* Number of FAT entries (number of clusters + 2) *\/$/;"	m	struct:__anon19
+n_fats	fatfs/source/ff.h	/^	BYTE	n_fats;			\/* Number of FATs (1 or 2) *\/$/;"	m	struct:__anon9
+n_fats	lib/fatfs/source/ff.h	/^	BYTE	n_fats;			\/* Number of FATs (1 or 2) *\/$/;"	m	struct:__anon19
+n_frag	fatfs/source/ff.h	/^	DWORD	n_frag;			\/* Size of last fragment needs to be written to FAT (valid when not zero) *\/$/;"	m	struct:__anon10
+n_frag	lib/fatfs/source/ff.h	/^	DWORD	n_frag;			\/* Size of last fragment needs to be written to FAT (valid when not zero) *\/$/;"	m	struct:__anon20
+n_rootdir	fatfs/source/ff.h	/^	WORD	n_rootdir;		\/* Number of root directory entries (FAT12\/16) *\/$/;"	m	struct:__anon9
+n_rootdir	lib/fatfs/source/ff.h	/^	WORD	n_rootdir;		\/* Number of root directory entries (FAT12\/16) *\/$/;"	m	struct:__anon19
 name	include/vfs.h	/^  const char *name;$/;"	m	struct:vfs_node_s
-nchr	fatfs/source/ff.c	/^	int idx, nchr;	\/* Write index of buf[] (-1:error), number of encoding units written *\/$/;"	m	struct:__anon6	file:
-nchr	lib/fatfs/source/ff.c	/^	int idx, nchr;	\/* Write index of buf[] (-1:error), number of encoding units written *\/$/;"	m	struct:__anon16	file:
+nchr	fatfs/source/ff.c	/^	int idx, nchr;	\/* Write index of buf[] (-1:error), number of encoding units written *\/$/;"	m	struct:__anon7	file:
+nchr	lib/fatfs/source/ff.c	/^	int idx, nchr;	\/* Write index of buf[] (-1:error), number of encoding units written *\/$/;"	m	struct:__anon17	file:
 next	s_alloc/list.h	/^  struct hlist_node *next, **pprev;$/;"	m	struct:hlist_node	typeref:struct:hlist_node::hlist_node
 next	s_alloc/list.h	/^  struct list_head *next, *prev;$/;"	m	struct:list_head	typeref:struct:list_head::list_head
 next_tcb	sched/include/scheduler.h	/^  struct list_head next_tcb;$/;"	m	struct:tcb_s	typeref:struct:tcb_s::list_head
@@ -1817,15 +1892,15 @@ node	sched/include/scheduler.h	/^  struct list_head node;$/;"	m	struct:opened_re
 node_list	s_alloc/s_heap.h	/^  struct list_head node_list; \/* Next\/Prev chunk node *\/$/;"	m	struct:mem_node_info_s	typeref:struct:mem_node_info_s::list_head
 node_name	include/vfs.h	/^  const char *node_name[];$/;"	m	struct:vfs_init_mountpoint_s
 node_type	include/vfs.h	/^  enum vfs_node_type node_type;$/;"	m	struct:vfs_node_s	typeref:enum:vfs_node_s::vfs_node_type
-num_blocks	s_alloc/s_heap.h	/^  size_t num_blocks;$/;"	m	struct:__anon26
-num_leafs	include/vfs.h	/^  unsigned int num_leafs;$/;"	m	struct:vfs_node_s
+num_blocks	s_alloc/s_heap.h	/^  size_t num_blocks;$/;"	m	struct:__anon27
+num_children	include/vfs.h	/^  unsigned int num_children;$/;"	m	struct:vfs_node_s
 num_nodes	include/vfs.h	/^  size_t num_nodes;$/;"	m	struct:vfs_init_mountpoint_s
-obj	fatfs/source/ff.h	/^	FFOBJID	obj;			\/* Object identifier (must be the 1st member to detect invalid object pointer) *\/$/;"	m	struct:__anon10
-obj	fatfs/source/ff.h	/^	FFOBJID	obj;			\/* Object identifier *\/$/;"	m	struct:__anon11
-obj	lib/fatfs/source/ff.h	/^	FFOBJID	obj;			\/* Object identifier (must be the 1st member to detect invalid object pointer) *\/$/;"	m	struct:__anon20
-obj	lib/fatfs/source/ff.h	/^	FFOBJID	obj;			\/* Object identifier *\/$/;"	m	struct:__anon21
-objsize	fatfs/source/ff.h	/^	FSIZE_t	objsize;		\/* Object size (valid when sclust != 0) *\/$/;"	m	struct:__anon9
-objsize	lib/fatfs/source/ff.h	/^	FSIZE_t	objsize;		\/* Object size (valid when sclust != 0) *\/$/;"	m	struct:__anon19
+obj	fatfs/source/ff.h	/^	FFOBJID	obj;			\/* Object identifier (must be the 1st member to detect invalid object pointer) *\/$/;"	m	struct:__anon11
+obj	fatfs/source/ff.h	/^	FFOBJID	obj;			\/* Object identifier *\/$/;"	m	struct:__anon12
+obj	lib/fatfs/source/ff.h	/^	FFOBJID	obj;			\/* Object identifier (must be the 1st member to detect invalid object pointer) *\/$/;"	m	struct:__anon21
+obj	lib/fatfs/source/ff.h	/^	FFOBJID	obj;			\/* Object identifier *\/$/;"	m	struct:__anon22
+objsize	fatfs/source/ff.h	/^	FSIZE_t	objsize;		\/* Object size (valid when sclust != 0) *\/$/;"	m	struct:__anon10
+objsize	lib/fatfs/source/ff.h	/^	FSIZE_t	objsize;		\/* Object size (valid when sclust != 0) *\/$/;"	m	struct:__anon20
 oem2uni932	fatfs/source/ffunicode.c	/^static const WCHAR oem2uni932[] = {	\/* Shift_JIS --> Unicode pairs *\/$/;"	v	file:
 oem2uni932	lib/fatfs/source/ffunicode.c	/^static const WCHAR oem2uni932[] = {	\/* Shift_JIS --> Unicode pairs *\/$/;"	v	file:
 oem2uni936	fatfs/source/ffunicode.c	/^static const WCHAR oem2uni936[] = {	\/* GBK --> Unicode pairs *\/$/;"	v	file:
@@ -1835,8 +1910,8 @@ oem2uni949	lib/fatfs/source/ffunicode.c	/^static const WCHAR oem2uni949[] = {	\/
 oem2uni950	fatfs/source/ffunicode.c	/^static const WCHAR oem2uni950[] = {	\/* Big5 --> Unicode pairs *\/$/;"	v	file:
 oem2uni950	lib/fatfs/source/ffunicode.c	/^static const WCHAR oem2uni950[] = {	\/* Big5 --> Unicode pairs *\/$/;"	v	file:
 offsetof	s_alloc/list.h	40;"	d
-ofs	fatfs/source/ff.c	/^	DWORD ofs;		\/* Object ID 3, offset in the directory *\/$/;"	m	struct:__anon5	file:
-ofs	lib/fatfs/source/ff.c	/^	DWORD ofs;		\/* Object ID 3, offset in the directory *\/$/;"	m	struct:__anon15	file:
+ofs	fatfs/source/ff.c	/^	DWORD ofs;		\/* Object ID 3, offset in the directory *\/$/;"	m	struct:__anon6	file:
+ofs	lib/fatfs/source/ff.c	/^	DWORD ofs;		\/* Object ID 3, offset in the directory *\/$/;"	m	struct:__anon16	file:
 open	include/vfs.h	/^  int (*open)(void *priv, const char *pathname, int flags, mode_t mode);$/;"	m	struct:vfs_ops_s
 open	utils/stat.c	/^int open(const char *pathname, int flags)$/;"	f
 open_append	fatfs/documents/res/app1.c	/^FRESULT open_append ($/;"	f
@@ -1850,14 +1925,14 @@ ops	sched/include/scheduler.h	/^  struct vfs_ops_s *ops;$/;"	m	struct:opened_res
 os_appstart	sched/os_appstart.c	/^void os_appstart(void)$/;"	f
 os_startup	sched/os_start.c	/^void os_startup(void)$/;"	f
 parent	include/vfs.h	/^  struct vfs_node_s *parent;$/;"	m	struct:vfs_node_s	typeref:struct:vfs_node_s::vfs_node_s
-pat	fatfs/source/ff.h	/^	const TCHAR* pat;		\/* Pointer to the name matching pattern *\/$/;"	m	struct:__anon11
-pat	lib/fatfs/source/ff.h	/^	const TCHAR* pat;		\/* Pointer to the name matching pattern *\/$/;"	m	struct:__anon21
+pat	fatfs/source/ff.h	/^	const TCHAR* pat;		\/* Pointer to the name matching pattern *\/$/;"	m	struct:__anon12
+pat	lib/fatfs/source/ff.h	/^	const TCHAR* pat;		\/* Pointer to the name matching pattern *\/$/;"	m	struct:__anon22
 pattern_matching	fatfs/source/ff.c	/^static int pattern_matching (	\/* 0:not matched, 1:matched *\/$/;"	f	file:
 pattern_matching	lib/fatfs/source/ff.c	/^static int pattern_matching (	\/* 0:not matched, 1:matched *\/$/;"	f	file:
-pd	fatfs/source/ff.h	/^	BYTE pd;	\/* Physical drive number *\/$/;"	m	struct:__anon7
-pd	lib/fatfs/source/ff.h	/^	BYTE pd;	\/* Physical drive number *\/$/;"	m	struct:__anon17
-pdrv	fatfs/source/ff.h	/^	BYTE	pdrv;			\/* Associated physical drive *\/$/;"	m	struct:__anon8
-pdrv	lib/fatfs/source/ff.h	/^	BYTE	pdrv;			\/* Associated physical drive *\/$/;"	m	struct:__anon18
+pd	fatfs/source/ff.h	/^	BYTE pd;	\/* Physical drive number *\/$/;"	m	struct:__anon8
+pd	lib/fatfs/source/ff.h	/^	BYTE pd;	\/* Physical drive number *\/$/;"	m	struct:__anon18
+pdrv	fatfs/source/ff.h	/^	BYTE	pdrv;			\/* Associated physical drive *\/$/;"	m	struct:__anon9
+pdrv	lib/fatfs/source/ff.h	/^	BYTE	pdrv;			\/* Associated physical drive *\/$/;"	m	struct:__anon19
 pick_lfn	fatfs/source/ff.c	/^static int pick_lfn (	\/* 1:succeeded, 0:buffer overflow or invalid LFN entry *\/$/;"	f	file:
 pick_lfn	lib/fatfs/source/ff.c	/^static int pick_lfn (	\/* 1:succeeded, 0:buffer overflow or invalid LFN entry *\/$/;"	f	file:
 pn	fatfs/documents/res/app4.c	/^DWORD pn (		\/* Pseudo random number generator *\/$/;"	f	file:
@@ -1868,17 +1943,16 @@ printf	utils/stdio.c	/^int printf(const char * format, ... )$/;"	f
 priv	include/serial.h	/^  void *priv;$/;"	m	struct:uart_lower_s
 priv	include/vfs.h	/^  void *priv;$/;"	m	struct:vfs_node_s
 priv	sched/include/scheduler.h	/^  void *priv;$/;"	m	struct:opened_resource_s
-prvGetRegistersFromStack	arch/arm/nrf52840/startup.c	/^void prvGetRegistersFromStack( uint32_t *pulFaultStackAddress )$/;"	f
-pt	fatfs/source/ff.h	/^	BYTE pt;	\/* Partition: 0:Auto detect, 1-4:Forced partition) *\/$/;"	m	struct:__anon7
-pt	lib/fatfs/source/ff.h	/^	BYTE pt;	\/* Partition: 0:Auto detect, 1-4:Forced partition) *\/$/;"	m	struct:__anon17
+pt	fatfs/source/ff.h	/^	BYTE pt;	\/* Partition: 0:Auto detect, 1-4:Forced partition) *\/$/;"	m	struct:__anon8
+pt	lib/fatfs/source/ff.h	/^	BYTE pt;	\/* Partition: 0:Auto detect, 1-4:Forced partition) *\/$/;"	m	struct:__anon18
 put_fat	fatfs/source/ff.c	/^static FRESULT put_fat (	\/* FR_OK(0):succeeded, !=0:error *\/$/;"	f	file:
 put_fat	lib/fatfs/source/ff.c	/^static FRESULT put_fat (	\/* FR_OK(0):succeeded, !=0:error *\/$/;"	f	file:
 put_lfn	fatfs/source/ff.c	/^static void put_lfn ($/;"	f	file:
 put_lfn	lib/fatfs/source/ff.c	/^static void put_lfn ($/;"	f	file:
 put_utf	fatfs/source/ff.c	/^static BYTE put_utf (	\/* Returns number of encoding units written (0:buffer overflow or wrong encoding) *\/$/;"	f	file:
 put_utf	lib/fatfs/source/ff.c	/^static BYTE put_utf (	\/* Returns number of encoding units written (0:buffer overflow or wrong encoding) *\/$/;"	f	file:
-putbuff	fatfs/source/ff.c	/^} putbuff;$/;"	t	typeref:struct:__anon6	file:
-putbuff	lib/fatfs/source/ff.c	/^} putbuff;$/;"	t	typeref:struct:__anon16	file:
+putbuff	fatfs/source/ff.c	/^} putbuff;$/;"	t	typeref:struct:__anon7	file:
+putbuff	lib/fatfs/source/ff.c	/^} putbuff;$/;"	t	typeref:struct:__anon17	file:
 putc_bfd	fatfs/source/ff.c	/^static void putc_bfd (		\/* Buffered write with code conversion *\/$/;"	f	file:
 putc_bfd	lib/fatfs/source/ff.c	/^static void putc_bfd (		\/* Buffered write with code conversion *\/$/;"	f	file:
 putc_flush	fatfs/source/ff.c	/^static int putc_flush (		\/* Flush left characters in the buffer *\/$/;"	f	file:
@@ -1917,22 +1991,22 @@ sched_preempt_task	sched/scheduler.c	/^struct tcb_s *sched_preempt_task(void)$/;
 sched_run	sched/scheduler.c	/^void sched_run(void)$/;"	f
 sck_pin	include/spi.h	/^  uint32_t sck_pin;$/;"	m	struct:spi_master_config_s
 sck_port	include/spi.h	/^  uint32_t sck_port;$/;"	m	struct:spi_master_config_s
-sclust	fatfs/source/ff.h	/^	DWORD	sclust;			\/* Object data start cluster (0:no cluster or root directory) *\/$/;"	m	struct:__anon9
-sclust	lib/fatfs/source/ff.h	/^	DWORD	sclust;			\/* Object data start cluster (0:no cluster or root directory) *\/$/;"	m	struct:__anon19
-sect	fatfs/source/ff.h	/^	DWORD	sect;			\/* Current sector (0:Read operation has terminated) *\/$/;"	m	struct:__anon11
-sect	fatfs/source/ff.h	/^	DWORD	sect;			\/* Sector number appearing in buf[] (0:invalid) *\/$/;"	m	struct:__anon10
-sect	lib/fatfs/source/ff.h	/^	DWORD	sect;			\/* Current sector (0:Read operation has terminated) *\/$/;"	m	struct:__anon21
-sect	lib/fatfs/source/ff.h	/^	DWORD	sect;			\/* Sector number appearing in buf[] (0:invalid) *\/$/;"	m	struct:__anon20
+sclust	fatfs/source/ff.h	/^	DWORD	sclust;			\/* Object data start cluster (0:no cluster or root directory) *\/$/;"	m	struct:__anon10
+sclust	lib/fatfs/source/ff.h	/^	DWORD	sclust;			\/* Object data start cluster (0:no cluster or root directory) *\/$/;"	m	struct:__anon20
+sect	fatfs/source/ff.h	/^	DWORD	sect;			\/* Current sector (0:Read operation has terminated) *\/$/;"	m	struct:__anon12
+sect	fatfs/source/ff.h	/^	DWORD	sect;			\/* Sector number appearing in buf[] (0:invalid) *\/$/;"	m	struct:__anon11
+sect	lib/fatfs/source/ff.h	/^	DWORD	sect;			\/* Current sector (0:Read operation has terminated) *\/$/;"	m	struct:__anon22
+sect	lib/fatfs/source/ff.h	/^	DWORD	sect;			\/* Sector number appearing in buf[] (0:invalid) *\/$/;"	m	struct:__anon21
 sem_init	sched/semaphore.c	/^int sem_init(sem_t *sem, int pshared, unsigned int value)$/;"	f
 sem_post	sched/semaphore.c	/^int sem_post(sem_t *sem)$/;"	f
 sem_s	include/semaphore.h	/^typedef struct sem_s {$/;"	s
 sem_t	include/semaphore.h	/^} sem_t;$/;"	t	typeref:struct:sem_s
 sem_trywait	sched/semaphore.c	/^int sem_trywait(sem_t *sem)$/;"	f
 sem_wait	sched/semaphore.c	/^int sem_wait(sem_t *sem)$/;"	f
-size	s_alloc/s_heap.h	/^  uint32_t size : 31; \/* size of the chunk without header in blocks number *\/$/;"	m	struct:__anon25
+size	s_alloc/s_heap.h	/^  uint32_t size : 31; \/* size of the chunk without header in blocks number *\/$/;"	m	struct:__anon26
 size_t	include/stdlib.h	/^typedef unsigned int size_t;$/;"	t
-sobj	fatfs/source/ff.h	/^	FF_SYNC_t	sobj;		\/* Identifier of sync object *\/$/;"	m	struct:__anon8
-sobj	lib/fatfs/source/ff.h	/^	FF_SYNC_t	sobj;		\/* Identifier of sync object *\/$/;"	m	struct:__anon18
+sobj	fatfs/source/ff.h	/^	FF_SYNC_t	sobj;		\/* Identifier of sync object *\/$/;"	m	struct:__anon9
+sobj	lib/fatfs/source/ff.h	/^	FF_SYNC_t	sobj;		\/* Identifier of sync object *\/$/;"	m	struct:__anon19
 sp	sched/include/scheduler.h	/^  void *sp;$/;"	m	struct:tcb_s
 spi_configure	arch/arm/nrf52840/spi/spi.c	/^int spi_configure(spi_master_config_t *cfg, uint8_t peripheral_id)$/;"	f
 spi_frequency_e	include/spi.h	/^typedef enum spi_frequency_e$/;"	g
@@ -1943,8 +2017,8 @@ spi_master_config_t	include/spi.h	/^} spi_master_config_t;$/;"	t	typeref:struct:
 spi_mode_e	include/spi.h	/^typedef enum spi_mode_e$/;"	g
 spi_mode_t	include/spi.h	/^} spi_mode_t;$/;"	t	typeref:enum:spi_mode_e
 spi_send	arch/arm/nrf52840/spi/spi.c	/^void spi_send(void *data, uint32_t len)$/;"	f
-ssize	fatfs/source/ff.h	/^	WORD	ssize;			\/* Sector size (512, 1024, 2048 or 4096) *\/$/;"	m	struct:__anon8
-ssize	lib/fatfs/source/ff.h	/^	WORD	ssize;			\/* Sector size (512, 1024, 2048 or 4096) *\/$/;"	m	struct:__anon18
+ssize	fatfs/source/ff.h	/^	WORD	ssize;			\/* Sector size (512, 1024, 2048 or 4096) *\/$/;"	m	struct:__anon9
+ssize	lib/fatfs/source/ff.h	/^	WORD	ssize;			\/* Sector size (512, 1024, 2048 or 4096) *\/$/;"	m	struct:__anon19
 ssize_t	include/unistd.h	/^typedef int ssize_t;$/;"	t
 st_clust	fatfs/source/ff.c	/^static void st_clust ($/;"	f	file:
 st_clust	lib/fatfs/source/ff.c	/^static void st_clust ($/;"	f	file:
@@ -1956,8 +2030,8 @@ st_word	fatfs/source/ff.c	/^static void st_word (BYTE* ptr, WORD val)	\/* Store 
 st_word	lib/fatfs/source/ff.c	/^static void st_word (BYTE* ptr, WORD val)	\/* Store a 2-byte word in little-endian *\/$/;"	f	file:
 stack_ptr_base	sched/include/scheduler.h	/^  void *stack_ptr_base;$/;"	m	struct:tcb_s
 stack_ptr_top	sched/include/scheduler.h	/^  void *stack_ptr_top;$/;"	m	struct:tcb_s
-stat	fatfs/source/ff.h	/^	BYTE	stat;			\/* Object chain status (b1-0: =0:not contiguous, =2:contiguous, =3:fragmented in this session, b2:sub-directory stretched) *\/$/;"	m	struct:__anon9
-stat	lib/fatfs/source/ff.h	/^	BYTE	stat;			\/* Object chain status (b1-0: =0:not contiguous, =2:contiguous, =3:fragmented in this session, b2:sub-directory stretched) *\/$/;"	m	struct:__anon19
+stat	fatfs/source/ff.h	/^	BYTE	stat;			\/* Object chain status (b1-0: =0:not contiguous, =2:contiguous, =3:fragmented in this session, b2:sub-directory stretched) *\/$/;"	m	struct:__anon10
+stat	lib/fatfs/source/ff.h	/^	BYTE	stat;			\/* Object chain status (b1-0: =0:not contiguous, =2:contiguous, =3:fragmented in this session, b2:sub-directory stretched) *\/$/;"	m	struct:__anon20
 store_xdir	fatfs/source/ff.c	/^static FRESULT store_xdir ($/;"	f	file:
 store_xdir	lib/fatfs/source/ff.c	/^static FRESULT store_xdir ($/;"	f	file:
 strcmp	utils/string.c	/^int strcmp(const char *s1, const char *s2)$/;"	f
@@ -1982,7 +2056,7 @@ test_contiguous_file	lib/fatfs/documents/res/app5.c	/^FRESULT test_contiguous_fi
 test_diskio	fatfs/documents/res/app4.c	/^int test_diskio ($/;"	f
 test_diskio	lib/fatfs/documents/res/app4.c	/^int test_diskio ($/;"	f
 timer_init	arch/arm/nrf52840/timer/timer.c	/^int timer_init(void)$/;"	f
-total_size	s_alloc/s_heap.h	/^  size_t total_size;$/;"	m	struct:__anon26
+total_size	s_alloc/s_heap.h	/^  size_t total_size;$/;"	m	struct:__anon27
 true	include/stdbool.h	7;"	d
 tx_buffer	include/serial.h	/^  uint8_t tx_buffer[UART_TX_BUFFER];$/;"	m	struct:uart_upper_s
 uart_close	drivers/serial/serial.c	/^static int uart_close(void *priv, int fd)$/;"	f	file:
@@ -1996,6 +2070,7 @@ uart_lowerhalf_ioctl	include/serial.h	/^typedef int (*uart_lowerhalf_ioctl)(cons
 uart_lowerhalf_open	include/serial.h	/^typedef int (*uart_lowerhalf_open)(const struct uart_lower_s *lower);$/;"	t
 uart_lowerhalf_read	include/serial.h	/^typedef int (*uart_lowerhalf_read)(const struct uart_lower_s *lower,$/;"	t
 uart_lowerhalf_write	include/serial.h	/^typedef int (*uart_lowerhalf_write)(const struct uart_lower_s *lower,$/;"	t
+uart_open	arch/arm/nrf52840/serial/uart.c	/^static int uart_open(const struct uart_lower_s *lower)$/;"	f	file:
 uart_open	drivers/serial/serial.c	/^static int uart_open(void *priv, const char *pathname, int flags, mode_t mode)$/;"	f	file:
 uart_read	drivers/serial/serial.c	/^static int uart_read(void *priv, int fd, void *buf, size_t count)$/;"	f	file:
 uart_register	drivers/serial/serial.c	/^int uart_register(const char *name, const struct uart_lower_s *uart_lowerhalf)$/;"	f
@@ -2046,9 +2121,7 @@ uni2oem950	lib/fatfs/source/ffunicode.c	/^static const WCHAR uni2oem950[] = {	\/
 unlock_fs	fatfs/source/ff.c	/^static void unlock_fs ($/;"	f	file:
 unlock_fs	lib/fatfs/source/ff.c	/^static void unlock_fs ($/;"	f	file:
 usb_fd	lib/fatfs_glue.c	/^  int usb_fd;$/;"	m	struct:fatfs_device_s	file:
-useconds_t	arch/arm/nrf52840/startup.c	/^typedef uint32_t useconds_t;$/;"	t	file:
-used	s_alloc/s_heap.h	/^  uint32_t used : 1;  \/* used\/unused chunk *\/$/;"	m	struct:__anon25
-usleep	arch/arm/nrf52840/startup.c	/^void usleep(const useconds_t sec)$/;"	f
+used	s_alloc/s_heap.h	/^  uint32_t used : 1;  \/* used\/unused chunk *\/$/;"	m	struct:__anon26
 validate	fatfs/source/ff.c	/^static FRESULT validate (	\/* Returns FR_OK or FR_INVALID_OBJECT *\/$/;"	f	file:
 validate	lib/fatfs/source/ff.c	/^static FRESULT validate (	\/* Returns FR_OK or FR_INVALID_OBJECT *\/$/;"	f	file:
 vectors	arch/arm/nrf52840/startup.c	/^void (*vectors[])(void) = {$/;"	v
@@ -2060,17 +2133,17 @@ vfs_node_s	include/vfs.h	/^struct vfs_node_s {$/;"	s
 vfs_node_type	include/vfs.h	/^enum vfs_node_type {$/;"	g
 vfs_ops_s	include/vfs.h	/^struct vfs_ops_s {$/;"	s
 vfs_register_node	utils/vfs.c	/^int vfs_register_node(const char *name,$/;"	f
-volbase	fatfs/source/ff.h	/^	DWORD	volbase;		\/* Volume base sector *\/$/;"	m	struct:__anon8
-volbase	lib/fatfs/source/ff.h	/^	DWORD	volbase;		\/* Volume base sector *\/$/;"	m	struct:__anon18
+volbase	fatfs/source/ff.h	/^	DWORD	volbase;		\/* Volume base sector *\/$/;"	m	struct:__anon9
+volbase	lib/fatfs/source/ff.h	/^	DWORD	volbase;		\/* Volume base sector *\/$/;"	m	struct:__anon19
 waiting_tcb_sema	sched/include/scheduler.h	/^  sem_t *waiting_tcb_sema;$/;"	m	struct:tcb_s
-wflag	fatfs/source/ff.h	/^	BYTE	wflag;			\/* win[] flag (b0:dirty) *\/$/;"	m	struct:__anon8
-wflag	lib/fatfs/source/ff.h	/^	BYTE	wflag;			\/* win[] flag (b0:dirty) *\/$/;"	m	struct:__anon18
-wi	fatfs/source/ff.c	/^	UINT wi, ct;$/;"	m	struct:__anon6	file:
-wi	lib/fatfs/source/ff.c	/^	UINT wi, ct;$/;"	m	struct:__anon16	file:
-win	fatfs/source/ff.h	/^	BYTE	win[FF_MAX_SS];	\/* Disk access window for Directory, FAT (and file data at tiny cfg) *\/$/;"	m	struct:__anon8
-win	lib/fatfs/source/ff.h	/^	BYTE	win[FF_MAX_SS];	\/* Disk access window for Directory, FAT (and file data at tiny cfg) *\/$/;"	m	struct:__anon18
-winsect	fatfs/source/ff.h	/^	DWORD	winsect;		\/* Current sector appearing in the win[] *\/$/;"	m	struct:__anon8
-winsect	lib/fatfs/source/ff.h	/^	DWORD	winsect;		\/* Current sector appearing in the win[] *\/$/;"	m	struct:__anon18
+wflag	fatfs/source/ff.h	/^	BYTE	wflag;			\/* win[] flag (b0:dirty) *\/$/;"	m	struct:__anon9
+wflag	lib/fatfs/source/ff.h	/^	BYTE	wflag;			\/* win[] flag (b0:dirty) *\/$/;"	m	struct:__anon19
+wi	fatfs/source/ff.c	/^	UINT wi, ct;$/;"	m	struct:__anon7	file:
+wi	lib/fatfs/source/ff.c	/^	UINT wi, ct;$/;"	m	struct:__anon17	file:
+win	fatfs/source/ff.h	/^	BYTE	win[FF_MAX_SS];	\/* Disk access window for Directory, FAT (and file data at tiny cfg) *\/$/;"	m	struct:__anon9
+win	lib/fatfs/source/ff.h	/^	BYTE	win[FF_MAX_SS];	\/* Disk access window for Directory, FAT (and file data at tiny cfg) *\/$/;"	m	struct:__anon19
+winsect	fatfs/source/ff.h	/^	DWORD	winsect;		\/* Current sector appearing in the win[] *\/$/;"	m	struct:__anon9
+winsect	lib/fatfs/source/ff.h	/^	DWORD	winsect;		\/* Current sector appearing in the win[] *\/$/;"	m	struct:__anon19
 write	include/vfs.h	/^  int (*write)(void *priv, int fd, const void *buf, size_t count);$/;"	m	struct:vfs_ops_s
 write_cb	include/serial.h	/^  uart_lowerhalf_write write_cb;$/;"	m	struct:uart_lower_s
 xdir_sum	fatfs/source/ff.c	/^static WORD xdir_sum (	\/* Get checksum of the directoly entry block *\/$/;"	f	file:

@@ -25,6 +25,10 @@
 
 #define MCU_CONTEXT_SIZE                      (8)
 
+/* The interrupt callback type */
+
+typedef void (* irq_cb)(void);
+
 struct opened_resource_s {
   int open_mode;
   void *priv;
@@ -73,6 +77,8 @@ int sched_desroy(void);
 void disable_int(void);
 
 void enable_int(void);
+
+void attach_int(IRQn_Type irq_num, irq_cb handler);
 
 void sched_context_switch(void);
 
