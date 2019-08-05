@@ -29,6 +29,7 @@ struct list_head *g_current_tcb = NULL;
 /* The interrupt vector table */
 
 extern void (*g_vectors[NUM_IRQS])(void);
+extern void (*g_ram_vectors[NUM_IRQS])(void);
 
 /**************************************************************************
  * Name:
@@ -426,7 +427,6 @@ void enable_int(void)
 void attach_int(IRQn_Type irq_num, irq_cb handler)
 {
   disable_int();
-  g_vectors[irq_num + 16] = handler;
+  g_ram_vectors[irq_num] = handler;
   enable_int();
 }
-
