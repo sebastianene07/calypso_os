@@ -15,7 +15,7 @@ void dummy_fn(void);
 
 void Pend_SV_Handler(void);
 void SysTick_Handler(void);
-void generic_isr_handler(void);
+static void generic_isr_handler(void);
 
 /* The fault handler implementation calls a function called
 prvGetRegistersFromStack(). */
@@ -59,7 +59,7 @@ void dummy_fn(void)
         }
 }
 
-void generic_isr_handler(void)
+static void generic_isr_handler(void)
 {
   /* get the exception number */
   uint8_t isr_num = (SCB->ICSR & 0xF);

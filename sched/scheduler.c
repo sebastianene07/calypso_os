@@ -426,7 +426,5 @@ void enable_int(void)
  *************************************************************************/
 void attach_int(IRQn_Type irq_num, irq_cb handler)
 {
-  disable_int();
   g_ram_vectors[irq_num] = handler;
-  enable_int();
 }

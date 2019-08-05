@@ -30,6 +30,7 @@
 #define UART_TXD_MAXCNT                     (0x548)
 #define UART_ENDTX_OFFSET                   (0x120)
 #define UART_EVENTS_TXSTOPPED_OFFSET        (0x158)
+#define UART_INTENSET_OFFSET                (0x304)
 
 /* UART configuration fields */
 
@@ -46,6 +47,7 @@
 #define UART_ENDTX             UART_CONFIG(UART_ENDTX_OFFSET)
 #define UART_STOP_TX_TASK      UART_CONFIG(UART_TASK_STOP_TX_OFFSET)
 #define UART_EVENTS_TXSTOPPED  UART_CONFIG(UART_EVENTS_TXSTOPPED_OFFSET)
+#define UART_INTENSET_CONFIG   UART_CONFIG(UART_INTENSET_OFFSET)
 
 /* Board configs : this should not stay in driver code */
 
@@ -84,6 +86,8 @@ int uart_low_init(void)
 
   UART_CONFIG_REG = 0;
 
+  /* Enable EndRX and RX started event */
+  UART_INTENSET_CONFIG = (1 << 4) | (1 << 19);
   /* Configure UART baud rate 115200 */
 
   UART_BAUDRATE = 0x01D60000;
@@ -149,8 +153,11 @@ static int nrf52840_lpuart_open(const struct uart_lower_s *lower)
 
   /* Attach the uart interrupt */
 
+  disable_int();
   attach_int(UARTE0_UART0_IRQn, nrf52840_lpuart_int);
   NVIC_EnableIRQ(UARTE0_UART0_IRQn);
+
+  enable_int();
 }
 
 int uart_init(void)
