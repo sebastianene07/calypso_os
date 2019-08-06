@@ -5,8 +5,8 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define UART_TX_BUFFER                      (128)
-#define UART_RX_BUFFER                      (128)
+#define UART_TX_BUFFER                      (64)
+#define UART_RX_BUFFER                      (64)
 
 /****************************************************************************
  * Public Types
