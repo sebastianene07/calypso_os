@@ -194,6 +194,11 @@ static int nrf52840_lpuart_open(const struct uart_lower_s *lower)
   /* Attach the uart interrupt */
 
   disable_int();
+
+  UART_EVENTS_RXDRDY_CFG    = 0;
+  UART_EVENTS_ENDRX_CFG     = 0;
+  UART_EVENTS_RXSTARTED_CFG = 0;
+
   attach_int(UARTE0_UART0_IRQn, nrf52840_lpuart_int);
   NVIC_EnableIRQ(UARTE0_UART0_IRQn);
 
