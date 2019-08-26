@@ -33,6 +33,7 @@
 #define UART_INTENSET_OFFSET                (0x304)
 #define UART_RXD_PTR                        (0x534)
 #define UART_RX_MAXCNT                      (0x538)
+#define UART_RX_AMOUNT                      (0x53C)
 #define UART_EVENTS_RXSTARTED_OFFSET        (0x14C)
 #define UART_EVENTS_RXDRDY_OFFSET           (0x108)
 #define UART_EVENTS_ENDRX_OFFSET            (0x110)
@@ -73,10 +74,14 @@
 #define UART_DMA_RX_LEN                     (UART_RX_BUFFER / 8)
 
 /****************************************************************************
+ * Private Types
+ ****************************************************************************/
+
+/****************************************************************************
  * Private Functions Definition
  ****************************************************************************/
 
-static int nrf52840_lpuart_open(const struct uart_lower_s *lower);
+static int nrf52840_lpuart_open(struct uart_lower_s *lower);
 
 /****************************************************************************
  * Private Data
@@ -119,7 +124,7 @@ int uart_low_init(void)
 
   UART_SHORTS_CONFIG     = (1 << 5);
   UART_RXD_PTR_CONFIG    = (uint32_t)g_uart_rx_buffer;
-  UART_RX_MAXCNT_CONFIG  = UART_DMA_RX_LEN;
+  UART_RX_MAXCNT_CONFIG  = UART_RX_BUFFER;
   UART_TASK_START_RX_CFG = 1;
   return 0;
 }
@@ -164,32 +169,30 @@ char uart_low_receive(void)
 
 static void nrf52840_lpuart_int(void)
 {
-  static volatile int count = 1;
+  /* EVENTS_RXDRDY is received every time - also EVENTS_TXDRDY */
 
   if (UART_EVENTS_RXSTARTED_CFG == 1)
   {
      UART_EVENTS_RXSTARTED_CFG = 0;
-     UART_RXD_PTR_CONFIG = (uint32_t)(g_uart_rx_buffer + UART_DMA_RX_LEN * count);
-     UART_RX_MAXCNT_CONFIG  = UART_DMA_RX_LEN;
-     if (count >= (UART_RX_BUFFER / UART_DMA_RX_LEN))
-     {
-       count = 0;
-     }
-     else
-     {
-       count++;
-     }
+     UART_RXD_PTR_CONFIG = (uint32_t)g_uart_rx_buffer;
+     UART_RX_MAXCNT_CONFIG  = UART_RX_BUFFER;
   }
   else if (UART_EVENTS_ENDRX_CFG == 1)
   {
      UART_EVENTS_ENDRX_CFG = 0;
      UART_TASK_START_RX_CFG = 1;
+     UART_EVENTS_RXDRDY_CFG = 0;
+  }
+  else if (UART_EVENTS_RXDRDY_CFG == 1)
+  {
+    UART_EVENTS_RXDRDY_CFG = 0;
   }
 }
 
-static int nrf52840_lpuart_open(const struct uart_lower_s *lower)
+static int nrf52840_lpuart_open(struct uart_lower_s *lower)
 {
   /* Initialize the semaphore */
+
 
   /* Attach the uart interrupt */
 

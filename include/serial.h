@@ -1,6 +1,8 @@
 #ifndef __SERIAL_H
 #define __SERIAL_H
 
+#include <semaphore.h>
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -18,7 +20,7 @@ struct uart_lower_s;
 
 /* Lowerhalf callback that should be implemented by the serial driver */
 
-typedef int (*uart_lowerhalf_open)(const struct uart_lower_s *lower);
+typedef int (*uart_lowerhalf_open)(struct uart_lower_s *lower);
 typedef int (*uart_lowerhalf_close)(const struct uart_lower_s *lower);
 typedef int (*uart_lowerhalf_write)(const struct uart_lower_s *lower,
                                     const void *ptr_data,
@@ -44,6 +46,8 @@ struct uart_lower_s {
 struct uart_upper_s {
   uint8_t rx_buffer[UART_RX_BUFFER];
   uint8_t tx_buffer[UART_TX_BUFFER];
+  sem_t rx_notify;
+  sem_t tx_notify;
   const struct uart_lower_s *lower;
 };
 
