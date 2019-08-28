@@ -12,9 +12,9 @@
 
 struct vfs_ops_s {
   int (*open)(void *priv, const char *pathname, int flags, mode_t mode);
-  int (*close)(void *priv, int fd);
-  int (*write)(void *priv, int fd, const void *buf, size_t count);
-  int (*read)(void *priv, int fd, void *buf, size_t count);
+  int (*close)(void *priv);
+  int (*write)(void *priv, const void *buf, size_t count);
+  int (*read)(void *priv, void *buf, size_t count);
 /*  int (*poll)(struct pollfd *fds, nfds_t nfds, int timeout); */
 };
 

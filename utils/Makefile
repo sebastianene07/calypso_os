@@ -1,12 +1,12 @@
 SRC:=$(wildcard *.c)
 OBJS:=$(patsubst %.c,%.o,$(SRC))
-SCHED_FLAGS := ${CFLAGS} -I$(TOPDIR)/include -I$(TOPDIR)/s_alloc
+UTILS_FLAGS := ${CFLAGS} -I$(TOPDIR)/include -I$(TOPDIR)/s_alloc -I$(TOPDIR)/sched/include
 
 all: $(OBJS)
 	${PREFIX}ar -rc $(TOPDIR)/$(TMP_LIB) $(OBJS)
 
 %.o : %.c
-	${PREFIX}gcc $(SCHED_FLAGS) -c $< -o $@
+	${PREFIX}gcc $(UTILS_FLAGS) -c $< -o $@
 
 clean:
 	find . -iname "*.o" -exec rm -f {} \;

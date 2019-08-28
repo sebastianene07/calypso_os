@@ -266,19 +266,34 @@ struct opened_resource_s *sched_allocate_resource(void *priv_data,
     return NULL;
   }
 
-  new_res->fd         = curr_tcb->curr_resource_opened;
+  new_res->fd        = curr_tcb->curr_resource_opened;
   new_res->open_mode = open_mode;
   new_res->priv      = priv_data;
   new_res->ops       = ops;
 
   curr_tcb->curr_resource_opened++;
 
-  list_add(&new_res->node ,&curr_tcb->opened_resource);
+  list_add(&new_res->node, &curr_tcb->opened_resource);
   enable_int();
 
   return new_res;
 }
 
+/**************************************************************************
+ * Name:
+ *  sched_free_resource
+ *
+ * Description:
+ *  This method tears down the resources allocated for an object that has been
+ *  opened. It should be called from close() context.
+ *
+ * Assumptions:
+ *  Call this function with pre-emption disabled.
+ *
+ * Return Value:
+ *  OK or a negative value on failure.
+ *
+ *************************************************************************/
 int sched_free_resource(int fd)
 {
   disable_int();
@@ -288,23 +303,10 @@ int sched_free_resource(int fd)
 
   /* Iterate over opened resource list find the fd and free the resource */
 
-  bool is_found = false;
-  struct opened_resource_s *resource = NULL;
-  list_for_each_entry(resource, &curr_tcb->opened_resource, node)
-  {
-    if (resource && resource->fd == fd) {
-      is_found = true;
-      break;
-    }
-  }
+  struct opened_resource_s *resource = sched_find_opened_resource(fd);
 
-  if (is_found) {
+  if (resource) {
     list_del(&resource->node);
-
-    if (resource->ops != NULL &&
-        resource->ops->close != NULL) {
-          resource->ops->close(resource->priv, fd);
-    }
 
     free(resource);
     enable_int();
@@ -316,6 +318,36 @@ int sched_free_resource(int fd)
 }
 
 /**************************************************************************
+ * Name:
+ *  sched_find_opened_resource
+ *
+ * Description:
+ *  Search for an opened resource with specified fd number in the current tcb.
+ *
+ * Assumptions:
+ *  Call this function with pre-emption disabled.
+ *
+ * Return Value:
+ *  The opened container resource or NULL in case we are running out of memory.
+ *
+ *************************************************************************/
+struct opened_resource_s *sched_find_opened_resource(int fd)
+{
+  struct tcb_s *curr_tcb = sched_get_current_task();
+  assert(curr_tcb->curr_resource_opened >= 0);
+
+  struct opened_resource_s *resource = NULL;
+  list_for_each_entry(resource, &curr_tcb->opened_resource, node)
+  {
+    if (resource && resource->fd == fd) {
+      return resource;
+    }
+  }
+
+  return NULL;
+}
+
+ /**************************************************************************
 * Name:
 * sched_run
 *

@@ -88,4 +88,6 @@ struct opened_resource_s *sched_allocate_resource(void *priv_data,
 
 int sched_free_resource(int fd);
 
+struct opened_resource_s *sched_find_opened_resource(int fd);
+
 #endif /* SCHEDULER_H_ */
