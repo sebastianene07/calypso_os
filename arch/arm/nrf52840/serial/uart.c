@@ -128,7 +128,7 @@ int uart_low_init(void)
 
   UART_SHORTS_CONFIG     = (1 << 5);
   UART_RXD_PTR_CONFIG    = (uint32_t)g_uart_low_0.rx_buffer;
-  UART_RX_MAXCNT_CONFIG  = UART_RX_BUFFER;
+  UART_RX_MAXCNT_CONFIG  = 1;//UART_RX_BUFFER;
   UART_TASK_START_RX_CFG = 1;
   return 0;
 }
@@ -171,20 +171,44 @@ char uart_low_receive(void)
   return c;
 }
 
-static void nrf52840_lpuart_int(void)
+static void nrf52840_handle_rx_end(void)
 {
-  /* EVENTS_RXDRDY is received every time - also EVENTS_TXDRDY */
+if (UART_RX_AMOUNT_CFG > 0)
+{
+g_uart_low_0.index_write_rx_buffer += UART_RX_AMOUNT_CFG;
+g_uart_low_0.index_write_rx_buffer = g_uart_low_0.index_write_rx_buffer %
+UART_RX_BUFFER;
+sem_post(&g_uart_low_0.rx_notify);
+}
+UART_EVENTS_ENDRX_CFG  = 0;
+UART_TASK_START_RX_CFG = 1;
+UART_EVENTS_RXDRDY_CFG = 0;
+}
 
-  if (UART_EVENTS_RXSTARTED_CFG == 1)
-  {
+static void nrf52840_handle_rx_rdy(void)
+{
+#if 0
+    if (UART_RX_AMOUNT_CFG > 0)
+    {
+      g_uart_low_0.index_write_rx_buffer += UART_RX_AMOUNT_CFG;
+      g_uart_low_0.index_write_rx_buffer = g_uart_low_0.index_write_rx_buffer %
+        UART_RX_BUFFER;
+      sem_post(&g_uart_low_0.rx_notify);
+    }
+#endif
+    UART_EVENTS_RXDRDY_CFG = 0;
+}
+
+static void nrf52840_handle_rx_started(void)
+{
     UART_EVENTS_RXSTARTED_CFG = 0;
 
-    UART_RXD_PTR_CONFIG    = (uint32_t)g_uart_low_0.rx_buffer;
+    UART_RXD_PTR_CONFIG    = (uint32_t)g_uart_low_0.rx_buffer;// + g_uart_low_0.index_write_rx_buffer;
     uint8_t available_rx_bytes = 0;
 
     if (g_uart_low_0.index_read_rx_buffer == g_uart_low_0.index_write_rx_buffer)
     {
-      UART_RX_MAXCNT_CONFIG  = UART_RX_BUFFER - 1;
+//      UART_RX_MAXCNT_CONFIG  = 1;
     }
     else
     {
@@ -199,27 +223,24 @@ static void nrf52840_lpuart_int(void)
       }
     }
 
-    UART_RX_MAXCNT_CONFIG = available_rx_bytes;
+  //  UART_RX_MAXCNT_CONFIG = available_rx_bytes > 1 ? 1 : available_rx_bytes;
+}
+
+static void nrf52840_lpuart_int(void)
+{
+  /* EVENTS_RXDRDY is received every time - also EVENTS_TXDRDY */
+
+  if (UART_EVENTS_RXSTARTED_CFG == 1)
+  {
+    nrf52840_handle_rx_started();
   }
   else if (UART_EVENTS_ENDRX_CFG == 1)
   {
-    UART_EVENTS_ENDRX_CFG  = 0;
-    UART_TASK_START_RX_CFG = 1;
-    UART_EVENTS_RXDRDY_CFG = 0;
-
-//    sem_post(&g_uart_low_0.rx_notify);
+    nrf52840_handle_rx_end();
   }
   else if (UART_EVENTS_RXDRDY_CFG == 1)
   {
-    if (UART_RX_AMOUNT_CFG > 0)
-    {
-      g_uart_low_0.index_write_rx_buffer += UART_RX_AMOUNT_CFG;
-      g_uart_low_0.index_write_rx_buffer = g_uart_low_0.index_write_rx_buffer %
-        UART_RX_BUFFER;
-      sem_post(&g_uart_low_0.rx_notify);
-    }
-    UART_EVENTS_RXDRDY_CFG = 0;
-
+    nrf52840_handle_rx_rdy();
   }
 }
 

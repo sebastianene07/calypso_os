@@ -16,7 +16,7 @@ static bool g_is_shutdown_set;
  */
 void console_main(void)
 {
-  char cmd_buffer[CONFIG_CMD_BUFER_LEN];
+  char cmd_buffer[CONFIG_CMD_BUFER_LEN]={0};
   int uart_fd = open(CONFIG_CONSOLE_UART_PATH, 0);
   if (uart_fd < 0)
   {
@@ -42,7 +42,7 @@ void console_main(void)
 
     /* Is echo on ? */
 
-    write(uart_fd, cmd_buffer + len, 1);
+    write(uart_fd, cmd_buffer + len - 1, 1);
 
   } while (g_is_shutdown_set);
 
