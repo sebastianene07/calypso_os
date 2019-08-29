@@ -24,7 +24,7 @@ void console_main(void)
   }
 
   int len = 0;
-  g_is_shutdown_set = false;
+  g_is_shutdown_set = true;
 
   do {
     ssize_t sz = read(uart_fd, cmd_buffer + len, 1);

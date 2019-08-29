@@ -34,6 +34,12 @@ typedef int (*uart_lowerhalf_ioctl)(const struct uart_lower_s *lower);
 
 struct uart_lower_s {
   void *priv;
+  uint8_t rx_buffer[UART_RX_BUFFER];
+  uint8_t index_write_rx_buffer;
+  uint8_t index_read_rx_buffer;
+  sem_t rx_notify;
+  uint8_t tx_buffer[UART_TX_BUFFER];
+  sem_t tx_notify;
   uart_lowerhalf_open  open_cb;
   uart_lowerhalf_close close_cb;
   uart_lowerhalf_write write_cb;
@@ -44,10 +50,7 @@ struct uart_lower_s {
 /* The upper half structure */
 
 struct uart_upper_s {
-  uint8_t rx_buffer[UART_RX_BUFFER];
-  uint8_t tx_buffer[UART_TX_BUFFER];
-  sem_t rx_notify;
-  sem_t tx_notify;
+  uint8_t index_read;
   const struct uart_lower_s *lower;
 };
 

@@ -88,7 +88,6 @@ static int nrf52840_lpuart_open(struct uart_lower_s *lower);
  ****************************************************************************/
 
 static char g_uart_tx_buffer[UART_TX_BUFFER];
-static char g_uart_rx_buffer[UART_RX_BUFFER];
 static sem_t g_uart_sema;
 
 static struct uart_lower_s g_uart_low_0 =
@@ -123,7 +122,7 @@ int uart_low_init(void)
   sem_init(&g_uart_sema, 0, 1);
 
   UART_SHORTS_CONFIG     = (1 << 5);
-  UART_RXD_PTR_CONFIG    = (uint32_t)g_uart_rx_buffer;
+  UART_RXD_PTR_CONFIG    = (uint32_t)g_uart_low_0.rx_buffer;
   UART_RX_MAXCNT_CONFIG  = UART_RX_BUFFER;
   UART_TASK_START_RX_CFG = 1;
   return 0;
@@ -173,19 +172,24 @@ static void nrf52840_lpuart_int(void)
 
   if (UART_EVENTS_RXSTARTED_CFG == 1)
   {
-     UART_EVENTS_RXSTARTED_CFG = 0;
-     UART_RXD_PTR_CONFIG = (uint32_t)g_uart_rx_buffer;
-     UART_RX_MAXCNT_CONFIG  = UART_RX_BUFFER;
+    UART_EVENTS_RXSTARTED_CFG = 0;
+
+    UART_RXD_PTR_CONFIG    = (uint32_t)g_uart_low_0.rx_buffer;
+    UART_RX_MAXCNT_CONFIG  = UART_RX_BUFFER;
   }
   else if (UART_EVENTS_ENDRX_CFG == 1)
   {
-     UART_EVENTS_ENDRX_CFG = 0;
-     UART_TASK_START_RX_CFG = 1;
-     UART_EVENTS_RXDRDY_CFG = 0;
+    UART_EVENTS_ENDRX_CFG  = 0;
+    UART_TASK_START_RX_CFG = 1;
+    UART_EVENTS_RXDRDY_CFG = 0;
+
+    sem_post(&g_uart_low_0.rx_notify);
   }
   else if (UART_EVENTS_RXDRDY_CFG == 1)
   {
     UART_EVENTS_RXDRDY_CFG = 0;
+
+    sem_post(&g_uart_low_0.rx_notify);
   }
 }
 
@@ -193,6 +197,7 @@ static int nrf52840_lpuart_open(struct uart_lower_s *lower)
 {
   /* Initialize the semaphore */
 
+  sem_init(&g_uart_low_0.rx_notify, 0, 0);
 
   /* Attach the uart interrupt */
 
@@ -206,6 +211,8 @@ static int nrf52840_lpuart_open(struct uart_lower_s *lower)
   NVIC_EnableIRQ(UARTE0_UART0_IRQn);
 
   enable_int();
+
+  return 0;
 }
 
 int uart_init(void)

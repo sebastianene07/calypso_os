@@ -13,9 +13,9 @@
  ****************************************************************************/
 
 static int uart_open(void *priv, const char *pathname, int flags, mode_t mode);
-static int uart_close(void *priv, int fd);
-static int uart_write(void *priv, int fd, const void *buf, size_t count);
-static int uart_read(void *priv, int fd, void *buf, size_t count);
+static int uart_close(void *priv);
+static int uart_write(void *priv, const void *buf, size_t count);
+static int uart_read(void *priv, void *buf, size_t count);
 
 /****************************************************************************
  * Private Data
@@ -59,17 +59,42 @@ static int uart_open(void *priv, const char *pathname, int flags, mode_t mode)
   return res->fd;
 }
 
-static int uart_close(void *priv, int fd)
+static int uart_close(void *priv)
 {
-  return sched_free_resource(fd);
+  return 0;
 }
 
-static int uart_write(void *priv, int fd, const void *buf, size_t count)
+static int uart_write(void *priv, const void *buf, size_t count)
 {
 }
 
-static int uart_read(void *priv, int fd, void *buf, size_t count)
+static int uart_read(void *priv, void *buf, size_t count)
 {
+  struct uart_upper_s *uart_up = (struct uart_upper_s *)priv;
+
+  /* Blocking read. Wait until 'count' bytes are available from
+   * this device.
+   */
+  struct uart_lower_s *lower = uart_up->lower;
+  sem_wait(&lower->rx_notify);
+
+#if 0
+  uart_up->lower->index_write_rx_buffer
+  uint8_t available_rx_bytes = 0;
+
+  if (lower->index_read_rx_buffer > lower->index_write_rx_buffer)
+  {
+    available_rx_bytes = uart_up->index_read_rx_buffer -
+      uart_up->lower->index_write_rx_buffer;
+  }
+  else
+  {
+    available_rx_bytes = UART_RX_BUFFER -
+    (uart_up->lower->index_write_rx_buffer - uart_up->index_read_rx_buffer);
+  }
+#endif
+
+  return 0;
 }
 
 /****************************************************************************

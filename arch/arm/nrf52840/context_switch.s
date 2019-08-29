@@ -109,8 +109,7 @@ sched_context_switch:
   push {r0}
   mrs r0, xpsr
   push {r0}
-  mov r0, pc
-  add r0, #0x18
+  ldr r0, =ret_from_cs
   push {r0}
   push {lr}
   push {r12}
@@ -123,6 +122,8 @@ sched_context_switch:
 
 repeat:
   b repeat
+ret_from_cs:
+  pop {r0}
   bx lr
 
 sched_do_switch:
