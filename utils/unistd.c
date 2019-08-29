@@ -37,6 +37,32 @@ ssize_t read(int fd, void *buf, size_t count)
 
 /**************************************************************************
  * Name:
+ *  write
+ *
+ * Description:
+ *  Write up to count bytes from the buffer pointed by buf, from an opened resource
+ *  identified by fd.
+ *
+ * Return Value:
+ *  The number of bytes read or a negative value in case of error.
+ *
+ *************************************************************************/
+ssize_t write(int fd, void *buf, size_t count)
+{
+  disable_int();
+  struct opened_resource_s *res = sched_find_opened_resource(fd);
+  enable_int();
+
+  if (!res->ops || !res->ops->read)
+  {
+    return -ENOSYS;
+  }
+
+  return res->ops->write(res->priv, buf, count);
+}
+
+/**************************************************************************
+ * Name:
  *  close
  *
  * Description:

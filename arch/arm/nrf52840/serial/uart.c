@@ -57,6 +57,7 @@
 #define UART_INTENSET_CONFIG   UART_CONFIG(UART_INTENSET_OFFSET)
 #define UART_RXD_PTR_CONFIG    UART_CONFIG(UART_RXD_PTR)
 #define UART_RX_MAXCNT_CONFIG  UART_CONFIG(UART_RX_MAXCNT)
+#define UART_RX_AMOUNT_CFG     UART_CONFIG(UART_RX_AMOUNT)
 #define UART_TASK_START_RX_CFG UART_CONFIG(UART_TASK_START_RX_OFFSET)
 #define UART_SHORTS_CONFIG     UART_CONFIG(UART_SHORTS_OFFSET)
 
@@ -82,6 +83,9 @@
  ****************************************************************************/
 
 static int nrf52840_lpuart_open(struct uart_lower_s *lower);
+static int nrf52840_lpuart_write(const struct uart_lower_s *lower,
+                                 const void *ptr_data,
+                                 unsigned int sz);
 
 /****************************************************************************
  * Private Data
@@ -93,6 +97,7 @@ static sem_t g_uart_sema;
 static struct uart_lower_s g_uart_low_0 =
 {
   .open_cb = nrf52840_lpuart_open,
+  .write_cb = nrf52840_lpuart_write,
 };
 
 /****************************************************************************
@@ -175,7 +180,26 @@ static void nrf52840_lpuart_int(void)
     UART_EVENTS_RXSTARTED_CFG = 0;
 
     UART_RXD_PTR_CONFIG    = (uint32_t)g_uart_low_0.rx_buffer;
-    UART_RX_MAXCNT_CONFIG  = UART_RX_BUFFER;
+    uint8_t available_rx_bytes = 0;
+
+    if (g_uart_low_0.index_read_rx_buffer == g_uart_low_0.index_write_rx_buffer)
+    {
+      UART_RX_MAXCNT_CONFIG  = UART_RX_BUFFER - 1;
+    }
+    else
+    {
+      uint8_t available_rx_bytes = 0;
+      if (g_uart_low_0.index_read_rx_buffer > g_uart_low_0.index_write_rx_buffer)
+      {
+        available_rx_bytes = g_uart_low_0.index_read_rx_buffer - g_uart_low_0.index_write_rx_buffer - 1;
+      }
+      else
+      {
+        available_rx_bytes = UART_RX_BUFFER - (g_uart_low_0.index_write_rx_buffer - g_uart_low_0.index_read_rx_buffer) - 1;
+      }
+    }
+
+    UART_RX_MAXCNT_CONFIG = available_rx_bytes;
   }
   else if (UART_EVENTS_ENDRX_CFG == 1)
   {
@@ -183,13 +207,19 @@ static void nrf52840_lpuart_int(void)
     UART_TASK_START_RX_CFG = 1;
     UART_EVENTS_RXDRDY_CFG = 0;
 
-    sem_post(&g_uart_low_0.rx_notify);
+//    sem_post(&g_uart_low_0.rx_notify);
   }
   else if (UART_EVENTS_RXDRDY_CFG == 1)
   {
+    if (UART_RX_AMOUNT_CFG > 0)
+    {
+      g_uart_low_0.index_write_rx_buffer += UART_RX_AMOUNT_CFG;
+      g_uart_low_0.index_write_rx_buffer = g_uart_low_0.index_write_rx_buffer %
+        UART_RX_BUFFER;
+      sem_post(&g_uart_low_0.rx_notify);
+    }
     UART_EVENTS_RXDRDY_CFG = 0;
 
-    sem_post(&g_uart_low_0.rx_notify);
   }
 }
 
@@ -211,6 +241,35 @@ static int nrf52840_lpuart_open(struct uart_lower_s *lower)
   NVIC_EnableIRQ(UARTE0_UART0_IRQn);
 
   enable_int();
+
+  return 0;
+}
+
+static int nrf52840_lpuart_write(const struct uart_lower_s *lower,
+                                 const void *ptr_data,
+                                 unsigned int sz)
+{
+  sem_wait(&g_uart_sema);
+
+  UART_EVENTS_TXSTOPPED = 0;
+  UART_ENDTX            = 0;
+
+  memcpy(g_uart_tx_buffer, ptr_data, sz);
+
+  UART_TXD_PTR_CONFIG     = (uint32_t)g_uart_tx_buffer;
+  UART_TXD_MAXCNT_CONFIG  = sz;
+  UART_TX_START_TASK      = 1;
+
+  while (UART_ENDTX == 0);
+
+  /* Stop the UART TX */
+  UART_STOP_TX_TASK = 1;
+
+  /* Wait until we receive the stopped event */
+  while (UART_EVENTS_TXSTOPPED == 0);
+
+  UART_TX_START_TASK = 0;
+  sem_post(&g_uart_sema);
 
   return 0;
 }

@@ -31,9 +31,18 @@ void console_main(void)
     if (sz > 0)
     {
       len += sz;
+      len = len % CONFIG_CMD_BUFER_LEN;
+    }
+    else
+    {
+      continue;
     }
 
     /* If the character was a terminator interpret the command */
+
+    /* Is echo on ? */
+
+    write(uart_fd, cmd_buffer + len, 1);
 
   } while (g_is_shutdown_set);
 

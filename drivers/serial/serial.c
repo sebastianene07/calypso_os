@@ -66,6 +66,19 @@ static int uart_close(void *priv)
 
 static int uart_write(void *priv, const void *buf, size_t count)
 {
+  struct uart_upper_s *uart_upper = (struct uart_upper_s *)priv;
+
+  /* Call into the lowerhalf open method */
+
+  if (uart_upper->lower->write_cb == NULL) {
+    return -ENODEV;
+  }
+
+  int ret = uart_upper->lower->write_cb(uart_upper->lower, buf, count);
+  if (ret != OK) {
+    return ret;
+  }
+  return 0;
 }
 
 static int uart_read(void *priv, void *buf, size_t count)
@@ -76,23 +89,35 @@ static int uart_read(void *priv, void *buf, size_t count)
    * this device.
    */
   struct uart_lower_s *lower = uart_up->lower;
-  sem_wait(&lower->rx_notify);
 
-#if 0
-  uart_up->lower->index_write_rx_buffer
-  uint8_t available_rx_bytes = 0;
+  do {
+    uint8_t available_rx_bytes = 0;
 
-  if (lower->index_read_rx_buffer > lower->index_write_rx_buffer)
-  {
-    available_rx_bytes = uart_up->index_read_rx_buffer -
-      uart_up->lower->index_write_rx_buffer;
-  }
-  else
-  {
-    available_rx_bytes = UART_RX_BUFFER -
-    (uart_up->lower->index_write_rx_buffer - uart_up->index_read_rx_buffer);
-  }
-#endif
+    if (lower->index_read_rx_buffer < lower->index_write_rx_buffer)
+    {
+      available_rx_bytes = lower->index_write_rx_buffer -
+        lower->index_read_rx_buffer;
+    }
+    else if (lower->index_read_rx_buffer != lower->index_write_rx_buffer)
+    {
+      available_rx_bytes = UART_RX_BUFFER -
+      (lower->index_read_rx_buffer - lower->index_write_rx_buffer);
+    }
+
+    uint8_t min_copy = count > available_rx_bytes ? available_rx_bytes : count;
+    if (available_rx_bytes > 0)
+    {
+      memcpy(buf, lower->rx_buffer, min_copy);
+
+      lower->index_read_rx_buffer += min_copy;
+      lower->index_read_rx_buffer = lower->index_read_rx_buffer % UART_RX_BUFFER;
+      return min_copy;
+    }
+    else
+    {
+      sem_wait(&lower->rx_notify);
+    }
+  } while (1);
 
   return 0;
 }
