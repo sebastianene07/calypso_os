@@ -42,7 +42,14 @@ void console_main(void)
 
     /* Is echo on ? */
 
-    write(uart_fd, cmd_buffer + len - 1, 1);
+    if (*(cmd_buffer + len - 1) == '\r')
+    {
+      write(uart_fd, "\r\n", 2);
+    }
+    else
+    {
+      write(uart_fd, cmd_buffer + len - 1, 1);
+    }
 
   } while (g_is_shutdown_set);
 
