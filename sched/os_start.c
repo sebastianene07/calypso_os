@@ -57,7 +57,7 @@ void os_startup(void)
   /* Init dummy serial console */
 
   uart_low_init();
-  uart_low_send("\n^-^\n");
+  uart_low_send(CONFIG_POWERON_MESSAGE);
 
   /* Initialize the HEAP memory */
 

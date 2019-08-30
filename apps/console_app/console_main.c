@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include <stdbool.h>
 
+#define CONSOLE_PROMPT_STR                        "root:/>"
+
 /* Shutdown flag */
 
 static bool g_is_shutdown_set;
@@ -24,9 +26,17 @@ void console_main(void)
   }
 
   int len = 0;
+  bool is_prompt_printed = true;
   g_is_shutdown_set = true;
 
   do {
+
+    if (is_prompt_printed)
+    {
+      write(uart_fd, CONSOLE_PROMPT_STR, strlen(CONSOLE_PROMPT_STR));
+      is_prompt_printed = false;
+    }
+
     ssize_t sz = read(uart_fd, cmd_buffer + len, 1);
     if (sz > 0)
     {
@@ -45,6 +55,7 @@ void console_main(void)
     if (*(cmd_buffer + len - 1) == '\r')
     {
       write(uart_fd, "\r\n", 2);
+      is_prompt_printed = true;
     }
     else
     {
