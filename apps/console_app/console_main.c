@@ -6,7 +6,8 @@
 #include <unistd.h>
 #include <stdbool.h>
 
-#define CONSOLE_PROMPT_STR                        "root:/>"
+#define CONSOLE_PROMPT_STR                        "root:#/>"
+#define CONSOLE_ECHO_ON
 
 /* Shutdown flag */
 
@@ -50,6 +51,7 @@ void console_main(void)
 
     /* If the character was a terminator interpret the command */
 
+#ifdef CONSOLE_ECHO_ON
     /* Is echo on ? */
 
     if (*(cmd_buffer + len - 1) == '\r')
@@ -61,6 +63,7 @@ void console_main(void)
     {
       write(uart_fd, cmd_buffer + len - 1, 1);
     }
+#endif /* CONSOLE_ECHO_ON */
 
   } while (g_is_shutdown_set);
 
