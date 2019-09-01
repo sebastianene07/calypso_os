@@ -2,6 +2,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -14,6 +15,26 @@
 
 static bool g_is_shutdown_set;
 
+/* The RTC fd */
+
+static int rtc_fd;
+
+/* The console fd */
+
+static int uart_fd;
+
+/*
+ * date - View/Set the current time
+ *
+ */
+static void date(void)
+{
+  uint32_t ticks = 0;
+
+  int ret = read(rtc_fd, &ticks, sizeof(ticks));
+  printf("ticks : %u\n", &ticks);
+}
+
 /*
  * console_main - console application entry point
  *
@@ -21,8 +42,14 @@ static bool g_is_shutdown_set;
 void console_main(void)
 {
   char cmd_buffer[CONFIG_CMD_BUFER_LEN]={0};
-  int uart_fd = open(CONFIG_CONSOLE_UART_PATH, 0);
+  uart_fd = open(CONFIG_CONSOLE_UART_PATH, 0);
   if (uart_fd < 0)
+  {
+    return;
+  }
+
+  rtc_fd = open(CONFIG_RTC_PATH, 0);
+  if (rtc_fd < 0)
   {
     return;
   }
@@ -59,6 +86,7 @@ void console_main(void)
     {
       write(uart_fd, "\r\n", 2);
       is_prompt_printed = true;
+      date();
     }
     else
     {

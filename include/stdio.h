@@ -1,9 +1,9 @@
 #ifndef __STDIO_H
 
-int puts(const char *s);
-
 int printf(const char * format, ... );
 
-int open(const char *pathname, int flags);
+int open(const char *, int, ...);
+
+int sprintf(char *out, const char *format, ...);
 
 #endif /* __STDIO_H */

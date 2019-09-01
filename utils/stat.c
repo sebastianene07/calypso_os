@@ -12,7 +12,7 @@
  *  Open a node and save the information in the current TCB.
  *
  */
-int open(const char *pathname, int flags)
+int open(const char *pathname, int flags, ...)
 {
 
   /* 1. Look through VFS and find the node identified by pathname */

@@ -2,6 +2,7 @@
 #define __SERIAL_H
 
 #include <semaphore.h>
+#include <sys/types.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -61,6 +62,8 @@ struct uart_upper_s {
 int uart_low_init(void);
 
 int uart_low_send(char *msg);
+
+int putchar(int c);
 
 char uart_low_receive(void);
 

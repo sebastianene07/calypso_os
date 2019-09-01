@@ -1,6 +1,9 @@
 #include <board.h>
 #include <scheduler.h>
 #include <rtc.h>
+#include <vfs.h>
+#include <errno.h>
+#include <string.h>
 
 /****************************************************************************
  * Pre-Processor Definitions
@@ -29,12 +32,28 @@
 #define COMPARE_1_HZ           (8)
 
 /****************************************************************************
+ * Private Function Definitions
+ ****************************************************************************/
+
+static int rtc_open(void *priv, const char *pathname, int flags, mode_t mode);
+static int rtc_close(void *priv);
+static int rtc_read(void *priv, void *buf, size_t count);
+
+/****************************************************************************
  * Private Defintions
  ****************************************************************************/
 
 /* One tick represent 125 ms - generated from 8Hz event */
 
 static volatile uint32_t g_rtc_ticks_ms;
+
+/* Supported RTC operation */
+
+static struct vfs_ops_s g_rtc_ops = {
+  .open  = rtc_open,
+  .close = rtc_close,
+  .read  = rtc_read,
+};
 
 /****************************************************************************
  * Private Functions
@@ -55,14 +74,64 @@ static void rtc_interrupt(void)
 }
 
 /*
+ * rtc_open - open the RTC module
+ *
+ * Initialize the RTC module from LF clock
+ */
+static int rtc_open(void *priv, const char *pathname, int flags, mode_t mode)
+{
+  /* Grab an entry from the tcb FILE structure. This should be wrapped inside
+   * generic open call. */
+
+  struct opened_resource_s *res =
+    sched_allocate_resource(priv, &g_rtc_ops, mode);
+  if (res == NULL) {
+    return -ENFILE;
+  }
+
+  return res->fd;
+}
+
+static int rtc_close(void *priv)
+{
+  return 0;
+}
+
+static int rtc_read(void *priv, void *buf, size_t count)
+{
+  if (buf == NULL || count < sizeof(uint32_t))
+  {
+    return -EINVAL;
+  }
+
+  memcpy(buf, (const void *)&g_rtc_ticks_ms, sizeof(uint32_t));
+  return sizeof(uint32_t);
+}
+
+/*
+ * rtc_register - Register the RTC module
+ *
+ * Register the RTC module from LF clock
+ */
+static int rtc_register(const char *name)
+{
+  return vfs_register_node(name, strlen(name), &g_rtc_ops, VFS_TYPE_DEVICE,
+    NULL);
+}
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+/*
  * rtc_init - initiailze the RTC module
  *
  * Initialize the RTC module from LF clock
  */
 void rtc_init(void)
 {
-/* fRTC [kHz] = 32.768 / (PRESCALER + 1)
- * The PRESCALER should be 4095 for 8Hz tick - 125 ms counter period */
+  /* fRTC [kHz] = 32.768 / (PRESCALER + 1)
+   * The PRESCALER should be 4095 for 8Hz tick - 125 ms counter period */
 
   PRESCALER_CFG = PRESCALER_8_HZ;
   INTENSET_CFG  = 0x01;
@@ -73,4 +142,6 @@ void rtc_init(void)
   enable_int();
 
   TASKS_START_CFG = 1;
+
+  rtc_register("/dev/rtc0");
 }

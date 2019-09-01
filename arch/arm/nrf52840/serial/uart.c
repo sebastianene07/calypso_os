@@ -142,7 +142,7 @@ int uart_low_send(char *msg)
   UART_ENDTX            = 0;
 
   int i = 0;
-  for (msg; *msg != NULL; msg++)
+  for (msg; *msg != 0; msg++)
   {
     g_uart_tx_buffer[i] = *msg;
     i++;
@@ -166,6 +166,31 @@ int uart_low_send(char *msg)
   return 0;
 }
 
+int putchar(int c)
+{
+  sem_wait(&g_uart_sema);
+
+  UART_EVENTS_TXSTOPPED = 0;
+  UART_ENDTX            = 0;
+
+  g_uart_tx_buffer[0] = (unsigned char)c;
+
+  UART_TXD_PTR_CONFIG     = (uint32_t)g_uart_tx_buffer;
+  UART_TXD_MAXCNT_CONFIG  = sizeof(unsigned char);
+  UART_TX_START_TASK      = 1;
+
+  while (UART_ENDTX == 0);
+
+  /* Stop the UART TX */
+  UART_STOP_TX_TASK = 1;
+
+  /* Wait until we receive the stopped event */
+  while (UART_EVENTS_TXSTOPPED == 0);
+
+  UART_TX_START_TASK = 0;
+  sem_post(&g_uart_sema);
+}
+
 char uart_low_receive(void)
 {
   char c = 0;
@@ -174,29 +199,21 @@ char uart_low_receive(void)
 
 static void nrf52840_handle_rx_end(void)
 {
-if (UART_RX_AMOUNT_CFG > 0)
-{
-g_uart_low_0.index_write_rx_buffer += UART_RX_AMOUNT_CFG;
-g_uart_low_0.index_write_rx_buffer = g_uart_low_0.index_write_rx_buffer %
-UART_RX_BUFFER;
-sem_post(&g_uart_low_0.rx_notify);
-}
-UART_EVENTS_ENDRX_CFG  = 0;
-UART_TASK_START_RX_CFG = 1;
-UART_EVENTS_RXDRDY_CFG = 0;
+  if (UART_RX_AMOUNT_CFG > 0)
+  {
+    g_uart_low_0.index_write_rx_buffer += UART_RX_AMOUNT_CFG;
+    g_uart_low_0.index_write_rx_buffer = g_uart_low_0.index_write_rx_buffer %
+      UART_RX_BUFFER;
+    sem_post(&g_uart_low_0.rx_notify);
+   }
+
+  UART_EVENTS_ENDRX_CFG  = 0;
+  UART_TASK_START_RX_CFG = 1;
+  UART_EVENTS_RXDRDY_CFG = 0;
 }
 
 static void nrf52840_handle_rx_rdy(void)
 {
-#if 0
-    if (UART_RX_AMOUNT_CFG > 0)
-    {
-      g_uart_low_0.index_write_rx_buffer += UART_RX_AMOUNT_CFG;
-      g_uart_low_0.index_write_rx_buffer = g_uart_low_0.index_write_rx_buffer %
-        UART_RX_BUFFER;
-      sem_post(&g_uart_low_0.rx_notify);
-    }
-#endif
     UART_EVENTS_RXDRDY_CFG = 0;
 }
 

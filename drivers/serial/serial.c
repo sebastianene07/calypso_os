@@ -21,7 +21,7 @@ static int uart_read(void *priv, void *buf, size_t count);
  * Private Data
  ****************************************************************************/
 
-struct vfs_ops_s g_uart_ops = {
+static struct vfs_ops_s g_uart_ops = {
   .open  = uart_open,
   .close = uart_close,
   .write = uart_write,
