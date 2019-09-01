@@ -252,6 +252,7 @@ free_with_sem:
 
   /* Create and populate the new node */
 
+  new_node->parent       = current_node;
   new_node->num_children = 0;
   new_node->ops          = ops;
   new_node->priv         = priv;

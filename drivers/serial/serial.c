@@ -89,6 +89,10 @@ static int uart_read(void *priv, void *buf, size_t count)
    * this device.
    */
   struct uart_lower_s *lower = uart_up->lower;
+  if (lower == NULL)
+  {
+    return -EINVAL;
+  }
 
   do {
     uint8_t available_rx_bytes = 0;
