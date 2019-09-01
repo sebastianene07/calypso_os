@@ -3,6 +3,7 @@
 #include <semaphore.h>
 #include <serial.h>
 #include <stdlib.h>
+#include <string.h>
 #include <scheduler.h>
 
 /****************************************************************************

@@ -1,6 +1,8 @@
 #include <board.h>
 #include <serial.h>
 #include <gpio.h>
+#include <rtc.h>
+#include <scheduler.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -39,6 +41,11 @@ static uint32_t SystemCoreClock = SYSTEM_CLOCK;  /* System Core Clock Frequency 
  * Private Functions
  ****************************************************************************/
 
+/*
+ * clock_init - initialize the system low freq clock
+ *
+ * Initialize the LF clock.
+ */
 static void clock_init(void)
 {
   /* Select internal crystal osc source, no bypass */
@@ -52,10 +59,6 @@ static void clock_init(void)
   /* Wait for the started event */
 
   while (EVENTS_LFCLKSTARTED == 0x01);
-}
-
-static void rtc_init(void)
-{
 }
 
 /****************************************************************************
