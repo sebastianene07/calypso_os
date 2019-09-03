@@ -46,14 +46,13 @@ and sorting (this can be improved to O(NlogN)).
 The virtual file system contains a tree like structure with nodes that allows
 us to interract with the system resources. The current nodes are:
 
-          ```    root node
+```              root node
                     "/"
              --------------------
            |    |    |    |    |
           dev  mnt  bin  otp  home
        /   |
  ttyUSB0  rtc0
-
 ```
 
 A task contains a list of ```struct opened_resource_s``` which is essentially
