@@ -7,32 +7,97 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <errno.h>
 
 #define CONSOLE_PROMPT_STR                        "root:#/>"
 #define CONSOLE_ECHO_ON
+
+static int date(int argc, char *argv[]);
 
 /* Shutdown flag */
 
 static bool g_is_shutdown_set;
 
-/* The RTC fd */
+/* Command table */
 
-static int rtc_fd;
-
-/* The console fd */
-
-static int uart_fd;
+static console_command_entry_t g_cmd_table[] =
+{
+  { .cmd_name = "date", .cmd_function = date }
+};
 
 /*
  * date - View/Set the current time
  *
  */
-static void date(void)
+static int date(int argc, char *argv[])
 {
   uint32_t ticks = 0;
 
+  int rtc_fd = open(CONFIG_RTC_PATH, 0);
+  if (rtc_fd < 0)
+  {
+    return -EINVAL;
+  }
+
   int ret = read(rtc_fd, &ticks, sizeof(ticks));
-  printf("ticks : %u\n", &ticks);
+  if (ret < 0)
+  {
+    return ret;
+  }
+
+  printf("Ticks so far: %u\n", ticks);
+  close(rtc_fd);
+
+  return 0;
+}
+
+static int execute_command(int argc, char *argv[])
+{
+  for (int i = 0; i < argc; ++i)
+  {
+    for (int j = 0; j < ARRAY_LEN(g_cmd_table); j++)
+    {
+      if (strcmp(g_cmd_table[j].cmd_name, argv[0]) == 0)
+      {
+        return g_cmd_table[j].cmd_function(argc, argv);
+      }
+    }
+  }
+
+  printf("Unknown command: %s\n", argv[0]);
+  return -EINVAL;
+}
+
+/*
+ * parse_arguments - Parse the console arguments
+ *
+ */
+static int parse_arguments(char *buffer, size_t newline)
+{
+  buffer[newline] = 0;
+
+  char *context = NULL;
+  char *argument = NULL;
+  const char *delim = " ";
+
+  char *argv[CONFIG_CMD_BUFER_LEN];
+  int argc = 0;
+
+  argument = strtok_r(buffer, delim, &context);
+  if (argument != NULL)
+  {
+    argv[argc++] = argument;
+  }
+
+  while ((argument = strtok_r(NULL, delim, &context)) != NULL)
+  {
+    if (strlen(argument) > 0)
+    {
+      argv[argc++] = argument;
+    }
+  }
+
+  return execute_command(argc, argv);
 }
 
 /*
@@ -42,14 +107,8 @@ static void date(void)
 void console_main(void)
 {
   char cmd_buffer[CONFIG_CMD_BUFER_LEN]={0};
-  uart_fd = open(CONFIG_CONSOLE_UART_PATH, 0);
+  int uart_fd = open(CONFIG_CONSOLE_UART_PATH, 0);
   if (uart_fd < 0)
-  {
-    return;
-  }
-
-  rtc_fd = open(CONFIG_RTC_PATH, 0);
-  if (rtc_fd < 0)
   {
     return;
   }
@@ -86,7 +145,11 @@ void console_main(void)
     {
       write(uart_fd, "\r\n", 2);
       is_prompt_printed = true;
-      date();
+      if (len > 1)
+      {
+        parse_arguments(cmd_buffer, len - 1);
+      }
+      len = 0;
     }
     else
     {
