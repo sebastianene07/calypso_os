@@ -29,6 +29,18 @@ static console_command_entry_t g_cmd_table[] =
 
 #ifdef CONFIG_CONSOLE_DATE_ON
 
+#define SEC_OFFSET  (2)
+#define MIN_OFFSET  (1)
+#define HOUR_OFFSET (0)
+
+/* The clock that will be shown hh:min:sec */
+static uint8_t g_clock[3];
+
+/* The set clock hh:min:sec (offset) */
+static uint8_t g_clock_offset[3];
+
+static uint32_t tick_offset;
+
 /*
  * date - View/Set the current time
  *
@@ -49,7 +61,27 @@ static int date(int argc, char *argv[])
     return ret;
   }
 
+  if (argc == 2 && !strcmp(argv[1], "set"))
+  {
+    /* expected hour input in this format hour:min:sec */
+
+    tick_offset = ticks;
+    g_clock_offset[SEC_OFFSET] = 0;
+    g_clock_offset[MIN_OFFSET] = 25;
+    g_clock_offset[HOUR_OFFSET] = 8;
+  }
+
+  uint32_t seconds = (ticks - tick_offset) >> 3;
+  uint32_t minutes = seconds / 60;
+  uint32_t hour = minutes / 60;
+
+  g_clock[SEC_OFFSET] = seconds % 60 + g_clock_offset[SEC_OFFSET];
+  g_clock[MIN_OFFSET] = minutes % 60 + g_clock_offset[MIN_OFFSET];
+  g_clock[HOUR_OFFSET] = hour % 24 + g_clock_offset[HOUR_OFFSET];
+
   printf("Ticks so far: %u\n", ticks);
+  printf("%02u : %02u : %02u\n", g_clock[HOUR_OFFSET], g_clock[MIN_OFFSET],
+    g_clock[SEC_OFFSET]);
   close(rtc_fd);
 
   return 0;
