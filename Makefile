@@ -40,7 +40,7 @@ all: create_board_file
 create_board_file:
 	cp arch/*/$(MACHINE_TYPE)/include/*.h include/.
 	echo "#ifndef __BOARD_CFG_H\n#define __BOARD_CFG_H" > include/board_cfg.h
-	cat .config | awk '/CONFIG_/ {print}' | awk -F: '{st=index($$0, "="); print "#define "substr($$0, 0, st - 1) " " substr($$0, st + 1, length($$0))}' >> include/board_cfg.h
+	cat .config | tail -n +4 | sed 's/^/#define /' | sed 's/=/ /' >> include/board_cfg.h
 	echo "#endif /* __BOARD_CFG_H */" >> include/board_cfg.h
 
 load:
