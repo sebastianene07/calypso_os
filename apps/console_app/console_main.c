@@ -1,3 +1,4 @@
+#include <board.h>
 #include <console_main.h>
 
 #include <sys/types.h>
@@ -9,10 +10,9 @@
 #include <stdbool.h>
 #include <errno.h>
 
-#define CONSOLE_PROMPT_STR                        "root:#/>"
-#define CONSOLE_ECHO_ON
-
+#ifdef CONFIG_CONSOLE_DATE_ON
 static int date(int argc, char *argv[]);
+#endif
 
 /* Shutdown flag */
 
@@ -22,8 +22,12 @@ static bool g_is_shutdown_set;
 
 static console_command_entry_t g_cmd_table[] =
 {
+#ifdef CONFIG_CONSOLE_DATE_ON
   { .cmd_name = "date", .cmd_function = date }
+#endif
 };
+
+#ifdef CONFIG_CONSOLE_DATE_ON
 
 /*
  * date - View/Set the current time
@@ -50,6 +54,7 @@ static int date(int argc, char *argv[])
 
   return 0;
 }
+#endif
 
 static int execute_command(int argc, char *argv[])
 {
@@ -121,7 +126,7 @@ void console_main(void)
 
     if (is_prompt_printed)
     {
-      write(uart_fd, CONSOLE_PROMPT_STR, strlen(CONSOLE_PROMPT_STR));
+      write(uart_fd, CONFIG_CONSOLE_PROMPT_STR, strlen(CONFIG_CONSOLE_PROMPT_STR));
       is_prompt_printed = false;
     }
 
@@ -138,7 +143,7 @@ void console_main(void)
 
     /* If the character was a terminator interpret the command */
 
-#ifdef CONSOLE_ECHO_ON
+#ifdef CONFIG_CONSOLE_ECHO_ON
     /* Is echo on ? */
 
     if (*(cmd_buffer + len - 1) == '\r')
@@ -155,7 +160,7 @@ void console_main(void)
     {
       write(uart_fd, cmd_buffer + len - 1, 1);
     }
-#endif /* CONSOLE_ECHO_ON */
+#endif /* CONFIG_CONSOLE_ECHO_ON */
 
   } while (g_is_shutdown_set);
 

@@ -5,14 +5,6 @@
 
 #define CONFIG_CONSOLE_STACK_SIZE       (2048)
 
-/* Uart console path */
-
-#define CONFIG_CONSOLE_UART_PATH        "/dev/ttyUSB0"
-
-/* RTC device path */
-
-#define CONFIG_RTC_PATH                 "/dev/rtc0"
-
 /* Buffer size for commands */
 
 #define CONFIG_CMD_BUFER_LEN            (80)
