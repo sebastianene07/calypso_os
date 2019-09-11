@@ -29,15 +29,18 @@ static console_command_entry_t g_cmd_table[] =
 
 #ifdef CONFIG_CONSOLE_DATE_ON
 
-#define SEC_OFFSET  (2)
-#define MIN_OFFSET  (1)
-#define HOUR_OFFSET (0)
+#define SEC_OFFSET              (2)
+#define MIN_OFFSET              (1)
+#define HOUR_OFFSET             (0)
+
+/* Num args for date set command */
+#define NUM_ARGS_DATE_SET       (3)
 
 /* The clock that will be shown hh:min:sec */
 static uint8_t g_clock[3];
 
 /* The set clock hh:min:sec (offset) */
-static uint8_t g_clock_offset[3];
+static uint32_t g_clock_offset[3];
 
 static uint32_t tick_offset;
 
@@ -61,14 +64,14 @@ static int date(int argc, char *argv[])
     return ret;
   }
 
-  if (argc == 2 && !strcmp(argv[1], "set"))
+  if (argc == NUM_ARGS_DATE_SET && !strcmp(argv[1], "set"))
   {
     /* expected hour input in this format hour:min:sec */
-
     tick_offset = ticks;
-    g_clock_offset[SEC_OFFSET] = 0;
-    g_clock_offset[MIN_OFFSET] = 25;
-    g_clock_offset[HOUR_OFFSET] = 8;
+
+    sscanf(argv[2], "%d:%d:%d", &g_clock_offset[HOUR_OFFSET],
+                                &g_clock_offset[MIN_OFFSET],
+                                &g_clock_offset[SEC_OFFSET]);
   }
 
   uint32_t seconds = (ticks - tick_offset) >> 3;
@@ -86,7 +89,7 @@ static int date(int argc, char *argv[])
 
   return 0;
 }
-#endif
+#endif /* CONFIG_CONSOLE_DATE_ON */
 
 static int execute_command(int argc, char *argv[])
 {

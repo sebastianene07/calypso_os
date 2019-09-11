@@ -83,4 +83,23 @@ char *strtok_r(char *str, const char *delim, char **saveptr);
 int strcmp(const char *s1, const char *s2);
 
 int strncmp(const char *s1, const char *s2, size_t n);
+
+/*
+ * strchr - get the address of the next give character
+ *
+ * @s  - the content of the string
+ * @c  - the character to look for
+ *
+ */
+char *strchr(const char *s, int c);
+
+/*
+ * strncpy - at most n bytes of src are copied
+ *
+ * @dest
+ * @src
+ * @n
+ */
+char *strncpy(char *dest, const char *src, size_t n);
+
 #endif /* __STRING_H */

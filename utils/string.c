@@ -188,3 +188,45 @@ int strncmp(const char *s1, const char *s2, size_t n)
     return ( *(unsigned char *)s1 - *(unsigned char *)s2 );
   }
 }
+
+/*
+ * strchr - get the address of the next give character
+ *
+ * @s  - the content of the string
+ * @c  - the character to look for
+ *
+ */
+char *strchr(const char *s, int c)
+{
+  while (*s != '\0' && *s != c) s++;
+  return (char *)s;
+}
+
+/*
+ * strncpy - at most n bytes of src are copied
+ *
+ * @dest
+ * @src
+ * @n
+ */
+char *strncpy(char *dest, const char *src, size_t n)
+{
+  int is_src_terminated = 0;
+
+  for (int i = 0; i < n; i++)
+  {
+    if (!is_src_terminated && *(src + i) == '\0')
+    {
+      is_src_terminated = 1;
+    }
+
+    if (is_src_terminated)
+    {
+      *(dest + i) = '\0';
+    }
+    else
+    {
+      *(dest + i) = *(src + i);
+    }
+  }
+}
