@@ -297,5 +297,8 @@ static inline void NVIC_TriggerSysTick(void)
   SCB->ICSR |= SCB_ICSR_SYSTICKSET_Msk;
 }
 
-
+static inline void __WFI(void)
+{
+  __asm volatile ("wfi");
+}
 #endif /* __NRF52840_H */

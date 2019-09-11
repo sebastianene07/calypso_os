@@ -82,8 +82,7 @@ static int date(int argc, char *argv[])
   g_clock[MIN_OFFSET] = minutes % 60 + g_clock_offset[MIN_OFFSET];
   g_clock[HOUR_OFFSET] = hour % 24 + g_clock_offset[HOUR_OFFSET];
 
-  printf("Ticks so far: %u\n", ticks);
-  printf("%02u : %02u : %02u\n", g_clock[HOUR_OFFSET], g_clock[MIN_OFFSET],
+  printf("Local time: %02u : %02u : %02u\n", g_clock[HOUR_OFFSET], g_clock[MIN_OFFSET],
     g_clock[SEC_OFFSET]);
   close(rtc_fd);
 
