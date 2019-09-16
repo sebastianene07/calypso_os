@@ -78,9 +78,9 @@ static int date(int argc, char *argv[])
   uint32_t minutes = seconds / 60;
   uint32_t hour = minutes / 60;
 
-  g_clock[SEC_OFFSET] = seconds % 60 + g_clock_offset[SEC_OFFSET];
-  g_clock[MIN_OFFSET] = minutes % 60 + g_clock_offset[MIN_OFFSET];
-  g_clock[HOUR_OFFSET] = hour % 24 + g_clock_offset[HOUR_OFFSET];
+  g_clock[SEC_OFFSET] = (seconds + g_clock_offset[SEC_OFFSET]) % 60;
+  g_clock[MIN_OFFSET] = (minutes + g_clock_offset[MIN_OFFSET]) % 60;
+  g_clock[HOUR_OFFSET] = (hour + g_clock_offset[HOUR_OFFSET]) % 24;
 
   printf("Local time: %02u : %02u : %02u\n", g_clock[HOUR_OFFSET], g_clock[MIN_OFFSET],
     g_clock[SEC_OFFSET]);
