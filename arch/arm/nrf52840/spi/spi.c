@@ -43,58 +43,38 @@
 
 #define SPI_REG_SET(BASE, OFFSET) (*(uint32_t *)((BASE) + (OFFSET)))
 
-static uint8_t* g_spi_peripherals[] =
-{
-  (uint8_t *)SPI_M0_BASE,
-};
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
 
-void spi_initialize(void)
-{
-}
 
-int spi_configure(spi_master_config_t *cfg, uint8_t peripheral_id)
+/*
+ * spi_configure_pins - pin configuration function
+ *
+ * @cfg - pointer to the configuration structure
+ * @base_spi_ptr - the base address of the SPI peripheral
+ *
+ */
+static void spi_configure_pins(spi_master_config_t *cfg, uint32_t base_spi_ptr)
 {
-  if (peripheral_id > ARRAY_LEN(g_spi_peripherals) ||
-      cfg == NULL)
-  {
-    return -1;
-  }
-
-  if (cfg->sck_pin != INVALID_SPI_CFG &&
-      cfg->sck_port != INVALID_SPI_CFG)
-  {
     /* Set the master SPI SCK pin */
 
-    SPI_REG_SET(SPI_M0_BASE, PSEL_SCK) = cfg->sck_pin | (cfg->sck_port << 5);
-  }
-
-  if (cfg->mosi_pin != INVALID_SPI_CFG &&
-      cfg->mosi_port != INVALID_SPI_CFG)
-  {
+    SPI_REG_SET(base_spi_ptr, PSEL_SCK) = cfg->sck_pin | (cfg->sck_port << 5);
     /* Set the master MOSI pin */
 
-    SPI_REG_SET(SPI_M0_BASE, PSEL_MOSI) = cfg->mosi_pin | (cfg->mosi_port << 5);
-  }
+    SPI_REG_SET(base_spi_ptr, PSEL_MOSI) = cfg->mosi_pin | (cfg->mosi_port << 5);
 
-  if (cfg->miso_pin != INVALID_SPI_CFG &&
-      cfg->miso_port != INVALID_SPI_CFG)
-  {
     /* Set the master MOSI pin */
 
-    SPI_REG_SET(SPI_M0_BASE, PSEL_MISO) = cfg->miso_pin | (cfg->miso_port << 5);
-  }
+    SPI_REG_SET(base_spi_ptr, PSEL_MISO) = cfg->miso_pin | (cfg->miso_port << 5);
 
-  if (cfg->cs_pin != INVALID_SPI_CFG &&
-      cfg->cs_port != INVALID_SPI_CFG)
-  {
     /* Set the master chip select pin */
 
-    SPI_REG_SET(SPI_M0_BASE, PSEL_CSN) = cfg->cs_pin | (cfg->cs_port << 5);
-  }
+    SPI_REG_SET(base_spi_ptr, PSEL_CSN) = cfg->cs_pin | (cfg->cs_port << 5);
 
   /* Select SPI MODE */
 
-  SPI_REG_SET(SPI_M0_BASE, CONFIG)    = cfg->mode;
+  SPI_REG_SET(base_spi_ptr, CONFIG)    = cfg->mode;
 
   uint32_t freq_cfg = 0x00;
   switch (cfg->freq)
@@ -129,15 +109,49 @@ int spi_configure(spi_master_config_t *cfg, uint8_t peripheral_id)
       break;
   }
 
-  SPI_REG_SET(SPI_M0_BASE, FREQUENCY) = freq_cfg;
-  SPI_REG_SET(SPI_M0_BASE, ENABLE)     = 7;
+  SPI_REG_SET(base_spi_ptr, FREQUENCY) = freq_cfg;
+  SPI_REG_SET(base_spi_ptr, ENABLE)    = 7;
 }
 
-#define SPI_TX_BUF_SIZXE (2)
-static uint8_t g_rx_spi_buffer[SPI_TX_BUF_SIZXE];
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
 
+/*
+ * spi_init - entry point for the SPI initialization
+ *
+ * This function is called by the board initialization logic
+ * to configure the SPI peripheral on the board.
+ *
+ */
+void spi_init(void)
+{
+  /* Pin configuration : SPI 0 */
+
+  spi_master_config_t spi_0_cfg = {
+    .miso_pin  = CONFIG_SPI_0_MISO_PIN,
+    .miso_port = CONFIG_SPI_0_MISO_PORT,
+
+    .mosi_pin  = CONFIG_SPI_0_MOSI_PIN,
+    .mosi_port = CONFIG_SPI_0_MOSI_PORT,
+
+    .sck_pin   = CONFIG_SPI_0_SCK_PIN,
+    .sck_port  = CONFIG_SPI_0_SCK_PORT,
+
+    .cs_pin    = CONFIG_SPI_0_CS_PIN,
+    .cs_port   = CONFIG_SPI_0_CS_PORT,
+  };
+
+  spi_configure_pins(&spi_0_cfg, SPI_M0_BASE);
+}
+
+/*
+ * spi_send - 
+ *
+ */
 void spi_send(void *data, uint32_t len)
 {
+#if 0
   SPI_REG_SET(SPI_M0_BASE, EVENTS_ENDTX) = 0;
   SPI_REG_SET(SPI_M0_BASE, RXD_PTR)    = (uint32_t)&g_rx_spi_buffer[0];
   SPI_REG_SET(SPI_M0_BASE, RXD_MAXCNT) = 0;
@@ -149,4 +163,5 @@ void spi_send(void *data, uint32_t len)
   while (SPI_REG_SET(SPI_M0_BASE, EVENTS_ENDTX) == 0);
 
   SPI_REG_SET(SPI_M0_BASE, TASKS_START) = 0;
+#endif
 }

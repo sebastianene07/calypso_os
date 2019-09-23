@@ -76,6 +76,7 @@ void board_init(void)
 
   clock_init();
   rtc_init();
+  spi_init();
 
   uart_low_init();
   uart_low_send("\r\n.");
