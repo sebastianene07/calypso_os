@@ -7,4 +7,12 @@
 #define CONFIG_CONSOLE_DATE_ON y
 #define CONFIG_CONSOLE_UART_PATH "/dev/ttyUSB0"
 #define CONFIG_RTC_PATH "/dev/rtc0"
+#define CONFIG_SPI_0_MISO_PIN (0)
+#define CONFIG_SPI_0_MISO_PORT (0)
+#define CONFIG_SPI_0_MOSI_PIN (1)
+#define CONFIG_SPI_0_MOSI_PORT (0)
+#define CONFIG_SPI_0_SCK_PIN (2)
+#define CONFIG_SPI_0_SCK_PORT (0)
+#define CONFIG_SPI_0_CS_PIN (3)
+#define CONFIG_SPI_0_CS_PORT (0)
 #endif /* __BOARD_CFG_H */

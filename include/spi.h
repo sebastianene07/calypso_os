@@ -34,25 +34,23 @@ typedef enum spi_mode_e
 
 typedef struct spi_master_config_s
 {
-  uint32_t miso_pin;
-  uint32_t miso_port;
+  uint8_t miso_pin;
+  uint8_t miso_port;
 
-  uint32_t mosi_pin;
-  uint32_t mosi_port;
+  uint8_t mosi_pin;
+  uint8_t mosi_port;
 
-  uint32_t sck_pin;
-  uint32_t sck_port;
+  uint8_t sck_pin;
+  uint8_t sck_port;
 
-  uint32_t cs_pin;
-  uint32_t cs_port;
+  uint8_t cs_pin;
+  uint8_t cs_port;
 
   spi_frequency_t freq;
   spi_mode_t mode;
 } spi_master_config_t;
 
-void spi_initialize(void);
-
-int spi_configure(spi_master_config_t *cfg, uint8_t peripheral_id);
+void spi_init(void);
 
 void spi_send(void *data, uint32_t len);
 
