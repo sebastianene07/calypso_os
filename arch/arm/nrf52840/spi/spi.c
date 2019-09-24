@@ -17,7 +17,7 @@
  */
 
 #include <spi.h>
-#include <board.h>
+#include <string.h>
 #include <stdlib.h>
 
 /****************************************************************************
@@ -64,6 +64,12 @@
 /* Helper macro */
 
 #define SPI_REG_SET(BASE, OFFSET) (*(uint32_t *)((BASE) + (OFFSET)))
+
+/****************************************************************************
+ * Private Function Prototypes
+ ****************************************************************************/
+
+static void spi_send(spi_master_dev_t *dev, const void *data, size_t len);
 
 /****************************************************************************
  * Private Functions
@@ -147,9 +153,15 @@ static void spi_configure_pins(spi_master_config_t *cfg, uint32_t base_spi_ptr)
  */
 void spi_init(void)
 {
+  static spi_master_dev_t spi_0 = {0};
+  spi_0.priv = (void *)SPI_M0_BASE;
+
+  sem_init(&spi_0.notify_rx_avail, 0, 0);
+  sem_init(&spi_0.lock_device, 0, 1); 
+
   /* Pin configuration : SPI 0 */
 
-  spi_master_config_t spi_0_cfg = {
+  spi_0.dev_cfg = (struct spi_master_config_s) {
     .miso_pin  = CONFIG_SPI_0_MISO_PIN,
     .miso_port = CONFIG_SPI_0_MISO_PORT,
 
@@ -163,26 +175,37 @@ void spi_init(void)
     .cs_port   = CONFIG_SPI_0_CS_PORT,
   };
 
-  spi_configure_pins(&spi_0_cfg, SPI_M0_BASE);
+  spi_configure_pins(&spi_0.dev_cfg, SPI_M0_BASE);
 }
 
 /*
- * spi_send - 
+ * spi_send - sends data on the SPI bus 
  *
+ * @dev  - the master device that initiates the transfer
+ * @data - the data to send
+ * @len  - the length of the data beeing sent
+ *
+ * This function configures the SPIm peripheral to send a chunk of data.
  */
-void spi_send(void *data, uint32_t len)
+static void spi_send(spi_master_dev_t *dev, const void *data, size_t len)
 {
-#if 0
-  SPI_REG_SET(SPI_M0_BASE, EVENTS_ENDTX) = 0;
-  SPI_REG_SET(SPI_M0_BASE, RXD_PTR)    = (uint32_t)&g_rx_spi_buffer[0];
-  SPI_REG_SET(SPI_M0_BASE, RXD_MAXCNT) = 0;
-  SPI_REG_SET(SPI_M0_BASE, TXD_PTR)    = (uint32_t)data;
-  SPI_REG_SET(SPI_M0_BASE, TXD_MAXCNT) = len;
-  SPI_REG_SET(SPI_M0_BASE, ORC)        = 0;
-  SPI_REG_SET(SPI_M0_BASE, TASKS_START) = 1;
+  uint32_t base_spi_reg = (uint32_t)dev->priv;
 
-  while (SPI_REG_SET(SPI_M0_BASE, EVENTS_ENDTX) == 0);
+  sem_wait(&dev->lock_device);
 
-  SPI_REG_SET(SPI_M0_BASE, TASKS_START) = 0;
-#endif
+  memcpy(dev->tx_spi_buffer, data, len);
+
+  SPI_REG_SET(base_spi_reg, EVENTS_ENDTX) = 0;
+  SPI_REG_SET(base_spi_reg, RXD_PTR)    = (uint32_t)dev->rx_spi_buffer;
+  SPI_REG_SET(base_spi_reg, RXD_MAXCNT) = 0;
+  SPI_REG_SET(base_spi_reg, TXD_PTR)    = (uint32_t)dev->tx_spi_buffer;
+  SPI_REG_SET(base_spi_reg, TXD_MAXCNT) = len;
+  SPI_REG_SET(base_spi_reg, ORC)        = 0;
+  SPI_REG_SET(base_spi_reg, TASKS_START) = 1;
+
+  while (SPI_REG_SET(base_spi_reg, EVENTS_ENDTX) == 0);
+
+  SPI_REG_SET(base_spi_reg, TASKS_START) = 0;
+
+  sem_post(&dev->lock_device);
 }

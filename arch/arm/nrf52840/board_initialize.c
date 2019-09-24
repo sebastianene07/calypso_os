@@ -1,4 +1,5 @@
 #include <board.h>
+#include <spi.h>
 #include <serial.h>
 #include <gpio.h>
 #include <rtc.h>
