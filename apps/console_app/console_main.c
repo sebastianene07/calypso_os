@@ -11,7 +11,7 @@
 #include <errno.h>
 
 #ifdef CONFIG_CONSOLE_DATE_ON
-static int date(int argc, char *argv[]);
+static int date(int argc, const char *argv[]);
 #endif
 
 /* Shutdown flag */
@@ -48,7 +48,7 @@ static uint32_t tick_offset;
  * date - View/Set the current time
  *
  */
-static int date(int argc, char *argv[])
+static int date(int argc, const char *argv[])
 {
   uint32_t ticks = 0;
 
@@ -90,7 +90,7 @@ static int date(int argc, char *argv[])
 }
 #endif /* CONFIG_CONSOLE_DATE_ON */
 
-static int execute_command(int argc, char *argv[])
+static int execute_command(int argc, const char *argv[])
 {
   for (int i = 0; i < argc; ++i)
   {
@@ -119,7 +119,7 @@ static int parse_arguments(char *buffer, size_t newline)
   char *argument = NULL;
   const char *delim = " ";
 
-  char *argv[CONFIG_CMD_BUFER_LEN];
+  const char *argv[CONFIG_CMD_BUFER_LEN];
   int argc = 0;
 
   argument = strtok_r(buffer, delim, &context);

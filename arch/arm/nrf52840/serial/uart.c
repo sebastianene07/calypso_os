@@ -83,7 +83,7 @@
  * Private Functions Definition
  ****************************************************************************/
 
-static int nrf52840_lpuart_open(struct uart_lower_s *lower);
+static int nrf52840_lpuart_open(const struct uart_lower_s *lower);
 static int nrf52840_lpuart_write(const struct uart_lower_s *lower,
                                  const void *ptr_data,
                                  unsigned int sz);
@@ -262,7 +262,7 @@ static void nrf52840_lpuart_int(void)
   }
 }
 
-static int nrf52840_lpuart_open(struct uart_lower_s *lower)
+static int nrf52840_lpuart_open(const struct uart_lower_s *lower)
 {
   /* Initialize the semaphore */
 
