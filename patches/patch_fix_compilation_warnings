@@ -1,0 +1,32 @@
+diff --git a/source/diskio.c b/source/diskio.c
+index a0d49e4..89bfe40 100644
+--- a/source/diskio.c
++++ b/source/diskio.c
+@@ -11,10 +11,23 @@
+ #include "diskio.h"		/* Declarations of disk functions */
+ 
+ /* Definitions of physical drive number for each drive */
+-#define DEV_RAM		0	/* Example: Map Ramdisk to physical drive 0 */
+-#define DEV_MMC		1	/* Example: Map MMC/SD card to physical drive 1 */
+-#define DEV_USB		2	/* Example: Map USB MSD to physical drive 2 */
+-
++#define DEV_RAM		(0)	/* Example: Map Ramdisk to physical drive 0 */
++#define DEV_MMC		(1)	/* Example: Map MMC/SD card to physical drive 1 */
++#define DEV_USB		(2)	/* Example: Map USB MSD to physical drive 2 */
++
++#define DEVICE_FUNCTION(name)               \
++\
++  DSTATUS name ##_## disk_initialize(void);     \
++  DSTATUS name ##_## disk_status(void);         \
++  DSTATUS name ##_## disk_read(BYTE *buff, DWORD sector, BYTE count);        \
++  DSTATUS name ##_## disk_write(const BYTE *buff, DWORD sector, BYTE count); \
++  DSTATUS name ##_## disk_ioctl(BYTE ctrl, void *buff); \
++
++  
++
++DEVICE_FUNCTION(RAM)
++DEVICE_FUNCTION(MMC)
++DEVICE_FUNCTION(USB)
+ 
+ /*-----------------------------------------------------------------------*/
+ /* Get Drive Status                                                      */
