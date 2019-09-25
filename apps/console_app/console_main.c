@@ -9,7 +9,10 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <errno.h>
+
+#ifdef CONFIG_CONSOLE_TEST_DISPLAY
 #include <../drivers/display/ssd_1331.h>
+#endif
 
 #ifdef CONFIG_CONSOLE_DATE_ON
 static int date(int argc, const char *argv[]);
@@ -99,7 +102,6 @@ static int date(int argc, const char *argv[])
 #endif /* CONFIG_CONSOLE_DATE_ON */
 
 #ifdef CONFIG_CONSOLE_TEST_DISPLAY
-
 static Color get_color_from_name(const char *color_name)
 {
   if (!strcmp("BLACK", color_name))
@@ -128,6 +130,28 @@ static Color get_color_from_name(const char *color_name)
     return COLOR_PURPLE;
 } 
 
+static DisplayPower get_power_from_name(const char *power_name)
+{
+  if (!strcmp("DIM", power_name))
+    return DimMode;
+  else if (!strcmp("SLEEP", power_name))
+    return SleepMode;
+  else 
+    return NormalMode;
+}
+
+static DisplayMode get_mode_from_name(const char *mode_name)
+{
+  if (!strcmp("NORMAL", mode_name))
+    return NormalDisplay;
+  else if (!strcmp("ON", mode_name))
+    return DisplayOn;
+  else if (!strcmp("OFF", mode_name)) 
+    return DisplayOff;
+  else
+    return InverseDisplay;
+}
+
 /*
  * display - Test the SSD1331 display functionality 
  *
@@ -148,13 +172,50 @@ static int display(int argc, const char *argv[])
       else
       {
         printf("Wrong command: display frame <frame_color> <fill_color>\n"
-               "{BLACK | GREY | WHITE | RED | PINK | YELLOW | GOLDEN | BROWN | BLUE | CYAN | GREEN | PURPLE}\n");
+               "{BLACK | GREY | WHITE | RED | PINK | YELLOW | GOLDEN" 
+               "| BROWN | BLUE | CYAN | GREEN | PURPLE}\n");
+      }
+    }
+    else if (strcmp(argv[1], "clear") == 0)
+    {
+      ssd1331_display_clearWindow(0, 0, RGB_OLED_WIDTH, RGB_OLED_HEIGHT);
+    }
+    else if (strcmp(argv[1], "dim") == 0)
+    {
+      ssd1331_display_dimWindow(0, 0, RGB_OLED_WIDTH, RGB_OLED_HEIGHT);
+    }
+    else if (strcmp(argv[1], "mode") == 0)
+    {
+      if (argc == 3)
+      {
+        ssd1331_display_setDisplayMode(get_mode_from_name(argv[2]));
+      }
+      else
+      {
+        printf("Wrong command: display mode <mode_name>\r\n"
+               "{ NORMAL | ON | OFF | INVERT }\r\n");
+      }
+    }
+    else if (strcmp(argv[1], "power") == 0)
+    {
+      if (argc == 3)
+      {
+        ssd1331_display_setDisplayPower(get_power_from_name(argv[2]));
+      }
+      else
+      {
+        printf("Wrong command: display power <power_mode>\r\n"
+               "{ DIM | SLEEP | NORMAL }\r\n");
       }
     }
   }
   else
   {
-    printf("Supported operations are:\r\n""display frame <frame_color> <fill_color>\r\n");
+    printf("Supported operations are:\r\n""display frame <frame_color> <fill_color>\r\n"
+        "display clear\r\n"
+        "display dim\r\n"
+        "display mode <mode_name>\r\n"
+        "display power <power_mode>\r\n");
   }
 
   return 0;
