@@ -14,6 +14,10 @@
 static int date(int argc, const char *argv[]);
 #endif
 
+#ifdef CONFIG_CONSOLE_TEST_DISPLAY
+int display(int argc, const char *argv[]);
+#endif
+
 /* Shutdown flag */
 
 static bool g_is_shutdown_set;
@@ -23,7 +27,10 @@ static bool g_is_shutdown_set;
 static console_command_entry_t g_cmd_table[] =
 {
 #ifdef CONFIG_CONSOLE_DATE_ON
-  { .cmd_name = "date", .cmd_function = date }
+  { .cmd_name = "date", .cmd_function = date },
+#endif
+#ifdef CONFIG_CONSOLE_TEST_DISPLAY
+  { .cmd_name = "display", .cmd_function = display }
 #endif
 };
 

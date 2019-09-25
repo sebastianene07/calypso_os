@@ -5,6 +5,7 @@
 #define CONFIG_CONSOLE_PROMPT_STR "root:#/>"
 #define CONFIG_CONSOLE_ECHO_ON y
 #define CONFIG_CONSOLE_DATE_ON y
+#define CONFIG_CONSOLE_TEST_DISPLAY y
 #define CONFIG_CONSOLE_UART_PATH "/dev/ttyUSB0"
 #define CONFIG_RTC_PATH "/dev/rtc0"
 #define CONFIG_SPI_0_MISO_PIN (30)
@@ -16,4 +17,6 @@
 #define CONFIG_SPI_0_CS_PIN (31)
 #define CONFIG_SPI_0_CS_PORT (0)
 #define CONFIG_SPI_BUFFER_LEN (12)
+#define CONFIG_DISPLAY_DC_PIN (3)
+#define CONFIG_DISPLAY_DC_PORT (0)
 #endif /* __BOARD_CFG_H */

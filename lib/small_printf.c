@@ -190,6 +190,12 @@ int printf(const char *format, ...)
 	return print(0, varg);
 }
 
+int puts(const char *format)
+{
+	register int *varg = (int *)(&format);
+	return print(0, varg);
+}
+
 int sprintf(char *out, const char *format, ...)
 {
 	register int *varg = (int *)(&format);

@@ -148,20 +148,26 @@ static void spi_configure_pins(spi_master_config_t *cfg, uint32_t base_spi_ptr)
  * spi_init - entry point for the SPI initialization
  *
  * This function is called by the board initialization logic
- * to configure the SPI peripheral on the board.
+ * to configure the SPI peripheral on the board and it returns
+ * a pointer to the initialized SPI devices.
  *
  */
-void spi_init(void)
+spi_master_dev_t *spi_init(void)
 {
-  static spi_master_dev_t spi_0 = {0};
-  spi_0.priv = (void *)SPI_M0_BASE;
+  spi_master_dev_t *spi = calloc(1, sizeof(spi_master_dev_t));
+  if (spi == NULL)
+  {
+    return NULL;
+  }
 
-  sem_init(&spi_0.notify_rx_avail, 0, 0);
-  sem_init(&spi_0.lock_device, 0, 1); 
+  spi->priv = (void *)SPI_M0_BASE;
+
+  sem_init(&spi->notify_rx_avail, 0, 0);
+  sem_init(&spi->lock_device, 0, 1); 
 
   /* Pin configuration : SPI 0 */
 
-  spi_0.dev_cfg = (struct spi_master_config_s) {
+  spi->dev_cfg = (struct spi_master_config_s) {
     .miso_pin  = CONFIG_SPI_0_MISO_PIN,
     .miso_port = CONFIG_SPI_0_MISO_PORT,
 
@@ -178,12 +184,8 @@ void spi_init(void)
     .mode      = SPI_M_MODE_0, 
   };
 
-  spi_configure_pins(&spi_0.dev_cfg, SPI_M0_BASE);
-
-  uint8_t test_data[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF};
-  while (1) {
-    spi_send_recv(&spi_0, test_data, sizeof(test_data), NULL, 0);
-  }
+  spi_configure_pins(&spi->dev_cfg, SPI_M0_BASE);
+  return spi;
 }
 
 /*
@@ -204,24 +206,34 @@ void spi_send_recv(spi_master_dev_t *dev, const void *data, size_t len, void *da
 
   sem_wait(&dev->lock_device);
 
-  memcpy(dev->tx_spi_buffer, data, len);
+  do {
 
-  SPI_REG_SET(base_spi_reg, EVENTS_STARTED) = 0;
-  SPI_REG_SET(base_spi_reg, EVENTS_END) = 0;
-  SPI_REG_SET(base_spi_reg, RXD_PTR)    = (uint32_t)dev->rx_spi_buffer;
-  SPI_REG_SET(base_spi_reg, RXD_MAXCNT) = rx_data;
-  SPI_REG_SET(base_spi_reg, TXD_PTR)    = (uint32_t)dev->tx_spi_buffer;
-  SPI_REG_SET(base_spi_reg, TXD_MAXCNT) = len;
-  SPI_REG_SET(base_spi_reg, ORC)        = 0;
-  SPI_REG_SET(base_spi_reg, TASKS_START) = 1;
+    size_t tx_data_to_send = len > CONFIG_SPI_BUFFER_LEN ? CONFIG_SPI_BUFFER_LEN : len;
 
-  while (SPI_REG_SET(base_spi_reg, EVENTS_STARTED) == 0) { }
+    memcpy(dev->tx_spi_buffer, data, tx_data_to_send);
 
-  while (SPI_REG_SET(base_spi_reg, EVENTS_END) == 0) { }
+    SPI_REG_SET(base_spi_reg, EVENTS_STARTED) = 0;
+    SPI_REG_SET(base_spi_reg, EVENTS_END) = 0;
+    SPI_REG_SET(base_spi_reg, RXD_PTR)    = (uint32_t)dev->rx_spi_buffer;
+    SPI_REG_SET(base_spi_reg, RXD_MAXCNT) = rx_data;
+    SPI_REG_SET(base_spi_reg, TXD_PTR)    = (uint32_t)dev->tx_spi_buffer;
+    SPI_REG_SET(base_spi_reg, TXD_MAXCNT) = tx_data_to_send;
+    SPI_REG_SET(base_spi_reg, ORC)        = 0;
+    SPI_REG_SET(base_spi_reg, TASKS_START) = 1;
 
-  SPI_REG_SET(base_spi_reg, TASKS_START) = 0;
+    while (SPI_REG_SET(base_spi_reg, EVENTS_STARTED) == 0) { }
 
-  if (data_rx != NULL && len_rx > 0)
-    memcpy(data_rx, dev->rx_spi_buffer, len_rx);
+    while (SPI_REG_SET(base_spi_reg, EVENTS_END) == 0) { }
+
+    SPI_REG_SET(base_spi_reg, TASKS_START) = 0;
+
+    if (data_rx != NULL && len_rx > 0)
+      memcpy(data_rx, dev->rx_spi_buffer, len_rx);
+
+    len -= tx_data_to_send;
+    data += tx_data_to_send;
+
+  } while (len > 0);
+
   sem_post(&dev->lock_device);
 }
