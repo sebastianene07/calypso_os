@@ -19,6 +19,7 @@
 #include <spi.h>
 #include <string.h>
 #include <stdlib.h>
+#include <gpio.h>
 
 /****************************************************************************
  * Macros Defintions
@@ -63,7 +64,7 @@
 
 /* Helper macro */
 
-#define SPI_REG_SET(BASE, OFFSET) (*(uint32_t *)((BASE) + (OFFSET)))
+#define SPI_REG_SET(BASE, OFFSET) (*(volatile uint32_t *)((BASE) + (OFFSET)))
 
 /****************************************************************************
  * Private Function Prototypes
@@ -84,6 +85,11 @@ static void spi_send(spi_master_dev_t *dev, const void *data, size_t len);
  */
 static void spi_configure_pins(spi_master_config_t *cfg, uint32_t base_spi_ptr)
 {
+    gpio_configure(cfg->sck_pin, cfg->sck_port, GPIO_DIRECTION_OUT);
+    gpio_configure(cfg->mosi_pin, cfg->mosi_port, GPIO_DIRECTION_OUT);
+    gpio_configure(cfg->miso_pin, cfg->miso_port, GPIO_DIRECTION_IN);
+    gpio_configure(cfg->cs_pin, cfg->cs_port, GPIO_DIRECTION_OUT);
+
     /* Set the master SPI SCK pin */
 
     SPI_REG_SET(base_spi_ptr, PSEL_SCK) = cfg->sck_pin | (cfg->sck_port << 5);
@@ -173,9 +179,16 @@ void spi_init(void)
 
     .cs_pin    = CONFIG_SPI_0_CS_PIN,
     .cs_port   = CONFIG_SPI_0_CS_PORT,
+
+    .freq      = SPI_M_FREQ_1_MBPS,
+    .mode      = SPI_M_MODE_0, 
   };
 
   spi_configure_pins(&spi_0.dev_cfg, SPI_M0_BASE);
+  uint8_t test_data[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF};
+  while (1) {
+    spi_send(&spi_0, test_data, sizeof(test_data));
+  }
 }
 
 /*
@@ -195,7 +208,8 @@ static void spi_send(spi_master_dev_t *dev, const void *data, size_t len)
 
   memcpy(dev->tx_spi_buffer, data, len);
 
-  SPI_REG_SET(base_spi_reg, EVENTS_ENDTX) = 0;
+  SPI_REG_SET(base_spi_reg, EVENTS_STARTED) = 0;
+  SPI_REG_SET(base_spi_reg, EVENTS_END) = 0;
   SPI_REG_SET(base_spi_reg, RXD_PTR)    = (uint32_t)dev->rx_spi_buffer;
   SPI_REG_SET(base_spi_reg, RXD_MAXCNT) = 0;
   SPI_REG_SET(base_spi_reg, TXD_PTR)    = (uint32_t)dev->tx_spi_buffer;
@@ -203,7 +217,9 @@ static void spi_send(spi_master_dev_t *dev, const void *data, size_t len)
   SPI_REG_SET(base_spi_reg, ORC)        = 0;
   SPI_REG_SET(base_spi_reg, TASKS_START) = 1;
 
-  while (SPI_REG_SET(base_spi_reg, EVENTS_ENDTX) == 0);
+  while (SPI_REG_SET(base_spi_reg, EVENTS_STARTED) == 0) { }
+
+  while (SPI_REG_SET(base_spi_reg, EVENTS_END) == 0) { }
 
   SPI_REG_SET(base_spi_reg, TASKS_START) = 0;
 
