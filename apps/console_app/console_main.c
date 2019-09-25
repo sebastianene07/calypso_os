@@ -102,6 +102,9 @@ static int date(int argc, const char *argv[])
 #endif /* CONFIG_CONSOLE_DATE_ON */
 
 #ifdef CONFIG_CONSOLE_TEST_DISPLAY
+
+extern const unsigned char simons_cat_bin[];
+
 static Color get_color_from_name(const char *color_name)
 {
   if (!strcmp("BLACK", color_name))
@@ -208,6 +211,10 @@ static int display(int argc, const char *argv[])
                "{ DIM | SLEEP | NORMAL }\r\n");
       }
     }
+    else if (strcmp(argv[1], "draw") == 0)
+    {
+      ssd1331_display_drawBuffer(0, 0, (uint8_t *)simons_cat_bin, 96 * 64 * 2);
+    }
   }
   else
   {
@@ -215,7 +222,8 @@ static int display(int argc, const char *argv[])
         "display clear\r\n"
         "display dim\r\n"
         "display mode <mode_name>\r\n"
-        "display power <power_mode>\r\n");
+        "display power <power_mode>\r\n"
+        "display draw\r\n");
   }
 
   return 0;

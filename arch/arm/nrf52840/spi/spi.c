@@ -206,24 +206,34 @@ void spi_send_recv(spi_master_dev_t *dev, const void *data, size_t len, void *da
 
   sem_wait(&dev->lock_device);
 
-  memcpy(dev->tx_spi_buffer, data, len);
+  do {
 
-  SPI_REG_SET(base_spi_reg, EVENTS_STARTED) = 0;
-  SPI_REG_SET(base_spi_reg, EVENTS_END) = 0;
-  SPI_REG_SET(base_spi_reg, RXD_PTR)    = (uint32_t)dev->rx_spi_buffer;
-  SPI_REG_SET(base_spi_reg, RXD_MAXCNT) = rx_data;
-  SPI_REG_SET(base_spi_reg, TXD_PTR)    = (uint32_t)dev->tx_spi_buffer;
-  SPI_REG_SET(base_spi_reg, TXD_MAXCNT) = len;
-  SPI_REG_SET(base_spi_reg, ORC)        = 0;
-  SPI_REG_SET(base_spi_reg, TASKS_START) = 1;
+    size_t tx_data_to_send = len > CONFIG_SPI_BUFFER_LEN ? CONFIG_SPI_BUFFER_LEN : len;
 
-  while (SPI_REG_SET(base_spi_reg, EVENTS_STARTED) == 0) { }
+    memcpy(dev->tx_spi_buffer, data, tx_data_to_send);
 
-  while (SPI_REG_SET(base_spi_reg, EVENTS_END) == 0) { }
+    SPI_REG_SET(base_spi_reg, EVENTS_STARTED) = 0;
+    SPI_REG_SET(base_spi_reg, EVENTS_END) = 0;
+    SPI_REG_SET(base_spi_reg, RXD_PTR)    = (uint32_t)dev->rx_spi_buffer;
+    SPI_REG_SET(base_spi_reg, RXD_MAXCNT) = rx_data;
+    SPI_REG_SET(base_spi_reg, TXD_PTR)    = (uint32_t)dev->tx_spi_buffer;
+    SPI_REG_SET(base_spi_reg, TXD_MAXCNT) = tx_data_to_send;
+    SPI_REG_SET(base_spi_reg, ORC)        = 0;
+    SPI_REG_SET(base_spi_reg, TASKS_START) = 1;
 
-  SPI_REG_SET(base_spi_reg, TASKS_START) = 0;
+    while (SPI_REG_SET(base_spi_reg, EVENTS_STARTED) == 0) { }
 
-  if (data_rx != NULL && len_rx > 0)
-    memcpy(data_rx, dev->rx_spi_buffer, len_rx);
+    while (SPI_REG_SET(base_spi_reg, EVENTS_END) == 0) { }
+
+    SPI_REG_SET(base_spi_reg, TASKS_START) = 0;
+
+    if (data_rx != NULL && len_rx > 0)
+      memcpy(data_rx, dev->rx_spi_buffer, len_rx);
+
+    len -= tx_data_to_send;
+    data += tx_data_to_send;
+
+  } while (len > 0);
+
   sem_post(&dev->lock_device);
 }

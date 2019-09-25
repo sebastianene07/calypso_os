@@ -119,6 +119,28 @@ void ssd1331_display_init(ssd1331_config_t *config)
     spi_send_command(CMD_NORMAL_BRIGHTNESS_DISPLAY_ON);//set display on
 }
 
+void ssd1331_display_drawBuffer(uint16_t x, uint16_t y, uint8_t *buffer, size_t buffer_len)
+{
+    if ((x < 0) || (x >= RGB_OLED_WIDTH) || (y < 0) || (y >= RGB_OLED_HEIGHT))
+        return;
+    //set column point
+    spi_send_command(CMD_SET_COLUMN_ADDRESS);
+    spi_send_command(x);
+    spi_send_command(RGB_OLED_WIDTH-1);
+    //set row point
+    spi_send_command(CMD_SET_ROW_ADDRESS);
+    spi_send_command(y);
+    spi_send_command(RGB_OLED_HEIGHT-1);
+
+    //fill the buffer
+    gpio_toogle(1, g_ssd1331_config.dc_pin, g_ssd1331_config.dc_port);
+    gpio_toogle(0, g_ssd1331_config.cs_pin, g_ssd1331_config.cs_port);
+
+    spi_send_recv(g_ssd1331_config.spi_dev, buffer, buffer_len, NULL, 0);
+
+    gpio_toogle(1, g_ssd1331_config.cs_pin, g_ssd1331_config.cs_port);
+}
+
 void ssd1331_display_drawPixel(uint16_t x, uint16_t y, uint16_t color)
 {
     if ((x < 0) || (x >= RGB_OLED_WIDTH) || (y < 0) || (y >= RGB_OLED_HEIGHT))
