@@ -4,6 +4,7 @@
 #include <gpio.h>
 #include <rtc.h>
 #include <scheduler.h>
+#include <../drivers/display/ssd_1331.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -77,7 +78,7 @@ void board_init(void)
 
   clock_init();
   rtc_init();
-  spi_init();
+  spi_master_dev_t *spi_0 = spi_init();
 
   uart_low_init();
   uart_low_send("\r\n.");
@@ -90,6 +91,16 @@ void board_init(void)
   uart_low_send(".\r\n");
 
   uart_init();
+
+  ssd1331_config_t display_config = {
+    .spi_dev = spi_0,
+    .dc_pin  = CONFIG_DISPLAY_DC_PIN,
+    .dc_port = CONFIG_DISPLAY_DC_PORT,
+    .cs_pin  = spi_0->dev_cfg.cs_pin,
+    .cs_port = spi_0->dev_cfg.cs_port,
+  };
+  
+  ssd1331_display_init(&display_config);
 
   SysTick_Config(SystemCoreClock / 100);
 }

@@ -16,4 +16,6 @@
 #define CONFIG_SPI_0_CS_PIN (31)
 #define CONFIG_SPI_0_CS_PORT (0)
 #define CONFIG_SPI_BUFFER_LEN (12)
+#define CONFIG_DISPLAY_DC_PIN (3)
+#define CONFIG_DISPLAY_DC_PORT (0)
 #endif /* __BOARD_CFG_H */
