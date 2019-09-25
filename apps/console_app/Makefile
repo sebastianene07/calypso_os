@@ -1,4 +1,9 @@
-SRC:=$(wildcard *.c)
+SRC:=console_main.c
+
+ifeq ($(CONFIG_CONSOLE_TEST_DISPLAY),y)
+SRC+= console_display_test.c test.c
+endif
+
 OBJS:=$(patsubst %.c,%.o,$(SRC))
 CONSOLE_FLAGS := ${CFLAGS}																					\
 							-I$(TOPDIR)/include																	\
