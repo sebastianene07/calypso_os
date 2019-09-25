@@ -65,14 +65,8 @@ typedef struct spi_master_dev_s
   sem_t lock_device;
 } spi_master_dev_t;
 
-/* Send SPI data - blocking operation */
-
-typedef void (* spi_send_cb)(spi_master_dev_t *dev, const void *data, size_t len);
-
-/* Receive SPI data - blocking operation*/
-
-typedef void (* spi_send_recv_cb)(spi_master_dev_t *dev, const void *data_tx, size_t len_tx, void *data_rx, size_t len_rx);
-
 void spi_init(void);
+
+void spi_send_recv(spi_master_dev_t *dev, const void *data, size_t len, void *data_rx, size_t len_rx);
 
 #endif /* __SPI_H */

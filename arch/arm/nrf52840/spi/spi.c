@@ -67,12 +67,6 @@
 #define SPI_REG_SET(BASE, OFFSET) (*(volatile uint32_t *)((BASE) + (OFFSET)))
 
 /****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
-
-static void spi_send(spi_master_dev_t *dev, const void *data, size_t len);
-
-/****************************************************************************
  * Private Functions
  ****************************************************************************/
 
@@ -185,24 +179,28 @@ void spi_init(void)
   };
 
   spi_configure_pins(&spi_0.dev_cfg, SPI_M0_BASE);
+
   uint8_t test_data[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF};
   while (1) {
-    spi_send(&spi_0, test_data, sizeof(test_data));
+    spi_send_recv(&spi_0, test_data, sizeof(test_data), NULL, 0);
   }
 }
 
 /*
- * spi_send - sends data on the SPI bus 
+ * spi_send_recv - sends data on the SPI bus 
  *
  * @dev  - the master device that initiates the transfer
  * @data - the data to send
  * @len  - the length of the data beeing sent
+ * @data_rx - data to receive
+ * @len_rx  - the length of the data we are waiting for
  *
  * This function configures the SPIm peripheral to send a chunk of data.
  */
-static void spi_send(spi_master_dev_t *dev, const void *data, size_t len)
+void spi_send_recv(spi_master_dev_t *dev, const void *data, size_t len, void *data_rx, size_t len_rx)
 {
   uint32_t base_spi_reg = (uint32_t)dev->priv;
+  uint32_t rx_data = len_rx > CONFIG_SPI_BUFFER_LEN ? CONFIG_SPI_BUFFER_LEN : len_rx;
 
   sem_wait(&dev->lock_device);
 
@@ -211,7 +209,7 @@ static void spi_send(spi_master_dev_t *dev, const void *data, size_t len)
   SPI_REG_SET(base_spi_reg, EVENTS_STARTED) = 0;
   SPI_REG_SET(base_spi_reg, EVENTS_END) = 0;
   SPI_REG_SET(base_spi_reg, RXD_PTR)    = (uint32_t)dev->rx_spi_buffer;
-  SPI_REG_SET(base_spi_reg, RXD_MAXCNT) = 0;
+  SPI_REG_SET(base_spi_reg, RXD_MAXCNT) = rx_data;
   SPI_REG_SET(base_spi_reg, TXD_PTR)    = (uint32_t)dev->tx_spi_buffer;
   SPI_REG_SET(base_spi_reg, TXD_MAXCNT) = len;
   SPI_REG_SET(base_spi_reg, ORC)        = 0;
@@ -223,5 +221,7 @@ static void spi_send(spi_master_dev_t *dev, const void *data, size_t len)
 
   SPI_REG_SET(base_spi_reg, TASKS_START) = 0;
 
+  if (data_rx != NULL && len_rx > 0)
+    memcpy(data_rx, dev->rx_spi_buffer, len_rx);
   sem_post(&dev->lock_device);
 }
