@@ -4,7 +4,10 @@
 #include <gpio.h>
 #include <rtc.h>
 #include <scheduler.h>
+
+#ifdef CONFIG_DISPLAY_SSD1331
 #include <../drivers/display/ssd_1331.h>
+#endif 
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -92,6 +95,7 @@ void board_init(void)
 
   uart_init();
 
+#ifdef CONFIG_DISPLAY_SSD1331
   ssd1331_config_t display_config = {
     .spi_dev = spi_0,
     .dc_pin  = CONFIG_DISPLAY_DC_PIN,
@@ -101,6 +105,7 @@ void board_init(void)
   };
   
   ssd1331_display_init(&display_config);
+#endif
 
   SysTick_Config(SystemCoreClock / 100);
 }
