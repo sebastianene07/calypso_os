@@ -21,7 +21,7 @@ struct uart_lower_s;
 
 /* Lowerhalf callback that should be implemented by the serial driver */
 
-typedef int (*uart_lowerhalf_open)(struct uart_lower_s *lower);
+typedef int (*uart_lowerhalf_open)(const struct uart_lower_s *lower);
 typedef int (*uart_lowerhalf_close)(const struct uart_lower_s *lower);
 typedef int (*uart_lowerhalf_write)(const struct uart_lower_s *lower,
                                     const void *ptr_data,

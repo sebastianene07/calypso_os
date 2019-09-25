@@ -1,7 +1,10 @@
 #ifndef __SPI_H
 #define __SPI_H
 
+#include <board.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <semaphore.h>
 
 /* Configuration structures should be initialized with this */
 
@@ -34,26 +37,36 @@ typedef enum spi_mode_e
 
 typedef struct spi_master_config_s
 {
-  uint32_t miso_pin;
-  uint32_t miso_port;
+  uint8_t miso_pin;
+  uint8_t miso_port;
 
-  uint32_t mosi_pin;
-  uint32_t mosi_port;
+  uint8_t mosi_pin;
+  uint8_t mosi_port;
 
-  uint32_t sck_pin;
-  uint32_t sck_port;
+  uint8_t sck_pin;
+  uint8_t sck_port;
 
-  uint32_t cs_pin;
-  uint32_t cs_port;
+  uint8_t cs_pin;
+  uint8_t cs_port;
 
   spi_frequency_t freq;
   spi_mode_t mode;
 } spi_master_config_t;
 
-void spi_initialize(void);
+/* SPI device */
 
-int spi_configure(spi_master_config_t *cfg, uint8_t peripheral_id);
+typedef struct spi_master_dev_s
+{
+  void *priv;
+  spi_master_config_t dev_cfg;
+  uint8_t rx_spi_buffer[CONFIG_SPI_BUFFER_LEN];
+  uint8_t tx_spi_buffer[CONFIG_SPI_BUFFER_LEN];
+  sem_t notify_rx_avail;
+  sem_t lock_device;
+} spi_master_dev_t;
 
-void spi_send(void *data, uint32_t len);
+void spi_init(void);
+
+void spi_send_recv(spi_master_dev_t *dev, const void *data, size_t len, void *data_rx, size_t len_rx);
 
 #endif /* __SPI_H */

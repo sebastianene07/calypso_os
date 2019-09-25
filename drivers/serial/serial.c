@@ -88,7 +88,7 @@ static int uart_read(void *priv, void *buf, size_t count)
   /* Blocking read. Wait until 'count' bytes are available from
    * this device.
    */
-  struct uart_lower_s *lower = uart_up->lower;
+  struct uart_lower_s *lower = (struct uart_lower_s *)uart_up->lower;
   if (lower == NULL)
   {
     return -EINVAL;

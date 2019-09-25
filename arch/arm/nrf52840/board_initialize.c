@@ -1,4 +1,5 @@
 #include <board.h>
+#include <spi.h>
 #include <serial.h>
 #include <gpio.h>
 #include <rtc.h>
@@ -76,6 +77,7 @@ void board_init(void)
 
   clock_init();
   rtc_init();
+  spi_init();
 
   uart_low_init();
   uart_low_send("\r\n.");

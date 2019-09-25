@@ -5,11 +5,11 @@
 #define GPIO_BASE_PORT0   0x50000000
 #define GPIO_BASE_PORT1   0x50000300
 
-#define GPIO_OUTSET(BASE) (*((uint32_t*) ((BASE) + 0x508)))
-#define GPIO_OUTCLR(BASE) (*((uint32_t*) ((BASE) + 0x50C)))
-#define GPIO_IN(BASE)     (*((uint32_t*) ((BASE) + 0x510)))
-#define GPIO_DIR(BASE)    (*((uint32_t*) ((BASE) + 0x514)))
-#define GPIO_PIN_CNF(BASE, pin) (*((uint32_t*) ((BASE) + 0x700 + (pin) * 4)))
+#define GPIO_OUTSET(BASE) (*((volatile uint32_t*) ((BASE) + 0x508)))
+#define GPIO_OUTCLR(BASE) (*((volatile uint32_t*) ((BASE) + 0x50C)))
+#define GPIO_IN(BASE)     (*((volatile uint32_t*) ((BASE) + 0x510)))
+#define GPIO_DIR(BASE)    (*((volatile uint32_t*) ((BASE) + 0x514)))
+#define GPIO_PIN_CNF(BASE, pin) (*((volatile uint32_t*) ((BASE) + 0x700 + (pin) * 4)))
 
 #define GPIO_PULLUP_VALUE   (3)
 #define GPIO_PULLUP_OFFSET  (2)
@@ -27,10 +27,7 @@ void gpio_init(void)
 
 void gpio_configure(int pin, int port, gpio_direction_t cfg)
 {
-  if (port < 0 || port >= 2)
-  {
-    return;
-  }
+  //GPIO_DIR(GPIO_BASE_PORT0) = (cfg << pin) | (~(1 << pin) & GPIO_DIR(GPIO_BASE_PORT0)); 
 
   if (cfg == GPIO_DIRECTION_IN)
   {
