@@ -162,7 +162,7 @@ void ssd1331_display_drawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1
     spi_send_command((uint8_t)(color&0x1F));//B
 }
 
-void drawFrame(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t outColor, uint16_t fillColor)
+void ssd1331_display_drawFrame(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t outColor, uint16_t fillColor)
 {
     if((x0 < 0) || (y0 < 0) || (x1 < 0) || (y1 < 0))
         return;

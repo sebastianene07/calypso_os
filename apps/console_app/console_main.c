@@ -9,9 +9,14 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <errno.h>
+#include <../drivers/display/ssd_1331.h>
 
 #ifdef CONFIG_CONSOLE_DATE_ON
 static int date(int argc, const char *argv[]);
+#endif
+
+#ifdef CONFIG_CONSOLE_TEST_DISPLAY
+static int display(int argc, const char *argv[]);
 #endif
 
 /* Shutdown flag */
@@ -23,7 +28,10 @@ static bool g_is_shutdown_set;
 static console_command_entry_t g_cmd_table[] =
 {
 #ifdef CONFIG_CONSOLE_DATE_ON
-  { .cmd_name = "date", .cmd_function = date }
+  { .cmd_name = "date", .cmd_function = date },
+#endif
+#ifdef CONFIG_CONSOLE_TEST_DISPLAY
+  { .cmd_name = "display", .cmd_function = display }
 #endif
 };
 
@@ -89,6 +97,70 @@ static int date(int argc, const char *argv[])
   return 0;
 }
 #endif /* CONFIG_CONSOLE_DATE_ON */
+
+#ifdef CONFIG_CONSOLE_TEST_DISPLAY
+
+static Color get_color_from_name(const char *color_name)
+{
+  if (!strcmp("BLACK", color_name))
+    return COLOR_BLACK;
+  else if (!strcmp("GREY", color_name)) 
+    return COLOR_GREY;
+  else if (!strcmp("WHITE", color_name))
+    return COLOR_WHITE;
+  else if (!strcmp("RED", color_name))
+    return COLOR_RED;
+  else if (!strcmp("PINK", color_name))
+    return COLOR_PINK;
+  else if (!strcmp("YELLOW", color_name))
+    return COLOR_YELLOW;
+  else if (!strcmp("GOLDEN", color_name))
+    return COLOR_GOLDEN;
+  else if (!strcmp("BROWN", color_name))
+    return COLOR_BROWN;
+  else if (!strcmp("BLUE", color_name))
+    return COLOR_BLUE;
+  else if (!strcmp("CYAN", color_name))
+    return COLOR_CYAN;
+  else if (!strcmp("GREEN", color_name))
+    return COLOR_GREEN;
+  else 
+    return COLOR_PURPLE;
+} 
+
+/*
+ * display - Test the SSD1331 display functionality 
+ *
+ */
+static int display(int argc, const char *argv[])
+{
+  if (argc >= 2)
+  {
+    if (strcmp(argv[1], "frame") == 0)
+    {
+      if (argc == 4)
+      {
+        Color frame_color = get_color_from_name(argv[2]);
+        Color fill_color  = get_color_from_name(argv[3]);
+
+        ssd1331_display_drawFrame(0, 0, RGB_OLED_WIDTH, RGB_OLED_HEIGHT, frame_color, fill_color); 
+      }
+      else
+      {
+        printf("Wrong command: display frame <frame_color> <fill_color>\n"
+               "{BLACK | GREY | WHITE | RED | PINK | YELLOW | GOLDEN | BROWN | BLUE | CYAN | GREEN | PURPLE}\n");
+      }
+    }
+  }
+  else
+  {
+    printf("Supported operations are:\r\n""display frame <frame_color> <fill_color>\r\n");
+  }
+
+  return 0;
+}
+
+#endif /* CONFIG_CONSOLE_TEST_DISPLAY */
 
 static int execute_command(int argc, const char *argv[])
 {

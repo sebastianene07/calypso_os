@@ -177,4 +177,6 @@ void ssd1331_display_setDisplayMode(DisplayMode mode);
 
 void ssd1331_display_setDisplayPower(DisplayPower power);
 
+void ssd1331_display_drawFrame(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t outColor, uint16_t fillColor);
+
 #endif
