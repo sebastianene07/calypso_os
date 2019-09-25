@@ -1,4 +1,9 @@
-SRC:=$(wildcard *.c)
+SRC:=
+
+ifeq ($(CONFIG_DISPLAY_SSD1331), y)
+SRC+= ssd_1331.c
+endif
+
 OBJS:=$(patsubst %.c,%.o,$(SRC))
 CONSOLE_FLAGS := ${CFLAGS}																					\
 							-I$(TOPDIR)/include																	\
