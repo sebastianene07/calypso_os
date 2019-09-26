@@ -63,7 +63,7 @@ static DisplayMode get_mode_from_name(const char *mode_name)
  * display - Test the SSD1331 display functionality
  *
  */
-int display(int argc, const char *argv[])
+int console_display(int argc, const char *argv[])
 {
   if (argc >= 2)
   {
