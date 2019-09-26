@@ -74,8 +74,10 @@ static void spi_send_command(uint8_t c)
 
 void ssd1331_display_init(ssd1331_config_t *config)
 {
-    gpio_configure(config->cs_pin, 0, GPIO_DIRECTION_OUT, GPIO_PIN_INPUT_DISCONNECT, GPIO_NO_PULL, GPIO_PIN_S0S1);
-    gpio_configure(config->dc_pin, 0, GPIO_DIRECTION_OUT, GPIO_PIN_INPUT_DISCONNECT, GPIO_NO_PULL, GPIO_PIN_S0S1);
+    gpio_configure(config->cs_pin, 0, GPIO_DIRECTION_OUT,
+      GPIO_PIN_INPUT_DISCONNECT, GPIO_NO_PULL, GPIO_PIN_S0S1, GPIO_PIN_NO_SENS);
+    gpio_configure(config->dc_pin, 0, GPIO_DIRECTION_OUT,
+      GPIO_PIN_INPUT_DISCONNECT, GPIO_NO_PULL, GPIO_PIN_S0S1, GPIO_PIN_NO_SENS);
 
     g_ssd1331_config = *config;
 

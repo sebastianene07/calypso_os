@@ -79,10 +79,10 @@
  */
 static void spi_configure_pins(spi_master_config_t *cfg, uint32_t base_spi_ptr)
 {
-    gpio_configure(cfg->sck_pin, cfg->sck_port, GPIO_DIRECTION_OUT, GPIO_PIN_INPUT_DISCONNECT, GPIO_NO_PULL, GPIO_PIN_S0S1);
-    gpio_configure(cfg->mosi_pin, cfg->mosi_port, GPIO_DIRECTION_OUT, GPIO_PIN_INPUT_DISCONNECT, GPIO_NO_PULL, GPIO_PIN_S0S1);
-    gpio_configure(cfg->miso_pin, cfg->miso_port, GPIO_DIRECTION_IN, GPIO_PIN_INPUT_CONNECT, GPIO_PULLDOWN, GPIO_PIN_S0S1);
-    gpio_configure(cfg->cs_pin, cfg->cs_port, GPIO_DIRECTION_OUT, GPIO_PIN_INPUT_DISCONNECT, GPIO_NO_PULL, GPIO_PIN_S0S1);
+    gpio_configure(cfg->sck_pin, cfg->sck_port, GPIO_DIRECTION_OUT, GPIO_PIN_INPUT_DISCONNECT, GPIO_NO_PULL, GPIO_PIN_S0S1, GPIO_PIN_NO_SENS);
+    gpio_configure(cfg->mosi_pin, cfg->mosi_port, GPIO_DIRECTION_OUT, GPIO_PIN_INPUT_DISCONNECT, GPIO_NO_PULL, GPIO_PIN_S0S1, GPIO_PIN_NO_SENS);
+    gpio_configure(cfg->miso_pin, cfg->miso_port, GPIO_DIRECTION_IN, GPIO_PIN_INPUT_CONNECT, GPIO_PULLDOWN, GPIO_PIN_S0S1, GPIO_PIN_SENSE_HIGH);
+    gpio_configure(cfg->cs_pin, cfg->cs_port, GPIO_DIRECTION_OUT, GPIO_PIN_INPUT_DISCONNECT, GPIO_NO_PULL, GPIO_PIN_S0S1, GPIO_PIN_NO_SENS);
 
     /* Set the master SPI SCK pin */
 

@@ -89,7 +89,8 @@ void board_init(void)
   gpio_init();
   uart_low_send(".");
 
-  gpio_configure(LED, 0, GPIO_DIRECTION_OUT, GPIO_PIN_INPUT_DISCONNECT, GPIO_NO_PULL, GPIO_PIN_S0S1);
+  gpio_configure(LED, 0, GPIO_DIRECTION_OUT, GPIO_PIN_INPUT_DISCONNECT,
+                 GPIO_NO_PULL, GPIO_PIN_S0S1, GPIO_PIN_NO_SENS);
   uart_low_send(".\r\n");
 
   uart_init();
@@ -106,5 +107,5 @@ void board_init(void)
   ssd1331_display_init(&display_config);
 #endif
 
-  SysTick_Config(SystemCoreClock / 100);
+  SysTick_Config(SystemCoreClock / 2000);
 }

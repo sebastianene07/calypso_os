@@ -189,7 +189,7 @@ void console_main(void)
 
     if (*(cmd_buffer + len - 1) == '\r')
     {
-      write(uart_fd, "\r\n", 2);
+      write(uart_fd, "\r\n\n", 2);
       is_prompt_printed = true;
       if (len > 1)
       {
