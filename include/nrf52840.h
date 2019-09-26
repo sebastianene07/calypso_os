@@ -299,6 +299,6 @@ static inline void NVIC_TriggerSysTick(void)
 
 static inline void __WFI(void)
 {
-  __asm volatile ("wfi");
+//  __asm volatile ("wfi");
 }
 #endif /* __NRF52840_H */

@@ -79,10 +79,10 @@
  */
 static void spi_configure_pins(spi_master_config_t *cfg, uint32_t base_spi_ptr)
 {
-    gpio_configure(cfg->sck_pin, cfg->sck_port, GPIO_DIRECTION_OUT);
-    gpio_configure(cfg->mosi_pin, cfg->mosi_port, GPIO_DIRECTION_OUT);
-    gpio_configure(cfg->miso_pin, cfg->miso_port, GPIO_DIRECTION_IN);
-    gpio_configure(cfg->cs_pin, cfg->cs_port, GPIO_DIRECTION_OUT);
+    gpio_configure(cfg->sck_pin, cfg->sck_port, GPIO_DIRECTION_OUT, GPIO_PIN_INPUT_DISCONNECT, GPIO_NO_PULL, GPIO_PIN_S0S1);
+    gpio_configure(cfg->mosi_pin, cfg->mosi_port, GPIO_DIRECTION_OUT, GPIO_PIN_INPUT_DISCONNECT, GPIO_NO_PULL, GPIO_PIN_S0S1);
+    gpio_configure(cfg->miso_pin, cfg->miso_port, GPIO_DIRECTION_IN, GPIO_PIN_INPUT_CONNECT, GPIO_PULLDOWN, GPIO_PIN_S0S1);
+    gpio_configure(cfg->cs_pin, cfg->cs_port, GPIO_DIRECTION_OUT, GPIO_PIN_INPUT_DISCONNECT, GPIO_NO_PULL, GPIO_PIN_S0S1);
 
     /* Set the master SPI SCK pin */
 
@@ -163,7 +163,7 @@ spi_master_dev_t *spi_init(void)
   spi->priv = (void *)SPI_M0_BASE;
 
   sem_init(&spi->notify_rx_avail, 0, 0);
-  sem_init(&spi->lock_device, 0, 1); 
+  sem_init(&spi->lock_device, 0, 1);
 
   /* Pin configuration : SPI 0 */
 
@@ -181,7 +181,7 @@ spi_master_dev_t *spi_init(void)
     .cs_port   = CONFIG_SPI_0_CS_PORT,
 
     .freq      = SPI_M_FREQ_1_MBPS,
-    .mode      = SPI_M_MODE_0, 
+    .mode      = SPI_M_MODE_0,
   };
 
   spi_configure_pins(&spi->dev_cfg, SPI_M0_BASE);
@@ -189,7 +189,7 @@ spi_master_dev_t *spi_init(void)
 }
 
 /*
- * spi_send_recv - sends data on the SPI bus 
+ * spi_send_recv - sends data on the SPI bus
  *
  * @dev  - the master device that initiates the transfer
  * @data - the data to send

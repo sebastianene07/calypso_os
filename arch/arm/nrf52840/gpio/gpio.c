@@ -25,17 +25,18 @@ void gpio_init(void)
 
 }
 
-void gpio_configure(int pin, int port, gpio_direction_t cfg)
+void gpio_configure(int pin, int port, gpio_direction_t cfg, gpio_pin_input_t input,
+                    gpio_pull_cfg_t pull_cfg, gpio_drive_cfg_t drive_cfg)
 {
-  //GPIO_DIR(GPIO_BASE_PORT0) = (cfg << pin) | (~(1 << pin) & GPIO_DIR(GPIO_BASE_PORT0)); 
+  GPIO_DIR(GPIO_BASE_PORT0) = (cfg << pin) | (~(1 << pin) & GPIO_DIR(GPIO_BASE_PORT0));
 
   if (cfg == GPIO_DIRECTION_IN)
   {
-    GPIO_PIN_CNF(g_base_addr[port], pin) = GPIO_DIRECTION_IN | (GPIO_PULLUP_VALUE << GPIO_PULLUP_OFFSET);
+    GPIO_PIN_CNF(g_base_addr[port], pin) = GPIO_DIRECTION_IN | (input << 1) | (pull_cfg << GPIO_PULLUP_OFFSET) | (drive_cfg << 8);
   }
   else
   {
-    GPIO_PIN_CNF(g_base_addr[port], pin) = GPIO_DIRECTION_OUT;
+    GPIO_PIN_CNF(g_base_addr[port], pin) = GPIO_DIRECTION_OUT | (input << 1) | (pull_cfg << GPIO_PULLUP_OFFSET) | (drive_cfg << 8);
   }
 }
 

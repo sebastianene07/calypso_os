@@ -7,7 +7,7 @@
 
 #ifdef CONFIG_DISPLAY_SSD1331
 #include <../drivers/display/ssd_1331.h>
-#endif 
+#endif
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -89,8 +89,7 @@ void board_init(void)
   gpio_init();
   uart_low_send(".");
 
-  gpio_configure(LED, 0, GPIO_DIRECTION_OUT);
-  gpio_configure(BUTTON_1, 0, GPIO_DIRECTION_IN);
+  gpio_configure(LED, 0, GPIO_DIRECTION_OUT, GPIO_PIN_INPUT_DISCONNECT, GPIO_NO_PULL, GPIO_PIN_S0S1);
   uart_low_send(".\r\n");
 
   uart_init();
@@ -103,7 +102,7 @@ void board_init(void)
     .cs_pin  = spi_0->dev_cfg.cs_pin,
     .cs_port = spi_0->dev_cfg.cs_port,
   };
-  
+
   ssd1331_display_init(&display_config);
 #endif
 

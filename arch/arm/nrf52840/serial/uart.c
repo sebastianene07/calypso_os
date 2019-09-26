@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <scheduler.h>
+#include <gpio.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -67,10 +68,10 @@
 #define UART_EVENTS_ENDRX_CFG      UART_CONFIG(UART_EVENTS_ENDRX_OFFSET    )
 
 /* Board configs : this should not stay in driver code */
-#define UART_TX_PIN                         (6)   /* range 0 - 31 */
+#define UART_TX_PIN                         (CONFIG_SERIAL_CONSOLE_TX)   /* range 0 - 31 */
 #define UART_TX_PORT                        (0)   /* range 0 - 1  */
 
-#define UART_RX_PIN                         (8)   /* range 0 - 31 */
+#define UART_RX_PIN                         (CONFIG_SERIAL_CONSOLE_RX)   /* range 0 - 31 */
 #define UART_RX_PORT                        (0)   /* range 0 - 1  */
 
 #define UART_DMA_RX_LEN                     (UART_RX_BUFFER / 8)
@@ -118,7 +119,7 @@ int uart_low_init(void)
   UART_BAUDRATE = 0x01D60000;
 
   /* Configure pins - we need only TX and RX */
-
+  gpio_configure(9, 0, GPIO_DIRECTION_IN, GPIO_PIN_INPUT_CONNECT, GPIO_NO_PULL, GPIO_PIN_S0S1);
   UART_TX_PORT_CONFIG = UART_TX_PIN;
   UART_RX_PORT_CONFIG = UART_RX_PIN;
 
@@ -131,6 +132,7 @@ int uart_low_init(void)
   UART_RXD_PTR_CONFIG    = (uint32_t)g_uart_low_0.rx_buffer;
   UART_RX_MAXCNT_CONFIG  = 1;//UART_RX_BUFFER;
   UART_TASK_START_RX_CFG = 1;
+
   return 0;
 }
 

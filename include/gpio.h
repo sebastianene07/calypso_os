@@ -6,9 +6,26 @@ typedef enum gpio_direction_e {
   GPIO_DIRECTION_OUT
 } gpio_direction_t;
 
+typedef enum gpio_pull_cfg_e {
+  GPIO_NO_PULL,
+  GPIO_PULLDOWN,
+  GPIO_PULLUP,
+} gpio_pull_cfg_t;
+
+typedef enum gpio_drive_cfg_e {
+  GPIO_PIN_S0S1 = 0,
+} gpio_drive_cfg_t;
+
+typedef enum
+{
+  GPIO_PIN_INPUT_CONNECT,
+  GPIO_PIN_INPUT_DISCONNECT,
+} gpio_pin_input_t;
+
 void gpio_init(void);
 
-void gpio_configure(int pin, int port, gpio_direction_t cfg);
+void gpio_configure(int pin, int port, gpio_direction_t cfg, gpio_pin_input_t input,
+                    gpio_pull_cfg_t pull_cfg, gpio_drive_cfg_t drive_cfg);
 
 void gpio_toogle(int enable, int pin, int port);
 

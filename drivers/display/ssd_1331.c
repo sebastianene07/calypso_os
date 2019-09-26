@@ -7,8 +7,8 @@
 *
 * All rights reserved.
 *
-* This library is based on Adafruit's SSD1331-OLED-Driver-Library. Thanks to 
-* their contribution to the code, we modify it and add more interface to 
+* This library is based on Adafruit's SSD1331-OLED-Driver-Library. Thanks to
+* their contribution to the code, we modify it and add more interface to
 * support our Seeed's Xadow RGB OLED 96*64 module.
 *
 * Below is the introduction of Adafruit's Color OLED module, we add it to here
@@ -22,8 +22,8 @@
 *
 * These displays use SPI to communicate.
 *
-* Adafruit invests time and resources providing this open source code, 
-* please support Adafruit and open-source hardware by purchasing 
+* Adafruit invests time and resources providing this open source code,
+* please support Adafruit and open-source hardware by purchasing
 * products from Adafruit!
 *
 * Written by Limor Fried/Ladyada for Adafruit Industries.
@@ -74,9 +74,9 @@ static void spi_send_command(uint8_t c)
 
 void ssd1331_display_init(ssd1331_config_t *config)
 {
-    gpio_configure(config->cs_pin, 0, GPIO_DIRECTION_OUT);
-    gpio_configure(config->dc_pin, 0, GPIO_DIRECTION_OUT); 
- 
+    gpio_configure(config->cs_pin, 0, GPIO_DIRECTION_OUT, GPIO_PIN_INPUT_DISCONNECT, GPIO_NO_PULL, GPIO_PIN_S0S1);
+    gpio_configure(config->dc_pin, 0, GPIO_DIRECTION_OUT, GPIO_PIN_INPUT_DISCONNECT, GPIO_NO_PULL, GPIO_PIN_S0S1);
+
     g_ssd1331_config = *config;
 
     spi_send_command(CMD_DISPLAY_OFF);          //Display Off
@@ -95,7 +95,7 @@ void ssd1331_display_init(ssd1331_config_t *config)
     spi_send_command(CMD_SET_PRECHARGE_SPEED_C);//Set Second Pre-change Speed For ColorC
     spi_send_command(0x64);                     //100
     spi_send_command(CMD_SET_REMAP);            //set remap & data format
-    spi_send_command(0x72);                     //0x72              
+    spi_send_command(0x72);                     //0x72
     spi_send_command(CMD_SET_DISPLAY_START_LINE);//Set display Start Line
     spi_send_command(0x0);
     spi_send_command(CMD_SET_DISPLAY_OFFSET);   //Set display offset
