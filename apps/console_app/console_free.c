@@ -9,24 +9,33 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <errno.h>
+#include <semaphore.h>
 #include <../../s_alloc/s_heap.h>
 
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
 extern heap_t g_my_heap;
+extern sem_t g_heap_sema;
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
 
 static size_t get_used_heap_size(void)
 {
   mem_node_t *node = NULL;
   size_t current_size = 0;
 
-  /* TODO: Take the global heap sema */
+  sem_wait(&g_heap_sema);
 
   list_for_each_entry (node, &g_my_heap.g_used_heap_list, node_list)
   {
     current_size += node->mask.size * g_my_heap.block_size;
   }
 
-  /* TODO: Release the global heap sema */
-
+  sem_post(&g_heap_sema);
   return current_size;
 }
 
@@ -35,7 +44,7 @@ static size_t get_free_heap_size(size_t *biggest_chunk)
   mem_node_t *node = NULL;
   size_t current_size = 0;
 
-  /* TODO: Take the global heap sema */
+  sem_wait(&g_heap_sema);
 
   list_for_each_entry (node, &g_my_heap.g_free_heap_list, node_list)
   {
@@ -48,12 +57,13 @@ static size_t get_free_heap_size(size_t *biggest_chunk)
     current_size += chunk_size;
   }
 
-  /* TODO: Release the global heap sema */
-
-
-
+  sem_post(&g_heap_sema);
   return current_size;
 }
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
 
 int console_free(int argc, const char *argv[])
 {

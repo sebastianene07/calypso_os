@@ -5,6 +5,7 @@
 #include <serial.h>
 #include <vfs.h>
 #include <os_start.h>
+#include <semaphore.h>
 
 /****************************************************************************
  * Public Data
@@ -13,6 +14,7 @@
 /* Heap definition */
 
 heap_t g_my_heap;
+sem_t g_heap_sema;
 
 /* Linker script sections */
 
@@ -65,6 +67,8 @@ void os_startup(void)
          HEAP_START,
          HEAP_END,
          HEAP_BLOCK_SIZE);
+
+  sem_init(&g_heap_sema, 0, 1);
 
   /* Initialize the scheduler */
 
