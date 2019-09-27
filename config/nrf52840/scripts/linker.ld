@@ -1,9 +1,13 @@
 /* details on syntax can be found in GCC linker manual */
 
 MEMORY {
-  RAM   (xrw): ORIGIN = 0x20000000, LENGTH = 100K
-  FLASH (rx) : ORIGIN = 0x0, LENGTH = 256K
+  RAM   (xrw): ORIGIN = 0x20000000, LENGTH = 0x38000
+  FLASH (rx) : ORIGIN = 0x0, LENGTH = 1024K
 }
+
+__RAM_START   = ORIGIN(RAM);
+__RAM_LENGTH  = LENGTH(RAM);
+__RAM_END     = (ORIGIN(RAM) + LENGTH(RAM)) - 1;
 
 SECTIONS {
         .isr_vector : {
@@ -47,4 +51,21 @@ SECTIONS {
                 . = ALIGN(4);
                 _ebss = .;
         } >RAM
+
+        .stack : {
+                 KEEP(*(.stack*))
+                . = ALIGN(4);
+                _sstack = .;
+                . = . + 1024;
+                . = ALIGN(4);
+                _estack = .;
+       } >RAM
+
+        .heap : {
+                KEEP(*(.heap*))
+                . = ALIGN(4);
+                _sheap = .;
+        } >RAM
+
+      _eheap = ORIGIN(RAM) + LENGTH(RAM);
 }

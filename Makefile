@@ -36,7 +36,7 @@ all: create_board_file
 
 	mkdir -p build && cd build && \
 	${PREFIX}ar xv ${TOPDIR}/${TMP_LIB} && \
-	${PREFIX}gcc ${LDFLAGS} *.o -o build.elf && \
+	${PREFIX}gcc ${LDFLAGS} *.o -o build.elf && python ${TOPDIR}/patch_stack_addr.py && \
 	${PREFIX}objcopy -O ihex build.elf build.hex
 
 create_board_file:

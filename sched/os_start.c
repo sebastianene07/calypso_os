@@ -26,6 +26,9 @@ extern unsigned long _ebss;
 extern unsigned long _edata;
 extern unsigned long _srodata;
 
+extern unsigned long _sheap;
+extern unsigned long _eheap;
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -64,8 +67,8 @@ void os_startup(void)
   /* Initialize the HEAP memory */
 
   s_init(&g_my_heap,
-         HEAP_START,
-         HEAP_END,
+         &_sheap,
+         &_eheap,
          HEAP_BLOCK_SIZE);
 
   sem_init(&g_heap_sema, 0, 1);
