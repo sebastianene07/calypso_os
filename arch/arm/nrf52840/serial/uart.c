@@ -119,7 +119,9 @@ int uart_low_init(void)
   UART_BAUDRATE = 0x01D60000;
 
   /* Configure pins - we need only TX and RX */
-  gpio_configure(9, 0, GPIO_DIRECTION_IN, GPIO_PIN_INPUT_CONNECT, GPIO_NO_PULL, GPIO_PIN_S0S1);
+  gpio_configure(UART_RX_PIN, UART_RX_PORT, GPIO_DIRECTION_IN,
+                 GPIO_PIN_INPUT_CONNECT, GPIO_NO_PULL,
+                 GPIO_PIN_S0S1, GPIO_PIN_SENSE_LOW);
   UART_TX_PORT_CONFIG = UART_TX_PIN;
   UART_RX_PORT_CONFIG = UART_RX_PIN;
 

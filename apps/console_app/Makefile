@@ -4,6 +4,14 @@ ifeq ($(CONFIG_CONSOLE_TEST_DISPLAY),y)
 SRC+= console_display_test.c test.c
 endif
 
+ifeq ($(CONFIG_CONSOLE_DATE_ON),y)
+SRC+= console_date.c
+endif
+
+ifeq ($(CONFIG_CONSOLE_FREE),y)
+SRC+= console_free.c
+endif
+
 OBJS:=$(patsubst %.c,%.o,$(SRC))
 CONSOLE_FLAGS := ${CFLAGS}																					\
 							-I$(TOPDIR)/include																	\

@@ -12,7 +12,7 @@ static Color get_color_from_name(const char *color_name)
 {
   if (!strcmp("BLACK", color_name))
     return COLOR_BLACK;
-  else if (!strcmp("GREY", color_name)) 
+  else if (!strcmp("GREY", color_name))
     return COLOR_GREY;
   else if (!strcmp("WHITE", color_name))
     return COLOR_WHITE;
@@ -32,9 +32,9 @@ static Color get_color_from_name(const char *color_name)
     return COLOR_CYAN;
   else if (!strcmp("GREEN", color_name))
     return COLOR_GREEN;
-  else 
+  else
     return COLOR_PURPLE;
-} 
+}
 
 static DisplayPower get_power_from_name(const char *power_name)
 {
@@ -42,8 +42,9 @@ static DisplayPower get_power_from_name(const char *power_name)
     return DimMode;
   else if (!strcmp("SLEEP", power_name))
     return SleepMode;
-  else 
+  else
     return NormalMode;
+
 }
 
 static DisplayMode get_mode_from_name(const char *mode_name)
@@ -52,17 +53,17 @@ static DisplayMode get_mode_from_name(const char *mode_name)
     return NormalDisplay;
   else if (!strcmp("ON", mode_name))
     return DisplayOn;
-  else if (!strcmp("OFF", mode_name)) 
+  else if (!strcmp("OFF", mode_name))
     return DisplayOff;
   else
     return InverseDisplay;
 }
 
 /*
- * display - Test the SSD1331 display functionality 
+ * display - Test the SSD1331 display functionality
  *
  */
-int display(int argc, const char *argv[])
+int console_display(int argc, const char *argv[])
 {
   if (argc >= 2)
   {
@@ -73,13 +74,13 @@ int display(int argc, const char *argv[])
         Color frame_color = get_color_from_name(argv[2]);
         Color fill_color  = get_color_from_name(argv[3]);
 
-        ssd1331_display_drawFrame(0, 0, RGB_OLED_WIDTH, RGB_OLED_HEIGHT, frame_color, fill_color); 
+        ssd1331_display_drawFrame(0, 0, RGB_OLED_WIDTH, RGB_OLED_HEIGHT, frame_color, fill_color);
       }
       else
       {
         printf("Wrong command: display frame <frame_color> <fill_color>\n"
-               "{BLACK | GREY | WHITE | RED | PINK | YELLOW | GOLDEN" 
-               "| BROWN | BLUE | CYAN | GREEN | PURPLE}\n");
+               "{BLACK | GREY | WHITE | RED | PINK | YELLOW | GOLDEN"
+               "| BROWN | BLUE | CYAN | GREEN | PURPLE}\n\n");
       }
     }
     else if (strcmp(argv[1], "clear") == 0)
@@ -98,8 +99,8 @@ int display(int argc, const char *argv[])
       }
       else
       {
-        printf("Wrong command: display mode <mode_name>\r\n"
-               "{ NORMAL | ON | OFF | INVERT }\r\n");
+        printf("Wrong command: display mode <mode_name>\n"
+               "{ NORMAL | ON | OFF | INVERT }\n\n");
       }
     }
     else if (strcmp(argv[1], "power") == 0)
@@ -110,8 +111,8 @@ int display(int argc, const char *argv[])
       }
       else
       {
-        printf("Wrong command: display power <power_mode>\r\n"
-               "{ DIM | SLEEP | NORMAL }\r\n");
+        printf("Wrong command: display power <power_mode>\n"
+               "{ DIM | SLEEP | NORMAL }\n\n");
       }
     }
     else if (strcmp(argv[1], "draw") == 0)
@@ -121,12 +122,12 @@ int display(int argc, const char *argv[])
   }
   else
   {
-    printf("Supported operations are:\r\n""display frame <frame_color> <fill_color>\r\n"
-        "display clear\r\n"
-        "display dim\r\n"
-        "display mode <mode_name>\r\n"
-        "display power <power_mode>\r\n"
-        "display draw\r\n");
+    printf("Supported operations are:\n""display frame <frame_color> <fill_color>\n"
+        "display clear\n"
+        "display dim\n"
+        "display mode <mode_name>\n"
+        "display power <power_mode>\n"
+        "display draw\n\n");
   }
 
   return 0;

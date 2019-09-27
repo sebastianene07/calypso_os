@@ -15,6 +15,7 @@ typedef struct console_command_entry_s
 {
   const char *cmd_name;
   console_command cmd_function;
+  const char *cmd_help;
 } console_command_entry_t;
 
 
