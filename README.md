@@ -3,7 +3,7 @@ low power devices with running with low memory.
 
 ## Building
 
-Example for building CATOS for Norfic NrF52 board:
+Example for building Calypso OS for Norfic NrF52 board:
 
 ```
 make config MACHINE_TYPE=nrf52840
