@@ -1,5 +1,5 @@
 MACHINE_TYPE=nrf52840
-CFLAGS= -mcpu=cortex-m4 -mthumb -mabi=aapcs -O -ggdb
+CFLAGS= -mcpu=cortex-m4 -mthumb -mabi=aapcs -O -ggdb -std=gnu99
 LDFLAGS= ${CFLAGS} -nostartfiles -nodefaultlibs -Wl,-T${TOPDIR}/linker.ld
 CONFIG_CONSOLE_APP=y
 CONFIG_POWERON_MESSAGE="\r\nWelcome to CatOS v0.0.1\r\n"

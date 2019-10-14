@@ -2,7 +2,6 @@
 #define __SERIAL_H
 
 #include <semaphore.h>
-#include <sys/types.h>
 
 /****************************************************************************
  * Pre-processor Definitions

@@ -6,6 +6,7 @@
 #include <stdlib.h>
 
 typedef int ssize_t;
+
 typedef uint32_t mode_t;
 
 /**************************************************************************

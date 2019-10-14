@@ -1,10 +1,7 @@
 #include <board.h>
 #include <console_main.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <stdio.h>
 #include <string.h>
-#include <fcntl.h>
 #include <unistd.h>
 #include <stdbool.h>
 #include <errno.h>
