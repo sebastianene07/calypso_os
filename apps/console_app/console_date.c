@@ -41,7 +41,7 @@ int console_date(int argc, const char *argv[])
     return ret;
   }
 
-  if (argc == NUM_ARGS_DATE_SET)
+  if (argc >= NUM_ARGS_DATE_SET)
   {
     if (!strcmp(argv[1], "set"))
     {
