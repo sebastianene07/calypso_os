@@ -1,5 +1,9 @@
 PATH_FATFS = ./fatfs/source
+
+ifeq ($(CONFIG_FATFS_SUPPORT),Y)
 SRCS_FATFS := $(wildcard $(PATH_FATFS)/*.c) fatfs_glue.c small_printf.c small_sscanf.c
+endif
+
 OBJS_FATFS := $(patsubst %.c, %.o, $(SRCS_FATFS))
 
 FATFS_FLAGS := ${CFLAGS}																					\

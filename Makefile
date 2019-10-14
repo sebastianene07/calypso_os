@@ -37,7 +37,8 @@ all: create_board_file
 	mkdir -p build && cd build && \
 	${PREFIX}ar xv ${TOPDIR}/${TMP_LIB} && \
 	${PREFIX}gcc ${LDFLAGS} *.o -o build.elf && python3 ${TOPDIR}/patch_stack_addr.py && \
-	${PREFIX}objcopy -O ihex build.elf build.hex
+	${PREFIX}objcopy -O ihex build.elf build.hex && \
+	${PREFIX}objcopy -O binary build.elf build.bin
 
 create_board_file:
 	cp arch/*/$(MACHINE_TYPE)/include/*.h include/.

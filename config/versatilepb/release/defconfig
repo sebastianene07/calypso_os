@@ -1,3 +1,8 @@
 MACHINE_TYPE=versatilepb
 CFLAGS += -mcpu=ARM926EJ-S -mthumb -g3 -o0
 LDFLAGS += ${CFLAGS} -nostartfiles -nodefaultlibs -Wl,-T${TOPDIR}/linker.ld
+CONFIG_POWERON_MESSAGE="\r\nWelcome to Calylsp OS v0.0.1\r\n"
+CONFIG_CONSOLE_PROMPT_STR="root:#/>"
+CONFIG_CONSOLE_ECHO_ON=y
+CONFIG_CONSOLE_UART_PATH="/dev/ttyUSB0"
+CONFIG_RTC_PATH="/dev/rtc0"

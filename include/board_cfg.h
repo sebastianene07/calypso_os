@@ -1,27 +1,8 @@
 #ifndef __BOARD_CFG_H
 #define __BOARD_CFG_H
-#define CONFIG_CONSOLE_APP y
-#define CONFIG_POWERON_MESSAGE "\r\nWelcome to CatOS v0.0.1\r\n"
+#define CONFIG_POWERON_MESSAGE "\r\nWelcome to Calylsp OS v0.0.1\r\n"
 #define CONFIG_CONSOLE_PROMPT_STR "root:#/>"
 #define CONFIG_CONSOLE_ECHO_ON y
-#define CONFIG_CONSOLE_DATE_ON y
-#define CONFIG_CONSOLE_TEST_DISPLAY y
 #define CONFIG_CONSOLE_UART_PATH "/dev/ttyUSB0"
 #define CONFIG_RTC_PATH "/dev/rtc0"
-#define CONFIG_SPI_0_MISO_PIN (30)
-#define CONFIG_SPI_0_MISO_PORT (0)
-#define CONFIG_SPI_0_MOSI_PIN (29)
-#define CONFIG_SPI_0_MOSI_PORT (0)
-#define CONFIG_SPI_0_SCK_PIN (26)
-#define CONFIG_SPI_0_SCK_PORT (0)
-#define CONFIG_SPI_0_CS_PIN (31)
-#define CONFIG_SPI_0_CS_PORT (0)
-#define CONFIG_SPI_BUFFER_LEN (12)
-#define CONFIG_DISPLAY_SSD1331 y
-#define CONFIG_DISPLAY_DC_PIN (3)
-#define CONFIG_DISPLAY_DC_PORT (0)
-#define CONFIG_SERIAL_CONSOLE_TX (6)
-#define CONFIG_SERIAL_CONSOLE_RX (8)
-#define CONFIG_WFI_ENABLE y
-#define CONFIG_CONSOLE_FREE y
 #endif /* __BOARD_CFG_H */
