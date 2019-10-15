@@ -51,7 +51,7 @@ load:
 
 config:
 	cp config/$(MACHINE_TYPE)/release/defconfig .config
-	cat .config | awk '{split($$0,a,"="); print "export " a[1]}' > Make.defs
+	cat .config | tail -n +4 | sed 's/^/export /' | sed 's/=/ /' > Make.defs
 
 debug:
 	JLinkGDBServer -device nRF52 -speed 4000 -if SWD -port ${DEBUG_PORT}

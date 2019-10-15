@@ -44,14 +44,16 @@ extern unsigned long _eheap;
  */
 void os_startup(void)
 {
-  unsigned long *src, *dst;
+  volatile unsigned long *src, *dst;
 
+#ifndef CONFIG_RUN_FROM_RAM
   /* Copy initialized variable data from flash to ram */
 
   src = &_etext;
   dst = &_sdata;
   while(dst < &_edata)
       *(dst++) = *(src++);
+#endif /* CONFIG_RUN_FROM_RAM */
 
   /* Zero out bss segment */
 
