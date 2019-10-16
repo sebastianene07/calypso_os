@@ -12,6 +12,10 @@ ifeq ($(CONFIG_CONSOLE_FREE),y)
 SRC+= console_free.c
 endif
 
+ifeq ($(CONFIG_CONSOLE_LS),y)
+SRC+= console_ls.c
+endif
+
 OBJS:=$(patsubst %.c,%.o,$(SRC))
 CONSOLE_FLAGS := ${CFLAGS}																					\
 							-I$(TOPDIR)/include																	\

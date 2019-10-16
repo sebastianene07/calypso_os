@@ -23,6 +23,10 @@ int console_display(int argc, const char *argv[]);
 int console_free(int argc, const char *argv[]);
 #endif
 
+#ifdef CONFIG_CONSOLE_LS
+int console_ls(int argc, const char *argv[]);
+#endif
+
 static int console_help(int argc, const char *argv[]);
 
 /* Shutdown flag */
@@ -54,6 +58,13 @@ static console_command_entry_t g_cmd_table[] =
   },
 #endif
 
+#ifdef CONFIG_CONSOLE_LS
+  {
+    .cmd_name     = "ls",
+    .cmd_function = console_ls,
+    .cmd_help     = "List file-system contents",
+  },
+#endif
   { .cmd_name     = "help",
     .cmd_function = console_help,
     .cmd_help     = CONSOLE_HELP_DESCRIPTION

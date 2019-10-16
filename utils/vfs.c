@@ -12,7 +12,7 @@ static struct vfs_node_s g_root_vfs;
 
 /* VFS mutual exclusion sema */
 
-static sem_t g_vfs_sema;
+sem_t g_vfs_sema;
 
 /* VFS default mountpoints */
 
@@ -116,6 +116,11 @@ struct vfs_node_s *vfs_get_matching_node(const char *name, size_t name_len)
   struct vfs_node_s *parent = &g_root_vfs;
   char *node_name = NULL;
   bool not_found;
+
+  if (name_len == 1 && strcmp(name, "/") == 0) {
+    current_node = parent;
+    goto free_with_sem;
+  }
 
   do {
     node_name = strtok_r(ptr_copy, delim, &olds);
