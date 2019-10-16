@@ -1,10 +1,11 @@
 include/board_cfg.h
+include/board.h
 .config
 *.o
 *.hex
 *.elf
 *.a
-*.ld
+./linker.ld
 tags
 *.out
 *.swp
