@@ -1,5 +1,6 @@
 #include <board.h>
 
+#include <serial.h>
 #include <stdint.h>
 #include <scheduler.h>
 #include <os_start.h>
@@ -23,7 +24,15 @@ static void HardFault_Handler(void)
 {
 }
 
-/* Flash based ISR vector */
+void Pend_SV_Handler(void)
+{
+}
+
+void SysTick_Handler(void)
+{
+}
+
+//* Flash based ISR vector */
 __attribute__((section(".isr_vector")))
 void (*g_vectors[NUM_IRQS])(void) = {
         STACK_TOP,
@@ -95,6 +104,11 @@ void (*g_vectors[NUM_IRQS])(void) = {
         generic_isr_handler,
 };
 
+static void generic_isr_handler(void)
+{
+  /* get the exception number */
+}
+
 void dummy_fn(void)
 {
         while(1)
@@ -103,13 +117,19 @@ void dummy_fn(void)
         }
 }
 
-static void generic_isr_handler(void)
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+/*
+ * board_init - initialize the board resources
+ *
+ * Initialize the board specific device drivers and prepare the board.
+ */
+void board_init(void)
 {
-  /* get the exception number */
-  uint8_t isr_num = (SCB->ICSR & 0xF);
+  uart_low_init();
+  uart_low_send("\r\n.");
 
-  if (isr_num >= NUM_IRQS || g_ram_vectors[isr_num] == NULL)
-    return;
-
-  g_ram_vectors[isr_num]();
+  uart_init();
 }

@@ -37,7 +37,8 @@ all: create_board_file
 	mkdir -p build && cd build && \
 	${PREFIX}ar xv ${TOPDIR}/${TMP_LIB} && \
 	${PREFIX}gcc ${LDFLAGS} *.o -o build.elf && python3 ${TOPDIR}/patch_stack_addr.py ${PREFIX}readelf && \
-	${PREFIX}objcopy -O ihex build.elf build.hex
+	${PREFIX}objcopy -O ihex build.elf build.hex && \
+	${PREFIX}objcopy -O binary build.elf build.bin
 
 create_board_file:
 	cp arch/*/$(MACHINE_TYPE)/include/*.h include/.
@@ -50,7 +51,7 @@ load:
 
 config:
 	cp config/$(MACHINE_TYPE)/release/defconfig .config
-	cat .config | awk '{split($$0,a,"="); print "export " a[1]}' > Make.defs
+	cat .config | tail -n +4 | sed 's/^/export /' | sed 's/=/ /' > Make.defs
 
 debug:
 	JLinkGDBServer -device nRF52 -speed 4000 -if SWD -port ${DEBUG_PORT}

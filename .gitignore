@@ -1,3 +1,4 @@
+include/board_cfg.h
 .config
 *.o
 *.hex
@@ -13,4 +14,5 @@ tests/original_output
 tests/original_test
 tests/string_test
 tags
-include/board_cfg.h
+*.bin
+build/build.bin
