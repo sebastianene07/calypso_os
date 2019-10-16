@@ -103,9 +103,11 @@ open(..) -> vfs_get_matching_node(..) -------
 
 ```
 
-## Porting Guide (TODO)
+## Porting Guide 
 
-- 
+Check out the versatilepb branch to view how the code was ported on the 
+qemu Armv6 emulator. I'm working to add full support on this machine to
+be able to run it inside qemu.
 
 ## Contributions
 
