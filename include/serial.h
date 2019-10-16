@@ -1,6 +1,7 @@
 #ifndef __SERIAL_H
 #define __SERIAL_H
 
+#include <stdint.h>
 #include <semaphore.h>
 
 /****************************************************************************

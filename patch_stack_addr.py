@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
 import os
+import sys
+
+READELF=sys.argv[1]
 
 # Determine the STACK TOP address
 
@@ -12,7 +15,7 @@ stack_top = int(stack_top_str, 16)
 
 # Determine the locatiion where we patch the stack address in the isr_vector section
 
-find_isr_section_addr_cmd = "readelf -S build.elf | grep \"isr_vector\""
+find_isr_section_addr_cmd = READELF + " -S build.elf | grep \"isr_vector\""
 section_addr_dictionary = os.popen(find_isr_section_addr_cmd).read().split("PROGBITS")[1].strip().split(" ")
 print("Found .isr_vector address at:0x" + section_addr_dictionary[1] + " offset in elf")
 
