@@ -26,6 +26,7 @@
  ****************************************************************************/
 
 #define SPI_M0_BASE            (0x40003000)
+#define SPI_M1_BASE            (0x40004000)
 
 /* Register offsets */
 
@@ -65,6 +66,12 @@
 /* Helper macro */
 
 #define SPI_REG_SET(BASE, OFFSET) (*(volatile uint32_t *)((BASE) + (OFFSET)))
+
+/****************************************************************************
+ * Private Data
+ ****************************************************************************/
+
+const uint32_t spi_base_addr[] = {SPI_M0_BASE, SPI_M1_BASE};
 
 /****************************************************************************
  * Private Functions
@@ -152,39 +159,31 @@ static void spi_configure_pins(spi_master_config_t *cfg, uint32_t base_spi_ptr)
  * a pointer to the initialized SPI devices.
  *
  */
-spi_master_dev_t *spi_init(void)
+spi_master_dev_t *spi_init(struct spi_master_config_s *cfg, size_t num_cfg)
 {
-  spi_master_dev_t *spi = calloc(1, sizeof(spi_master_dev_t));
+  spi_master_dev_t *spi = calloc(num_cfg, sizeof(spi_master_dev_t));
   if (spi == NULL)
   {
     return NULL;
   }
 
-  spi->priv = (void *)SPI_M0_BASE;
+  if (num_cfg > ARRAY_LEN(spi_base_addr))
+  {
+    return NULL;
+  }
 
-  sem_init(&spi->notify_rx_avail, 0, 0);
-  sem_init(&spi->lock_device, 0, 1);
+  for (int i = 0; i < num_cfg; ++i) {
+    spi[i].priv = (void *)spi_base_addr[i];
 
-  /* Pin configuration : SPI 0 */
+    sem_init(&spi[i].notify_rx_avail, 0, 0);
+    sem_init(&spi[i].lock_device, 0, 1);
 
-  spi->dev_cfg = (struct spi_master_config_s) {
-    .miso_pin  = CONFIG_SPI_0_MISO_PIN,
-    .miso_port = CONFIG_SPI_0_MISO_PORT,
+    /* Pin configuration */
 
-    .mosi_pin  = CONFIG_SPI_0_MOSI_PIN,
-    .mosi_port = CONFIG_SPI_0_MOSI_PORT,
+    spi[i].dev_cfg = cfg[i];
+    spi_configure_pins(&spi[i].dev_cfg, spi_base_addr[i]);
+  }
 
-    .sck_pin   = CONFIG_SPI_0_SCK_PIN,
-    .sck_port  = CONFIG_SPI_0_SCK_PORT,
-
-    .cs_pin    = CONFIG_SPI_0_CS_PIN,
-    .cs_port   = CONFIG_SPI_0_CS_PORT,
-
-    .freq      = SPI_M_FREQ_1_MBPS,
-    .mode      = SPI_M_MODE_0,
-  };
-
-  spi_configure_pins(&spi->dev_cfg, SPI_M0_BASE);
   return spi;
 }
 

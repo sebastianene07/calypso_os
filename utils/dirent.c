@@ -1,5 +1,6 @@
 #include <dirent.h>
 #include <semaphore.h>
+#include <string.h>
 
 extern sem_t g_vfs_sema;
 

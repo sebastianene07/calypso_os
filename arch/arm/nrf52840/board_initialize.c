@@ -81,7 +81,27 @@ void board_init(void)
 
   clock_init();
   rtc_init();
-  spi_master_dev_t *spi_0 = spi_init();
+
+  struct spi_master_config_s spi[] = {
+    {
+      .miso_pin  = CONFIG_SPI_0_MISO_PIN,
+      .miso_port = CONFIG_SPI_0_MISO_PORT,
+
+      .mosi_pin  = CONFIG_SPI_0_MOSI_PIN,
+      .mosi_port = CONFIG_SPI_0_MOSI_PORT,
+
+      .sck_pin   = CONFIG_SPI_0_SCK_PIN,
+      .sck_port  = CONFIG_SPI_0_SCK_PORT,
+
+      .cs_pin    = CONFIG_SPI_0_CS_PIN,
+      .cs_port   = CONFIG_SPI_0_CS_PORT,
+
+      .freq      = SPI_M_FREQ_1_MBPS,
+      .mode      = SPI_M_MODE_0,
+    },
+  };
+
+  spi_master_dev_t *spi_devs = spi_init(spi, ARRAY_LEN(spi));
 
   uart_low_init();
   uart_low_send("\r\n.");
@@ -97,11 +117,11 @@ void board_init(void)
 
 #ifdef CONFIG_DISPLAY_SSD1331
   ssd1331_config_t display_config = {
-    .spi_dev = spi_0,
+    .spi_dev = &spi_devs[0],
     .dc_pin  = CONFIG_DISPLAY_DC_PIN,
     .dc_port = CONFIG_DISPLAY_DC_PORT,
-    .cs_pin  = spi_0->dev_cfg.cs_pin,
-    .cs_port = spi_0->dev_cfg.cs_port,
+    .cs_pin  = spi_devs[0].dev_cfg.cs_pin,
+    .cs_port = spi_devs[0].dev_cfg.cs_port,
   };
 
   ssd1331_display_init(&display_config);

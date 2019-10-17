@@ -39,7 +39,7 @@ int console_ls(int argc, const char *argv[])
 
   const char *fmt_1 = "%s%s\n";
   const char *fmt_2 = "%s/%s\n";
-  char *fmt;
+  const char *fmt;
   int len = strlen(pathname);
   if (pathname[len - 1] == '/') {
     fmt = fmt_1;

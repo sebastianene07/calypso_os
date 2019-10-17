@@ -65,7 +65,7 @@ typedef struct spi_master_dev_s
   sem_t lock_device;
 } spi_master_dev_t;
 
-spi_master_dev_t *spi_init(void);
+spi_master_dev_t *spi_init(struct spi_master_config_s *cfg, size_t num_cfg);
 
 void spi_send_recv(spi_master_dev_t *dev, const void *data, size_t len, void *data_rx, size_t len_rx);
 
