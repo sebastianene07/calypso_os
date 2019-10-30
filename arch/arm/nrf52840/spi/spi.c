@@ -201,7 +201,7 @@ spi_master_dev_t *spi_init(struct spi_master_config_s *cfg, size_t num_cfg)
 void spi_send_recv(spi_master_dev_t *dev, const void *data, size_t len, void *data_rx, size_t len_rx)
 {
   uint32_t base_spi_reg = (uint32_t)dev->priv;
-  uint32_t rx_data = len_rx > CONFIG_SPI_BUFFER_LEN ? CONFIG_SPI_BUFFER_LEN : len_rx;
+  uint32_t actual_len_rx = len_rx > CONFIG_SPI_BUFFER_LEN ? CONFIG_SPI_BUFFER_LEN : len_rx;
 
   sem_wait(&dev->lock_device);
 
@@ -213,8 +213,10 @@ void spi_send_recv(spi_master_dev_t *dev, const void *data, size_t len, void *da
 
     SPI_REG_SET(base_spi_reg, EVENTS_STARTED) = 0;
     SPI_REG_SET(base_spi_reg, EVENTS_END) = 0;
+    SPI_REG_SET(base_spi_reg, EVENTS_ENDRX) = 0;
+    SPI_REG_SET(base_spi_reg, EVENTS_ENDTX) = 0;
     SPI_REG_SET(base_spi_reg, RXD_PTR)    = (uint32_t)dev->rx_spi_buffer;
-    SPI_REG_SET(base_spi_reg, RXD_MAXCNT) = rx_data;
+    SPI_REG_SET(base_spi_reg, RXD_MAXCNT) = actual_len_rx;
     SPI_REG_SET(base_spi_reg, TXD_PTR)    = (uint32_t)dev->tx_spi_buffer;
     SPI_REG_SET(base_spi_reg, TXD_MAXCNT) = tx_data_to_send;
     SPI_REG_SET(base_spi_reg, ORC)        = 0;
@@ -222,17 +224,20 @@ void spi_send_recv(spi_master_dev_t *dev, const void *data, size_t len, void *da
 
     while (SPI_REG_SET(base_spi_reg, EVENTS_STARTED) == 0) { }
 
-    while (SPI_REG_SET(base_spi_reg, EVENTS_END) == 0) { }
+    while (SPI_REG_SET(base_spi_reg, EVENTS_ENDTX) == 0) { }
 
     SPI_REG_SET(base_spi_reg, TASKS_START) = 0;
-
-    if (data_rx != NULL && len_rx > 0)
-      memcpy(data_rx, dev->rx_spi_buffer, len_rx);
 
     len -= tx_data_to_send;
     data += tx_data_to_send;
 
   } while (len > 0);
+
+  if (actual_len_rx > 0) {
+    while (SPI_REG_SET(base_spi_reg, EVENTS_ENDRX) == 0) { }
+    if (data_rx != NULL && actual_len_rx > 0)
+      memcpy(data_rx, dev->rx_spi_buffer, actual_len_rx);
+  }
 
   sem_post(&dev->lock_device);
 }

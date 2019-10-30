@@ -98,7 +98,7 @@ void board_init(void)
       .cs_pin    = CONFIG_SPI_0_CS_PIN,
       .cs_port   = CONFIG_SPI_0_CS_PORT,
 
-      .freq      = SPI_M_FREQ_1_MBPS,
+      .freq      = CONFIG_SPI_0_FREQUENCY,
       .mode      = SPI_M_MODE_0,
     },
   };
