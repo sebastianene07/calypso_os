@@ -1,7 +1,7 @@
 SRC := $(wildcard *.c)
 SRC += $(wildcard */*.c)
 OBJS += $(patsubst %.c,%.o,$(SRC))
-ARCH_FLAGS:=${CFLAGS} -I$(TOPDIR)/include -I$(TOPDIR)/s_alloc -I./include/ -I$(TOPDIR)/sched/include
+ARCH_FLAGS:=${CFLAGS} -I$(TOPDIR)/include -I$(TOPDIR)/s_alloc -I./include/ -I$(TOPDIR)/sched/include -I$(TOPDIR)/drivers
 ASM_FLAGS :=-mcpu=cortex-m4 -mthumb -mfloat-abi=soft
 
 SRC_ASM:=$(wildcard *.s)

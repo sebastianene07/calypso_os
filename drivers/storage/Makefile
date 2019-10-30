@@ -5,10 +5,11 @@ SRC+= spi_sdcard.c
 endif
 
 OBJS:=$(patsubst %.c,%.o,$(SRC))
-CONSOLE_FLAGS := ${CFLAGS}																					\
+CONSOLE_FLAGS := ${CFLAGS}																				\
 							-I$(TOPDIR)/include																	\
 							-I$(TOPDIR)/s_alloc																	\
 							-I$(TOPDIR)/sched/include														\
+              -I$(TOPDIR)/drivers/storage                         \
 
 SRC_ASM:=$(wildcard *.s)
 OBJS_ASM:=$(patsubst %.s,%.o,$(SRC_ASM))

@@ -5,7 +5,7 @@ include/board.h
 *.hex
 *.elf
 *.a
-./linker.ld
+/linker.ld
 tags
 *.out
 *.swp

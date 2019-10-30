@@ -6,8 +6,10 @@
 #include <scheduler.h>
 
 #ifdef CONFIG_DISPLAY_SSD1331
-#include <../drivers/display/ssd_1331.h>
+#include <display/ssd_1331.h>
 #endif
+
+#include <storage/spi_sdcard.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -125,6 +127,8 @@ void board_init(void)
   };
 
   ssd1331_display_init(&display_config);
+#else
+  sd_spi_init(&spi_devs[0]);
 #endif
 
   SysTick_Config(SystemCoreClock / 2000);

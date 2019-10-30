@@ -5,8 +5,9 @@ DEBUG_PORT=2331
 # Include user config
 ifeq ($(MACHINE_TYPE),)
 include .config
-include Make.defs
+-include Make.defs
 endif
+
 $(info machine_type=$(MACHINE_TYPE))
 TARGET=$(MACHINE_TYPE)
 
@@ -45,6 +46,7 @@ create_board_file:
 	echo "#ifndef __BOARD_CFG_H\n#define __BOARD_CFG_H" > include/board_cfg.h
 	cat .config | tail -n +4 | sed 's/^/#define /' | sed 's/=/ /' >> include/board_cfg.h
 	echo "#endif /* __BOARD_CFG_H */" >> include/board_cfg.h
+	cat .config | tail -n +4 | sed 's/^/export /' | sed 's/=/ /' > Make.defs
 
 load:
 	nrfjprog -f nrf52 --program build/build.hex --sectorerase
