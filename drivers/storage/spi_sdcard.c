@@ -16,7 +16,7 @@
 /* Command definitions */
 
 #define SPI_CMD_LEN                           (6)
-#define SPI_MAX_REPONSE_LEN                   (5)
+#define SPI_MAX_REPONSE_LEN                   (11)
 
 #define SPI_RESET_CMD                         (0)
 #define SPI_SEND_IF_COND_CMD                  (8)        
@@ -24,7 +24,7 @@
 #define SPI_APP_CMD                           (55)
 #define SPI_READ_OCR                          (58)
 
-#define SD_CARD_MAX_INIT_FAILURES             (3)
+#define SD_CARD_MAX_INIT_FAILURES             (1)
 
 /****************************************************************************
  * Private Data
@@ -73,10 +73,12 @@ static uint8_t sd_crc_add(uint8_t crc, uint8_t message_byte)
     return g_crc7_table[(crc << 1) ^ message_byte];
 } 
 
-static void sd_spi_send_cmd(uint8_t cmd, uint32_t arguments, uint8_t *response, size_t rsp_len)
+static uint8_t sd_spi_send_cmd(uint8_t cmd, uint32_t arguments)
 {
   uint8_t sd_card_cmd[SPI_CMD_LEN];
   uint8_t crc7 = 0;
+  int n = 9;
+  uint8_t res = 0;
 
   sd_spi_set_cs(0);
 
@@ -105,7 +107,14 @@ static void sd_spi_send_cmd(uint8_t cmd, uint32_t arguments, uint8_t *response, 
   /* CRC7 (7 bits) + end bit (1 bit) */
   sd_card_cmd[5] = (crc7 << 1) | 0x1; 
  
-  spi_send_recv(g_sd_spi, sd_card_cmd, sizeof(sd_card_cmd), response, rsp_len);
+  spi_send_recv(g_sd_spi, sd_card_cmd, sizeof(sd_card_cmd), NULL, 0);
+ 
+  do {
+    res = sd_spi_write(0xFF);
+    if (res != 0xFF)
+      break;
+  } while (--n > 0);
+
   sd_spi_set_cs(1);
 }
 
@@ -127,7 +136,7 @@ int sd_spi_init(spi_master_dev_t *spi)
 
     sd_spi_set_cs(0);
 
-    sd_spi_send_cmd(SPI_RESET_CMD, 0, spi_rsp, 1); 
+    spi_rsp[0] = sd_spi_send_cmd(SPI_RESET_CMD, 0); 
     if (spi_rsp[0] != 1) {
       LOG_ERR("init bad response: 0x%x\n try: %d", spi_rsp[0],
         retry_counter);
@@ -142,9 +151,10 @@ int sd_spi_init(spi_master_dev_t *spi)
     return -ENODEV;
   }
 
-  sd_spi_send_cmd(SPI_SEND_IF_COND_CMD, 0x1AA, spi_rsp, SPI_MAX_REPONSE_LEN);
-  sd_spi_send_cmd(SPI_APP_CMD, 0, spi_rsp, 1); 
-  sd_spi_send_cmd(SPI_READ_OCR, 0, spi_rsp, SPI_MAX_REPONSE_LEN);
+  sd_spi_send_cmd(SPI_SEND_IF_COND_CMD, 0x1AA);
+  sd_spi_send_cmd(SPI_APP_CMD, 0); 
+  sd_spi_send_cmd(SPI_READ_OCR, 0);
+/*
   if (spi_rsp[0] != 0) {
     LOG_ERR("invalid card state 0x%x\n ocr:0x%x", spi_rsp[0],
       *((uint32_t *)&spi_rsp[1]));
@@ -156,6 +166,6 @@ int sd_spi_init(spi_master_dev_t *spi)
   } else {
     printf("SdCard byte addressing\n");
   }
-
+*/
 //  sd_spi_send_cmd(SPI_SEND_CSD, 0);
 }
