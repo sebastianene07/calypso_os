@@ -17,17 +17,41 @@
 /* Command definitions */
 
 #define SPI_CMD_LEN                           (6)
-#define SPI_MAX_REPONSE_LEN                   (11)
+#define SPI_MAX_REPONSE_LEN                   (20)
 #define SPI_MAX_RESET_RETRIES                 (60)
 
 #define SPI_RESET_CMD                         (0)
 #define SPI_SEND_OP_COND_CMD                  (1)
+#define SD_SET_WBLON                          (7)
 #define SPI_SEND_IF_COND_CMD                  (8)        
 #define SPI_SEND_CSD                          (9)
 #define SPI_APP_CMD                           (55)
 #define SPI_READ_OCR                          (58)
 #define SPI_SD_SEND_OP_COND_CMD               (41)
-#define SD_CARD_MAX_INIT_FAILURES             (10)
+#define SD_CARD_MAX_INIT_FAILURES             (20)
+#define SD_CSD_RESPONSE_LEN                   (18)
+
+#define SD_TOKEN_START                        (0xFE)
+#define SD_TOKEN_START_MULTI_BLOCK            (0xFC)
+#define SD_TOKEN_STOP_TRANSMISSION            (0xFD)
+#define SD_TOKEN_DATA_ACCEPTED                (0x05)
+#define SD_TOKEN_FLOATING_BUS                 (0xFF)
+
+/****************************************************************************
+ * Private Types
+ ****************************************************************************/
+
+enum card_type_e {
+  SD_BAD_TYPE,
+  SD_LOW_CAPACITY_CARD,
+  SD_HIGH_CAPACITY_CARD,
+};
+
+struct sd_card_s {
+  size_t size;
+  size_t num_blocks;
+  enum card_type_e type;
+};
 
 /****************************************************************************
  * Private Data
@@ -38,6 +62,9 @@ static spi_master_dev_t *g_sd_spi;
 
 /* CRC7 table */
 static uint8_t g_crc7_table[256];
+
+/* Current sd card instance */
+static struct sd_card_s g_sd_card;
 
  /****************************************************************************
  * Private Functions
@@ -221,9 +248,54 @@ int sd_spi_init(spi_master_dev_t *spi)
 
   if (((spi_rsp[0] & 0x40) == 0x40) && (spi_rsp[0] != 0xFF)) {
     LOG_INFO("SdCard block addressing");
+    g_sd_card.type = SD_HIGH_CAPACITY_CARD;
   } else {
-    LOG_INFO("SdCard byte addressing");
+    LOG_ERR("byte addressing");
+    g_sd_card.type = SD_LOW_CAPACITY_CARD; 
   }
 
-//  sd_spi_send_cmd(SPI_SEND_CSD, 0);
+  sd_spi_send_cmd(SPI_SEND_CSD, 0);
+  sd_spi_read(spi_rsp, 1);
+  sd_spi_set_cs(1);
+  if (spi_rsp[0] != 0) {
+    LOG_ERR("read CSD register failed 0x%x\n", spi_rsp[0]);
+    return -ENODEV;
+  }
+
+  sd_spi_set_cs(0); 
+  retry_counter = SD_CARD_MAX_INIT_FAILURES; 
+  do {
+    sd_spi_read(spi_rsp, 1);
+  } while (--retry_counter > 0 && spi_rsp[0] != SD_TOKEN_START);
+
+  if (retry_counter == 0) {
+    LOG_ERR("get card size 0x%x\n", spi_rsp[0]);
+    return -EINVAL;
+  }
+
+  sd_spi_read(spi_rsp, SD_CSD_RESPONSE_LEN);
+  sd_spi_set_cs(1); 
+
+  if (g_sd_card.type == SD_HIGH_CAPACITY_CARD) {
+    g_sd_card.num_blocks = spi_rsp[9] + 1;
+    g_sd_card.num_blocks += (uint32_t)(spi_rsp[8] << 8);
+    g_sd_card.num_blocks += (uint32_t)(spi_rsp[7] & 0x0F) << 12;
+    g_sd_card.size = 524288 * g_sd_card.num_blocks;
+  } else {
+    g_sd_card.size = (((uint16_t)(spi_rsp[6] & 0x03) << 10) | 
+      ((uint16_t)(spi_rsp[7] << 2)) |
+      ((uint16_t)(spi_rsp[8] & 0xC0) >> 6)) + 1;
+    g_sd_card.size = g_sd_card.size << (((spi_rsp[9] & 0x03) << 1) | 
+      ((spi_rsp[10] & 0x80) >> 7) + 2);
+    g_sd_card.size = g_sd_card.size << (spi_rsp[5] & 0x0F);
+
+    g_sd_card.num_blocks = g_sd_card.size / 524288;
+    sd_spi_send_cmd(SD_SET_WBLON, 0x200);
+    sd_spi_set_cs(1);
+  }
+
+  LOG_INFO("card blocks: %d total_size 0x%lx\n", g_sd_card.num_blocks,
+      g_sd_card.size);
+
+  return OK;
 }
