@@ -85,6 +85,7 @@ void board_init(void)
   rtc_init();
 
   struct spi_master_config_s spi[] = {
+#ifdef CONFIG_SPI_0
     {
       .miso_pin  = CONFIG_SPI_0_MISO_PIN,
       .miso_port = CONFIG_SPI_0_MISO_PORT,
@@ -101,6 +102,26 @@ void board_init(void)
       .freq      = CONFIG_SPI_0_FREQUENCY,
       .mode      = SPI_M_MODE_0,
     },
+#endif
+
+#ifdef CONFIG_SPI_1
+    {
+      .miso_pin  = CONFIG_SPI_1_MISO_PIN,
+      .miso_port = CONFIG_SPI_1_MISO_PORT,
+
+      .mosi_pin  = CONFIG_SPI_1_MOSI_PIN,
+      .mosi_port = CONFIG_SPI_1_MOSI_PORT,
+
+      .sck_pin   = CONFIG_SPI_1_SCK_PIN,
+      .sck_port  = CONFIG_SPI_1_SCK_PORT,
+
+      .cs_pin    = CONFIG_SPI_1_CS_PIN,
+      .cs_port   = CONFIG_SPI_1_CS_PORT,
+
+      .freq      = CONFIG_SPI_1_FREQUENCY,
+      .mode      = SPI_M_MODE_0,
+    },
+#endif
   };
 
   spi_master_dev_t *spi_devs = spi_init(spi, ARRAY_LEN(spi));
@@ -127,8 +148,10 @@ void board_init(void)
   };
 
   ssd1331_display_init(&display_config);
-#else
-  sd_spi_init(&spi_devs[0]);
+#endif
+
+#ifdef CONFIG_SPI_SDCARD
+  sd_spi_init(&spi_devs[1]);
 #endif
 
   SysTick_Config(SystemCoreClock / 2000);

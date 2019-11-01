@@ -76,11 +76,10 @@ static uint8_t sd_crc_add(uint8_t crc, uint8_t message_byte)
     return g_crc7_table[(crc << 1) ^ message_byte];
 } 
 
-static uint8_t sd_spi_send_cmd(uint8_t cmd, uint32_t arguments)
+static void sd_spi_send_cmd(uint8_t cmd, uint32_t arguments)
 {
   uint8_t sd_card_cmd[SPI_CMD_LEN];
   uint8_t crc7 = 0;
-  int n = 9;
   uint8_t res = 0;
 
   sd_spi_set_cs(0);
@@ -110,17 +109,21 @@ static uint8_t sd_spi_send_cmd(uint8_t cmd, uint32_t arguments)
   /* CRC7 (7 bits) + end bit (1 bit) */
   sd_card_cmd[5] = (crc7 << 1) | 0x1; 
  
-  spi_send_recv(g_sd_spi, sd_card_cmd, sizeof(sd_card_cmd), NULL, 0);
- 
+  spi_send_recv(g_sd_spi, sd_card_cmd, sizeof(sd_card_cmd), NULL, 0); 
+}
+
+static void sd_spi_read(uint8_t *buffer, size_t expected_len)
+{
+  int n = 9;
+  int i = 0;
+  uint8_t resp = 0xFF;
+
   do {
-    res = sd_spi_write(0xFF);
-    if (res != 0xFF)
-      break;
-  } while (--n > 0);
-
-  sd_spi_set_cs(1);
-
-  return ~res;
+    resp = sd_spi_write(0xFF);
+    if (resp != 0xFF && i < expected_len) {
+      buffer[i++] = resp;
+    }
+  } while (--n > 0 && i < expected_len);
 }
 
 int sd_spi_init(spi_master_dev_t *spi)
@@ -131,8 +134,6 @@ int sd_spi_init(spi_master_dev_t *spi)
   g_sd_spi = spi;
   sd_generate_crc_table();
 
-  do {
-
   sd_spi_set_cs(1);
 
   for (int i = 0; i < SPI_INIT_NUM_BYTES; i++)
@@ -140,38 +141,28 @@ int sd_spi_init(spi_master_dev_t *spi)
 
   sd_spi_set_cs(0);
 
-  LOG_INFO("Send CMD0");
-  spi_rsp[0] = sd_spi_send_cmd(SPI_RESET_CMD, 0); 
+  LOG_INFO("Send CMD0 0x%x\n", SPI_RESET_CMD);
+  sd_spi_send_cmd(SPI_RESET_CMD, 0);
+  sd_spi_read(spi_rsp, 1);
+  sd_spi_set_cs(1);
   if (spi_rsp[0] != 1) {
-    LOG_ERR("init bad response: 0x%x\n try: %d", spi_rsp[0],
-      retry_counter);
-  }
-  else {
-    break;
-  }
-
-    retry_counter++;
-  } while (retry_counter < SD_CARD_MAX_INIT_FAILURES);
-
-  if (retry_counter == SD_CARD_MAX_INIT_FAILURES) {
-    LOG_ERR("Invalid response, abort init\n");
-    return -EINVAL;
+    LOG_ERR("init bad response: 0x%x\n", spi_rsp[0]);
+    return -ENODEV;
   }
 
   LOG_INFO("Response: 0x%x", spi_rsp[0]);
 
-  LOG_INFO("Send CMD8");
-  spi_rsp[0] = sd_spi_send_cmd(SPI_SEND_IF_COND_CMD, 0x1AA);
-  LOG_INFO("Response: 0x%x", spi_rsp[0]);
+  LOG_INFO("Send CMD8 0x%x\n", SPI_SEND_IF_COND_CMD);
+  sd_spi_send_cmd(SPI_SEND_IF_COND_CMD, 0x1AA);
+  sd_spi_read(spi_rsp, 1);
 
   if ((spi_rsp[0] == 0xFF) || (spi_rsp[0] == 0x05)) {
-    LOG_INFO("SdCard version 1"); 
+    sd_spi_set_cs(1);
   } else {
 
-    for (int i = 0; i < 4; i++) {
-      spi_rsp[i] = sd_spi_write(0xFF);
-    }
-    
+    sd_spi_read(spi_rsp, 4);
+    sd_spi_set_cs(1);
+
     if (spi_rsp[2] != 0x01) {
       LOG_ERR("Voltage not accepted 0x%d\n", spi_rsp[2]);
       return -EINVAL;
@@ -191,13 +182,18 @@ int sd_spi_init(spi_master_dev_t *spi)
   uint8_t cmd = SPI_SD_SEND_OP_COND_CMD;
 
   LOG_INFO("Send CMD55");
-  spi_rsp[0] = sd_spi_send_cmd(SPI_APP_CMD, 0);
+  sd_spi_send_cmd(SPI_APP_CMD, 0);
+  sd_spi_read(spi_rsp, 1);
+  sd_spi_set_cs(1);
   LOG_INFO("Response: 0x%x", spi_rsp[0]); 
 
   do {
     counter++;
     LOG_INFO("Send %s", cmd == SPI_SD_SEND_OP_COND_CMD ? "CMD1" : "ACMD41");
-    spi_rsp[0] = sd_spi_send_cmd(cmd, 0x40000000);
+    sd_spi_send_cmd(cmd, 0x40000000);
+    sd_spi_read(spi_rsp, 1);
+    sd_spi_set_cs(1);
+
     LOG_INFO("Response: 0x%x", spi_rsp[0]);
 
     if ((spi_rsp[0] & 0xF) == 0x05) {
@@ -213,15 +209,14 @@ int sd_spi_init(spi_master_dev_t *spi)
     return -EINVAL; 
   }
 
-  spi_rsp[0] = sd_spi_send_cmd(SPI_READ_OCR, 0);
+  sd_spi_send_cmd(SPI_READ_OCR, 0);
+  sd_spi_read(spi_rsp, 1);
   if (spi_rsp[0] != 0) {
     LOG_ERR("get capacity response 0x%x", spi_rsp[0]);
     return -EINVAL;
   }
 
-  for (int i = 0; i < 4; i++) {
-    spi_rsp[i] = sd_spi_write(0xFF);
-  }
+  sd_spi_read(spi_rsp, 4);
   sd_spi_set_cs(1);
 
   if (((spi_rsp[0] & 0x40) == 0x40) && (spi_rsp[0] != 0xFF)) {
