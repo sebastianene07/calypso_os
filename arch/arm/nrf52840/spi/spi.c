@@ -214,17 +214,19 @@ void spi_send_recv(spi_master_dev_t *dev, const void *data, size_t len, void *da
     SPI_REG_SET(base_spi_reg, EVENTS_STARTED) = 0;
     SPI_REG_SET(base_spi_reg, EVENTS_END) = 0;
     SPI_REG_SET(base_spi_reg, EVENTS_ENDRX) = 0;
+    SPI_REG_SET(base_spi_reg, STALLSTAT) = 0; 
     SPI_REG_SET(base_spi_reg, EVENTS_ENDTX) = 0;
     SPI_REG_SET(base_spi_reg, RXD_PTR)    = (uint32_t)dev->rx_spi_buffer;
     SPI_REG_SET(base_spi_reg, RXD_MAXCNT) = actual_len_rx;
     SPI_REG_SET(base_spi_reg, TXD_PTR)    = (uint32_t)dev->tx_spi_buffer;
     SPI_REG_SET(base_spi_reg, TXD_MAXCNT) = tx_data_to_send;
-    SPI_REG_SET(base_spi_reg, ORC)        = 0;
+    SPI_REG_SET(base_spi_reg, ORC)        = 0XFF;
+
     SPI_REG_SET(base_spi_reg, TASKS_START) = 1;
 
     while (SPI_REG_SET(base_spi_reg, EVENTS_STARTED) == 0) { }
 
-    while (SPI_REG_SET(base_spi_reg, EVENTS_ENDTX) == 0) { }
+    while (SPI_REG_SET(base_spi_reg, EVENTS_END) == 0) { }
 
     SPI_REG_SET(base_spi_reg, TASKS_START) = 0;
 
@@ -234,7 +236,6 @@ void spi_send_recv(spi_master_dev_t *dev, const void *data, size_t len, void *da
   } while (len > 0);
 
   if (actual_len_rx > 0) {
-    while (SPI_REG_SET(base_spi_reg, EVENTS_ENDRX) == 0) { }
     if (data_rx != NULL && actual_len_rx > 0)
       memcpy(data_rx, dev->rx_spi_buffer, actual_len_rx);
   }

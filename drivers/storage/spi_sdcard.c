@@ -28,7 +28,7 @@
 #define SPI_APP_CMD                           (55)
 #define SPI_READ_OCR                          (58)
 #define SPI_SD_SEND_OP_COND_CMD               (41)
-#define SD_CARD_MAX_INIT_FAILURES             (20)
+#define SD_CARD_MAX_INIT_FAILURES             (10)
 #define SD_CSD_RESPONSE_LEN                   (18)
 
 #define SD_TOKEN_START                        (0xFE)
@@ -103,12 +103,16 @@ static uint8_t sd_crc_add(uint8_t crc, uint8_t message_byte)
     return g_crc7_table[(crc << 1) ^ message_byte];
 } 
 
+static uint8_t g_sd_resp[SPI_CMD_LEN + 9];
+static int g_rsp_index = 0;
+
 static void sd_spi_send_cmd(uint8_t cmd, uint32_t arguments)
 {
   uint8_t sd_card_cmd[SPI_CMD_LEN];
   uint8_t crc7 = 0;
   uint8_t res = 0;
 
+  g_rsp_index = 0;
   sd_spi_set_cs(0);
 
 #if IS_BIG_ENDIAN
@@ -135,8 +139,16 @@ static void sd_spi_send_cmd(uint8_t cmd, uint32_t arguments)
 
   /* CRC7 (7 bits) + end bit (1 bit) */
   sd_card_cmd[5] = (crc7 << 1) | 0x1; 
- 
-  spi_send_recv(g_sd_spi, sd_card_cmd, sizeof(sd_card_cmd), NULL, 0); 
+
+  memset(g_sd_resp, 0xFF, sizeof(g_sd_resp)); 
+  spi_send_recv(g_sd_spi, sd_card_cmd, sizeof(sd_card_cmd), g_sd_resp, sizeof(g_sd_resp)); 
+
+  sd_spi_set_cs(1);
+
+  for (int i = 6; i < sizeof(g_sd_resp); i++) {
+    printf("\r\n0x%x,", g_sd_resp[i]);
+  }
+  printf("\r\n");
 }
 
 static void sd_spi_read(uint8_t *buffer, size_t expected_len)
@@ -149,13 +161,25 @@ static void sd_spi_read(uint8_t *buffer, size_t expected_len)
     resp = sd_spi_write(0xFF);
     if (resp != 0xFF && i < expected_len) {
       buffer[i++] = resp;
+      n = 9;
     }
   } while (--n > 0 && i < expected_len);
 }
 
+static uint8_t sd_read_byte_ignore_char(uint8_t ignore)
+{
+  for (g_rsp_index; g_rsp_index < sizeof(g_sd_resp); g_rsp_index++)
+    if (g_sd_resp[g_rsp_index] != ignore) {
+      g_rsp_index++;
+      return g_sd_resp[g_rsp_index - 1];
+    }
+
+  return 0xFF;
+}
+
 int sd_spi_init(spi_master_dev_t *spi)
 {
-  uint8_t spi_rsp[SPI_MAX_REPONSE_LEN] = {0};
+  uint8_t spi_rsp;
   int retry_counter = 0;
 
   g_sd_spi = spi;
@@ -170,39 +194,34 @@ int sd_spi_init(spi_master_dev_t *spi)
 
   LOG_INFO("Send CMD0 0x%x\n", SPI_RESET_CMD);
   sd_spi_send_cmd(SPI_RESET_CMD, 0);
-  sd_spi_read(spi_rsp, 1);
-  sd_spi_set_cs(1);
-  if (spi_rsp[0] != 1) {
-    LOG_ERR("init bad response: 0x%x\n", spi_rsp[0]);
+  g_rsp_index = 6;
+  if ((spi_rsp = sd_read_byte_ignore_char(0xFF)) != 1) {
+    LOG_ERR("init bad response: 0x%x\n", spi_rsp);
     return -ENODEV;
   }
-
-  LOG_INFO("Response: 0x%x", spi_rsp[0]);
+  LOG_INFO("Response: 0x%x", spi_rsp);
 
   LOG_INFO("Send CMD8 0x%x\n", SPI_SEND_IF_COND_CMD);
   sd_spi_send_cmd(SPI_SEND_IF_COND_CMD, 0x1AA);
-  sd_spi_read(spi_rsp, 1);
-
-  if ((spi_rsp[0] == 0xFF) || (spi_rsp[0] == 0x05)) {
+  g_rsp_index = 6;
+  spi_rsp = sd_read_byte_ignore_char(0xFF);
+  if ((spi_rsp == 0xFF) || (spi_rsp == 0x05)) {
     sd_spi_set_cs(1);
   } else {
 
-    sd_spi_read(spi_rsp, 4);
     sd_spi_set_cs(1);
 
-    if (spi_rsp[2] != 0x01) {
-      LOG_ERR("Voltage not accepted 0x%d\n", spi_rsp[2]);
+    spi_rsp = sd_read_byte_ignore_char(0x00);
+    if (spi_rsp != 0x01) {
+      LOG_ERR("Voltage not accepted 0x%d\n", spi_rsp);
       return -EINVAL;
     }
 
-    if (spi_rsp[3] != 0xAA) {
-      LOG_ERR("Wrong test patern 0x%x\n", spi_rsp[3]);
+    spi_rsp = sd_read_byte_ignore_char(0xFF);
+    if (spi_rsp != 0xAA) {
+      LOG_ERR("Wrong test patern 0x%x\n", spi_rsp);
       return -EINVAL;
     }
-
-    LOG_INFO("Response: 0x%x SdCard version 2", *(uint32_t *)spi_rsp);
-   
-    sd_spi_set_cs(1);
   }
 
   int counter = 0;
@@ -210,66 +229,71 @@ int sd_spi_init(spi_master_dev_t *spi)
 
   LOG_INFO("Send CMD55");
   sd_spi_send_cmd(SPI_APP_CMD, 0);
-  sd_spi_read(spi_rsp, 1);
-  sd_spi_set_cs(1);
-  LOG_INFO("Response: 0x%x", spi_rsp[0]); 
+  spi_rsp = sd_read_byte_ignore_char(0xFF);
+
+  LOG_INFO("Response: 0x%x", spi_rsp); 
 
   do {
     counter++;
-    LOG_INFO("Send %s", cmd == SPI_SD_SEND_OP_COND_CMD ? "CMD1" : "ACMD41");
+    LOG_INFO("Send %s", cmd == SPI_SD_SEND_OP_COND_CMD ? "ACMD41" : "CMD 1");
     sd_spi_send_cmd(cmd, 0x40000000);
-    sd_spi_read(spi_rsp, 1);
-    sd_spi_set_cs(1);
+    spi_rsp = sd_read_byte_ignore_char(0xFF);
 
-    LOG_INFO("Response: 0x%x", spi_rsp[0]);
+    LOG_INFO("Response: 0x%x", spi_rsp);
 
-    if ((spi_rsp[0] & 0xF) == 0x05) {
+    if ((spi_rsp & 0xF) == 0x05) {
       cmd = SPI_SEND_OP_COND_CMD; 
     } else {
       cmd = SPI_SD_SEND_OP_COND_CMD;
     }
 
-  } while (spi_rsp[0] != 0 && counter < SPI_MAX_RESET_RETRIES);
+  } while (spi_rsp != 0 && counter < SPI_MAX_RESET_RETRIES);
  
-  if (counter == SPI_MAX_RESET_RETRIES && spi_rsp[0] != 0) {
-    LOG_ERR("cannot reset 0x%x\r\n", spi_rsp[0]);
+  if (counter == SPI_MAX_RESET_RETRIES) {
+    LOG_ERR("cannot reset 0x%x\r\n", spi_rsp);
     return -EINVAL; 
   }
 
   sd_spi_send_cmd(SPI_READ_OCR, 0);
-  sd_spi_read(spi_rsp, 1);
-  if (spi_rsp[0] != 0) {
-    LOG_ERR("get capacity response 0x%x", spi_rsp[0]);
+  g_rsp_index = 6;
+  spi_rsp = sd_read_byte_ignore_char(0xFF);
+  if (spi_rsp != 0) {
+    LOG_ERR("get capacity response 0x%x", spi_rsp);
     return -EINVAL;
   }
 
-  sd_spi_read(spi_rsp, 4);
-  sd_spi_set_cs(1);
-
-  if (((spi_rsp[0] & 0x40) == 0x40) && (spi_rsp[0] != 0xFF)) {
-    LOG_INFO("SdCard block addressing");
+  if (((spi_rsp & 0x40) == 0x40) && (spi_rsp != 0xFF)) {
+    LOG_INFO("SdCard block addressing 0x%x\n", spi_rsp);
     g_sd_card.type = SD_HIGH_CAPACITY_CARD;
   } else {
-    LOG_ERR("byte addressing");
-    g_sd_card.type = SD_LOW_CAPACITY_CARD; 
+    LOG_ERR("byte addressing  0x%x\n", spi_rsp);
+    g_sd_card.type = SD_LOW_CAPACITY_CARD;
+    return -EINVAL; 
   }
 
   sd_spi_send_cmd(SPI_SEND_CSD, 0);
-  sd_spi_read(spi_rsp, 1);
-  sd_spi_set_cs(1);
-  if (spi_rsp[0] != 0) {
-    LOG_ERR("read CSD register failed 0x%x\n", spi_rsp[0]);
+  spi_rsp = sd_read_byte_ignore_char(0xFF);
+  if (spi_rsp != 0) {
+    LOG_ERR("read CSD register failed 0x%x\n", spi_rsp);
     return -ENODEV;
   }
+#if 0
+  int index = 0;
+  int found = 0;
+  for (index; index < SPI_MAX_REPONSE_LEN; ++index) {
+    if (spi_rsp[index] == SD_TOKEN_START) {
+      found = 1;
+      break;
+    }
+  }
 
-  sd_spi_set_cs(0); 
-  retry_counter = SD_CARD_MAX_INIT_FAILURES; 
-  do {
-    sd_spi_read(spi_rsp, 1);
-  } while (--retry_counter > 0 && spi_rsp[0] != SD_TOKEN_START);
-
-  if (retry_counter == 0) {
+  if (found == 0) {
     LOG_ERR("get card size 0x%x\n", spi_rsp[0]);
+ 
+    for (int i = 0; i < 20; i++) {
+      
+      LOG_ERR("0x%x, ", spi_rsp[i]);
+    }    
     return -EINVAL;
   }
 
@@ -290,12 +314,12 @@ int sd_spi_init(spi_master_dev_t *spi)
     g_sd_card.size = g_sd_card.size << (spi_rsp[5] & 0x0F);
 
     g_sd_card.num_blocks = g_sd_card.size / 524288;
-    sd_spi_send_cmd(SD_SET_WBLON, 0x200);
+    //sd_spi_send_cmd(SD_SET_WBLON, 0x200);
     sd_spi_set_cs(1);
   }
 
   LOG_INFO("card blocks: %d total_size 0x%lx\n", g_sd_card.num_blocks,
       g_sd_card.size);
-
+#endif
   return OK;
 }

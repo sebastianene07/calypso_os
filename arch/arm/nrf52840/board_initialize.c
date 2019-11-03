@@ -153,7 +153,7 @@ void board_init(void)
 #ifdef CONFIG_SPI_SDCARD
   gpio_toogle(0, CONFIG_SPI_SDCARD_VSYS_PIN, CONFIG_SPI_SDCARD_VSYS_PIN);
   gpio_toogle(1, CONFIG_SPI_SDCARD_VSYS_PIN, CONFIG_SPI_SDCARD_VSYS_PIN);
-  sd_spi_init(&spi_devs[1]);
+  sd_spi_init(&spi_devs[0]);
 #endif
 
   SysTick_Config(SystemCoreClock / 2000);
