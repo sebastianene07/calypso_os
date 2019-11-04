@@ -260,6 +260,7 @@ int sd_spi_init(spi_master_dev_t *spi)
     return -EINVAL;
   }
 
+  spi_rsp = sd_read_byte_ignore_char(0xFF);
   if (((spi_rsp & 0x40) == 0x40) && (spi_rsp != 0xFF)) {
     LOG_INFO("SdCard block addressing 0x%x\n", spi_rsp);
     g_sd_card.type = SD_HIGH_CAPACITY_CARD;
@@ -269,12 +270,15 @@ int sd_spi_init(spi_master_dev_t *spi)
     return -EINVAL; 
   }
 
+  LOG_INFO("Send CMD9\n");
   sd_spi_send_cmd(SPI_SEND_CSD, 0);
   spi_rsp = sd_read_byte_ignore_char(0xFF);
   if (spi_rsp != 0) {
     LOG_ERR("read CSD register failed 0x%x\n", spi_rsp);
     return -ENODEV;
   }
+
+  sd_read_byte_ignore_char(0xFE);
 #if 0
   int index = 0;
   int found = 0;
