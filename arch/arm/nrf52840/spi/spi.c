@@ -63,6 +63,12 @@
 #define IFTIMING_CSNDUR        (0x564)
 #define ORC                    (0x5C0)
 
+/* Legacy registers */
+
+#define EVENTS_READY           (0x108)
+#define RXD                    (0x518)
+#define TXD                    (0x51C)
+
 /* Helper macro */
 
 #define SPI_REG_SET(BASE, OFFSET) (*(volatile uint32_t *)((BASE) + (OFFSET)))
@@ -86,9 +92,9 @@ const uint32_t spi_base_addr[] = {SPI_M0_BASE, SPI_M1_BASE};
  */
 static void spi_configure_pins(spi_master_config_t *cfg, uint32_t base_spi_ptr)
 {
-    gpio_configure(cfg->sck_pin, cfg->sck_port, GPIO_DIRECTION_OUT, GPIO_PIN_INPUT_DISCONNECT, GPIO_NO_PULL, GPIO_PIN_S0S1, GPIO_PIN_NO_SENS);
+    gpio_configure(cfg->sck_pin, cfg->sck_port, GPIO_DIRECTION_OUT, GPIO_PIN_INPUT_CONNECT, GPIO_NO_PULL, GPIO_PIN_S0S1, GPIO_PIN_NO_SENS);
     gpio_configure(cfg->mosi_pin, cfg->mosi_port, GPIO_DIRECTION_OUT, GPIO_PIN_INPUT_DISCONNECT, GPIO_NO_PULL, GPIO_PIN_S0S1, GPIO_PIN_NO_SENS);
-    gpio_configure(cfg->miso_pin, cfg->miso_port, GPIO_DIRECTION_IN, GPIO_PIN_INPUT_CONNECT, GPIO_PULLDOWN, GPIO_PIN_S0S1, GPIO_PIN_SENSE_HIGH);
+    gpio_configure(cfg->miso_pin, cfg->miso_port, GPIO_DIRECTION_IN, GPIO_PIN_INPUT_CONNECT, GPIO_PULLDOWN, GPIO_PIN_S0S1, GPIO_PIN_NO_SENS);
     gpio_configure(cfg->cs_pin, cfg->cs_port, GPIO_DIRECTION_OUT, GPIO_PIN_INPUT_DISCONNECT, GPIO_NO_PULL, GPIO_PIN_S0S1, GPIO_PIN_NO_SENS);
 
     /* Set the master SPI SCK pin */
@@ -98,13 +104,13 @@ static void spi_configure_pins(spi_master_config_t *cfg, uint32_t base_spi_ptr)
 
     SPI_REG_SET(base_spi_ptr, PSEL_MOSI) = cfg->mosi_pin | (cfg->mosi_port << 5);
 
-    /* Set the master MOSI pin */
+    /* Set the master MISO pin */
 
     SPI_REG_SET(base_spi_ptr, PSEL_MISO) = cfg->miso_pin | (cfg->miso_port << 5);
 
     /* Set the master chip select pin */
 
-    SPI_REG_SET(base_spi_ptr, PSEL_CSN) = cfg->cs_pin | (cfg->cs_port << 5);
+//    SPI_REG_SET(base_spi_ptr, PSEL_CSN) = cfg->cs_pin | (cfg->cs_port << 5);
 
   /* Select SPI MODE */
 
@@ -187,6 +193,16 @@ spi_master_dev_t *spi_init(struct spi_master_config_s *cfg, size_t num_cfg)
   return spi;
 }
 
+static uint8_t spi_send_byte_receive(uint32_t base_spi_reg, uint8_t tx)
+{
+  volatile uint32_t rx = 0;
+  SPI_REG_SET(base_spi_reg, EVENTS_READY) = 0;
+  SPI_REG_SET(base_spi_reg, TXD) = tx;
+  while (SPI_REG_SET(base_spi_reg, EVENTS_READY) == 0);
+  rx = SPI_REG_SET(base_spi_reg, RXD);
+  return (uint8_t)rx;
+}
+
 /*
  * spi_send_recv - sends data on the SPI bus
  *
@@ -198,30 +214,57 @@ spi_master_dev_t *spi_init(struct spi_master_config_s *cfg, size_t num_cfg)
  *
  * This function configures the SPIm peripheral to send a chunk of data.
  */
-void spi_send_recv(spi_master_dev_t *dev, const void *data, size_t len, void *data_rx, size_t len_rx)
+void spi_send_recv(spi_master_dev_t *dev, const void *data, size_t len_tx, void *data_rx, size_t len_rx)
 {
   uint32_t base_spi_reg = (uint32_t)dev->priv;
-  uint32_t actual_len_rx = len_rx > CONFIG_SPI_BUFFER_LEN ? CONFIG_SPI_BUFFER_LEN : len_rx;
+#if 0
+  size_t xfer_len = len_tx > len_rx ? len_tx : len_rx;
+  int index;
+  volatile uint8_t rx, tx;
 
+  index = 0;
+
+  do {
+    if (index < len_tx) {
+      tx = ((uint8_t *)data)[index];
+    } else {
+      tx = 0xFF;
+    }
+    
+    uint8_t rx = spi_send_byte_receive(base_spi_reg, tx);
+    if (index < len_rx) {
+      ((uint8_t *)data_rx)[index] = rx;
+    }
+
+    index++;
+  } while (index < xfer_len);
+
+#endif
+  uint32_t actual_len_rx = len_rx > CONFIG_SPI_BUFFER_LEN ? 
+    CONFIG_SPI_BUFFER_LEN : 
+    len_rx;
+ 
   sem_wait(&dev->lock_device);
 
   do {
 
-    size_t tx_data_to_send = len > CONFIG_SPI_BUFFER_LEN ? CONFIG_SPI_BUFFER_LEN : len;
+    size_t tx_data_to_send = len_tx > CONFIG_SPI_BUFFER_LEN ? CONFIG_SPI_BUFFER_LEN : len_tx;
 
     memcpy(dev->tx_spi_buffer, data, tx_data_to_send);
 
     SPI_REG_SET(base_spi_reg, EVENTS_STARTED) = 0;
-    SPI_REG_SET(base_spi_reg, EVENTS_END) = 0;
-    SPI_REG_SET(base_spi_reg, EVENTS_ENDRX) = 0;
-    SPI_REG_SET(base_spi_reg, STALLSTAT) = 0; 
-    SPI_REG_SET(base_spi_reg, EVENTS_ENDTX) = 0;
+    SPI_REG_SET(base_spi_reg, EVENTS_END)     = 0;
+    SPI_REG_SET(base_spi_reg, EVENTS_ENDRX)   = 0;
+    SPI_REG_SET(base_spi_reg, STALLSTAT)      = 0; 
+    SPI_REG_SET(base_spi_reg, EVENTS_ENDTX)   = 0;
+
     SPI_REG_SET(base_spi_reg, RXD_PTR)    = (uint32_t)dev->rx_spi_buffer;
     SPI_REG_SET(base_spi_reg, RXD_MAXCNT) = actual_len_rx;
+
     SPI_REG_SET(base_spi_reg, TXD_PTR)    = (uint32_t)dev->tx_spi_buffer;
     SPI_REG_SET(base_spi_reg, TXD_MAXCNT) = tx_data_to_send;
-    SPI_REG_SET(base_spi_reg, ORC)        = 0XFF;
 
+    SPI_REG_SET(base_spi_reg, ORC)         = 0XFF;
     SPI_REG_SET(base_spi_reg, TASKS_START) = 1;
 
     while (SPI_REG_SET(base_spi_reg, EVENTS_STARTED) == 0) { }
@@ -230,10 +273,10 @@ void spi_send_recv(spi_master_dev_t *dev, const void *data, size_t len, void *da
 
     SPI_REG_SET(base_spi_reg, TASKS_START) = 0;
 
-    len -= tx_data_to_send;
+    len_tx -= tx_data_to_send;
     data += tx_data_to_send;
 
-  } while (len > 0);
+  } while (len_tx > 0);
 
   if (actual_len_rx > 0) {
     if (data_rx != NULL && actual_len_rx > 0)
@@ -241,4 +284,6 @@ void spi_send_recv(spi_master_dev_t *dev, const void *data, size_t len, void *da
   }
 
   sem_post(&dev->lock_device);
+
+//#endif 
 }

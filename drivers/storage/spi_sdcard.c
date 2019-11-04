@@ -190,8 +190,6 @@ int sd_spi_init(spi_master_dev_t *spi)
   for (int i = 0; i < SPI_INIT_NUM_BYTES; i++)
     sd_spi_write(SPI_INIT_DUMMY_BYTE);
 
-  sd_spi_set_cs(0);
-
   LOG_INFO("Send CMD0 0x%x\n", SPI_RESET_CMD);
   sd_spi_send_cmd(SPI_RESET_CMD, 0);
   g_rsp_index = 6;
