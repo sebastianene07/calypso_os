@@ -217,7 +217,8 @@ static uint8_t spi_send_byte_receive(uint32_t base_spi_reg, uint8_t tx)
 void spi_send_recv(spi_master_dev_t *dev, const void *data, size_t len_tx, void *data_rx, size_t len_rx)
 {
   uint32_t base_spi_reg = (uint32_t)dev->priv;
-#if 0
+
+#ifdef CONFIG_SPI_NO_DMA
   size_t xfer_len = len_tx > len_rx ? len_tx : len_rx;
   int index;
   volatile uint8_t rx, tx;
@@ -239,7 +240,7 @@ void spi_send_recv(spi_master_dev_t *dev, const void *data, size_t len_tx, void 
     index++;
   } while (index < xfer_len);
 
-#endif
+#else
   uint32_t actual_len_rx = len_rx > CONFIG_SPI_BUFFER_LEN ? 
     CONFIG_SPI_BUFFER_LEN : 
     len_rx;
@@ -285,5 +286,5 @@ void spi_send_recv(spi_master_dev_t *dev, const void *data, size_t len_tx, void 
 
   sem_post(&dev->lock_device);
 
-//#endif 
+#endif 
 }

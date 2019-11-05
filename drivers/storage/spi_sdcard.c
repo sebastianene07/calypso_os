@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <gpio.h>
+#include <string.h>
 
 #define LOG_ERR(msg, ...)  printf("[sd_spi] Error:"msg"\r\n", ##__VA_ARGS__)
 #define LOG_INFO(msg, ...) printf("[sd_spi] Info:"msg"\r\n", ##__VA_ARGS__)
