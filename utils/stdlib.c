@@ -54,6 +54,16 @@ void *reallocarray(void *ptr, size_t nmemb, size_t size)
   return NULL;
 }
 
+unsigned long atol(const char *nptr)
+{
+  unsigned long res = 0;
+
+  for (int i = 0; nptr[i] != '\0'; ++i)
+      res = res * 10 + nptr[i] - '0';
+
+  return res;
+}
+
 int atoi(const char *nptr)
 {
   int res = 0;

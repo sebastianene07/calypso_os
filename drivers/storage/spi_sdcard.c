@@ -279,50 +279,40 @@ int sd_spi_init(spi_master_dev_t *spi)
     return -ENODEV;
   }
 
+  uint8_t sd_capacity_info[SD_CSD_RESPONSE_LEN];
   sd_read_byte_ignore_char(0xFE);
-#if 0
-  int index = 0;
-  int found = 0;
-  for (index; index < SPI_MAX_REPONSE_LEN; ++index) {
-    if (spi_rsp[index] == SD_TOKEN_START) {
-      found = 1;
-      break;
-    }
-  }
+  g_rsp_index++;
+  int remaining_bytes = sizeof(g_sd_resp) - g_rsp_index;
 
-  if (found == 0) {
-    LOG_ERR("get card size 0x%x\n", spi_rsp[0]);
- 
-    for (int i = 0; i < 20; i++) {
-      
-      LOG_ERR("0x%x, ", spi_rsp[i]);
-    }    
-    return -EINVAL;
-  }
+  printf("\r\n Found 0xFE on %d pos\n", remaining_bytes);
 
-  sd_spi_read(spi_rsp, SD_CSD_RESPONSE_LEN);
+  memcpy(sd_capacity_info, g_sd_resp + g_rsp_index, remaining_bytes);
+  sd_spi_set_cs(0);
+  sd_spi_read(sd_capacity_info + remaining_bytes,
+              SD_CSD_RESPONSE_LEN - remaining_bytes);
   sd_spi_set_cs(1); 
 
+   for (int i = 0; i < SD_CSD_RESPONSE_LEN; i++) {
+    printf("\r\n0x%x,", sd_capacity_info[i]);
+  }
+
   if (g_sd_card.type == SD_HIGH_CAPACITY_CARD) {
-    g_sd_card.num_blocks = spi_rsp[9] + 1;
-    g_sd_card.num_blocks += (uint32_t)(spi_rsp[8] << 8);
-    g_sd_card.num_blocks += (uint32_t)(spi_rsp[7] & 0x0F) << 12;
+    g_sd_card.num_blocks = sd_capacity_info[9] + 1;
+    g_sd_card.num_blocks += (uint32_t)(sd_capacity_info[8] << 8);
+    g_sd_card.num_blocks += (uint32_t)(sd_capacity_info[7] & 0x0F) << 12;
     g_sd_card.size = 524288 * g_sd_card.num_blocks;
   } else {
-    g_sd_card.size = (((uint16_t)(spi_rsp[6] & 0x03) << 10) | 
-      ((uint16_t)(spi_rsp[7] << 2)) |
-      ((uint16_t)(spi_rsp[8] & 0xC0) >> 6)) + 1;
-    g_sd_card.size = g_sd_card.size << (((spi_rsp[9] & 0x03) << 1) | 
-      ((spi_rsp[10] & 0x80) >> 7) + 2);
-    g_sd_card.size = g_sd_card.size << (spi_rsp[5] & 0x0F);
+    g_sd_card.size = (((uint16_t)(sd_capacity_info[6] & 0x03) << 10) | 
+      ((uint16_t)(sd_capacity_info[7] << 2)) |
+      ((uint16_t)(sd_capacity_info[8] & 0xC0) >> 6)) + 1;
+    g_sd_card.size = g_sd_card.size << (((sd_capacity_info[9] & 0x03) << 1) | 
+      ((sd_capacity_info[10] & 0x80) >> 7) + 2);
+    g_sd_card.size = g_sd_card.size << (sd_capacity_info[5] & 0x0F);
 
     g_sd_card.num_blocks = g_sd_card.size / 524288;
-    //sd_spi_send_cmd(SD_SET_WBLON, 0x200);
     sd_spi_set_cs(1);
   }
 
-  LOG_INFO("card blocks: %d total_size 0x%lx\n", g_sd_card.num_blocks,
-      g_sd_card.size);
-#endif
+  LOG_INFO("card blocks: %d\n", g_sd_card.num_blocks);
   return OK;
 }
