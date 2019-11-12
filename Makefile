@@ -37,7 +37,7 @@ all: create_board_file
 
 	mkdir -p build && cd build && \
 	${PREFIX}ar xv ${TOPDIR}/${TMP_LIB} && \
-	${PREFIX}gcc ${LDFLAGS} *.o -o build.elf && python3 ${TOPDIR}/patch_stack_addr.py ${PREFIX}readelf && \
+	${PREFIX}gcc ${LDFLAGS} *.o -o build.elf && \
 	${PREFIX}objcopy -O ihex build.elf build.hex && \
 	${PREFIX}objcopy -O binary build.elf build.bin
 
@@ -66,6 +66,6 @@ clean:
 	done ;
 	rm -rf build/ && rm linker* tmp_lib*
 
-distclean:
+distclean: clean
 	rm .config
 	rm -f Make.defs
