@@ -40,7 +40,7 @@ all: create_board_file
 	${PREFIX}gcc ${LDFLAGS} *.o -o build.elf && \
 	${PREFIX}objcopy -O ihex build.elf build.hex && \
 	${PREFIX}objcopy -O binary build.elf build.bin
-#python3 ${TOPDIR}/patch_stack_addr.py ${PREFIX}readelf &&
+
 create_board_file:
 	cp arch/*/$(MACHINE_TYPE)/include/*.h include/.
 	echo "#ifndef __BOARD_CFG_H\n#define __BOARD_CFG_H" > include/board_cfg.h
@@ -66,6 +66,6 @@ clean:
 	done ;
 	rm -rf build/ && rm linker* tmp_lib*
 
-distclean:
+distclean: clean
 	rm .config
 	rm -f Make.defs
