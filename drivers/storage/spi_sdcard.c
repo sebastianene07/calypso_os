@@ -28,6 +28,7 @@
 #define SPI_SEND_CSD                          (9)
 #define SPI_APP_CMD                           (55)
 #define SPI_READ_OCR                          (58)
+#define SPI_READ_SINGLE_BLOCK                 (17)
 #define SPI_SD_SEND_OP_COND_CMD               (41)
 #define SD_CARD_MAX_INIT_FAILURES             (10)
 #define SD_CSD_RESPONSE_LEN                   (18)
@@ -37,6 +38,8 @@
 #define SD_TOKEN_STOP_TRANSMISSION            (0xFD)
 #define SD_TOKEN_DATA_ACCEPTED                (0x05)
 #define SD_TOKEN_FLOATING_BUS                 (0xFF)
+
+#define SD_LOGICAL_BLOCK_SIZE                 (512)
 
 /****************************************************************************
  * Private Types
@@ -315,4 +318,54 @@ int sd_spi_init(spi_master_dev_t *spi)
 
   LOG_INFO("card blocks: %d\n", g_sd_card.num_blocks);
   return OK;
+}
+
+int sd_spi_read_logical_block(spi_master_dev_t *spi, uint8_t *buffer, uint32_t lba_index,
+  uint8_t offset_in_lba, size_t requested_read_size)
+{
+  int timer = 100;
+  uint8_t spi_rsp;
+
+  /* Some mandatory checks */
+  if (spi == NULL || 
+      g_sd_card.type == SD_BAD_TYPE) {
+    return -ENODEV;
+  }
+
+  if (offset_in_lba + requested_read_size > SD_LOGICAL_BLOCK_SIZE ||
+      buffer == NULL) {
+    return -EINVAL;
+  } 
+
+  if (g_sd_card.type == SD_LOW_CAPACITY_CARD) {
+    lba_index *= SD_LOGICAL_BLOCK_SIZE;
+  }
+ 
+  if (lba_index > g_sd_card.num_blocks) {
+    return -ESPIPE;
+  }
+
+  sd_spi_set_cs(0);
+  sd_spi_send_cmd(SPI_READ_SINGLE_BLOCK, lba_index);
+  sd_spi_set_cs(1); 
+
+  spi_rsp = sd_read_byte_ignore_char(0xFF);
+  if (spi_rsp != 0) {
+    LOG_ERR("read logical block %d\n", lba_index);
+    return -ENOSYS;
+  }
+
+  sd_spi_set_cs(0);
+  do {
+    sd_spi_read(&spi_rsp, 1); 
+  } while (--timer > 0 && spi_rsp != 0xFE);
+  sd_spi_set_cs(1); 
+
+  if (timer == 0 && spi_rsp != 0xFE) {
+    LOG_ERR("timeout trying to read block %d\n", lba_index);
+    return -ENOSYS;
+  } 
+
+  
+  return 0;
 }
