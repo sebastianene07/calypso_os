@@ -15,7 +15,7 @@
 
 int console_ls(int argc, const char *argv[])
 {
-  char *pathname = "/";
+  const char *pathname = "/";
   int i;
 
   if (argc == 2) {
