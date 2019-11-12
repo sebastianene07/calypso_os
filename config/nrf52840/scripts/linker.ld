@@ -52,6 +52,12 @@ SECTIONS {
                 _ebss = .;
         } >RAM
 
+        .heap : {
+                KEEP(*(.heap*))
+                . = ALIGN(4);
+                _sheap = .;
+        } >RAM
+
         .stack : {
                  KEEP(*(.stack*))
                 . = ALIGN(4);
@@ -61,11 +67,6 @@ SECTIONS {
                 _estack = .;
        } >RAM
 
-        .heap : {
-                KEEP(*(.heap*))
-                . = ALIGN(4);
-                _sheap = .;
-        } >RAM
 
-      _eheap = ORIGIN(RAM) + LENGTH(RAM);
+      _eheap = ORIGIN(RAM) + LENGTH(RAM) - 1024;
 }
