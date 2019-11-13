@@ -4,8 +4,17 @@
 #include <gpio.h>
 #include <string.h>
 
+#ifdef CONFIG_DEBUG_SD_CARD
+#define VERBOSE
+#endif
+
 #define LOG_ERR(msg, ...)  printf("[sd_spi] Error:"msg"\r\n", ##__VA_ARGS__)
+
+#ifdef VERBOSE
 #define LOG_INFO(msg, ...) printf("[sd_spi] Info:"msg"\r\n", ##__VA_ARGS__)
+#else 
+#define LOG_INFO
+#endif
 
 /****************************************************************************
  * Macro Definitions
@@ -40,6 +49,7 @@
 #define SD_TOKEN_FLOATING_BUS                 (0xFF)
 
 #define SD_LOGICAL_BLOCK_SIZE                 (512)
+#define SD_CRC_BLOCK_SIZE                     (2)       
 
 /****************************************************************************
  * Private Types
@@ -149,10 +159,12 @@ static void sd_spi_send_cmd(uint8_t cmd, uint32_t arguments)
 
   sd_spi_set_cs(1);
 
+#ifdef VERBOSE
   for (int i = 6; i < sizeof(g_sd_resp); i++) {
     printf("\r\n0x%x,", g_sd_resp[i]);
   }
   printf("\r\n");
+#endif
 }
 
 static void sd_spi_read(uint8_t *buffer, size_t expected_len)
@@ -287,7 +299,9 @@ int sd_spi_init(spi_master_dev_t *spi)
   g_rsp_index++;
   int remaining_bytes = sizeof(g_sd_resp) - g_rsp_index;
 
+#ifdef VERBOSE
   printf("\r\n Found 0xFE on %d pos\n", remaining_bytes);
+#endif
 
   memcpy(sd_capacity_info, g_sd_resp + g_rsp_index, remaining_bytes);
   sd_spi_set_cs(0);
@@ -295,9 +309,11 @@ int sd_spi_init(spi_master_dev_t *spi)
               SD_CSD_RESPONSE_LEN - remaining_bytes);
   sd_spi_set_cs(1); 
 
+#ifdef VERBOSE
    for (int i = 0; i < SD_CSD_RESPONSE_LEN; i++) {
     printf("\r\n0x%x,", sd_capacity_info[i]);
   }
+#endif
 
   if (g_sd_card.type == SD_HIGH_CAPACITY_CARD) {
     g_sd_card.num_blocks = sd_capacity_info[9] + 1;
@@ -317,13 +333,33 @@ int sd_spi_init(spi_master_dev_t *spi)
   }
 
   LOG_INFO("card blocks: %d\n", g_sd_card.num_blocks);
+
+#ifdef VERBOSE
+  uint8_t buffer[64];
+  memset(buffer, 0, 64);
+
+  sd_spi_read_logical_block(spi, buffer, 0, 0, 64);
+
+  for (int i = 0; i < sizeof(buffer); i += 8) {
+    printf("%x %x %x %x %x %x %x %x\n",
+           buffer[i],
+           buffer[i + 1], 
+           buffer[i + 2],
+           buffer[i + 3],
+           buffer[i + 4],
+           buffer[i + 5],
+           buffer[i + 6], 
+           buffer[i + 7]);
+  }
+#endif
+
   return OK;
 }
 
 int sd_spi_read_logical_block(spi_master_dev_t *spi, uint8_t *buffer, uint32_t lba_index,
   uint8_t offset_in_lba, size_t requested_read_size)
 {
-  int timer = 100;
+  int timer = 100, trailing_bytes;
   uint8_t spi_rsp;
 
   /* Some mandatory checks */
@@ -366,6 +402,24 @@ int sd_spi_read_logical_block(spi_master_dev_t *spi, uint8_t *buffer, uint32_t l
     return -ENOSYS;
   } 
 
-  
+  trailing_bytes = (SD_LOGICAL_BLOCK_SIZE + SD_CRC_BLOCK_SIZE) - offset_in_lba - requested_read_size;
+  sd_spi_set_cs(0);
+
+  while (offset_in_lba) {
+    sd_spi_write(0xFF); 
+  } 
+
+  while (requested_read_size > 0) {
+    *buffer++ = sd_spi_write(0xFF);
+    requested_read_size--;
+  }
+
+  while (trailing_bytes > 0) {
+    sd_spi_write(0xFF);
+    trailing_bytes--;
+  }
+
+  sd_spi_set_cs(1);
+
   return 0;
 }
