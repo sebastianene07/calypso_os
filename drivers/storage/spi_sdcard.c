@@ -80,10 +80,23 @@ static uint8_t g_crc7_table[256];
 /* Current sd card instance */
 static struct sd_card_s g_sd_card;
 
+/* Buffer where we keep the response of a command */
+static uint8_t g_sd_resp[SPI_CMD_LEN + 9];
+
+/* The index in the response buffer */
+static int g_rsp_index = 0;
+
  /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
+/*
+ * sd_spi_write - write a byte using the SPI and return one
+ *
+ * @data - the byte that we want to send
+ * 
+ * This method sends a byte on the SPI and returns the received one.
+ */
 static uint8_t sd_spi_write(uint8_t data)
 {
   uint8_t recv = 0;
@@ -91,35 +104,55 @@ static uint8_t sd_spi_write(uint8_t data)
   return recv;
 }
 
+/*
+ * sd_spi_set_cs - toogles the chip select line to the SD card
+ *
+ * @state - chip select state <0|1>
+ */
 static void sd_spi_set_cs(uint8_t state)
 {
   gpio_toogle(state, g_sd_spi->dev_cfg.cs_pin, g_sd_spi->dev_cfg.cs_port);
 }
 
+/*
+ * sd_generate_crc_table - generate the CRC table
+ *
+ */
 static void sd_generate_crc_table(void)
 {
   int i, j;
-  uint8_t CRCPoly = 0x89;  // the value of our CRC-7 polynomial
+  uint8_t crc_poly = 0x89;  
  
-  // generate a table value for all 256 possible byte values
   for (i = 0; i < 256; ++i) {
-    g_crc7_table[i] = (i & 0x80) ? i ^ CRCPoly : i;
+    g_crc7_table[i] = (i & 0x80) ? i ^ crc_poly : i;
     for (j = 1; j < 8; ++j) {
         g_crc7_table[i] <<= 1;
         if (g_crc7_table[i] & 0x80)
-            g_crc7_table[i] ^= CRCPoly;
+            g_crc7_table[i] ^= crc_poly;
     }
   }
 }
- 
+
+/*
+ * sd_crc_add - update the CRC value for each added byte
+ *
+ * @crc - the previous CRC value or 0 if this is the first byte
+ * @message_byte - the byte that we want to add
+ * 
+ * This function returns the new CRC after the byte was added. 
+ */
 static uint8_t sd_crc_add(uint8_t crc, uint8_t message_byte)
 {
     return g_crc7_table[(crc << 1) ^ message_byte];
 } 
 
-static uint8_t g_sd_resp[SPI_CMD_LEN + 9];
-static int g_rsp_index = 0;
-
+/*
+ * sd_spi_send_cmd - helper function to send a SPI command
+ *
+ * @cmd - the requested commands
+ * @arguments - <optional> the command argument
+ *
+ */
 static void sd_spi_send_cmd(uint8_t cmd, uint32_t arguments)
 {
   uint8_t sd_card_cmd[SPI_CMD_LEN];
@@ -167,6 +200,14 @@ static void sd_spi_send_cmd(uint8_t cmd, uint32_t arguments)
 #endif
 }
 
+/*
+ * sd_spi_read - helper function to read SPI datad
+ *
+ * @buffer - the place where we store SPI input data. It should be 
+ *           big enough to fit expected_len bytes.
+ * @expected_len - the size of the expected read
+ *
+ */
 static void sd_spi_read(uint8_t *buffer, size_t expected_len)
 {
   int n = 9;
@@ -182,6 +223,16 @@ static void sd_spi_read(uint8_t *buffer, size_t expected_len)
   } while (--n > 0 && i < expected_len);
 }
 
+/*
+ * sd_read_byte_ignore_char - helper function to read data from SPI buffer
+ *
+ * @ignore - the byte that we want to ignores
+ *
+ *  This function doesn't perform read transactions but it operates on the
+ *  data that has already been buffered in a local buffer. It updates the 
+ *  index from the local buffer and it returns the first byte that is 
+ *  different from the one that we specify in 'ignore'.
+ */
 static uint8_t sd_read_byte_ignore_char(uint8_t ignore)
 {
   for (g_rsp_index; g_rsp_index < sizeof(g_sd_resp); g_rsp_index++)
@@ -193,6 +244,18 @@ static uint8_t sd_read_byte_ignore_char(uint8_t ignore)
   return 0xFF;
 }
 
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+/*
+ * sd_spi_init - initialize a SPI sd card
+ *
+ * @spi - the SPI device that we will be using 
+ *
+ *  This function initializes an SD card in SPI mode
+ *  and reads the device geometry upon success.
+ */
 int sd_spi_init(spi_master_dev_t *spi)
 {
   uint8_t spi_rsp;
@@ -338,7 +401,7 @@ int sd_spi_init(spi_master_dev_t *spi)
   uint8_t buffer[64];
   memset(buffer, 0, 64);
 
-  sd_spi_read_logical_block(spi, buffer, 0, 0, 64);
+  ret = sd_spi_read_logical_block(spi, buffer, 0, 0, 64);
 
   for (int i = 0; i < sizeof(buffer); i += 8) {
     printf("%x %x %x %x %x %x %x %x\n",
@@ -356,6 +419,18 @@ int sd_spi_init(spi_master_dev_t *spi)
   return OK;
 }
 
+/*
+ * sd_spi_read_logical_block - reads a logical block from the sd card
+ *
+ * @spi     - the SPI device that we will be using 
+ * @buffer  - place where we store the data
+ * @lba_index - logical block index
+ * @offset_in_lba - the offset in a 512 byte logical block 
+ * @requested_read_size - the number of bytes that we want to read
+ *
+ *  This function reads up to requested_read_size and returns 0 upon 
+ *  success.
+ */
 int sd_spi_read_logical_block(spi_master_dev_t *spi, uint8_t *buffer, uint32_t lba_index,
   uint8_t offset_in_lba, size_t requested_read_size)
 {
