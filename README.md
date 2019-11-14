@@ -91,7 +91,8 @@ open(..) -> vfs_get_matching_node(..) -------
 ```
 1. Virtual file system support
   1.1 Add support for FatFS http://elm-chan.org/fsw/ff/00index_e.html (DONE)
-  1.1.1 Need SD/MMC driver support to get FatFS fully functional
+  1.1.1 Implement SD/MMC driver                                       (DONE)
+  1.1.2 Add MTD layer 
 
   1.2 Add functional tests for memory allocator                       (DONE)
   1.4 The read/write device flow                                      (DONE)
@@ -107,7 +108,7 @@ open(..) -> vfs_get_matching_node(..) -------
 
 Check out the versatilepb branch to view how the code was ported on the 
 qemu Armv6 emulator. I'm working to add full support on this machine to
-be able to run it inside qemu.
+be able to run it inside qemu. 
 
 ## Contributions
 
