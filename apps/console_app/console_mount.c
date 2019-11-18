@@ -17,12 +17,6 @@ static FRESULT scan_files(char* path)
     DIR dir;
     int i;
     char *fn;   /* This function is assuming non-Unicode cfg. */
-#if _USE_LFN
-    static char lfn[_MAX_LFN + 1];
-    fno.lfname = lfn;
-    fno.lfsize = sizeof lfn;
-#endif
-
 
     res = f_opendir(&dir, path);                       /* Open the directory */
     if (res == FR_OK) {
@@ -31,11 +25,9 @@ static FRESULT scan_files(char* path)
             res = f_readdir(&dir, &fno);                   /* Read a directory item */
             if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
             if (fno.fname[0] == '.') continue;             /* Ignore dot entry */
-#if _USE_LFN
-            fn = *fno.lfname ? fno.lfname : fno.fname;
-#else
+
             fn = fno.fname;
-#endif
+
             if (fno.fattrib & AM_DIR) {                    /* It is a directory */
                 sprintf(&path[i], "/%s", fn);
                 res = scan_files(path);
@@ -69,7 +61,7 @@ int console_mount(int argc, const char *argv[])
   memset(path, 0, 256);
   strncpy(path, "/", 1);
 
-  printf("Filesystem mounted, now read files\n");
+  printf("Filesystem mounted.\n");
 
   scan_files(path);
   free(path);

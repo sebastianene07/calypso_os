@@ -96,7 +96,12 @@ DRESULT MMC_disk_read(BYTE *buff, DWORD sector, BYTE count)
 {
   /* Schedule the following operation on the initialization thread */
 
-  return g_fatfs_config.spi_sd_card_ops.read_spi_card(buff, sector, count * 512);
+  int ret = g_fatfs_config.spi_sd_card_ops.read_spi_card(buff, sector, count * 512);
+  if (ret < 0) {
+    return RES_PARERR;
+  }
+
+  return RES_OK;
 }
 
 DRESULT MMC_disk_write(const BYTE *buff, DWORD sector, BYTE count)

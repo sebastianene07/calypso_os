@@ -506,7 +506,7 @@ int sd_spi_read_logical_block(spi_master_dev_t *spi, uint8_t *buffer, uint32_t l
     lba_index *= SD_LOGICAL_BLOCK_SIZE;
   }
  
-  if (lba_index > g_sd_card.num_blocks) {
+  if (lba_index > g_sd_card.num_blocks * 1024) {
     return -ESPIPE;
   }
 
