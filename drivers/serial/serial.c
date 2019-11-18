@@ -42,21 +42,7 @@ static int uart_open(void *priv, const char *pathname, int flags, mode_t mode)
     return -ENODEV;
   }
 
-  int ret = uart_upper->lower->open_cb(uart_upper->lower);
-  if (ret != OK) {
-    return ret;
-  }
-
-  /* Grab an entry from the tcb FILE structure. This should be wrapped inside
-   * generic open call. */
-
-  struct opened_resource_s *res =
-    sched_allocate_resource(priv, &g_uart_ops, mode);
-  if (res == NULL) {
-    return -ENFILE;
-  }
-
-  return res->fd;
+  return uart_upper->lower->open_cb(uart_upper->lower);
 }
 
 static int uart_close(void *priv)
@@ -145,7 +131,7 @@ int uart_register(const char *name, const struct uart_lower_s *uart_lowerhalf)
 
   /* Register the upper half node with the VFS */
 
-  int ret = vfs_register_node(name, strlen(name), &g_uart_ops, VFS_TYPE_DEVICE,
+  int ret = vfs_register_node(name, strlen(name), &g_uart_ops, VFS_TYPE_CHAR_DEVICE,
     uart_upper);
   if (ret != OK) {
     free(uart_upper);

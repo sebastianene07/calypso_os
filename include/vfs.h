@@ -4,6 +4,9 @@
 #include <list.h>
 #include <unistd.h>
 
+#define IOCTL_SD_SPI_GROUP            (0xAAA0)
+#define GET_SD_SPI_OPS                (0x0 + (IOCTL_SD_SPI_GROUP))
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -15,7 +18,8 @@ struct vfs_ops_s {
   int (*close)(void *priv);
   int (*write)(void *priv, const void *buf, size_t count);
   int (*read)(void *priv, void *buf, size_t count);
-/*  int (*poll)(struct pollfd *fds, nfds_t nfds, int timeout); */
+  int (*ioctl)(void *prov, unsigned long request, unsigned long arg);
+  /*  int (*poll)(struct pollfd *fds, nfds_t nfds, int timeout); */
 };
 
 /* Type of the nodes */
@@ -23,7 +27,8 @@ struct vfs_ops_s {
 enum vfs_node_type {
   VFS_TYPE_FILE,
   VFS_TYPE_DIR,
-  VFS_TYPE_DEVICE,
+  VFS_TYPE_CHAR_DEVICE,
+  VFS_TYPE_BLOCK_DEVICE,
   NUM_VFS_TYPES,
 };
 

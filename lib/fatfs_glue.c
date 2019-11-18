@@ -1,6 +1,11 @@
+#include <board.h>
+#include <stdio.h>
+
+#include <storage/spi_sdcard.h>
+#include <vfs.h>
+
 #include "fatfs/source/ff.h"
 #include "fatfs/source/diskio.h"
-#include <stdio.h>
 
 /* The Fat FS device shructure holding some file descriptiors to opened devices
  */
@@ -10,6 +15,8 @@ struct fatfs_device_s
   int mmc_fd;
   int ramdev_fd;
   int usb_fd;
+
+  sd_spi_ops_t spi_sd_card_ops;
 };
 
 static struct fatfs_device_s g_fatfs_config;
@@ -55,14 +62,21 @@ DSTATUS MMC_disk_initialize(void)
    * schedule their requests on the same thread that called this function.
    */
 
-  int mmc_fd = open("/dev/mmc0", 0);
+  int mmc_fd = open(CONFIG_SD_SPI_NAME, 0);
   if (mmc_fd < 0) {
+    printf("Error: %d cannot open MMC device\n", mmc_fd);
     return mmc_fd;
   }
 
   /* Store the fd in a global structure that will be used later on */
 
   g_fatfs_config.mmc_fd = mmc_fd;
+
+  int ret = ioctl(mmc_fd, GET_SD_SPI_OPS, 
+    (unsigned long)&g_fatfs_config.spi_sd_card_ops);
+  if (ret < 0) {
+    printf("Error: %d cannot get SD SPI ops\n", ret);
+  }
 
   return 0;
 }
@@ -82,7 +96,7 @@ DRESULT MMC_disk_read(BYTE *buff, DWORD sector, BYTE count)
 {
   /* Schedule the following operation on the initialization thread */
 
-  return 0;
+  return g_fatfs_config.spi_sd_card_ops.read_spi_card(buff, sector, count);
 }
 
 DRESULT MMC_disk_write(const BYTE *buff, DWORD sector, BYTE count)

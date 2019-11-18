@@ -12,7 +12,7 @@ FATFS_FLAGS := ${CFLAGS}																					\
 							-I$(TOPDIR)/include																	\
 							-I$(TOPDIR)/s_alloc																	\
 							-I$(TOPDIR)/sched/include														\
-
+							-I$(TOPDIR)/drivers/
 all: fatfs
 
 fatfs: $(OBJS_FATFS)

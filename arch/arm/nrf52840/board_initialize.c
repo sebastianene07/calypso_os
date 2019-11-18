@@ -9,7 +9,13 @@
 #include <display/ssd_1331.h>
 #endif
 
+#ifdef CONFIG_SPI_SDCARD
 #include <storage/spi_sdcard.h>
+#endif
+
+#ifdef CONFIG_FATFS_MOUNT
+#include <fatfs/source/ff.h> 
+#endif
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -159,6 +165,19 @@ void board_init(void)
   gpio_toogle(1, CONFIG_SPI_SDCARD_VSYS_PIN, CONFIG_SPI_SDCARD_VSYS_PORT);
   sd_spi_init(&spi_devs[0]);
 #endif
+
+#ifdef CONFIG_FATFS_MOUNT
+  FATFS *fs = malloc(sizeof(FATFS));
+  if (fs == NULL) {
+    printf("Error: FatFS not initialized, not enough mem\n");
+  } else {
+    FRESULT ret = f_mount(fs, "", 1);
+    if (ret != FR_OK) {
+      printf("Error: %d cannot mount FatFS\n", ret);
+      free(fs);
+    } 
+  }
+#endif 
 
   SysTick_Config(SystemCoreClock / 2000);
 }

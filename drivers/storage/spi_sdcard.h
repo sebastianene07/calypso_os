@@ -4,6 +4,13 @@
 #include <board.h>
 #include <spi.h>
 
+typedef int (* sd_read_spi_sector)(uint8_t *buffer, uint16_t sector, size_t count);
+
+typedef struct {
+  sd_read_spi_sector read_spi_card;
+} sd_spi_ops_t;
+
+
 /****************************************************************************
  * Public Function Definitions
  ****************************************************************************/

@@ -80,20 +80,32 @@ static void rtc_interrupt(void)
  */
 static int rtc_open(void *priv, const char *pathname, int flags, mode_t mode)
 {
-  /* Grab an entry from the tcb FILE structure. This should be wrapped inside
-   * generic open call. */
+  /* fRTC [kHz] = 32.768 / (PRESCALER + 1)
+   * The PRESCALER should be 4095 for 8Hz tick - 125 ms counter period */
 
-  struct opened_resource_s *res =
-    sched_allocate_resource(priv, &g_rtc_ops, mode);
-  if (res == NULL) {
-    return -ENFILE;
-  }
+  PRESCALER_CFG = PRESCALER_8_HZ;
+  INTENSET_CFG  = 0x01;
 
-  return res->fd;
+  disable_int();
+
+  attach_int(RTC0_IRQn, rtc_interrupt);
+  NVIC_EnableIRQ(RTC0_IRQn);
+  TASKS_START_CFG = 1;
+
+  enable_int();
+
+  return OK;
 }
 
 static int rtc_close(void *priv)
 {
+  disable_int();
+
+  TASKS_START_CFG = 0;
+  NVIC_DisableIRQ(RTC0_IRQn);
+  attach_int(RTC0_IRQn, NULL);
+
+  enable_int();
   return 0;
 }
 
@@ -115,7 +127,7 @@ static int rtc_read(void *priv, void *buf, size_t count)
  */
 static int rtc_register(const char *name)
 {
-  return vfs_register_node(name, strlen(name), &g_rtc_ops, VFS_TYPE_DEVICE,
+  return vfs_register_node(name, strlen(name), &g_rtc_ops, VFS_TYPE_CHAR_DEVICE,
     NULL);
 }
 
@@ -130,18 +142,5 @@ static int rtc_register(const char *name)
  */
 void rtc_init(void)
 {
-  /* fRTC [kHz] = 32.768 / (PRESCALER + 1)
-   * The PRESCALER should be 4095 for 8Hz tick - 125 ms counter period */
-
-  PRESCALER_CFG = PRESCALER_8_HZ;
-  INTENSET_CFG  = 0x01;
-
-  disable_int();
-  attach_int(RTC0_IRQn, rtc_interrupt);
-  NVIC_EnableIRQ(RTC0_IRQn);
-  enable_int();
-
-  TASKS_START_CFG = 1;
-
   rtc_register("/dev/rtc0");
 }

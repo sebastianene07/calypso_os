@@ -5,6 +5,8 @@ int printf(const char * format, ... );
 
 int open(const char *, int, ...);
 
+int ioctl(int fd, unsigned long request, unsigned long arg);
+
 int sprintf(char *out, const char *format, ...);
 
 int sscanf(const char *str, const char *format, ...);

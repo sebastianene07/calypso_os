@@ -40,7 +40,7 @@ static console_command_entry_t g_cmd_table[] =
 #ifdef CONFIG_CONSOLE_DATE_ON
   { .cmd_name     = "time",
     .cmd_function = console_date,
-    .cmd_help     = "View/Set the current time",
+    .cmd_help     = "View/Set the current time or close RTC device",
   },
 #endif
 
