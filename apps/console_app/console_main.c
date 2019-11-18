@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <errno.h>
+#include <string.h>
 
 #define CONSOLE_HELP_DESCRIPTION      "Prints out the supported commands"
 
@@ -25,6 +26,10 @@ int console_free(int argc, const char *argv[]);
 
 #ifdef CONFIG_CONSOLE_LS
 int console_ls(int argc, const char *argv[]);
+#endif
+
+#ifdef CONFIG_FATFS_MOUNT
+int console_mount(int argc, const char *argv[]);
 #endif
 
 static int console_help(int argc, const char *argv[]);
@@ -63,6 +68,14 @@ static console_command_entry_t g_cmd_table[] =
     .cmd_name     = "ls",
     .cmd_function = console_ls,
     .cmd_help     = "List file-system contents",
+  },
+#endif
+
+#ifdef CONFIG_FATFS_MOUNT
+  {
+    .cmd_name      = "mount",
+    .cmd_function  = console_mount,
+    .cmd_help      = "Mount a filesystem",
   },
 #endif
   { .cmd_name     = "help",
