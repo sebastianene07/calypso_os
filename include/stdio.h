@@ -11,4 +11,6 @@ int sprintf(char *out, const char *format, ...);
 
 int sscanf(const char *str, const char *format, ...);
 
+int snprintf(char *out, unsigned int len, const char *format, ...);
+
 #endif /* __STDIO_H */

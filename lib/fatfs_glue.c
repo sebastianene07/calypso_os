@@ -68,16 +68,13 @@ DSTATUS MMC_disk_initialize(void)
     return mmc_fd;
   }
 
-  /* Store the fd in a global structure that will be used later on */
-
-  g_fatfs_config.mmc_fd = mmc_fd;
-
   int ret = ioctl(mmc_fd, GET_SD_SPI_OPS, 
     (unsigned long)&g_fatfs_config.spi_sd_card_ops);
   if (ret < 0) {
     printf("Error: %d cannot get SD SPI ops\n", ret);
   }
 
+  close(mmc_fd);
   return 0;
 }
 

@@ -209,3 +209,9 @@ int sprintf(char *out, const char *format, ...)
 	register int *varg = (int *)(&format);
 	return print(&out, varg);
 }
+
+int snprintf(char *out, unsigned int len, const char *format, ...)
+{
+	register int *varg = (int *)(&format);
+	return print(&out, varg);
+}

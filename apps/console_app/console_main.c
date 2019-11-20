@@ -30,6 +30,7 @@ int console_ls(int argc, const char *argv[]);
 
 #ifdef CONFIG_FATFS_MOUNT
 int console_mount(int argc, const char *argv[]);
+int console_umount(int argc, const char *argv[]);
 #endif
 
 static int console_help(int argc, const char *argv[]);
@@ -77,7 +78,13 @@ static console_command_entry_t g_cmd_table[] =
     .cmd_function  = console_mount,
     .cmd_help      = "Mount a filesystem",
   },
+  {
+    .cmd_name      = "umount",
+    .cmd_function  = console_umount,
+    .cmd_help      = "Unmount a previously mounted FS",
+  },
 #endif
+
   { .cmd_name     = "help",
     .cmd_function = console_help,
     .cmd_help     = CONSOLE_HELP_DESCRIPTION

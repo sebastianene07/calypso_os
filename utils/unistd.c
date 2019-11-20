@@ -27,8 +27,11 @@ ssize_t read(int fd, void *buf, size_t count)
   struct opened_resource_s *res = sched_find_opened_resource(fd);
   enable_int();
 
-  if (!res->ops || !res->ops->read)
-  {
+  if (res == NULL) {
+    return -EINVAL;
+  }
+
+  if (!res->ops || !res->ops->read) {
     return -ENOSYS;
   }
 
@@ -53,8 +56,11 @@ ssize_t write(int fd, void *buf, size_t count)
   struct opened_resource_s *res = sched_find_opened_resource(fd);
   enable_int();
 
-  if (!res->ops || !res->ops->read)
-  {
+  if (res == NULL) {
+    return -EINVAL;
+  }
+
+  if (!res->ops || !res->ops->read) {
     return -ENOSYS;
   }
 
@@ -78,8 +84,11 @@ int close(int fd)
   struct opened_resource_s *res = sched_find_opened_resource(fd);
   enable_int();
 
-  if (!res->ops || !res->ops->close)
-  {
+  if (res == NULL) {
+    return -EINVAL;
+  }
+
+  if (!res->ops || !res->ops->close) {
     return -ENOSYS;
   }
 

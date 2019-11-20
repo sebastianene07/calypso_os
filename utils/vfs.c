@@ -260,6 +260,7 @@ free_with_sem:
   new_node->parent       = current_node;
   new_node->num_children = 0;
   new_node->ops          = ops;
+  new_node->node_type    = node_type;
   new_node->priv         = priv;
   new_node->name         = node_name_copy;
 
