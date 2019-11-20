@@ -1,0 +1,81 @@
+From 495308db35285a9e7f3f6ea494f3562274835582 Mon Sep 17 00:00:00 2001
+From: Sebastian Ene <sebastian.ene07@gmail.com>
+Date: Wed, 20 Nov 2019 10:36:20 +0200
+Subject: [PATCH] Bugfix: Return correct status codes from low level access
+
+Signed-off-by: Sebastian Ene <sebastian.ene07@gmail.com>
+---
+ .gitignore      |  2 ++
+ source/diskio.c | 25 +++++++++++++++++++------
+ 2 files changed, 21 insertions(+), 6 deletions(-)
+ create mode 100644 .gitignore
+
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+index 0000000..32810a5
+--- /dev/null
++++ b/.gitignore
+@@ -0,0 +1,2 @@
++*.o
++*.rej
+diff --git a/source/diskio.c b/source/diskio.c
+index a0d49e4..0991b36 100644
+--- a/source/diskio.c
++++ b/source/diskio.c
+@@ -11,10 +11,23 @@
+ #include "diskio.h"		/* Declarations of disk functions */
+ 
+ /* Definitions of physical drive number for each drive */
+-#define DEV_RAM		0	/* Example: Map Ramdisk to physical drive 0 */
+-#define DEV_MMC		1	/* Example: Map MMC/SD card to physical drive 1 */
+-#define DEV_USB		2	/* Example: Map USB MSD to physical drive 2 */
++#define DEV_RAM		(0)	/* Example: Map Ramdisk to physical drive 0 */
++#define DEV_MMC		(1)	/* Example: Map MMC/SD card to physical drive 1 */
++#define DEV_USB		(2)	/* Example: Map USB MSD to physical drive 2 */
+ 
++#define DEVICE_FUNCTION(name)               \
++\
++  DSTATUS name ##_## disk_initialize(void);     \
++  DSTATUS name ##_## disk_status(void);         \
++  DSTATUS name ##_## disk_read(BYTE *buff, DWORD sector, BYTE count);        \
++  DSTATUS name ##_## disk_write(const BYTE *buff, DWORD sector, BYTE count); \
++  DSTATUS name ##_## disk_ioctl(BYTE ctrl, void *buff); \
++
++  
++
++DEVICE_FUNCTION(RAM)
++DEVICE_FUNCTION(MMC)
++DEVICE_FUNCTION(USB)
+ 
+ /*-----------------------------------------------------------------------*/
+ /* Get Drive Status                                                      */
+@@ -40,7 +53,7 @@ DSTATUS disk_status (
+ 
+ 		// translate the reslut code here
+ 
+-		return stat;
++		return result;
+ 
+ 	case DEV_USB :
+ 		result = USB_disk_status();
+@@ -78,7 +91,7 @@ DSTATUS disk_initialize (
+ 
+ 		// translate the reslut code here
+ 
+-		return stat;
++		return result;
+ 
+ 	case DEV_USB :
+ 		result = USB_disk_initialize();
+@@ -123,7 +136,7 @@ DRESULT disk_read (
+ 
+ 		// translate the reslut code here
+ 
+-		return res;
++		return result;
+ 
+ 	case DEV_USB :
+ 		// translate the arguments here
+-- 
+2.21.0
+

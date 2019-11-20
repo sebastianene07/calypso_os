@@ -1,0 +1,36 @@
+From f5ac6e3a7241ab03569b0858ca9a71abd7d14b91 Mon Sep 17 00:00:00 2001
+From: Sebastian Ene <sebastian.ene07@gmail.com>
+Date: Wed, 20 Nov 2019 10:47:06 +0200
+Subject: [PATCH] Use MMC as disk number 0 in this system
+
+---
+ source/diskio.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/source/diskio.c b/source/diskio.c
+index 0991b36..19221c1 100644
+--- a/source/diskio.c
++++ b/source/diskio.c
+@@ -11,8 +11,8 @@
+ #include "diskio.h"		/* Declarations of disk functions */
+ 
+ /* Definitions of physical drive number for each drive */
+-#define DEV_RAM		(0)	/* Example: Map Ramdisk to physical drive 0 */
+-#define DEV_MMC		(1)	/* Example: Map MMC/SD card to physical drive 1 */
++#define DEV_RAM		(1)	/* Example: Map Ramdisk to physical drive 0 */
++#define DEV_MMC		(0)	/* Example: Map MMC/SD card to physical drive 1 */
+ #define DEV_USB		(2)	/* Example: Map USB MSD to physical drive 2 */
+ 
+ #define DEVICE_FUNCTION(name)               \
+@@ -214,7 +214,7 @@ DRESULT disk_ioctl (
+ 	void *buff		/* Buffer to send/receive control data */
+ )
+ {
+-	DRESULT res;
++	DRESULT res = 0;
+ 	int result;
+ 
+ 	switch (pdrv) {
+-- 
+2.21.0
+
