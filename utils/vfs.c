@@ -263,6 +263,7 @@ free_with_sem:
   new_node->node_type    = node_type;
   new_node->priv         = priv;
   new_node->name         = node_name_copy;
+  new_node->child        = NULL;
 
   current_node->child = new_child;
   current_node->num_children++;
