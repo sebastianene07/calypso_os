@@ -209,6 +209,15 @@ void console_main(void)
       }
       len = 0;
     }
+    else if (*(cmd_buffer + len - 1) == '\b')
+    {
+      if (len > 1) {
+        len-=2;
+      }
+      write(uart_fd, "\r\n", 2);
+      write(uart_fd, CONFIG_CONSOLE_PROMPT_STR, strlen(CONFIG_CONSOLE_PROMPT_STR));
+      write(uart_fd, cmd_buffer, len);
+    }
     else
     {
       write(uart_fd, cmd_buffer + len - 1, 1);
