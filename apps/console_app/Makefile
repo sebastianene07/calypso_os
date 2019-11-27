@@ -18,7 +18,11 @@ endif
 
 ifeq ($(CONFIG_FATFS_MOUNT),y)
 SRC+= console_mount.c
-endif 
+endif
+
+ifeq ($(CONFIG_CONSOLE_CAT),y)
+SRC+= console_cat.c
+endif
 
 OBJS:=$(patsubst %.c,%.o,$(SRC))
 CONSOLE_FLAGS := ${CFLAGS}																					\

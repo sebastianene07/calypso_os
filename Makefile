@@ -30,7 +30,6 @@ export TARGET
 
 all: create_board_file
 
-	sh ./patches/patch_me.sh || true
 	for src_dir in $(SRC_DIRS) ; do \
   	$(MAKE) -C $$src_dir	all;\
 	done ;

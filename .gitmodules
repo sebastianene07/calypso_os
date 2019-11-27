@@ -3,4 +3,4 @@
 	url = https://github.com/SebiEne/s_alloc.git
 [submodule "fatfs"]
 	path = fatfs
-	url = https://github.com/abbrev/fatfs.git
+	url = https://github.com/sebastianene07/fatfs.git

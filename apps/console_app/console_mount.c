@@ -8,7 +8,7 @@
 #include <errno.h>
 #include <string.h>
 
-#include <source/ff.h> 
+#include <source/ff.h>
 #include <vfs.h>
 #include <stdio.h>
 
@@ -22,7 +22,7 @@ static void emit_vfs_node(const char *mount_path, const char *name, enum vfs_nod
     return;
   }
 
-  snprintf(path, path_len, "/%s/%s", mount_path, name); 
+  snprintf(path, path_len, "/%s/%s", mount_path, name);
   int ret = vfs_register_node(path,
                               strlen(path),
                               NULL,
@@ -52,7 +52,7 @@ static FRESULT scan_files(char *path)
 
             if (fno.fattrib & AM_DIR) {                    /* It is a directory */
                 sprintf(&path[i], "/%s", fn);
-                emit_vfs_node("mnt", path, VFS_TYPE_DIR); 
+                emit_vfs_node("mnt", path, VFS_TYPE_DIR);
 
                 res = scan_files(path);
                 if (res != FR_OK) break;
@@ -64,8 +64,8 @@ static FRESULT scan_files(char *path)
                 return res;
               }
 
-              sprintf(m_path, "%s/%s", path, fn);                  
-              emit_vfs_node("mnt", m_path, VFS_TYPE_FILE); 
+              sprintf(m_path, "%s/%s", path, fn);
+              emit_vfs_node("mnt", m_path, VFS_TYPE_FILE);
               free(m_path);
             }
         }
