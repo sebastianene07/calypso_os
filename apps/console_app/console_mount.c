@@ -12,9 +12,30 @@
 #include <vfs.h>
 #include <stdio.h>
 
-static FATFS *fs;
+/****************************************************************************
+ * Private Variables
+ ****************************************************************************/
 
-static void emit_vfs_node(const char *mount_path, const char *name, enum vfs_node_type node_type)
+/* Fat file system instance */
+static FATFS *g_fatfs;
+
+/* Supported file system operations */
+static struct vfs_ops_s g_fs_ops;
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+/*
+ * emit_vfs_node - creates a new node in the virtual file system for a FS object
+ *
+ * @mount_path - the readable location where we mount the file system
+ * @name       - the file name with the path relative to this file system
+ * @node_type  - the type of the VFS object (regular file or dir)
+ *
+ */
+static int emit_vfs_node(const char *mount_path, const char *name,
+  enum vfs_node_type node_type)
 {
   size_t path_len = strlen(mount_path) + strlen(name) + 2;
   char *path = calloc(1, path_len);
@@ -25,32 +46,44 @@ static void emit_vfs_node(const char *mount_path, const char *name, enum vfs_nod
   snprintf(path, path_len, "/%s/%s", mount_path, name);
   int ret = vfs_register_node(path,
                               strlen(path),
-                              NULL,
+                              &g_fs_ops,
                               node_type,
                               NULL);
 
-  printf("Creating %s: %s status %d\n", node_type == VFS_TYPE_DIR ? "DIR" : "FILE", path, ret);
+  printf("Creating %s: %s status %d\n",
+         node_type == VFS_TYPE_DIR ? "DIR" : "FILE", path, ret);
+  return ret;
 }
 
+/*
+ * scan_files - this method lists the internal file system contents
+ *
+ * @path - the readable location where we mount the file system
+ *
+ * WARNING: This method is recursive and it can blow the stack for deep
+ *          directory structures. !!! FIXME
+ */
 static FRESULT scan_files(char *path)
 {
     FRESULT res;
     FILINFO fno;
     DIR dir;
     int i;
-    char *fn;   /* This function is assuming non-Unicode cfg. */
+    char *fn;
 
-    res = f_opendir(&dir, path);                       /* Open the directory */
+    /* Open the directory */
+    res = f_opendir(&dir, path);
     if (res == FR_OK) {
         i = strlen(path);
         for (;;) {
-            res = f_readdir(&dir, &fno);                   /* Read a directory item */
-            if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
-            if (fno.fname[0] == '.') continue;             /* Ignore dot entry */
+
+            res = f_readdir(&dir, &fno);
+            if (res != FR_OK || fno.fname[0] == 0) break;
+            if (fno.fname[0] == '.') continue;
 
             fn = fno.fname;
 
-            if (fno.fattrib & AM_DIR) {                    /* It is a directory */
+            if (fno.fattrib & AM_DIR) {
                 sprintf(&path[i], "/%s", fn);
                 emit_vfs_node("mnt", path, VFS_TYPE_DIR);
 
@@ -74,17 +107,21 @@ static FRESULT scan_files(char *path)
     return res;
 }
 
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
 int console_mount(int argc, const char *argv[])
 {
-  fs = malloc(sizeof(FATFS));
-  if (fs == NULL) {
+  g_fatfs = malloc(sizeof(FATFS));
+  if (g_fatfs == NULL) {
     printf("Error: FatFS not initialized, not enough mem\n");
     return -ENOMEM;
   } else {
-    FRESULT ret = f_mount(fs, "", 1);
+    FRESULT ret = f_mount(g_fatfs, "", 1);
     if (ret != FR_OK) {
       printf("Error: %d cannot mount FatFS\n", ret);
-      free(fs);
+      free(g_fatfs);
       return -ENOSYS;
     }
   }
@@ -102,11 +139,11 @@ int console_mount(int argc, const char *argv[])
 }
 
 int console_umount(int argc, const char *argv[]) {
-  if (fs == NULL) {
+  if (g_fatfs == NULL) {
     printf("There is no FS mounted\n");
   }
 
   f_mount(NULL, "", 0);
-  free(fs);
-  fs = NULL;
+  free(g_fatfs);
+  g_fatfs = NULL;
 }
