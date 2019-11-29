@@ -13,6 +13,15 @@
 #include <stdio.h>
 
 /****************************************************************************
+ * Private Functions Declaration
+ ****************************************************************************/
+
+int open_fs_node(void *priv, const char *pathname, int flags, mode_t mode);
+int read_fs_node(void *priv, void *buf, size_t count);
+int write_fs_node(void *priv, const void *buf, size_t count);
+int close_fs_node(void *priv);
+
+/****************************************************************************
  * Private Variables
  ****************************************************************************/
 
@@ -20,7 +29,12 @@
 static FATFS *g_fatfs;
 
 /* Supported file system operations */
-static struct vfs_ops_s g_fs_ops;
+static struct vfs_ops_s g_fs_ops = {
+  .open   = open_fs_node,
+  .close  = close_fs_node,
+  .read   = read_fs_node,
+  .write  = write_fs_node,
+};
 
 /****************************************************************************
  * Private Functions
@@ -40,7 +54,7 @@ static int emit_vfs_node(const char *mount_path, const char *name,
   size_t path_len = strlen(mount_path) + strlen(name) + 2;
   char *path = calloc(1, path_len);
   if (path == NULL) {
-    return;
+    return -ENOMEM;
   }
 
   snprintf(path, path_len, "/%s/%s", mount_path, name);
@@ -105,6 +119,26 @@ static FRESULT scan_files(char *path)
     }
 
     return res;
+}
+
+int open_fs_node(void *priv, const char *pathname, int flags, mode_t mode)
+{
+  return OK;
+}
+
+int read_fs_node(void *priv, void *buf, size_t count)
+{
+  return OK;
+}
+
+int write_fs_node(void *priv, const void *buf, size_t count)
+{
+  return OK;
+}
+
+int close_fs_node(void *priv)
+{
+  return OK;
 }
 
 /****************************************************************************
