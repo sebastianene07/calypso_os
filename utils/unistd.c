@@ -31,11 +31,11 @@ ssize_t read(int fd, void *buf, size_t count)
     return -EINVAL;
   }
 
-  if (!res->ops || !res->ops->read) {
+  if (!res->vfs_node->ops || !res->vfs_node->ops->read) {
     return -ENOSYS;
   }
 
-  return res->ops->read(res->priv, buf, count);
+  return res->vfs_node->ops->read(res, buf, count);
 }
 
 /**************************************************************************
@@ -60,11 +60,11 @@ ssize_t write(int fd, void *buf, size_t count)
     return -EINVAL;
   }
 
-  if (!res->ops || !res->ops->read) {
+  if (!res->vfs_node->ops || !res->vfs_node->ops->read) {
     return -ENOSYS;
   }
 
-  return res->ops->write(res->priv, buf, count);
+  return res->vfs_node->ops->write(res, buf, count);
 }
 
 /**************************************************************************
@@ -88,9 +88,9 @@ int close(int fd)
     return -EINVAL;
   }
 
-  if (!res->ops || !res->ops->close) {
+  if (!res->vfs_node->ops || !res->vfs_node->ops->close) {
     return -ENOSYS;
   }
 
-  return res->ops->close(res->priv);
+  return res->vfs_node->ops->close(res);
 }

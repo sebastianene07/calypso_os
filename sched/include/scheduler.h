@@ -30,11 +30,10 @@
 typedef void (* irq_cb)(void);
 
 struct opened_resource_s {
-  int open_mode;
-  void *priv;
-  struct vfs_ops_s *ops;
-  struct list_head node;
-  int fd;
+  int open_mode;            /* Currently not used */
+  int fd;                   /* OPened resources file descriptor */
+  struct vfs_node_s *vfs_node;  /* The node from the virtual file system */
+  struct list_head node;    /* The list of the opened resources ina task */
 };
 
 /* The task can be in one of the following states */
@@ -82,10 +81,8 @@ void attach_int(IRQn_Type irq_num, irq_cb handler);
 
 void sched_context_switch(void);
 
-struct opened_resource_s *sched_allocate_resource(void *priv_data,
-                                                  struct vfs_ops_s *ops,
+struct opened_resource_s *sched_allocate_resource(const struct vfs_node_s *node,
                                                   int open_mode);
-
 int sched_free_resource(int fd);
 
 struct opened_resource_s *sched_find_opened_resource(int fd);

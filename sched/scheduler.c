@@ -254,8 +254,7 @@ struct tcb_s *sched_get_next_task(void)
 *  The opened container resource or NULL in case we are running out of memory.
 *
 *************************************************************************/
-struct opened_resource_s *sched_allocate_resource(void *priv_data,
-                                                  struct vfs_ops_s *ops,
+struct opened_resource_s *sched_allocate_resource(const struct vfs_node_s *vfs_node,
                                                   int open_mode)
 {
   disable_int();
@@ -271,8 +270,7 @@ struct opened_resource_s *sched_allocate_resource(void *priv_data,
 
   new_res->fd        = curr_tcb->curr_resource_opened;
   new_res->open_mode = open_mode;
-  new_res->priv      = priv_data;
-  new_res->ops       = ops;
+  new_res->vfs_node  = (struct vfs_node_s *)vfs_node;
 
   curr_tcb->curr_resource_opened++;
 

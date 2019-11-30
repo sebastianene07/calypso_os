@@ -28,15 +28,8 @@ int open(const char *pathname, int flags, ...)
   /* Grab an entry from the tcb FILE structure. */
 
   struct opened_resource_s *res =
-    sched_allocate_resource(node->priv, node->ops, 0);
+    sched_allocate_resource(node, 0);
   if (res == NULL) {
-
-    /* Close the object before returining error */
-
-    if (node->ops->close) {
-      node->ops->close(node->priv);
-    }
-
     return -ENFILE;
   }
 
@@ -44,10 +37,11 @@ int open(const char *pathname, int flags, ...)
 
   int ret = -ENODEV;
   if (node->ops != NULL && node->ops->open != NULL) {
-    ret = node->ops->open(node->priv, pathname, flags, 0);
+    ret = node->ops->open(res, pathname, flags, 0);
   }
 
   if (ret < 0) {
+    sched_free_resource(res->fd);
     return ret;
   }
 
@@ -65,10 +59,16 @@ int ioctl(int fd, unsigned long request, unsigned long arg)
   /* Iterate over opened resource list find the fd and free the resource */
 
   struct opened_resource_s *resource = sched_find_opened_resource(fd);
-  if (resource->ops->ioctl) {
-    ret = resource->ops->ioctl(resource->priv, request, arg);
+  if (resource->vfs_node == NULL) {
+    goto cancel_ioctl;
   }
 
+  struct vfs_node_s *vfs_node = resource->vfs_node;
+  if (vfs_node->ops->ioctl) {
+    ret = vfs_node->ops->ioctl(resource, request, arg);
+  }
+
+cancel_ioctl:
   enable_int();
   return ret;
 }
