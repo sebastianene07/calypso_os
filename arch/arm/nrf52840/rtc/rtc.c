@@ -35,9 +35,9 @@
  * Private Function Definitions
  ****************************************************************************/
 
-static int rtc_open(void *priv, const char *pathname, int flags, mode_t mode);
-static int rtc_close(void *priv);
-static int rtc_read(void *priv, void *buf, size_t count);
+static int rtc_open(struct opened_resource_s *priv, const char *pathname, int flags, mode_t mode);
+static int rtc_close(struct opened_resource_s *priv);
+static int rtc_read(struct opened_resource_s *priv, void *buf, size_t count);
 
 /****************************************************************************
  * Private Defintions
@@ -78,7 +78,7 @@ static void rtc_interrupt(void)
  *
  * Initialize the RTC module from LF clock
  */
-static int rtc_open(void *priv, const char *pathname, int flags, mode_t mode)
+static int rtc_open(struct opened_resource_s *res, const char *pathname, int flags, mode_t mode)
 {
   /* fRTC [kHz] = 32.768 / (PRESCALER + 1)
    * The PRESCALER should be 4095 for 8Hz tick - 125 ms counter period */
@@ -97,7 +97,7 @@ static int rtc_open(void *priv, const char *pathname, int flags, mode_t mode)
   return OK;
 }
 
-static int rtc_close(void *priv)
+static int rtc_close(struct opened_resource_s *priv)
 {
   disable_int();
 
@@ -109,7 +109,7 @@ static int rtc_close(void *priv)
   return 0;
 }
 
-static int rtc_read(void *priv, void *buf, size_t count)
+static int rtc_read(struct opened_resource_s *priv, void *buf, size_t count)
 {
   if (buf == NULL || count < sizeof(uint32_t))
   {

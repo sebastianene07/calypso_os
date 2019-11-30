@@ -12,10 +12,10 @@
  * Private Function Definitions
  ****************************************************************************/
 
-static int uart_open(void *priv, const char *pathname, int flags, mode_t mode);
-static int uart_close(void *priv);
-static int uart_write(void *priv, const void *buf, size_t count);
-static int uart_read(void *priv, void *buf, size_t count);
+static int uart_open (struct opened_resource_s *priv, const char *pathname, int flags, mode_t mode);
+static int uart_close(struct opened_resource_s *priv);
+static int uart_write(struct opened_resource_s *priv, const void *buf, size_t count);
+static int uart_read (struct opened_resource_s *priv, void *buf, size_t count);
 
 /****************************************************************************
  * Private Data
@@ -32,9 +32,9 @@ static struct vfs_ops_s g_uart_ops = {
  * Private Functions
  ****************************************************************************/
 
-static int uart_open(void *priv, const char *pathname, int flags, mode_t mode)
+static int uart_open(struct opened_resource_s *res, const char *pathname, int flags, mode_t mode)
 {
-  struct uart_upper_s *uart_upper = (struct uart_upper_s *)priv;
+  struct uart_upper_s *uart_upper = (struct uart_upper_s *)res->priv;
 
   /* Call into the lowerhalf open method */
 
@@ -45,14 +45,14 @@ static int uart_open(void *priv, const char *pathname, int flags, mode_t mode)
   return uart_upper->lower->open_cb(uart_upper->lower);
 }
 
-static int uart_close(void *priv)
+static int uart_close(struct opened_resource_s *res)
 {
   return 0;
 }
 
-static int uart_write(void *priv, const void *buf, size_t count)
+static int uart_write(struct opened_resource_s *res, const void *buf, size_t count)
 {
-  struct uart_upper_s *uart_upper = (struct uart_upper_s *)priv;
+  struct uart_upper_s *uart_upper = (struct uart_upper_s *)res->priv;
 
   /* Call into the lowerhalf open method */
 
@@ -67,9 +67,9 @@ static int uart_write(void *priv, const void *buf, size_t count)
   return 0;
 }
 
-static int uart_read(void *priv, void *buf, size_t count)
+static int uart_read(struct opened_resource_s *res, void *buf, size_t count)
 {
-  struct uart_upper_s *uart_up = (struct uart_upper_s *)priv;
+  struct uart_upper_s *uart_up = (struct uart_upper_s *)res->priv;
 
   /* Blocking read. Wait until 'count' bytes are available from
    * this device.

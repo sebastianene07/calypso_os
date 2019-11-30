@@ -1,7 +1,10 @@
 #ifndef __VFS_H
 #define __VFS_H
 
+#include <board.h>
+
 #include <list.h>
+#include <scheduler.h>
 #include <unistd.h>
 
 #define IOCTL_SD_SPI_GROUP            (0xAAA0)
@@ -14,11 +17,11 @@
 /* A device driver it's supposed to registers a new node in the VFS tree */
 
 struct vfs_ops_s {
-  int (*open)(void *priv, const char *pathname, int flags, mode_t mode);
-  int (*close)(void *priv);
-  int (*write)(void *priv, const void *buf, size_t count);
-  int (*read)(void *priv, void *buf, size_t count);
-  int (*ioctl)(void *prov, unsigned long request, unsigned long arg);
+  int (*open)(struct opened_resource_s *priv, const char *pathname, int flags, mode_t mode);
+  int (*close)(struct opened_resource_s *priv);
+  int (*write)(struct opened_resource_s *priv, const void *buf, size_t count);
+  int (*read)(struct opened_resource_s *priv, void *buf, size_t count);
+  int (*ioctl)(struct opened_resource_s *priv, unsigned long request, unsigned long arg);
   /*  int (*poll)(struct pollfd *fds, nfds_t nfds, int timeout); */
 };
 

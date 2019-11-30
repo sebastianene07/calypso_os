@@ -32,6 +32,7 @@ int console_cat(int argc, const char *argv[])
   int do_read;
   do {
 
+    memset(buffer, 0, sizeof(buffer));
     ret = 0;
     while ((ret = read(fd, buffer + nread, sizeof(buffer) - nread - 1)) > 0) {
       nread += ret;

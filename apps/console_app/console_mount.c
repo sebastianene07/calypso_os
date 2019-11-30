@@ -16,10 +16,10 @@
  * Private Functions Declaration
  ****************************************************************************/
 
-int open_fs_node(void *priv, const char *pathname, int flags, mode_t mode);
-int read_fs_node(void *priv, void *buf, size_t count);
-int write_fs_node(void *priv, const void *buf, size_t count);
-int close_fs_node(void *priv);
+int open_fs_node(struct opened_resource_s *priv, const char *pathname, int flags, mode_t mode);
+int read_fs_node(struct opened_resource_s *priv, void *buf, size_t count);
+int write_fs_node(struct opened_resource_s *priv, const void *buf, size_t count);
+int close_fs_node(struct opened_resource_s *priv);
 
 /****************************************************************************
  * Private Variables
@@ -62,7 +62,7 @@ static int emit_vfs_node(const char *mount_path, const char *name,
                               strlen(path),
                               &g_fs_ops,
                               node_type,
-                              NULL);
+                              path);
 
   printf("Creating %s: %s status %d\n",
          node_type == VFS_TYPE_DIR ? "DIR" : "FILE", path, ret);
@@ -121,22 +121,41 @@ static FRESULT scan_files(char *path)
     return res;
 }
 
-int open_fs_node(void *priv, const char *pathname, int flags, mode_t mode)
+int open_fs_node(struct opened_resource_s *priv, const char *pathname, int flags, mode_t mode)
+{
+  FRESULT fr;
+  FIL *fil;
+  int ret = OK;
+
+  fil = malloc(sizeof(FIL));
+  if (fil == NULL) {
+    return -ENOMEM;
+  }
+/*
+  fr = f_open(fil, priv, FA_READ);
+  if (fr) {
+    ret = -EINVAL;
+    goto clean_mem;
+  }
+*/
+  return ret;
+
+clean_mem:
+  free(fil);
+  return ret;
+}
+
+int read_fs_node(struct opened_resource_s *priv, void *buf, size_t count)
 {
   return OK;
 }
 
-int read_fs_node(void *priv, void *buf, size_t count)
+int write_fs_node(struct opened_resource_s *priv, const void *buf, size_t count)
 {
   return OK;
 }
 
-int write_fs_node(void *priv, const void *buf, size_t count)
-{
-  return OK;
-}
-
-int close_fs_node(void *priv)
+int close_fs_node(struct opened_resource_s *priv)
 {
   return OK;
 }

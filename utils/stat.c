@@ -25,17 +25,6 @@ int open(const char *pathname, int flags, ...)
     return -ENOENT;
   }
 
-  /* Call the vfs open method */
-
-  int ret = -ENODEV;
-  if (node->ops != NULL && node->ops->open != NULL) {
-    ret = node->ops->open(node->priv, pathname, flags, 0);
-  }
-
-  if (ret < 0) {
-    return ret;
-  }
-
   /* Grab an entry from the tcb FILE structure. */
 
   struct opened_resource_s *res =
@@ -49,6 +38,17 @@ int open(const char *pathname, int flags, ...)
     }
 
     return -ENFILE;
+  }
+
+  /* Call the vfs open method */
+
+  int ret = -ENODEV;
+  if (node->ops != NULL && node->ops->open != NULL) {
+    ret = node->ops->open(node->priv, pathname, flags, 0);
+  }
+
+  if (ret < 0) {
+    return ret;
   }
 
   return res->fd;
