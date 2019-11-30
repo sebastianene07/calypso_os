@@ -16,10 +16,10 @@
  * Private Functions Declaration
  ****************************************************************************/
 
-int open_fs_node(struct opened_resource_s *priv, const char *pathname, int flags, mode_t mode);
-int read_fs_node(struct opened_resource_s *priv, void *buf, size_t count);
-int write_fs_node(struct opened_resource_s *priv, const void *buf, size_t count);
-int close_fs_node(struct opened_resource_s *priv);
+static int open_fs_node(struct opened_resource_s *priv, const char *pathname, int flags, mode_t mode);
+static int read_fs_node(struct opened_resource_s *priv, void *buf, size_t count);
+static int write_fs_node(struct opened_resource_s *priv, const void *buf, size_t count);
+static int close_fs_node(struct opened_resource_s *priv);
 
 /****************************************************************************
  * Private Variables
@@ -121,42 +121,54 @@ static FRESULT scan_files(char *path)
     return res;
 }
 
-int open_fs_node(struct opened_resource_s *priv, const char *pathname, int flags, mode_t mode)
+static int open_fs_node(struct opened_resource_s *file, const char *pathname,
+  int flags, mode_t mode)
 {
   FRESULT fr;
-  FIL *fil;
+  FIL *fatfs_file;
   int ret = OK;
 
-  fil = malloc(sizeof(FIL));
-  if (fil == NULL) {
+  fatfs_file = malloc(sizeof(FIL));
+  if (fatfs_file == NULL) {
     return -ENOMEM;
   }
-/*
-  fr = f_open(fil, priv, FA_READ);
+
+//  const char *path = vfs_get_aboslute_path_from_node(file->vfs_node);
+
+  fr = f_open(fatfs_file, file->vfs_node->name, FA_READ);
   if (fr) {
     ret = -EINVAL;
     goto clean_mem;
   }
-*/
+
+  file->vfs_node->priv = fatfs_file;
+  //free(path);
+
   return ret;
 
 clean_mem:
-  free(fil);
+  free(fatfs_file);
   return ret;
 }
 
-int read_fs_node(struct opened_resource_s *priv, void *buf, size_t count)
+static int read_fs_node(struct opened_resource_s *file, void *buf, size_t count)
 {
   return OK;
 }
 
-int write_fs_node(struct opened_resource_s *priv, const void *buf, size_t count)
+static int write_fs_node(struct opened_resource_s *file, const void *buf,
+  size_t count)
 {
   return OK;
 }
 
-int close_fs_node(struct opened_resource_s *priv)
+static int close_fs_node(struct opened_resource_s *file)
 {
+  if (file->vfs_node->priv) {
+    free(file->vfs_node->priv);
+    file->vfs_node->priv = NULL;
+  }
+
   return OK;
 }
 
