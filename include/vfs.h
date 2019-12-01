@@ -124,4 +124,16 @@ struct vfs_node_s *vfs_get_matching_node(const char *name, size_t name_len);
  */
 struct vfs_init_mountpoint_s *vfs_get_default(void);
 
+/*
+ * vfs_get_aboslute_path_from_node - get the complete path for a specified node"
+ *
+ * @node - the virtual file system node
+ *
+ *  The function returns the path by looking at the parent nodes. This function
+ *  allocates HEAP memory that should be freed by the user once we are done
+ *  manipulating the path buffer.
+ *
+ */
+const char *vfs_get_aboslute_path_from_node(struct vfs_node_s *node);
+
 #endif /* __VFS_H */

@@ -153,7 +153,15 @@ clean_mem:
 
 static int read_fs_node(struct opened_resource_s *file, void *buf, size_t count)
 {
-  return OK;
+  FRESULT fr;
+  UINT br;
+
+  fr = f_read(file->vfs_node->priv, buf, count, &br);
+  if (fr == OK) {
+    return br;
+  }
+
+  return -EINVAL;
 }
 
 static int write_fs_node(struct opened_resource_s *file, const void *buf,
@@ -165,6 +173,7 @@ static int write_fs_node(struct opened_resource_s *file, const void *buf,
 static int close_fs_node(struct opened_resource_s *file)
 {
   if (file->vfs_node->priv) {
+    f_close(file->vfs_node->priv);
     free(file->vfs_node->priv);
     file->vfs_node->priv = NULL;
   }
