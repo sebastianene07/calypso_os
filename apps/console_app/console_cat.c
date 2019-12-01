@@ -25,7 +25,7 @@ int console_cat(int argc, const char *argv[])
     return fd;
   }
 
-  char buffer[32];
+  char buffer[80];
   int nread = 0;
   int ret;
 
@@ -34,11 +34,13 @@ int console_cat(int argc, const char *argv[])
 
     memset(buffer, 0, sizeof(buffer));
     ret = 0;
-    while ((ret = read(fd, buffer + nread, sizeof(buffer) - nread - 1)) > 0) {
+    nread = 0;
+
+    while ((sizeof(buffer) - nread - 1) > 0 &&
+           (ret = read(fd, buffer + nread, sizeof(buffer) - nread - 1)) > 0) {
       nread += ret;
     }
 
-    buffer[31] = '\0';
     printf("%s\r\n", buffer);
   } while (ret != 0);
 
