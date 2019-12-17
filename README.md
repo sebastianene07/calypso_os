@@ -7,6 +7,7 @@ Download the sources with git clone and update the submodules
 for this project:
 
 ```
+git clone git@github.com:sebastianene07/calypso_os.git
 git submodule update --init --recursive
 ```
 
