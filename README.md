@@ -139,20 +139,3 @@ be able to run it inside qemu.
 Contributions are welcome.
 
 You can email me on: Sebastian Ene <sebastian.ene07@gmail.com>
-
-## License 
-
-
-Calypso OS is a free software that opened under license policy of following conditions.
-
-Copyright (C) 2018, Sebastian Ene, all rights reserved.
-
-Redistributions of source code must retain the above copyright notice, this condition and the following disclaimer.
-This software is provided by the copyright holder and contributors "AS IS" and any warranties related to this software are DISCLAIMED. The copyright owner or contributors be NOT LIABLE for any damages caused by use of this software.
-
-FatFs module is a free software that opened under license policy of following conditions.
-
-Copyright (C) 2015, ChaN, all right reserved.
-
-Redistributions of source code must retain the above copyright notice, this condition and the following disclaimer.
-This software is provided by the copyright holder and contributors "AS IS" and any warranties related to this software are DISCLAIMED. The copyright owner or contributors be NOT LIABLE for any damages caused by use of this software.
