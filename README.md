@@ -3,12 +3,29 @@ low power devices with running with low memory.
 
 ## Building
 
+Download the sources with git clone and update the submodules
+for this project:
+
+```
+git submodule update --init --recursive
+```
+
 Example for building Calypso OS for Norfic NrF52 board:
 
 ```
 make config MACHINE_TYPE=nrf52840
 make -j
 ```
+
+You can enable different features for your board by using the Kconfig
+menu selection.
+
+```
+make menuconfig
+```
+
+The above command requires you to have ``` kconfig-mconf ``` installed on your 
+build machine.
 
 ## Current features
 
@@ -39,7 +56,7 @@ In the current configuration it supports up to 2 ^ 31 - 1 blocks of memory
 where the block size is defined by the code that it's using the allocator.
 The allocation is done in O(N) space time (searching through the list of free
 nodes) whereas the free operation can take O(N^2) because of the block merging
-and sorting (this can be improved to O(NlogN)). 
+and sorting. 
 
 ### 3. Virtual File System
 
@@ -51,8 +68,8 @@ us to interract with the system resources. The current nodes are:
              --------------------
            |    |    |    |    |
           dev  mnt  bin  otp  home
-       /   |
- ttyUSB0  rtc0
+       /   |  \
+ ttyUSB0  rtc0 spi0
 ```
 
 A task contains a list of ```struct opened_resource_s``` which is essentially
@@ -89,6 +106,12 @@ open(..) -> vfs_get_matching_node(..) -------
 ## TODO's
 
 ```
+
+The project has a board associated to track issues & request new features:
+
+https://github.com/users/sebastianene07/projects/1#card-30262282
+
+
 1. Virtual file system support
   1.1 Add support for FatFS http://elm-chan.org/fsw/ff/00index_e.html (DONE)
   1.1.1 Implement SD/MMC driver                                       (DONE)
