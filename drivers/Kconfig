@@ -83,4 +83,9 @@ config SENSOR_DRIVERS
 	Select which sensor driver you want to build.
 
 if SENSOR_DRIVERS
+
+config SENSOR_BME680
+	bool "Bosch sensor BME680"
+	default n
+
 endif # SENSOR_DRIVERS

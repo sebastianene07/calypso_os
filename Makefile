@@ -74,7 +74,7 @@ clean:
 		$(MAKE) -C $$src_dir	clean;	\
 	done ;
 	rm -rf build/ && rm linker* tmp_lib*
-	rm include/Kconfig
+	rm -f include/Kconfig
 
 distclean: clean
 	rm .config
