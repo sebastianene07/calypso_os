@@ -28,7 +28,7 @@ int console_free(int argc, const char *argv[]);
 int console_ls(int argc, const char *argv[]);
 #endif
 
-#ifdef CONFIG_FATFS_MOUNT
+#ifdef CONFIG_CONSOLE_MOUNT
 int console_mount(int argc, const char *argv[]);
 int console_umount(int argc, const char *argv[]);
 #endif
@@ -76,7 +76,7 @@ static console_command_entry_t g_cmd_table[] =
   },
 #endif
 
-#ifdef CONFIG_FATFS_MOUNT
+#ifdef CONFIG_CONSOLE_MOUNT
   {
     .cmd_name      = "mount",
     .cmd_function  = console_mount,

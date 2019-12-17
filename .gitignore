@@ -1,6 +1,8 @@
+/include/Kconfig
 include/board_cfg.h
 include/board.h
 .config
+.config.old
 *.o
 *.hex
 *.elf

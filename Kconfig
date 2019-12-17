@@ -1,0 +1,28 @@
+mainmenu "Calypso OS/$ARCH Configuration"
+
+menu "Board Setup"
+source include/Kconfig
+endmenu # Build Setup
+
+menu "OS Features"
+
+config POWERON_MESSAGE
+	string "The message that will be prinyted on console when the system boots"
+	default "\r\nWelcome to Calypso OS\r\n"
+
+config FATFS_SUPPORT
+	bool "Build the FatFS library"
+	default n
+endmenu
+
+menu "Device Drivers"
+source drivers/Kconfig
+endmenu
+
+menu "Memory Management"
+#source mm/Kconfig
+endmenu
+
+menu "Application Configuration"
+source "apps/Kconfig"
+endmenu

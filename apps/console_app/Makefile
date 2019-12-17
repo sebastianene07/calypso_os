@@ -16,7 +16,7 @@ ifeq ($(CONFIG_CONSOLE_LS),y)
 SRC+= console_ls.c
 endif
 
-ifeq ($(CONFIG_FATFS_MOUNT),y)
+ifeq ($(CONFIG_CONSOLE_MOUNT),y)
 SRC+= console_mount.c
 endif
 
@@ -25,12 +25,13 @@ SRC+= console_cat.c
 endif
 
 OBJS:=$(patsubst %.c,%.o,$(SRC))
-CONSOLE_FLAGS := ${CFLAGS}																					\
-							-I$(TOPDIR)/include																	\
-							-I$(TOPDIR)/s_alloc																	\
-							-I$(TOPDIR)/sched/include														\
-							-I$(TOPDIR)/apps/console_app												\
-							-I$(TOPDIR)/lib/fatfs/
+CONSOLE_FLAGS := ${CFLAGS}  \
+	-I$(TOPDIR)/include \
+	-I$(TOPDIR)/s_alloc \
+	-I$(TOPDIR)/sched/include	\
+	-I$(TOPDIR)/apps/console_app	\
+	-I$(TOPDIR)/fatfs/		\
+
 SRC_ASM:=$(wildcard *.s)
 OBJS_ASM:=$(patsubst %.s,%.o,$(SRC_ASM))
 

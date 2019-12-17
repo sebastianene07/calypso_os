@@ -5,7 +5,10 @@ DEBUG_PORT=2331
 # Include user config
 ifeq ($(MACHINE_TYPE),)
 include .config
+MACHINE_TYPE=$(subst $\",,$(CONFIG_MACHINE_TYPE))
 -include Make.defs
+CFLAGS=$(subst $\",,$(CONFIG_CFLAGS))
+LDFLAGS=$(subst $\",,$(CONFIG_LDFLAGS))
 endif
 
 $(info machine_type=$(MACHINE_TYPE))
@@ -43,28 +46,37 @@ all: create_board_file
 create_board_file:
 	cp arch/*/$(MACHINE_TYPE)/include/*.h include/.
 	echo "#ifndef __BOARD_CFG_H\n#define __BOARD_CFG_H" > include/board_cfg.h
-	cat .config | tail -n +4 | sed 's/^/#define /' | sed 's/=/ /' >> include/board_cfg.h
+	cat .config | grep -v "^#" | grep -v "^$$" | tail -n +4 | sed 's/^/#define /' | sed 's/=/ /' >> include/board_cfg.h
 	echo "#endif /* __BOARD_CFG_H */" >> include/board_cfg.h
-	cat .config | tail -n +4 | sed 's/^/export /' | sed 's/=/ /' > Make.defs
+	cat .config | grep -v "^#" | grep -v "^$$" | tail -n +4 | sed 's/^/export /' | sed 's/=/ /' > Make.defs
 
 load:
 	nrfjprog -f nrf52 --program build/build.hex --sectorerase
 
 config:
 	cp config/$(MACHINE_TYPE)/release/defconfig .config
-	cat .config | tail -n +4 | sed 's/^/export /' | sed 's/=/ /' > Make.defs
+	cat .config | grep -v '^#' | grep -v '^$$' | tail -n +4 | sed 's/^/export /' | sed 's/=/ /' > Make.defs
+
+savedefconfig:
+	cp .config defconfig
 
 debug:
 	JLinkGDBServer -device nRF52 -speed 4000 -if SWD -port ${DEBUG_PORT}
 
-.PHONY: clean debug config load create_board_file distclean
+menuconfig:
+	cp arch/*/$(MACHINE_TYPE)/Kconfig include/.
+	kconfig-mconf Kconfig
+
+.PHONY: clean debug config load create_board_file distclean menuconfig savedefconfig
 
 clean:
 	for src_dir in $(SRC_DIRS) ; do \
 		$(MAKE) -C $$src_dir	clean;	\
 	done ;
 	rm -rf build/ && rm linker* tmp_lib*
+	rm include/Kconfig
 
 distclean: clean
 	rm .config
 	rm -f Make.defs
+	rm include/Kconfig

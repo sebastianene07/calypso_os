@@ -1,0 +1,39 @@
+config CONSOLE_APP
+	bool "Basic console support"
+	default n
+	---help---
+	This application runs in it's own thread and contains a suite of 
+	command tools that can be enabled indipendently.
+
+if CONSOLE_APP
+
+config CONSOLE_PROMPT_STR
+	string "The default console prompt"
+	default "root:#>"
+
+config CONSOLE_ECHO_ON
+	bool "Typing is echoed back to console"
+	default n
+
+config CONSOLE_DATE_ON
+	bool "Tool to set/view the system time"
+	default n
+	depends on RTC_PATH
+	
+config CONSOLE_CAT
+	bool "Tool to print files to console output"
+	default n
+
+config CONSOLE_FREE
+	bool "Tool used to view the free HEAP memory"
+	default n
+
+config CONSOLE_LS
+	bool "List the directories and files"
+	default n
+
+config CONSOLE_MOUNT
+	bool "Tool used to mount new file systems"
+	default n
+
+endif # CONSOLE_APP 

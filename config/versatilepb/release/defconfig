@@ -1,10 +1,10 @@
-MACHINE_TYPE=versatilepb
-CFLAGS += -march=armv5t -g -Wall -nostdlib -nostartfiles -ffreestanding
-LDFLAGS += ${CFLAGS} -Wl,-T${TOPDIR}/linker.ld
-CONFIG_POWERON_MESSAGE="\r\nWelcome to Calypso OS v0.0.1\r\n"
+CONFIG_MACHINE_TYPE=versatilepb
+CONFIG_CFLAGS=" -march=armv5t -g -Wall -nostdlib -nostartfiles -ffreestanding "
+CONFIG_LDFLAGS=" ${CFLAGS} -Wl,-T${TOPDIR}/linker.ld "
+CONFIG_POWERON_MESSAGE="Welcome to Calypso OS v0.0.1"
 CONFIG_CONSOLE_PROMPT_STR="root:#/>"
-CONFIG_CONSOLE_ECHO_ON=Y
+CONFIG_CONSOLE_ECHO_ON=y
 CONFIG_CONSOLE_UART_PATH="/dev/ttyUSB0"
 CONFIG_RTC_PATH="/dev/rtc0"
-CONFIG_FATFS_SUPPORT=Y
-CONFIG_RUN_FROM_RAM=Y
+CONFIG_FATFS_SUPPORT=y
+CONFIG_RUN_FROM_RAM=y

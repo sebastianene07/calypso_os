@@ -1,4 +1,9 @@
-SRC:=$(wildcard *.c)
+SRC:=
+
+ifeq ($(CONFIG_SERIAL_DRIVERS), y)
+SRC+=	$(wildcard *.c)
+endif
+
 OBJS:=$(patsubst %.c,%.o,$(SRC))
 CONSOLE_FLAGS := ${CFLAGS}																					\
 							-I$(TOPDIR)/include																	\

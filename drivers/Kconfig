@@ -1,0 +1,86 @@
+####### Display Drivers ########
+###############################
+
+config DISPLAY_DRIVERS
+	bool "Display drivers"
+	default n
+	---help---
+	Select which display drivers you want to build.
+
+if DISPLAY_DRIVERS
+
+config DISPLY_DRIVER_SSD1331
+	bool "Display driver for SSD1331 controller"
+	default n
+	depends on SPI_0 || SPI_1 || SPI_2
+
+if DISPLY_DRIVER_SSD1331
+
+config DISPLAY_DRIVER_SSD1331_SPI_ID
+	int "Select which SPI interface to use [0:2]"
+	default 0
+endif
+
+endif # DISPLAY_DRIVERS
+
+####### Serial Drivers ########
+###############################
+
+config SERIAL_DRIVERS
+	bool "Serial drivers"
+	default n
+	---help---
+	Select the serial driver taht you want to build.
+
+if SERIAL_DRIVERS
+endif # SERIAL_DRIVERS
+
+####### Storage Drivers #######
+###############################
+
+config STORAGE_DRIVERS
+	bool "Storage drivers"
+	default n
+	---help---
+	Select which storage driver you want to build.
+
+if STORAGE_DRIVERS
+
+config SPI_SDCARD
+	bool "SPI SdCard driver"
+	default n
+	depends on SPI_0 || SPI_1 || SPI_2
+
+if SPI_SDCARD
+
+config SPI_SDCARD_SPI_ID
+	int "Select which SPI interface to use [0:2]"
+	default 0
+
+config SPI_SDCARD_VSYS_PORT
+	int "Select the port for power supply"
+	default 0
+
+config SPI_SDCARD_VSYS_PIN
+	int "Select the pin for power supply"
+	default 0
+
+config SD_SPI_NAME
+	string "The path where we mount the device node"
+	default "/dev/sd_spi"
+
+endif
+
+endif # STORAGE_DRIVERS
+
+####### Sensor Drivers #######
+###############################
+
+config SENSOR_DRIVERS
+	bool "Sensor drivers"
+	default n
+	---help---
+	Select which sensor driver you want to build.
+
+if SENSOR_DRIVERS
+endif # SENSOR_DRIVERS
