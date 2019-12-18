@@ -2,6 +2,7 @@
 
 #include "bme680.h"
 
+#include <sensors/sensors.h>
 #include <errno.h>
 #include <scheduler.h>
 #include <semaphore.h>
@@ -32,7 +33,7 @@
  ****************************************************************************/
 
 /* Lower layer access to the sensor */
-static void bme680_sensor_delay(uint32_t period);
+static void bme680_sensor_delay_ms(uint32_t period);
 static int8_t bme680_sensor_spi_read(uint8_t dev_id, uint8_t reg_addr,
  uint8_t *reg_data, uint16_t len);
 static int8_t bme680_sensor_spi_write(uint8_t dev_id, uint8_t reg_addr,
@@ -66,7 +67,7 @@ static struct bme680_dev g_gas_sensor = {
   .amb_temp   = SENSOR_DEFAULT_AMBIENTAL_TEMP,
   .read       = bme680_sensor_spi_read,
   .write      = bme680_sensor_spi_write,
-  .delay_ms   = bme680_sensor_delay 
+  .delay_ms   = bme680_sensor_delay_ms 
 };
 
 /****************************************************************************
@@ -79,7 +80,7 @@ static int bme680_sensor_enter_forcedmode(void)
   uint8_t set_required_settings;
 
   /* Set the temperature, pressure and humidity settings */
-  g_gas_sensor.tph_sett.os_hum = BME680_OS_2X;
+  g_gas_sensor.tph_sett.os_hum  = BME680_OS_2X;
   g_gas_sensor.tph_sett.os_pres = BME680_OS_4X;
   g_gas_sensor.tph_sett.os_temp = BME680_OS_8X;
   g_gas_sensor.tph_sett.filter  = BME680_FILTER_SIZE_3;
@@ -107,8 +108,10 @@ static int bme680_sensor_enter_forcedmode(void)
   return rslt;
 }
 
-static void bme680_sensor_delay(uint32_t period)
+static void bme680_sensor_delay_ms(uint32_t period)
 {
+  // TODO : implement with sem_timedwait(...) if the chip is not able
+  // to give an interrrupt when samples are ready
 }
 
 static int8_t bme680_sensor_spi_read(uint8_t dev_id, uint8_t reg_addr,
@@ -133,6 +136,30 @@ static int bme680_sensor_close(struct opened_resource_s *res)
 static int bme680_sensor_read(struct opened_resource_s *res, void *buf, 
  size_t count)
 {
+
+  /* Get the total measurement duration so as to sleep or wait till the
+   * measurement is complete */
+  uint16_t meas_period;
+  bme680_get_profile_dur(&meas_period, &g_gas_sensor);
+
+  struct bme680_field_data data;
+
+  /* Delay till the measurement is ready */
+
+  bme680_sensor_delay_ms(meas_period);
+  int rslt = bme680_get_sensor_data(&data, &g_gas_sensor);
+
+  //printf("T: %.2f degC, P: %.2f hPa, H %.2f %%rH ", data.temperature / 100.0f,
+  //    data.pressure / 100.0f, data.humidity / 1000.0f );
+ 
+  /* Avoid using measurements from an unstable heating setup */
+  if(data.status & BME680_GASM_VALID_MSK)
+    printf(", G: %d ohms\n", data.gas_resistance);
+
+  /* Trigger the next measurement if you would like to read data out continuously */
+  if (g_gas_sensor.power_mode == BME680_FORCED_MODE) {
+    rslt = bme680_set_sensor_mode(&g_gas_sensor);
+  }
 }
 
 static int bme680_sensor_ioctl(struct opened_resource_s *priv,
