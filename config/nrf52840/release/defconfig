@@ -8,7 +8,7 @@
 #
 CONFIG_MACHINE_TYPE="nrf52840"
 CONFIG_CFLAGS=" -mcpu=cortex-m4 -mthumb -mabi=aapcs -O -ggdb -std=gnu99 "
-CONFIG_LDFLAGS=" ${CFLAGS} -nostartfiles -nodefaultlibs -Wl,-T${TOPDIR}/linker.ld "
+CONFIG_LDFLAGS=" -lc -lgcc ${CFLAGS} -nostartfiles -Wl,-T${TOPDIR}/linker.ld "
 # CONFIG_SPI_0 is not set
 CONFIG_SPI_1=y
 CONFIG_SPI_1_MISO_PIN=29
