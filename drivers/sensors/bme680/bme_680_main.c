@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <scheduler.h>
 #include <semaphore.h>
+#include <spi.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,7 +40,7 @@ static int8_t bme680_sensor_spi_write(uint8_t dev_id, uint8_t reg_addr,
 
 /* Virtual file system ops */
 static int bme680_sensor_open(struct opened_resource_s *res,
- const char *pathname, const char *pathname, int flags, mode_t mode);
+ const char *pathname, int flags, mode_t mode);
 static int bme680_sensor_close(struct opened_resource_s *res);
 static int bme680_sensor_read(struct opened_resource_s *res, void *buf, 
  size_t count);
@@ -65,7 +66,7 @@ static struct bme680_dev g_gas_sensor = {
   .amb_temp   = SENSOR_DEFAULT_AMBIENTAL_TEMP,
   .read       = bme680_sensor_spi_read,
   .write      = bme680_sensor_spi_write,
-  .delasy_ms  = bme680_sensor_delay 
+  .delay_ms   = bme680_sensor_delay 
 };
 
 /****************************************************************************
@@ -99,7 +100,7 @@ static int bme680_sensor_enter_forcedmode(void)
     BME680_FILTER_SEL | BME680_GAS_SENSOR_SEL;
 
   /* Set the desired sensor configuration */
-  rslt = bme680_set_sensor_settings(set_required_settings, &gas_sensor);
+  rslt = bme680_set_sensor_settings(set_required_settings, &g_gas_sensor);
 
   /* Set the power mode */
   rslt = bme680_set_sensor_mode(&g_gas_sensor);
@@ -121,7 +122,7 @@ static int8_t bme680_sensor_spi_write(uint8_t dev_id, uint8_t reg_addr,
 }
 
 static int bme680_sensor_open(struct opened_resource_s *res,
- const char *pathname, const char *pathname, int flags, mode_t mode)
+  const char *pathname, int flags, mode_t mode)
 {
 }
 
@@ -155,7 +156,7 @@ int bme680_sensor_register(const char *name, spi_master_dev_t *spi)
 
   /* Register the upper half node with the VFS */
 
-  int ret = vfs_register_node(name, strlen(name), &g_bme680_ops,
+  ret = vfs_register_node(name, strlen(name), &g_bme680_ops,
       VFS_TYPE_CHAR_DEVICE, NULL);
   if (ret != OK) {
     LOG_ERR("register node status %d\n", ret);
