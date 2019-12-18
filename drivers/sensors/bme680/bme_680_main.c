@@ -1,7 +1,5 @@
 #include <board.h>
 
-#include "bme680.h"
-
 #include <sensors/sensors.h>
 #include <errno.h>
 #include <scheduler.h>
@@ -60,51 +58,44 @@ static struct vfs_ops_s g_bme680_ops = {
   .ioctl  = bme680_sensor_ioctl,
 };
 
-/* Initialization portion */
-static struct bme680_dev g_gas_sensor = {
-  .dev_id     = 0,
-  .intf       = BME680_SPI_INTF,
-  .amb_temp   = SENSOR_DEFAULT_AMBIENTAL_TEMP,
-  .read       = bme680_sensor_spi_read,
-  .write      = bme680_sensor_spi_write,
-  .delay_ms   = bme680_sensor_delay_ms 
-};
+/* The device registartion counter */
+static uint8_t g_dev_id;
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
-static int bme680_sensor_enter_forcedmode(void)
+static int bme680_sensor_enter_forcedmode(struct bme680_dev *dev)
 {
   int rslt;
   uint8_t set_required_settings;
 
   /* Set the temperature, pressure and humidity settings */
-  g_gas_sensor.tph_sett.os_hum  = BME680_OS_2X;
-  g_gas_sensor.tph_sett.os_pres = BME680_OS_4X;
-  g_gas_sensor.tph_sett.os_temp = BME680_OS_8X;
-  g_gas_sensor.tph_sett.filter  = BME680_FILTER_SIZE_3;
+  dev->tph_sett.os_hum  = BME680_OS_2X;
+  dev->tph_sett.os_pres = BME680_OS_4X;
+  dev->tph_sett.os_temp = BME680_OS_8X;
+  dev->tph_sett.filter  = BME680_FILTER_SIZE_3;
 
   /* Set the remaining gas sensor settings and link the heating profile */
-  g_gas_sensor.gas_sett.run_gas = BME680_ENABLE_GAS_MEAS;
+  dev->gas_sett.run_gas = BME680_ENABLE_GAS_MEAS;
 
   /* Create a ramp heat waveform in 3 steps */
-  g_gas_sensor.gas_sett.heatr_temp = SENSOR_DEFAULT_GAS_HEATER_TEMPERATURE;
-  g_gas_sensor.gas_sett.heatr_dur = SENSOR_DEFAULT_HEATER_DURATION_MS;
+  dev->gas_sett.heatr_temp = SENSOR_DEFAULT_GAS_HEATER_TEMPERATURE;
+  dev->gas_sett.heatr_dur = SENSOR_DEFAULT_HEATER_DURATION_MS;
 
   /* Select the power mode */
   /* Must be set before writing the sensor configuration */
-  g_gas_sensor.power_mode = BME680_FORCED_MODE; 
+  dev->power_mode = BME680_FORCED_MODE; 
 
   /* Set the required sensor settings needed */
   set_required_settings = BME680_OST_SEL | BME680_OSP_SEL | BME680_OSH_SEL |
     BME680_FILTER_SEL | BME680_GAS_SENSOR_SEL;
 
   /* Set the desired sensor configuration */
-  rslt = bme680_set_sensor_settings(set_required_settings, &g_gas_sensor);
+  rslt = bme680_set_sensor_settings(set_required_settings, dev);
 
   /* Set the power mode */
-  rslt = bme680_set_sensor_mode(&g_gas_sensor);
+  rslt = bme680_set_sensor_mode(dev);
   return rslt;
 }
 
@@ -131,35 +122,40 @@ static int bme680_sensor_open(struct opened_resource_s *res,
 
 static int bme680_sensor_close(struct opened_resource_s *res)
 {
+  bme680_sensor_t *gas_sensor = (bme680_sensor_t *)res->vfs_node->priv;
+  free(gas_sensor);
+  res->vfs_node->priv = NULL;
+  return OK;
 }
 
 static int bme680_sensor_read(struct opened_resource_s *res, void *buf, 
  size_t count)
 {
-
-  /* Get the total measurement duration so as to sleep or wait till the
-   * measurement is complete */
   uint16_t meas_period;
-  bme680_get_profile_dur(&meas_period, &g_gas_sensor);
+
+  bme680_sensor_t *gas_sensor = (bme680_sensor_t *)res->vfs_node->priv;
+  struct bme680_dev *dev = &gas_sensor->dev;
+
+  sem_wait(&gas_sensor->lock_sensor);
+
+  bme680_get_profile_dur(&meas_period, dev);
 
   struct bme680_field_data data;
 
-  /* Delay till the measurement is ready */
-
   bme680_sensor_delay_ms(meas_period);
-  int rslt = bme680_get_sensor_data(&data, &g_gas_sensor);
+  int rslt = bme680_get_sensor_data(&data, dev);
 
   //printf("T: %.2f degC, P: %.2f hPa, H %.2f %%rH ", data.temperature / 100.0f,
   //    data.pressure / 100.0f, data.humidity / 1000.0f );
  
-  /* Avoid using measurements from an unstable heating setup */
   if(data.status & BME680_GASM_VALID_MSK)
     printf(", G: %d ohms\n", data.gas_resistance);
 
-  /* Trigger the next measurement if you would like to read data out continuously */
-  if (g_gas_sensor.power_mode == BME680_FORCED_MODE) {
-    rslt = bme680_set_sensor_mode(&g_gas_sensor);
+  if (dev->power_mode == BME680_FORCED_MODE) {
+    rslt = bme680_set_sensor_mode(dev);
   }
+
+  sem_post(&gas_sensor->lock_sensor);
 }
 
 static int bme680_sensor_ioctl(struct opened_resource_s *priv,
@@ -175,19 +171,36 @@ int bme680_sensor_register(const char *name, spi_master_dev_t *spi)
 {
   int ret = OK;
 
-  ret = bme680_init(&g_gas_sensor);
+  bme680_sensor_t *gas_sensor = calloc(1, sizeof(bme680_sensor_t));
+  if (gas_sensor == NULL) {
+    return -ENOMEM;
+  }
+
+  gas_sensor->dev = (struct bme680_dev) {
+    .dev_id     = g_dev_id,
+    .intf       = BME680_SPI_INTF,
+    .amb_temp   = SENSOR_DEFAULT_AMBIENTAL_TEMP,
+    .read       = bme680_sensor_spi_read,
+    .write      = bme680_sensor_spi_write,
+    .delay_ms   = bme680_sensor_delay_ms 
+  };
+
+  sem_init(&gas_sensor->lock_sensor, 0, 1);
+
+  ret = bme680_init(&gas_sensor->dev);
   if (ret != BME680_OK) {
     LOG_ERR("init status %d\n", ret);
     return ret;
   }
 
   /* Register the upper half node with the VFS */
-
   ret = vfs_register_node(name, strlen(name), &g_bme680_ops,
-      VFS_TYPE_CHAR_DEVICE, NULL);
+      VFS_TYPE_CHAR_DEVICE, gas_sensor);
   if (ret != OK) {
     LOG_ERR("register node status %d\n", ret);
   }
+
+  g_dev_id++;
 
   return ret;
 } 
