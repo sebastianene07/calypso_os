@@ -2,6 +2,7 @@
 
 #include <sensors/sensors.h>
 #include <errno.h>
+#include <gpio.h>
 #include <scheduler.h>
 #include <semaphore.h>
 #include <spi.h>
@@ -59,7 +60,7 @@ static struct vfs_ops_s g_bme680_ops = {
 };
 
 /* The device registartion counter */
-static uint8_t g_dev_id;
+static spi_master_dev_t *g_spi_m;
 
 /****************************************************************************
  * Private Functions
@@ -108,23 +109,61 @@ static void bme680_sensor_delay_ms(uint32_t period)
 static int8_t bme680_sensor_spi_read(uint8_t dev_id, uint8_t reg_addr,
   uint8_t *reg_data, uint16_t len)
 {
+  gpio_toogle(0, g_spi_m->dev_cfg.cs_pin, g_spi_m->dev_cfg.cs_port);
+
+  uint8_t miso_byte, mosy_byte = 0xFF;
+  spi_send_recv(g_spi_m, &reg_addr, sizeof(uint8_t), &miso_byte,
+    sizeof(uint8_t));
+
+  for (int i = 0; i < len; i++) {
+    spi_send_recv(g_spi_m, &mosy_byte, sizeof(uint8_t), reg_data + i,
+      sizeof(uint8_t));
+  }
+
+  gpio_toogle(1, g_spi_m->dev_cfg.cs_pin, g_spi_m->dev_cfg.cs_port);
 }
 
 static int8_t bme680_sensor_spi_write(uint8_t dev_id, uint8_t reg_addr,
   uint8_t *reg_data, uint16_t len)
 {
+
+  gpio_toogle(0, g_spi_m->dev_cfg.cs_pin, g_spi_m->dev_cfg.cs_port);
+
+  uint8_t miso_byte = 0XFF;
+  spi_send_recv(g_spi_m, &reg_addr, sizeof(uint8_t), &miso_byte,
+    sizeof(uint8_t));
+
+  for (int i = 0; i < len; i++) {
+    spi_send_recv(g_spi_m, reg_data + i, sizeof(uint8_t), &miso_byte,
+      sizeof(uint8_t));
+  }
+
+  gpio_toogle(1, g_spi_m->dev_cfg.cs_pin, g_spi_m->dev_cfg.cs_port);
 }
 
 static int bme680_sensor_open(struct opened_resource_s *res,
   const char *pathname, int flags, mode_t mode)
 {
+  bme680_sensor_t *gas_sensor = (bme680_sensor_t *)res->vfs_node->priv;
+
+  sem_wait(&gas_sensor->lock_sensor);
+
+  int ret = bme680_init(&gas_sensor->dev);
+  if (ret != BME680_OK) {
+    LOG_ERR("init status %d\n", ret);
+    sem_post(&gas_sensor->lock_sensor);
+    return ret;
+  }
+
+  ret = bme680_sensor_enter_forcedmode(&gas_sensor->dev);
+  sem_post(&gas_sensor->lock_sensor);
+
+  return ret;
 }
 
 static int bme680_sensor_close(struct opened_resource_s *res)
 {
-  bme680_sensor_t *gas_sensor = (bme680_sensor_t *)res->vfs_node->priv;
-  free(gas_sensor);
-  res->vfs_node->priv = NULL;
+  // TODO exit force mode & put sensor to sleep
   return OK;
 }
 
@@ -177,7 +216,7 @@ int bme680_sensor_register(const char *name, spi_master_dev_t *spi)
   }
 
   gas_sensor->dev = (struct bme680_dev) {
-    .dev_id     = g_dev_id,
+    .dev_id     = 0,
     .intf       = BME680_SPI_INTF,
     .amb_temp   = SENSOR_DEFAULT_AMBIENTAL_TEMP,
     .read       = bme680_sensor_spi_read,
@@ -187,20 +226,15 @@ int bme680_sensor_register(const char *name, spi_master_dev_t *spi)
 
   sem_init(&gas_sensor->lock_sensor, 0, 1);
 
-  ret = bme680_init(&gas_sensor->dev);
-  if (ret != BME680_OK) {
-    LOG_ERR("init status %d\n", ret);
-    return ret;
-  }
-
   /* Register the upper half node with the VFS */
   ret = vfs_register_node(name, strlen(name), &g_bme680_ops,
       VFS_TYPE_CHAR_DEVICE, gas_sensor);
   if (ret != OK) {
     LOG_ERR("register node status %d\n", ret);
+    free(gas_sensor);
   }
 
-  g_dev_id++;
+  g_spi_m = spi;
 
   return ret;
 } 
