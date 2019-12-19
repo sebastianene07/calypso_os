@@ -21,9 +21,6 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define XTAL                  (50000000UL)     /* Oscillator frequency */
-#define SYSTEM_CLOCK          (XTAL / 2U)
-
 #define CLOCK_BASE            (0x40000000)
 
 /* Configuration offsets for registers */
@@ -48,7 +45,8 @@
 static unsigned int LED = 13;
 static unsigned int BUTTON_1 = 11;
 
-static uint32_t SystemCoreClock = SYSTEM_CLOCK;  /* System Core Clock Frequency */
+/* System Core Clock Frequency */
+static uint32_t SystemCoreClock = CONFIG_SYSTEM_CLOCK_FREQUENCY * 1000000;
 
 /****************************************************************************
  * Private Functions

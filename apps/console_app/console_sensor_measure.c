@@ -26,7 +26,7 @@ int console_sensor_measure(int argc, const char *argv[])
   if (ret < 0) {
     printf("Error %d get sensor data\n", ret);
   } else {
-    printf("Received %d bytes from sensor\n", ret);
+    printf("Success\n\n");
   }
 
   close(sensor_fd);

@@ -104,6 +104,8 @@ static void bme680_sensor_delay_ms(uint32_t period)
 {
   // TODO : implement with sem_timedwait(...) if the chip is not able
   // to give an interrrupt when samples are ready
+
+  usleep(period * 1000);
 }
 
 static int8_t bme680_sensor_spi_read(uint8_t dev_id, uint8_t reg_addr,
@@ -121,6 +123,8 @@ static int8_t bme680_sensor_spi_read(uint8_t dev_id, uint8_t reg_addr,
   }
 
   gpio_toogle(1, g_spi_m->dev_cfg.cs_pin, g_spi_m->dev_cfg.cs_port);
+
+  return OK;
 }
 
 static int8_t bme680_sensor_spi_write(uint8_t dev_id, uint8_t reg_addr,
@@ -139,6 +143,8 @@ static int8_t bme680_sensor_spi_write(uint8_t dev_id, uint8_t reg_addr,
   }
 
   gpio_toogle(1, g_spi_m->dev_cfg.cs_pin, g_spi_m->dev_cfg.cs_port);
+
+  return OK;
 }
 
 static int bme680_sensor_open(struct opened_resource_s *res,
@@ -184,8 +190,8 @@ static int bme680_sensor_read(struct opened_resource_s *res, void *buf,
   bme680_sensor_delay_ms(meas_period);
   int rslt = bme680_get_sensor_data(&data, dev);
 
-  //printf("T: %.2f degC, P: %.2f hPa, H %.2f %%rH ", data.temperature / 100.0f,
-  //    data.pressure / 100.0f, data.humidity / 1000.0f );
+  printf("T: %d degC, P: %d hPa, H %d ", data.temperature,
+      data.pressure, data.humidity );
  
   if(data.status & BME680_GASM_VALID_MSK)
     printf(", G: %d ohms\n", data.gas_resistance);
