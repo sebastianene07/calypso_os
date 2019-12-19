@@ -83,4 +83,19 @@ config SENSOR_DRIVERS
 	Select which sensor driver you want to build.
 
 if SENSOR_DRIVERS
+
+config SENSOR_BME680
+	bool "Bosch sensor BME680"
+	default n
+
+if SENSOR_BME680
+config SENSOR_BME680_PATH_NAME
+  string "The path where we register the sensor"
+  default "/dev/bme680"
+endif
+
+config SENSOR_BME680_SPI_ID
+	int "Select which SPI interface to use [0:2]"
+	default 1
+
 endif # SENSOR_DRIVERS

@@ -32,7 +32,6 @@ export TMP_LIB
 export TARGET
 
 all: create_board_file
-
 	for src_dir in $(SRC_DIRS) ; do \
   	$(MAKE) -C $$src_dir	all;\
 	done ;
@@ -41,7 +40,8 @@ all: create_board_file
 	${PREFIX}ar xv ${TOPDIR}/${TMP_LIB} && \
 	${PREFIX}gcc ${LDFLAGS} *.o -o build.elf && \
 	${PREFIX}objcopy -O ihex build.elf build.hex && \
-	${PREFIX}objcopy -O binary build.elf build.bin
+	${PREFIX}objcopy -O binary build.elf build.bin && \
+	echo "Build finished successfully."
 
 create_board_file:
 	cp arch/*/$(MACHINE_TYPE)/include/*.h include/.
@@ -74,7 +74,7 @@ clean:
 		$(MAKE) -C $$src_dir	clean;	\
 	done ;
 	rm -rf build/ && rm linker* tmp_lib*
-	rm include/Kconfig
+	rm -f include/Kconfig
 
 distclean: clean
 	rm .config

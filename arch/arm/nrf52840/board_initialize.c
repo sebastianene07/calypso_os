@@ -13,12 +13,13 @@
 #include <storage/spi_sdcard.h>
 #endif
 
+#ifdef CONFIG_SENSOR_DRIVERS
+#include <sensors/sensors.h>
+#endif
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
-
-#define XTAL                  (50000000UL)     /* Oscillator frequency */
-#define SYSTEM_CLOCK          (XTAL / 2U)
 
 #define CLOCK_BASE            (0x40000000)
 
@@ -44,7 +45,8 @@
 static unsigned int LED = 13;
 static unsigned int BUTTON_1 = 11;
 
-static uint32_t SystemCoreClock = SYSTEM_CLOCK;  /* System Core Clock Frequency */
+/* System Core Clock Frequency */
+static uint32_t SystemCoreClock = CONFIG_SYSTEM_CLOCK_FREQUENCY * 1000000;
 
 /****************************************************************************
  * Private Functions
@@ -142,7 +144,7 @@ void board_init(void)
 
 #ifdef CONFIG_DISPLAY_SSD1331
   ssd1331_config_t display_config = {
-    .spi_dev = &spi_devs[0],
+    .spi_dev = &spi_devs[CONFIG_DISPLAY_DRIVER_SSD1331_SPI_ID],
     .dc_pin  = CONFIG_DISPLAY_DC_PIN,
     .dc_port = CONFIG_DISPLAY_DC_PORT,
     .cs_pin  = spi_devs[0].dev_cfg.cs_pin,
@@ -159,7 +161,12 @@ void board_init(void)
 
   gpio_toogle(0, CONFIG_SPI_SDCARD_VSYS_PIN, CONFIG_SPI_SDCARD_VSYS_PORT);
   gpio_toogle(1, CONFIG_SPI_SDCARD_VSYS_PIN, CONFIG_SPI_SDCARD_VSYS_PORT);
-  sd_spi_init(&spi_devs[0]);
+  sd_spi_init(&spi_devs[CONFIG_SPI_SDCARD_SPI_ID]);
+#endif
+
+#ifdef CONFIG_SENSOR_BME680
+  bme680_sensor_register(CONFIG_SENSOR_BME680_PATH_NAME,
+      &spi_devs[CONFIG_SENSOR_BME680_SPI_ID]);
 #endif
 
   SysTick_Config(SystemCoreClock / 2000);

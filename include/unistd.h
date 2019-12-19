@@ -8,6 +8,7 @@
 typedef int ssize_t;
 
 typedef uint32_t mode_t;
+typedef uint32_t useconds_t;
 
 /**************************************************************************
  * Name:
@@ -37,6 +38,30 @@ ssize_t read(int fd, void *buf, size_t count);
  *************************************************************************/
 ssize_t write(int fd, void *buf, size_t count);
 
+/**************************************************************************
+ * Name:
+ *  close
+ *
+ * Description:
+ *  Close the file descriptor and free the associated resources.
+ *
+ * Return Value:
+ *  Zero on success otherwise a negative value.
+ *
+ *************************************************************************/
 int close(int fd);
+
+/**************************************************************************
+ * Name:
+ *  usleep
+ *
+ * Description:
+ *  Put the calling process into sleep state for 'microseconds' 
+ *
+ * Return Value:
+ *  Zero on success otherwise a negative value.
+ *
+ *************************************************************************/
+int usleep(useconds_t microseconds);
 
 #endif /* __UNISTD_H */

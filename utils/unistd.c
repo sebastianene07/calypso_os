@@ -94,3 +94,30 @@ int close(int fd)
 
   return res->vfs_node->ops->close(res);
 }
+
+static inline void wait_usec(void)
+{
+  uint32_t counter = 0;
+
+  /* 1 us takes this time */ 
+  for (counter; counter < CONFIG_SYSTEM_CLOCK_FREQUENCY; ++counter);
+} 
+
+/**************************************************************************
+ * Name:
+ *  usleep
+ *
+ * Description:
+ *  Put the calling process into sleep state for 'microseconds' 
+ *
+ * Return Value:
+ *  Zero on success otherwise a negative value.
+ *
+ *************************************************************************/
+int usleep(useconds_t microseconds)
+{
+  while (microseconds-- > 0)
+    wait_usec();
+
+  return OK;
+}

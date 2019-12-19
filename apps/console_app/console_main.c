@@ -37,6 +37,10 @@ int console_umount(int argc, const char *argv[]);
 int console_cat(int argc, const char *argv[]);
 #endif
 
+#ifdef CONFIG_CONSOLE_SENSOR_MEASURE
+int console_sensor_measure(int argc, const char *argv[]);
+#endif
+
 static int console_help(int argc, const char *argv[]);
 
 /* Shutdown flag */
@@ -94,6 +98,14 @@ static console_command_entry_t g_cmd_table[] =
     .cmd_name     = "cat",
     .cmd_function = console_cat,
     .cmd_help     = "Read files speicifed by <path> argument",
+  },
+#endif
+
+#ifdef CONFIG_CONSOLE_SENSOR_MEASURE
+  {
+    .cmd_name     = "sensor_measure",
+    .cmd_function = console_sensor_measure,
+    .cmd_help     = "Read data from the gas sensor",
   },
 #endif
   { .cmd_name     = "help",
