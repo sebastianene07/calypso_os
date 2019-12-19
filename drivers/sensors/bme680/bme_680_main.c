@@ -190,11 +190,8 @@ static int bme680_sensor_read(struct opened_resource_s *res, void *buf,
   bme680_sensor_delay_ms(meas_period);
   int rslt = bme680_get_sensor_data(&data, dev);
 
-  printf("T: %d degC, P: %d hPa, H %d ", data.temperature,
-      data.pressure, data.humidity );
- 
-  if(data.status & BME680_GASM_VALID_MSK)
-    printf(", G: %d ohms\n", data.gas_resistance);
+  memcpy(buf, &data, sizeof(struct bme680_field_data) > count ? count :
+    sizeof(struct bme680_field_data));
 
   if (dev->power_mode == BME680_FORCED_MODE) {
     rslt = bme680_set_sensor_mode(dev);
