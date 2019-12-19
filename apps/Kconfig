@@ -36,4 +36,8 @@ config CONSOLE_MOUNT
 	bool "Tool used to mount new file systems"
 	default n
 
+config CONSOLE_SENSOR_MEASURE
+  bool "Tool to read the gas sensor data"
+  default n
+
 endif # CONSOLE_APP 

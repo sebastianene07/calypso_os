@@ -24,6 +24,11 @@ ifeq ($(CONFIG_CONSOLE_CAT),y)
 SRC+= console_cat.c
 endif
 
+ifeq ($(CONFIG_CONSOLE_SENSOR_MEASURE),y)
+SRC+= console_sensor_measure.c
+endif
+
+
 OBJS:=$(patsubst %.c,%.o,$(SRC))
 CONSOLE_FLAGS := ${CFLAGS}  \
 	-I$(TOPDIR)/include \
