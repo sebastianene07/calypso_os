@@ -92,7 +92,9 @@ int close(int fd)
     return -ENOSYS;
   }
 
-  return res->vfs_node->ops->close(res);
+  int ret = res->vfs_node->ops->close(res);
+  sched_free_resource(fd);
+  return ret;
 }
 
 static inline void wait_usec(void)
