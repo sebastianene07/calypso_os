@@ -29,6 +29,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdlib.h>
+#include <semaphore.h>
+
+extern sem_t g_console_print_sema;
 
 static void printchar(char **str, int c)
 {
@@ -133,6 +136,8 @@ static int print(char **out, int *varg)
 	register char *format = (char *)(*varg++);
 	char scr[2];
 
+  sem_wait(&g_console_print_sema);
+
 	for (; *format != 0; ++format) {
 		if (*format == '%') {
 			++format;
@@ -187,6 +192,9 @@ static int print(char **out, int *varg)
 		}
 	}
 	if (out) **out = '\0';
+
+  sem_post(&g_console_print_sema);
+
 	return pc;
 }
 

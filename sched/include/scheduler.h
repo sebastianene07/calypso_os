@@ -63,7 +63,7 @@ struct tcb_s {
 
 int sched_init(void);
 
-int sched_create_task(void (*task_entry_point)(void), uint32_t stack_size);
+int sched_create_task(int (*task_entry_point)(int argc, char **argv), uint32_t stack_size, int argc, char **argv);
 
 void sched_run(void);
 

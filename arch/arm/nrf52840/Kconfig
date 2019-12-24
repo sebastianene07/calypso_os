@@ -2,6 +2,10 @@ config MACHINE_TYPE
     string "The machine name"
     default "nrf52840"
 
+config MACHINE_CPU
+		string "The ARM cpu family"
+		default "Cortex_M4"
+
 config CFLAGS
     string "The compilation flags"
     default '  -mcpu=cortex-m4 -mthumb -mabi=aapcs -O -ggdb -std=gnu99 '

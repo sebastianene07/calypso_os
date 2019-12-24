@@ -1,6 +1,7 @@
 #include <board.h>
 #include <console_main.h>
 
+#include <scheduler.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -126,7 +127,12 @@ static int execute_command(int argc, const char *argv[])
     {
       if (strcmp(g_cmd_table[j].cmd_name, argv[0]) == 0)
       {
+#ifdef CONFIG_RUN_APPS_IN_OWN_THREAD
+        return sched_create_task((void (*)(void))g_cmd_table[j].cmd_function,
+          CONFIG_CONSOLE_STACK_SIZE);
+#else
         return g_cmd_table[j].cmd_function(argc, argv);
+#endif /* CONFIG_RUN_APPS_IN_OWN_THREAD */
       }
     }
   }

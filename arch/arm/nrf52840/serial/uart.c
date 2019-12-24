@@ -172,8 +172,6 @@ int uart_low_send(char *msg)
 
 int putchar(int c)
 {
-  sem_wait(&g_uart_sema);
-
   UART_EVENTS_TXSTOPPED = 0;
   UART_ENDTX            = 0;
 
@@ -192,7 +190,6 @@ int putchar(int c)
   while (UART_EVENTS_TXSTOPPED == 0);
 
   UART_TX_START_TASK = 0;
-  sem_post(&g_uart_sema);
 }
 
 char uart_low_receive(void)

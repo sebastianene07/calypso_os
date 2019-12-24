@@ -37,7 +37,7 @@ CONSOLE_FLAGS := ${CFLAGS}  \
 	-I$(TOPDIR)/sched/include	\
 	-I$(TOPDIR)/apps/console_app	\
 	-I$(TOPDIR)/fatfs/		\
-
+	-I$(TOPDIR)/lib/
 SRC_ASM:=$(wildcard *.s)
 OBJS_ASM:=$(patsubst %.s,%.o,$(SRC_ASM))
 
