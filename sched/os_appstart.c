@@ -10,7 +10,7 @@
 void os_appstart(void)
 {
 #ifdef CONFIG_CONSOLE_APP
-  sched_create_task(console_main, CONFIG_CONSOLE_STACK_SIZE, 0, );
+  sched_create_task(console_main, CONFIG_CONSOLE_STACK_SIZE, 0, NULL);
 #endif
 
   while(1)

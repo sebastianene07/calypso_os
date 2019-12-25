@@ -129,7 +129,7 @@ static int execute_command(int argc, const char *argv[])
       {
 #ifdef CONFIG_RUN_APPS_IN_OWN_THREAD
         return sched_create_task((void (*)(void))g_cmd_table[j].cmd_function,
-          CONFIG_CONSOLE_STACK_SIZE);
+          CONFIG_CONSOLE_STACK_SIZE, argc, argv);
 #else
         return g_cmd_table[j].cmd_function(argc, argv);
 #endif /* CONFIG_RUN_APPS_IN_OWN_THREAD */

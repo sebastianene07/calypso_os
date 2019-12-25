@@ -23,7 +23,7 @@ int console_sensor_measure(int argc, const char *argv[])
     return sensor_fd;
   }
 
-  bsec_init();
+  //bsec_init();
 
   while (1) {
 

@@ -97,7 +97,9 @@ int sched_init(void)
   /* Create idle task */
 
   int ret = sched_create_task(sched_idle_task,
-                              CONFIG_SCHEDULER_IDLE_TASK_STACK_SIZE);
+                              CONFIG_SCHEDULER_IDLE_TASK_STACK_SIZE,
+                              0,
+                              NULL);
   if (ret < 0)
   {
     return ret;
@@ -160,7 +162,8 @@ void sched_default_task_exit_point(void)
  *  OK in case of success otherwise a negate value.
  *
  *************************************************************************/
-int sched_create_task(int (*task_entry_point)(int argc, char **argv), uint32_t stack_size, int argc, char **argv)
+int sched_create_task(int (*task_entry_point)(int argc, char **argv),
+  uint32_t stack_size, int argc, char **argv)
 {
   struct tcb_s *task_tcb = malloc(sizeof(struct tcb_s) + stack_size);
   if (task_tcb == NULL)
@@ -186,8 +189,8 @@ int sched_create_task(int (*task_entry_point)(int argc, char **argv), uint32_t s
 
   /* Initial MCU context */
 
-  task_tcb->mcu_context[0] = NULL;
-  task_tcb->mcu_context[1] = NULL;
+  task_tcb->mcu_context[0] = argc;
+  task_tcb->mcu_context[1] = argv;
   task_tcb->mcu_context[2] = NULL;
   task_tcb->mcu_context[3] = NULL;
   task_tcb->mcu_context[4] = NULL;
