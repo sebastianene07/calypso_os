@@ -13,11 +13,15 @@ FATFS_FLAGS := ${CFLAGS}																					\
 							-I$(TOPDIR)/s_alloc																	\
 							-I$(TOPDIR)/sched/include														\
 							-I$(TOPDIR)/drivers/
-all: fatfs
+all: fatfs bsec
 
 fatfs: $(OBJS_FATFS)
 	@echo "Building FATFS library " $(OBJS_FATFS)
 	${PREFIX}ar -rc $(TOPDIR)/$(TMP_LIB) $(OBJS_FATFS)
+
+bsec:
+	@echo "Building BSEC library " $(OBJS_FATFS)
+	$(MAKE) -C bsec all
 
 %.o : %.c
 	${PREFIX}gcc $(FATFS_FLAGS) -c $< -o $@
@@ -25,4 +29,4 @@ fatfs: $(OBJS_FATFS)
 clean:
 	find $(TOPDIR)/$(PATH_FATFS) -iname "*.o" -exec rm -f {} \;
 
-.PHONY: fatfs clean all
+.PHONY: fatfs clean all bsec
