@@ -49,7 +49,7 @@ extern void (*g_ram_vectors[NUM_IRQS])(void);
  *  This task should never exit.
  *
  *************************************************************************/
-static void sched_idle_task(void)
+static int sched_idle_task(int argc, char **argv)
 {
   while (1)
   {
@@ -189,8 +189,8 @@ int sched_create_task(int (*task_entry_point)(int argc, char **argv),
 
   /* Initial MCU context */
 
-  task_tcb->mcu_context[0] = argc;
-  task_tcb->mcu_context[1] = argv;
+  task_tcb->mcu_context[0] = (void *)argc;
+  task_tcb->mcu_context[1] = (void *)argv;
   task_tcb->mcu_context[2] = NULL;
   task_tcb->mcu_context[3] = NULL;
   task_tcb->mcu_context[4] = NULL;
@@ -371,7 +371,7 @@ struct opened_resource_s *sched_find_opened_resource(int fd)
 *************************************************************************/
 void sched_run(void)
 {
-  sched_idle_task();
+  sched_idle_task(0, NULL);
 }
 
 /**************************************************************************

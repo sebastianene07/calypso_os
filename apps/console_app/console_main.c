@@ -128,10 +128,10 @@ static int execute_command(int argc, const char *argv[])
       if (strcmp(g_cmd_table[j].cmd_name, argv[0]) == 0)
       {
 #ifdef CONFIG_RUN_APPS_IN_OWN_THREAD
-        return sched_create_task((void (*)(void))g_cmd_table[j].cmd_function,
-          CONFIG_CONSOLE_STACK_SIZE, argc, argv);
+        return sched_create_task((int (*)(int, char **))g_cmd_table[j].cmd_function,
+          CONFIG_CONSOLE_STACK_SIZE, argc, (char **)argv);
 #else
-        return g_cmd_table[j].cmd_function(argc, argv);
+        return g_cmd_table[j].cmd_function(argc, (char **)argv);
 #endif /* CONFIG_RUN_APPS_IN_OWN_THREAD */
       }
     }
@@ -191,13 +191,13 @@ static int parse_arguments(char *buffer, size_t newline)
  * console_main - console application entry point
  *
  */
-void console_main(void)
+int console_main(int argc, char **argv)
 {
   char cmd_buffer[CONFIG_CMD_BUFER_LEN]={0};
   int uart_fd = open(CONFIG_CONSOLE_UART_PATH, 0);
   if (uart_fd < 0)
   {
-    return;
+    return -EINVAL;
   }
 
   int len = 0;
@@ -258,4 +258,6 @@ void console_main(void)
   /* This app will exit on a reboot/shutdown command */
 
   close(uart_fd);
+
+  return OK;
 }

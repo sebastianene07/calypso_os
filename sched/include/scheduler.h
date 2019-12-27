@@ -48,7 +48,7 @@ enum task_state_e {
 /* Task container that holds the entry point and other resources */
 
 struct tcb_s {
-  void (*entry_point)(void);
+  int (*entry_point)(int, char **);
   enum task_state_e t_state;
   void *stack_ptr_base;
   void *stack_ptr_top;
