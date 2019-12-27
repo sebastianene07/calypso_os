@@ -1,5 +1,5 @@
-This OS embedded project is started from scratch and its purpose is for
-low power devices with running with low memory.
+This OS embedded project runs on low memory devices and consumes less power.
+
 
 ## Building
 
