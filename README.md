@@ -1,4 +1,5 @@
-This OS embedded project runs on low memory devices and consumes less power.
+This operating system is designed to run on low power embedded devices. It has a 
+pre-emptive scheduling algorithm and offers a POSIX like interface to the userland.
 
 
 ## Building
