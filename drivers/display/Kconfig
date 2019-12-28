@@ -1,0 +1,11 @@
+config DISPLY_DRIVER_SSD1331
+	bool "Display driver for SSD1331 controller"
+	default n
+	depends on SPI_0 || SPI_1 || SPI_2
+
+if DISPLY_DRIVER_SSD1331
+
+config DISPLAY_DRIVER_SSD1331_SPI_ID
+	int "Select which SPI interface to use [0:2]"
+	default 0
+endif
