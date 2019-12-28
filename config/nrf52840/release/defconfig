@@ -46,6 +46,12 @@ CONFIG_SENSOR_BME680_PATH_NAME="/dev/bme680"
 CONFIG_SENSOR_BME680_SPI_ID=0
 
 #
+# Libraries
+#
+# CONFIG_LIBRARY_BSEC is not set
+# CONFIG_LIBRARY_FATFS is not set
+
+#
 # Memory Management
 #
 

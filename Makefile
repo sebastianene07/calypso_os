@@ -38,7 +38,7 @@ all: create_board_file
 
 	mkdir -p build && cd build && \
 	${PREFIX}ar xv ${TOPDIR}/${TMP_LIB} && \
-	${PREFIX}gcc *.o -o build.elf ${LDFLAGS}&& \
+	${PREFIX}gcc *.o -o build.elf ${LDFLAGS} && \
 	${PREFIX}objcopy -O ihex build.elf build.hex && \
 	${PREFIX}objcopy -O binary build.elf build.bin && \
 	echo "Build finished successfully."

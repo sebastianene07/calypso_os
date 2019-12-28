@@ -1,0 +1,10 @@
+config LIBRARY_BSEC
+  bool "Bosch sensor library"
+  default n
+  ---help---
+  Build the Bosch sensor library (BSEC library).
+
+config LIBRARY_FATFS
+  bool "Fat/Ex-Fat file system library"
+  ---help---
+  Build the ChaN generic Fat file-system library.

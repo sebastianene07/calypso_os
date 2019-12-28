@@ -23,8 +23,6 @@ int console_sensor_measure(int argc, const char *argv[])
     return sensor_fd;
   }
 
-  bsec_init();
-
   while (1) {
 
     struct bme680_field_data data;
@@ -32,9 +30,13 @@ int console_sensor_measure(int argc, const char *argv[])
     int ret = read(sensor_fd, &data, sizeof(data));
     if (ret < 0) {
       printf("Error %d get sensor data\n", ret);
+      close(sensor_fd);
+      return ret;
     } else {
       printf("Success\n\n");
     }
+
+    /* Process the data with the bsec libraray */
 
     printf("T: %d.%02d degC, P: %d.%02d hPa, H %d.%03d percent ",
         data.temperature / 100, data.temperature % 100,
