@@ -21,13 +21,42 @@
 
 static uint32_t g_sample_counter = 0;
 
+static const char *get_name_from_iaq_index(uint32_t index)
+{
+	if (index >= 0 && index <= 50)
+		/* Pure air; best for well-being */
+		return "excellent";
+	else if (index > 50 && index <= 100)
+		/* No irritation or impact on well-being */
+		return "good";
+	else if (index > 100 && index <= 150)
+		/* Reduction of well-being possible */
+		return "lightly polluted";
+	else if (index > 150 && index <= 200)
+		/* More significant irritation possible */
+		return "moderated polluted";
+	else if (index > 200 && index <= 250)
+		/* Exposition might lead to effects like headache depending on type
+     * of VOCs */
+		return "heavily polluted";
+	else if (index > 250 && index <= 350)
+		/* More severe health issue possible if harmful VOC present */
+		return "severely polluted";
+	else
+		/* Headaches, additional neurotoxic effects possible */
+		return "exteremely polluted";
+}
+
 static void bsec_out_data(int64_t time_stamp, float iaq, uint8_t iaq_accuracy,
  float temperature, float humidity, float pressure, float raw_temperature,
  float raw_humidity, float gas, bsec_library_return_t bsec_status,
  float static_iaq, float co2_equivalent, float breath_voc_equivalent)
 {
-  printf("(IAQ: %d, accuracy: %d \n", (uint32_t)(iaq * 100.0), iaq_accuracy);
-  printf("(VOC: %d, CO2: %d)\n", (uint32_t)(breath_voc_equivalent * 100.0), (uint32_t)(co2_equivalent * 100.0));
+	uint32_t int_iaq = (uint32_t)iaq;
+  printf("air quality:%s IAQ: %d, accuracy: %d timestamp: %u\n",
+				 get_name_from_iaq_index(int_iaq), int_iaq, iaq_accuracy, time_stamp);
+  printf("(VOC: %d, CO2: %d)\n", (uint32_t)(breath_voc_equivalent),
+				(uint32_t)(co2_equivalent));
 }
 
 int console_sensor_measure(int argc, const char *argv[])
@@ -38,6 +67,13 @@ int console_sensor_measure(int argc, const char *argv[])
     printf("Error %d open\n", sensor_fd);
     return sensor_fd;
   }
+
+	int rtc_fd = open(CONFIG_RTC_PATH, 0);
+	if (rtc_fd < 0)
+	{
+		close(sensor_fd);
+		return rtc_fd;
+	}
 
 #ifdef CONFIG_LIBRARY_BSEC
   ret = bsec_init();
@@ -61,13 +97,19 @@ int console_sensor_measure(int argc, const char *argv[])
     bsec_input_t bsec_inputs[BSEC_MAX_PHYSICAL_SENSOR];
     int num_inputs = 0;
 
-    int ret = read(sensor_fd, &data, sizeof(data));
+		int ret = read(rtc_fd, &g_sample_counter, sizeof(g_sample_counter));
+		if (ret < 0)
+		{
+			return ret;
+		}
+
+		g_sample_counter = g_sample_counter * 125; /* in miliseconds */
+
+    ret = read(sensor_fd, &data, sizeof(data));
     if (ret < 0) {
       printf("Error %d get sensor data\n", ret);
       close(sensor_fd);
       return ret;
-    } else {
-      printf("Success\n\n");
     }
 
 		bsec_inputs[num_inputs].sensor_id = BSEC_INPUT_PRESSURE;
@@ -105,10 +147,9 @@ int console_sensor_measure(int argc, const char *argv[])
 
     if(data.status & BME680_GASM_VALID_MSK)
       printf(", G: %d ohms\n", data.gas_resistance);
-
-    g_sample_counter++;
   }
 
   close(sensor_fd);
+	close(rtc_fd);
   return OK;
 }
