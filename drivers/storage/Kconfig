@@ -1,0 +1,24 @@
+config SPI_SDCARD
+	bool "SPI SdCard driver"
+	default n
+	depends on SPI_0 || SPI_1 || SPI_2
+
+if SPI_SDCARD
+
+config SPI_SDCARD_SPI_ID
+	int "Select which SPI interface to use [0:2]"
+	default 0
+
+config SPI_SDCARD_VSYS_PORT
+	int "Select the port for power supply"
+	default 0
+
+config SPI_SDCARD_VSYS_PIN
+	int "Select the pin for power supply"
+	default 0
+
+config SD_SPI_NAME
+	string "The path where we mount the device node"
+	default "/dev/sd_spi"
+
+endif

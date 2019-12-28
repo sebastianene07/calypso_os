@@ -16,11 +16,15 @@ config FATFS_SUPPORT
 
 config SYSTEM_CLOCK_FREQUENCY
   int "System core clock frequency in MhZ"
-  default 25 
+  default 25
 endmenu
 
 menu "Device Drivers"
 source drivers/Kconfig
+endmenu
+
+menu "Libraries"
+source lib/Kconfig
 endmenu
 
 menu "Memory Management"

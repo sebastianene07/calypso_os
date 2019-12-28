@@ -1,8 +1,14 @@
+config RUN_APPS_IN_OWN_THREAD
+  bool "Run applications/console commands in there own thread"
+  default n
+  ---help---
+  Allow applications to run the entry_point functions in their own thread.
+
 config CONSOLE_APP
 	bool "Basic console support"
 	default n
 	---help---
-	This application runs in it's own thread and contains a suite of 
+	This application runs in it's own thread and contains a suite of
 	command tools that can be enabled indipendently.
 
 if CONSOLE_APP
@@ -19,7 +25,7 @@ config CONSOLE_DATE_ON
 	bool "Tool to set/view the system time"
 	default n
 	depends on RTC_PATH
-	
+
 config CONSOLE_CAT
 	bool "Tool to print files to console output"
 	default n
@@ -40,4 +46,4 @@ config CONSOLE_SENSOR_MEASURE
   bool "Tool to read the gas sensor data"
   default n
 
-endif # CONSOLE_APP 
+endif # CONSOLE_APP

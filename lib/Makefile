@@ -1,28 +1,41 @@
 PATH_FATFS = ./fatfs/source
 
-SRCS_FATFS := small_printf.c small_sscanf.c
+SRCS:= small_printf.c small_sscanf.c
 
-ifeq ($(CONFIG_FATFS_SUPPORT),y)
+ifeq ($(CONFIG_LIBRARY_FATFS),y)
 SRCS_FATFS += $(wildcard $(PATH_FATFS)/*.c) fatfs_glue.c
 endif
 
 OBJS_FATFS := $(patsubst %.c, %.o, $(SRCS_FATFS))
+OBJS := $(patsubst %.c, %.o, $(SRCS))
 
-FATFS_FLAGS := ${CFLAGS}																					\
+LIB_FLAGS := ${CFLAGS}																					\
 							-I$(TOPDIR)/include																	\
 							-I$(TOPDIR)/s_alloc																	\
 							-I$(TOPDIR)/sched/include														\
 							-I$(TOPDIR)/drivers/
-all: fatfs
+
+all: fatfs bsec small_print
 
 fatfs: $(OBJS_FATFS)
+ifeq ($(CONFIG_LIBRARY_FATFS),y)
 	@echo "Building FATFS library " $(OBJS_FATFS)
 	${PREFIX}ar -rc $(TOPDIR)/$(TMP_LIB) $(OBJS_FATFS)
+endif
+
+bsec:
+ifeq ($(CONFIG_LIBRARY_BSEC),y)
+	@echo "Building BSEC library "
+	$(MAKE) -C bsec all
+endif
+
+small_print: $(OBJS)
+	${PREFIX}ar -rc $(TOPDIR)/$(TMP_LIB) $(OBJS)
 
 %.o : %.c
-	${PREFIX}gcc $(FATFS_FLAGS) -c $< -o $@
+	${PREFIX}gcc $(LIB_FLAGS) -c $< -o $@
 
 clean:
 	find $(TOPDIR)/$(PATH_FATFS) -iname "*.o" -exec rm -f {} \;
 
-.PHONY: fatfs clean all
+.PHONY: fatfs clean all bsec small_print

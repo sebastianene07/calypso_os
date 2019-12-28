@@ -8,6 +8,7 @@
 #include <board.h>
 
 #include <scheduler.h>
+#include <semaphore.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -25,6 +26,9 @@ LIST_HEAD(g_tcb_waiting_list);
 /* Current running task */
 
 struct list_head *g_current_tcb = NULL;
+
+/* Console global semaphore */
+sem_t g_console_print_sema;
 
 /* The interrupt vector table */
 
@@ -45,7 +49,7 @@ extern void (*g_ram_vectors[NUM_IRQS])(void);
  *  This task should never exit.
  *
  *************************************************************************/
-static void sched_idle_task(void)
+static int sched_idle_task(int argc, char **argv)
 {
   while (1)
   {
@@ -93,7 +97,9 @@ int sched_init(void)
   /* Create idle task */
 
   int ret = sched_create_task(sched_idle_task,
-                              CONFIG_SCHEDULER_IDLE_TASK_STACK_SIZE);
+                              CONFIG_SCHEDULER_IDLE_TASK_STACK_SIZE,
+                              0,
+                              NULL);
   if (ret < 0)
   {
     return ret;
@@ -101,6 +107,9 @@ int sched_init(void)
 
   g_current_tcb = g_tcb_list.next;
 
+  /* Initialize the console semaphore */
+
+  sem_init(&g_console_print_sema, 0, 1);
   return 0;
 }
 
@@ -153,7 +162,8 @@ void sched_default_task_exit_point(void)
  *  OK in case of success otherwise a negate value.
  *
  *************************************************************************/
-int sched_create_task(void (*task_entry_point)(void), uint32_t stack_size)
+int sched_create_task(int (*task_entry_point)(int argc, char **argv),
+  uint32_t stack_size, int argc, char **argv)
 {
   struct tcb_s *task_tcb = malloc(sizeof(struct tcb_s) + stack_size);
   if (task_tcb == NULL)
@@ -179,8 +189,8 @@ int sched_create_task(void (*task_entry_point)(void), uint32_t stack_size)
 
   /* Initial MCU context */
 
-  task_tcb->mcu_context[0] = NULL;
-  task_tcb->mcu_context[1] = NULL;
+  task_tcb->mcu_context[0] = (void *)argc;
+  task_tcb->mcu_context[1] = (void *)argv;
   task_tcb->mcu_context[2] = NULL;
   task_tcb->mcu_context[3] = NULL;
   task_tcb->mcu_context[4] = NULL;
@@ -361,7 +371,7 @@ struct opened_resource_s *sched_find_opened_resource(int fd)
 *************************************************************************/
 void sched_run(void)
 {
-  sched_idle_task();
+  sched_idle_task(0, NULL);
 }
 
 /**************************************************************************

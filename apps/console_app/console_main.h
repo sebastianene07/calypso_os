@@ -23,6 +23,6 @@ typedef struct console_command_entry_s
  * console_main - CatOS console entry point
  *
  */
-void console_main(void);
+int console_main(int argc, char **argv);
 
 #endif /* __CONSOLE_APP */

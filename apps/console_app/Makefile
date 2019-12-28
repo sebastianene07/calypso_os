@@ -28,6 +28,9 @@ ifeq ($(CONFIG_CONSOLE_SENSOR_MEASURE),y)
 SRC+= console_sensor_measure.c
 endif
 
+ifeq ($(CONFIG_LIBRARY_BSEC),y)
+SRC+= bsec_lib/bsec_integration.c
+endif
 
 OBJS:=$(patsubst %.c,%.o,$(SRC))
 CONSOLE_FLAGS := ${CFLAGS}  \
@@ -37,7 +40,7 @@ CONSOLE_FLAGS := ${CFLAGS}  \
 	-I$(TOPDIR)/sched/include	\
 	-I$(TOPDIR)/apps/console_app	\
 	-I$(TOPDIR)/fatfs/		\
-
+	-I$(TOPDIR)/lib/
 SRC_ASM:=$(wildcard *.s)
 OBJS_ASM:=$(patsubst %.s,%.o,$(SRC_ASM))
 

@@ -8,19 +8,7 @@ config DISPLAY_DRIVERS
 	Select which display drivers you want to build.
 
 if DISPLAY_DRIVERS
-
-config DISPLY_DRIVER_SSD1331
-	bool "Display driver for SSD1331 controller"
-	default n
-	depends on SPI_0 || SPI_1 || SPI_2
-
-if DISPLY_DRIVER_SSD1331
-
-config DISPLAY_DRIVER_SSD1331_SPI_ID
-	int "Select which SPI interface to use [0:2]"
-	default 0
-endif
-
+source drivers/display/Kconfig
 endif # DISPLAY_DRIVERS
 
 ####### Serial Drivers ########
@@ -45,32 +33,7 @@ config STORAGE_DRIVERS
 	Select which storage driver you want to build.
 
 if STORAGE_DRIVERS
-
-config SPI_SDCARD
-	bool "SPI SdCard driver"
-	default n
-	depends on SPI_0 || SPI_1 || SPI_2
-
-if SPI_SDCARD
-
-config SPI_SDCARD_SPI_ID
-	int "Select which SPI interface to use [0:2]"
-	default 0
-
-config SPI_SDCARD_VSYS_PORT
-	int "Select the port for power supply"
-	default 0
-
-config SPI_SDCARD_VSYS_PIN
-	int "Select the pin for power supply"
-	default 0
-
-config SD_SPI_NAME
-	string "The path where we mount the device node"
-	default "/dev/sd_spi"
-
-endif
-
+source drivers/storage/Kconfig
 endif # STORAGE_DRIVERS
 
 ####### Sensor Drivers #######
@@ -83,19 +46,5 @@ config SENSOR_DRIVERS
 	Select which sensor driver you want to build.
 
 if SENSOR_DRIVERS
-
-config SENSOR_BME680
-	bool "Bosch sensor BME680"
-	default n
-
-if SENSOR_BME680
-config SENSOR_BME680_PATH_NAME
-  string "The path where we register the sensor"
-  default "/dev/bme680"
-endif
-
-config SENSOR_BME680_SPI_ID
-	int "Select which SPI interface to use [0:2]"
-	default 1
-
+source drivers/sensors/Kconfig
 endif # SENSOR_DRIVERS
