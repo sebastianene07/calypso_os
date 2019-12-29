@@ -107,8 +107,10 @@ int console_sensor_measure(int argc, const char *argv[])
 		g_sample_counter = g_sample_counter * 125; /* in miliseconds */
 		g_sample_counter = g_sample_counter * 1000 * 1000;
 
+#ifdef CONFIG_LIBRARY_BSEC
 		/* Control sensor reading */
 		bsec_sensor_control(g_sample_counter, &sensor_settings);
+#endif
 
     ret = read(sensor_fd, &data, sizeof(data));
     if (ret < 0) {
@@ -149,9 +151,10 @@ int console_sensor_measure(int argc, const char *argv[])
 			bsec_inputs[num_inputs].time_stamp = g_sample_counter;
 			num_inputs++;
 		}
-
+#ifdef CONFIG_LIBRARY_BSEC
     /* Process the data with the bsec libraray */
     bme680_bsec_process_data(bsec_inputs, num_inputs, bsec_out_data);
+#endif
 
     printf("T: %d.%02d degC, P: %d.%02d hPa, H %d.%03d percent ",
         data.temperature / 100, data.temperature % 100,
