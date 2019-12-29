@@ -8,6 +8,7 @@ CONSOLE_FLAGS := ${CFLAGS}																					\
 							-I$(TOPDIR)/s_alloc																	\
 							-I$(TOPDIR)/sched/include														\
 							-I$(TOPDIR)/drivers														\
+							-I$(TOPDIR)/lib
 
 all: $(OBJS) $(OBJS_ASM)
 	${PREFIX}ar -rc $(TOPDIR)/$(TMP_LIB) $(OBJS) $(OBJS_ASM)

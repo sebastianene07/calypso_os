@@ -1,3 +1,4 @@
+/tmp_lib.a
 /include/Kconfig
 include/board_cfg.h
 include/board.h
@@ -6,7 +7,7 @@ include/board.h
 *.o
 *.hex
 *.elf
-/build/*.a
+/*.a
 /linker.ld
 tags
 *.out
