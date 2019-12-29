@@ -101,7 +101,6 @@ int console_sensor_measure(int argc, const char *argv[])
 			return ret;
 		}
 
-#ifdef CONFIG_LIBRARY_BSEC
     bsec_input_t bsec_inputs[BSEC_MAX_PHYSICAL_SENSOR];
 		bsec_bme_settings_t sensor_settings;
     int num_inputs = 0;

@@ -206,11 +206,11 @@ static int bme680_sensor_ioctl(struct opened_resource_s *priv,
   int ret = -ENOSYS;
   uint8_t set_required_settings;
 
-  bme680_sensor_t *gas_sensor = (bme680_sensor_t *)res->vfs_node->priv;
+  bme680_sensor_t *gas_sensor = (bme680_sensor_t *)priv->vfs_node->priv;
   struct bme680_dev *dev = &gas_sensor->dev;
 
   switch (request) {
-
+#ifdef CONFIG_LIBRARY_BSEC
     case IO_BME680_SET_CONFIG:
       {
         bsec_bme_settings_t *sensor_settings = (bsec_bme_settings_t *)arg;
@@ -241,6 +241,7 @@ static int bme680_sensor_ioctl(struct opened_resource_s *priv,
         }
       }
       break;
+#endif
 
     default:
       break;
