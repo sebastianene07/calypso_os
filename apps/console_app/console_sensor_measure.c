@@ -94,15 +94,17 @@ int console_sensor_measure(int argc, const char *argv[])
   while (1) {
 
     struct bme680_field_data data;
-    bsec_input_t bsec_inputs[BSEC_MAX_PHYSICAL_SENSOR];
-		bsec_bme_settings_t sensor_settings;
-    int num_inputs = 0;
 
 		int ret = read(rtc_fd, &g_sample_counter, sizeof(g_sample_counter));
 		if (ret < 0)
 		{
 			return ret;
 		}
+
+#ifdef CONFIG_LIBRARY_BSEC
+    bsec_input_t bsec_inputs[BSEC_MAX_PHYSICAL_SENSOR];
+		bsec_bme_settings_t sensor_settings;
+    int num_inputs = 0;
 
 		g_sample_counter = g_sample_counter * 125; /* in miliseconds */
 		g_sample_counter = g_sample_counter * 1000 * 1000;

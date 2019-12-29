@@ -42,7 +42,7 @@ static int8_t bme680_sensor_spi_write(uint8_t dev_id, uint8_t reg_addr,
 static int bme680_sensor_open(struct opened_resource_s *res,
  const char *pathname, int flags, mode_t mode);
 static int bme680_sensor_close(struct opened_resource_s *res);
-static int bme680_sensor_read(struct opened_resource_s *res, void *buf, 
+static int bme680_sensor_read(struct opened_resource_s *res, void *buf,
  size_t count);
 static int bme680_sensor_ioctl(struct opened_resource_s *priv,
  unsigned long request, unsigned long arg);
@@ -86,7 +86,7 @@ static int bme680_sensor_enter_forcedmode(struct bme680_dev *dev)
 
   /* Select the power mode */
   /* Must be set before writing the sensor configuration */
-  dev->power_mode = BME680_FORCED_MODE; 
+  dev->power_mode = BME680_FORCED_MODE;
 
   /* Set the required sensor settings needed */
   set_required_settings = BME680_OST_SEL | BME680_OSP_SEL | BME680_OSH_SEL |
@@ -173,7 +173,7 @@ static int bme680_sensor_close(struct opened_resource_s *res)
   return OK;
 }
 
-static int bme680_sensor_read(struct opened_resource_s *res, void *buf, 
+static int bme680_sensor_read(struct opened_resource_s *res, void *buf,
  size_t count)
 {
   uint16_t meas_period;
@@ -203,6 +203,50 @@ static int bme680_sensor_read(struct opened_resource_s *res, void *buf,
 static int bme680_sensor_ioctl(struct opened_resource_s *priv,
  unsigned long request, unsigned long arg)
 {
+  int ret = -ENOSYS;
+  uint8_t set_required_settings;
+
+  bme680_sensor_t *gas_sensor = (bme680_sensor_t *)res->vfs_node->priv;
+  struct bme680_dev *dev = &gas_sensor->dev;
+
+  switch (request) {
+
+    case IO_BME680_SET_CONFIG:
+      {
+        bsec_bme_settings_t *sensor_settings = (bsec_bme_settings_t *)arg;
+        if (sensor_settings == NULL)
+          return -EINVAL;
+
+        if (sensor_settings->trigger_measurement) {
+          dev->tph_sett.os_hum = sensor_settings->humidity_oversampling;
+          dev->tph_sett.os_pres = sensor_settings->pressure_oversampling;
+          dev->tph_sett.os_temp = sensor_settings->temperature_oversampling;
+          dev->gas_sett.run_gas = sensor_settings->run_gas;
+          dev->gas_sett.heatr_temp = sensor_settings->heater_temperature;
+          dev->gas_sett.heatr_dur  = sensor_settings->heating_duration;
+
+          dev->power_mode = BME680_FORCED_MODE;
+          set_required_settings = BME680_OST_SEL | BME680_OSP_SEL |
+            BME680_OSH_SEL | BME680_GAS_SENSOR_SEL;
+
+          ret = bme680_set_sensor_settings(set_required_settings, dev);
+          if (ret != BME680_OK) {
+            return -EIO;
+          }
+
+          ret = bme680_set_sensor_mode(dev);
+          if (ret != BME680_OK) {
+            return -EACCES;
+          }
+        }
+      }
+      break;
+
+    default:
+      break;
+  }
+
+  return ret;
 }
 
 /****************************************************************************
@@ -224,7 +268,7 @@ int bme680_sensor_register(const char *name, spi_master_dev_t *spi)
     .amb_temp   = SENSOR_DEFAULT_AMBIENTAL_TEMP,
     .read       = bme680_sensor_spi_read,
     .write      = bme680_sensor_spi_write,
-    .delay_ms   = bme680_sensor_delay_ms 
+    .delay_ms   = bme680_sensor_delay_ms
   };
 
   sem_init(&gas_sensor->lock_sensor, 0, 1);
@@ -240,4 +284,4 @@ int bme680_sensor_register(const char *name, spi_master_dev_t *spi)
   g_spi_m = spi;
 
   return ret;
-} 
+}

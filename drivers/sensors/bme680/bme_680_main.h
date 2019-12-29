@@ -6,10 +6,13 @@
 
 #include "bme680.h"
 
+#define IO_BME680_SET_CONFIG                  (0u)
+
+
 typedef struct bme680_sensor_s {
-  sem_t lock_sensor; 
-  spi_master_dev_t interface; 
-  struct bme680_dev dev; 
+  sem_t lock_sensor;
+  spi_master_dev_t interface;
+  struct bme680_dev dev;
 } bme680_sensor_t;
 
 
