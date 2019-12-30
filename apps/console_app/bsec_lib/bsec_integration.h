@@ -84,7 +84,6 @@ extern "C"
 
 /* Use the following bme680 driver: https://github.com/BoschSensortec/BME680_driver/releases/tag/bme680_v3.5.1 */
 #include <sensors/bme680/bme680.h>
-/* BSEC header files are available in the inc/ folder of the release package */
 #include <bsec/inc/bsec_interface.h>
 #include <bsec/inc/bsec_datatypes.h>
 
@@ -125,27 +124,6 @@ typedef struct{
 /**********************************************************************************************************************/
 /* function declarations */
 /**********************************************************************************************************************/
-
-/*!
- * @brief        Virtual sensor subscription
- *               Please call this function before processing of data using bsec_do_steps function
- *
- * @param[in]    sample_rate         mode to be used (either BSEC_SAMPLE_RATE_ULP or BSEC_SAMPLE_RATE_LP)
- *
- * @return       subscription result, zero when successful
- */
-bsec_library_return_t bme680_bsec_update_subscription(float sample_rate);
-
-/*!
- * @brief       This function is written to process the sensor data for the requested virtual sensors
- *
- * @param[in]   bsec_inputs         input structure containing the information on sensors to be passed to do_steps
- * @param[in]   num_bsec_inputs     number of inputs to be passed to do_steps
- * @param[in]   output_ready        pointer to the function processing obtained BSEC outputs
- *
- * @return      none
- */
-void bme680_bsec_process_data(bsec_input_t *bsec_inputs, uint8_t num_bsec_inputs, output_ready_fct output_ready);
 
 /*!
  * @brief       Initialize the BME680 sensor and the BSEC library

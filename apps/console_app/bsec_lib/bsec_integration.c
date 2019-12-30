@@ -108,7 +108,7 @@ static float bme680_temperature_offset_g = 0.0f;
  *
  * @return       subscription result, zero when successful
  */
-bsec_library_return_t bme680_bsec_update_subscription(float sample_rate)
+static bsec_library_return_t bme680_bsec_update_subscription(float sample_rate)
 {
     bsec_sensor_configuration_t requested_virtual_sensors[NUM_USED_OUTPUTS];
     uint8_t n_requested_virtual_sensors = NUM_USED_OUTPUTS;
@@ -168,8 +168,8 @@ return_values_init bsec_iot_init(float sample_rate, float temperature_offset, bm
     int bsec_state_len, bsec_config_len;
 
     /* Fixed I2C configuration */
-    bme680_g.dev_id = BME680_I2C_ADDR_PRIMARY;
-    bme680_g.intf = BME680_I2C_INTF;
+    bme680_g.dev_id = 1;
+    bme680_g.intf = BME680_SPI_INTF;
     /* User configurable I2C configuration */
     bme680_g.write = bus_write;
     bme680_g.read = bus_read;
@@ -377,7 +377,7 @@ static void bme680_bsec_read_data(int64_t time_stamp_trigger, bsec_input_t *inpu
  *
  * @return      none
  */
-void bme680_bsec_process_data(bsec_input_t *bsec_inputs, uint8_t num_bsec_inputs, output_ready_fct output_ready)
+static void bme680_bsec_process_data(bsec_input_t *bsec_inputs, uint8_t num_bsec_inputs, output_ready_fct output_ready)
 {
     /* Output buffer set to the maximum virtual sensor outputs supported */
     bsec_output_t bsec_outputs[BSEC_NUMBER_OUTPUTS];

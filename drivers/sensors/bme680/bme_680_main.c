@@ -243,7 +243,34 @@ static int bme680_sensor_ioctl(struct opened_resource_s *priv,
         }
       }
       break;
+
 #endif
+
+    case IO_BME680_BUS_READ:
+      {
+        bme680_sensor_spi_transaction_t *bus_transaction =
+          (bme680_sensor_spi_transaction_t *)arg;
+
+
+        ret = bme680_sensor_spi_read(bus_transaction->dev_addr,
+                                     bus_transaction->reg_addr,
+                                     bus_transaction->reg_data_ptr,
+                                     bus_transaction->data_len);
+      }
+      break;
+
+    case IO_BME680_BUS_WRITE:
+      {
+        bme680_sensor_spi_transaction_t *bus_transaction =
+          (bme680_sensor_spi_transaction_t *)arg;
+
+
+        ret = bme680_sensor_spi_write(bus_transaction->dev_addr,
+                                      bus_transaction->reg_addr,
+                                      bus_transaction->reg_data_ptr,
+                                      bus_transaction->data_len);
+      }
+      break;
 
     default:
       break;

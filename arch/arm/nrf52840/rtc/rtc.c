@@ -29,6 +29,7 @@
 #define EVENTS_TICK_CFG        RTC_CONFIG(EVENTS_TICK)
 
 #define PRESCALER_8_HZ         (4095)
+#define PRESCALER_1kHZ         (32)
 #define COMPARE_1_HZ           (8)
 
 /****************************************************************************
@@ -45,7 +46,7 @@ static int rtc_read(struct opened_resource_s *priv, void *buf, size_t count);
 
 /* One tick represent 125 ms - generated from 8Hz event */
 
-static volatile uint32_t g_rtc_ticks_ms;
+volatile uint64_t g_rtc_ticks_ms;
 
 /* Supported RTC operation */
 
@@ -54,6 +55,9 @@ static struct vfs_ops_s g_rtc_ops = {
   .close = rtc_close,
   .read  = rtc_read,
 };
+
+/* Opened counter */
+static volatile int g_opened_count = 0;
 
 /****************************************************************************
  * Private Functions
@@ -80,18 +84,23 @@ static void rtc_interrupt(void)
  */
 static int rtc_open(struct opened_resource_s *res, const char *pathname, int flags, mode_t mode)
 {
-  /* fRTC [kHz] = 32.768 / (PRESCALER + 1)
+  /* fRTC [Hz] = 32768 / (PRESCALER + 1)
    * The PRESCALER should be 4095 for 8Hz tick - 125 ms counter period */
 
-  PRESCALER_CFG = PRESCALER_8_HZ;
-  INTENSET_CFG  = 0x01;
+  /* 1kHz -> perioada 1 ms -> 511875 */
 
   disable_int();
 
-  attach_int(RTC0_IRQn, rtc_interrupt);
-  NVIC_EnableIRQ(RTC0_IRQn);
-  TASKS_START_CFG = 1;
+  if (g_opened_count == 0) {
+    PRESCALER_CFG = PRESCALER_1kHZ;//PRESCALER_8_HZ;
+    INTENSET_CFG  = 0x01;
 
+    attach_int(RTC0_IRQn, rtc_interrupt);
+    NVIC_EnableIRQ(RTC0_IRQn);
+    TASKS_START_CFG = 1;
+  }
+
+  ++g_opened_count;
   enable_int();
 
   return OK;
@@ -101,9 +110,13 @@ static int rtc_close(struct opened_resource_s *priv)
 {
   disable_int();
 
-  TASKS_START_CFG = 0;
-  NVIC_DisableIRQ(RTC0_IRQn);
-  attach_int(RTC0_IRQn, NULL);
+  --g_opened_count;
+
+  if (g_opened_count == 0) {
+    TASKS_START_CFG = 0;
+    NVIC_DisableIRQ(RTC0_IRQn);
+    attach_int(RTC0_IRQn, NULL);
+  }
 
   enable_int();
   return 0;
@@ -111,13 +124,14 @@ static int rtc_close(struct opened_resource_s *priv)
 
 static int rtc_read(struct opened_resource_s *priv, void *buf, size_t count)
 {
-  if (buf == NULL || count < sizeof(uint32_t))
+  if (buf == NULL || count > sizeof(g_rtc_ticks_ms))
   {
     return -EINVAL;
   }
 
-  memcpy(buf, (const void *)&g_rtc_ticks_ms, sizeof(uint32_t));
-  return sizeof(uint32_t);
+  size_t len = count > sizeof(g_rtc_ticks_ms) ? sizeof(g_rtc_ticks_ms) : count;
+  memcpy(buf, (const void *)&g_rtc_ticks_ms, len);
+  return len;
 }
 
 /*

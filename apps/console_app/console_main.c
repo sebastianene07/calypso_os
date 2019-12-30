@@ -200,6 +200,16 @@ int console_main(int argc, char **argv)
     return -EINVAL;
   }
 
+  /* We open the RTC device here to prevent the device from going to sleep.
+   * when there are no more open references the devices closes and doesn't
+   * generate interrupts anymore.
+   */
+  int rtc_fd = open(CONFIG_RTC_PATH, 0);
+  if (rtc_fd < 0)
+  {
+    return -EINVAL;
+  }
+
   int len = 0;
   bool is_prompt_printed = true;
   g_is_shutdown_set = true;
@@ -258,6 +268,7 @@ int console_main(int argc, char **argv)
   /* This app will exit on a reboot/shutdown command */
 
   close(uart_fd);
+  close(rtc_fd);
 
   return OK;
 }

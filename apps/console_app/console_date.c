@@ -21,28 +21,26 @@ static uint32_t g_clock_offset[3];
 
 static uint32_t g_tick_offset;
 
-/* The opened RTC file descriptor */
-static int g_rtc_fd = -1;
-
 /*
  * console_date - View/Set the current time
  *
  */
 int console_date(int argc, const char *argv[])
 {
-  uint32_t ticks = 0;
+  uint64_t ticks = 0;
+  int rtc_fd;
 
-  if (g_rtc_fd < 0) {
-    g_rtc_fd = open(CONFIG_RTC_PATH, 0);
-    if (g_rtc_fd < 0)
-    {
-      return -EINVAL;
-    }
+  rtc_fd = open(CONFIG_RTC_PATH, 0);
+  if (rtc_fd < 0)
+  {
+    return -EINVAL;
   }
 
-  int ret = read(g_rtc_fd, &ticks, sizeof(ticks));
+  int ret = read(rtc_fd, &ticks, sizeof(ticks));
   if (ret < 0)
   {
+		printf("ERROR %d read RTC\n", ret);
+    close(rtc_fd);
     return ret;
   }
 
@@ -59,8 +57,8 @@ int console_date(int argc, const char *argv[])
     }
     else if (!strcmp(argv[1], "close"))
     {
-      close(g_rtc_fd);
-      g_rtc_fd = -1;
+      close(rtc_fd);
+      rtc_fd = -1;
     }
     else
     {
@@ -68,7 +66,7 @@ int console_date(int argc, const char *argv[])
     }
   }
 
-  uint32_t seconds = (ticks - g_tick_offset) >> 3;
+  uint32_t seconds = (ticks - g_tick_offset) / 1000;
   uint32_t minutes = seconds / 60;
   uint32_t hour = minutes / 60;
 
@@ -78,6 +76,8 @@ int console_date(int argc, const char *argv[])
 
   printf("Local time: %02u : %02u : %02u\n", g_clock[HOUR_OFFSET],
     g_clock[MIN_OFFSET], g_clock[SEC_OFFSET]);
+
+  close(rtc_fd);
 
   return 0;
 }

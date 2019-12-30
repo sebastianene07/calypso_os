@@ -24,7 +24,6 @@ config CONSOLE_ECHO_ON
 config CONSOLE_DATE_ON
 	bool "Tool to set/view the system time"
 	default n
-	depends on RTC_PATH
 
 config CONSOLE_CAT
 	bool "Tool to print files to console output"
