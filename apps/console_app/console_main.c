@@ -43,6 +43,7 @@ int console_sensor_measure(int argc, const char *argv[]);
 #endif
 
 static int console_help(int argc, const char *argv[]);
+static int console_sleep(int argc, const char *argv[]);
 
 /* Shutdown flag */
 
@@ -109,6 +110,12 @@ static console_command_entry_t g_cmd_table[] =
     .cmd_help     = "Read data from the gas sensor",
   },
 #endif
+  {
+    .cmd_name     = "sleep",
+    .cmd_function = console_sleep,
+    .run_in_main_console = true,
+    .cmd_help            = "sleep command in miliseconds",
+  },
   { .cmd_name     = "help",
     .cmd_function = console_help,
     .cmd_help     = CONSOLE_HELP_DESCRIPTION
@@ -128,8 +135,12 @@ static int execute_command(int argc, const char *argv[])
       if (strcmp(g_cmd_table[j].cmd_name, argv[0]) == 0)
       {
 #ifdef CONFIG_RUN_APPS_IN_OWN_THREAD
-        return sched_create_task((int (*)(int, char **))g_cmd_table[j].cmd_function,
-          CONFIG_CONSOLE_STACK_SIZE, argc, (char **)argv);
+        if (g_cmd_table[j].run_in_main_console)
+          return g_cmd_table[j].cmd_function(argc, (char **)argv);
+        else
+          return sched_create_task((
+            int (*)(int, char **))g_cmd_table[j].cmd_function,
+            CONFIG_CONSOLE_STACK_SIZE, argc, (char **)argv);
 #else
         return g_cmd_table[j].cmd_function(argc, (char **)argv);
 #endif /* CONFIG_RUN_APPS_IN_OWN_THREAD */
@@ -152,6 +163,16 @@ static int console_help(int argc, const char *argv[])
                         g_cmd_table[i].cmd_help);
   }
 
+  return 0;
+}
+
+static int console_sleep(int argc, const char *argv[])
+{
+  if (argc <= 1) return 0;
+  uint32_t milis = 0;
+
+  sscanf(argv[1], "%d", &milis);
+  usleep(milis * 100);
   return 0;
 }
 

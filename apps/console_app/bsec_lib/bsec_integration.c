@@ -168,12 +168,13 @@ return_values_init bsec_iot_init(float sample_rate, float temperature_offset, bm
     int bsec_state_len, bsec_config_len;
 
     /* Fixed I2C configuration */
-    bme680_g.dev_id = 1;
+    bme680_g.dev_id = 0;
     bme680_g.intf = BME680_SPI_INTF;
     /* User configurable I2C configuration */
     bme680_g.write = bus_write;
     bme680_g.read = bus_read;
     bme680_g.delay_ms = sleep;
+    bme680_g.amb_temp = 20;
 
     /* Initialize BME680 API */
     ret.bme680_status = bme680_init(&bme680_g);

@@ -10,13 +10,9 @@ int timer_init(void)
 
   TIMER_FUNCTION_REGISTER(TIMER_PRESCALER) = 0x04;
 
-  /* Set the compare counter register */
+  /* Set the timer mode to timer - automaticaly increment the internal counter */
 
-  TIMER_FUNCTION_REGISTER(TIMER_COMPARE_COUNTER) = 1000;
-
-  /* Clear on COMPARE0 event generation */
-
-  TIMER_FUNCTION_REGISTER(TIMER_SHORTS) = 0x01;
+	TIMER_FUNCTION_REGISTER(TIMER_MODE) = 0;
 
   /* Start timer */
 

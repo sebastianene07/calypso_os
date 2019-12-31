@@ -15,6 +15,7 @@
 #define TIMER_INT_SET         (0x304)
 #define TIMER_INT_CLR         (0x308)
 #define TIMER_PRESCALER       (0x510)
+#define TIMER_MODE            (0x504)
 #define TIMER_COMPARE_COUNTER (0x540)
 #define TIMER_SHORTS          (0x200)
 #define TIMER_TASK_START      (0x000)

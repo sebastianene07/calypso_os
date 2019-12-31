@@ -3,6 +3,7 @@
 #include <serial.h>
 #include <gpio.h>
 #include <rtc.h>
+#include <timer.h>
 #include <scheduler.h>
 
 #ifdef CONFIG_DISPLAY_SSD1331
@@ -87,6 +88,7 @@ void board_init(void)
 
   clock_init();
   rtc_init();
+  timer_init();
 
   struct spi_master_config_s spi[] = {
 #ifdef CONFIG_SPI_0

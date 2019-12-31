@@ -8,7 +8,7 @@
 typedef int ssize_t;
 
 typedef uint32_t mode_t;
-typedef uint32_t useconds_t;
+typedef uint64_t useconds_t;
 
 /**************************************************************************
  * Name:
@@ -56,7 +56,7 @@ int close(int fd);
  *  usleep
  *
  * Description:
- *  Put the calling process into sleep state for 'microseconds' 
+ *  Put the calling process into sleep state for 'microseconds'
  *
  * Return Value:
  *  Zero on success otherwise a negative value.

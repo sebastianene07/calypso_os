@@ -107,7 +107,7 @@ static void bme680_sensor_delay_ms(uint32_t period)
   // TODO : implement with sem_timedwait(...) if the chip is not able
   // to give an interrrupt when samples are ready
 
-  usleep(period * 1000);
+  usleep(period * 100);
 }
 
 static int8_t bme680_sensor_spi_read(uint8_t dev_id, uint8_t reg_addr,
@@ -164,9 +164,10 @@ static int bme680_sensor_open(struct opened_resource_s *res,
   }
 
   ret = bme680_sensor_enter_forcedmode(&gas_sensor->dev);
+
   sem_post(&gas_sensor->lock_sensor);
 
-  return ret;
+  return OK;
 }
 
 static int bme680_sensor_close(struct opened_resource_s *res)

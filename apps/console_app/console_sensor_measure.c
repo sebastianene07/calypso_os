@@ -20,6 +20,11 @@
 #include "bsec_lib/bsec_integration.h"
 #endif
 
+#define TIMER_0_BASE_ADDRESS    (0x40008000)
+#define TIMER_FUNCTION_REGISTER(REG_OFFSET)    (*(volatile uint32_t *)((TIMER_0_BASE_ADDRESS) \
+                                        + (REG_OFFSET)))                      \
+
+
 static int g_sensor_fd;
 
 extern volatile uint64_t g_rtc_ticks_ms;
@@ -56,12 +61,16 @@ static void bsec_out_data(int64_t time_stamp, float iaq, uint8_t iaq_accuracy,
  float static_iaq, float co2_equivalent, float breath_voc_equivalent)
 {
 	uint32_t int_iaq = (uint32_t)iaq;
-  printf("air quality:%s IAQ: %d, accuracy: %d timestamp: %u\n",
-				 get_name_from_iaq_index(int_iaq), int_iaq, iaq_accuracy, time_stamp);
+  printf("air quality:%s IAQ: %d, accuracy: %d\n",
+				 get_name_from_iaq_index(int_iaq), int_iaq, iaq_accuracy);
   printf("(VOC: %d, CO2: %d)\n", (uint32_t)(breath_voc_equivalent),
 				(uint32_t)(co2_equivalent));
-  printf("temperature %d, humidity: %d pressure %d\n", (uint32_t)temperature,
-				(uint32_t)(humidity), (uint32_t)pressure);
+
+  uint32_t temperature_real = temperature * 100;
+
+  printf("temperature %d.%d, humidity: %d pressure %d.%d\n", temperature_real / 100,
+        temperature_real % 100,
+				(uint32_t)(humidity), (uint32_t)pressure / 100, ((uint32_t)pressure) % 100);
 }
 
 static uint32_t state_load(uint8_t *state_buffer, uint32_t n_buffer)
@@ -80,12 +89,14 @@ static uint32_t config_load(uint8_t *config_buffer, uint32_t n_buffer)
 
 static int64_t get_timestamp_us(void)
 {
-  return g_rtc_ticks_ms * 1000;
+  TIMER_FUNCTION_REGISTER(0x040) = 1;
+  volatile uint64_t cc = TIMER_FUNCTION_REGISTER(0x540);
+  return cc;
 }
 
 static void sleep(uint32_t t_ms)
 {
-  usleep(1000 * t_ms);
+  usleep(100 * t_ms);
 }
 
 static int8_t bus_read(uint8_t dev_addr, uint8_t reg_addr,
@@ -127,7 +138,7 @@ int console_sensor_measure(int argc, const char *argv[])
     return g_sensor_fd;
   }
 
-  bsec_ret = bsec_iot_init(BSEC_SAMPLE_RATE_LP, 5.0f, bus_write, bus_read, sleep,
+  bsec_ret = bsec_iot_init(BSEC_SAMPLE_RATE_LP, 0.0f, bus_write, bus_read, sleep,
     state_load, config_load);
   if (bsec_ret.bme680_status) {
     printf("Error init BSEC lib %d\n", bsec_ret.bme680_status);
