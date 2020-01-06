@@ -1,0 +1,5 @@
+config WFI_ENABLE
+  bool "Enable wait for interrupt mode"
+  default n
+  ---help---
+  Allow the CPU to enter wait for interrupt state to sleep.
