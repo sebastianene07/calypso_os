@@ -45,4 +45,8 @@ config CONSOLE_SENSOR_MEASURE
   bool "Tool to read the gas sensor data"
   default n
 
+config CONSOLE_SLEEP
+  bool "Sleep the console for the specified interval"
+  default n
+
 endif # CONSOLE_APP

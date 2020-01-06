@@ -99,7 +99,7 @@ int close(int fd)
 
 static inline void wait_usec(void)
 {
-  uint32_t counter = 0;
+  volatile uint32_t counter = 0;
 
   /* 1 us takes this time */
   for (counter; counter < CONFIG_SYSTEM_CLOCK_FREQUENCY; ++counter);

@@ -32,6 +32,10 @@ ifeq ($(CONFIG_LIBRARY_BSEC),y)
 SRC+= bsec_lib/bsec_integration.c
 endif
 
+ifeq ($(CONFIG_CONSOLE_SLEEP),y)
+SRC+= console_sleep.c
+endif
+
 OBJS:=$(patsubst %.c,%.o,$(SRC))
 CONSOLE_FLAGS := ${CFLAGS}  \
 	-I$(TOPDIR)/include \
