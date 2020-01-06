@@ -136,7 +136,7 @@ static int execute_command(int argc, const char *argv[])
       {
 #ifdef CONFIG_RUN_APPS_IN_OWN_THREAD
         if (g_cmd_table[j].run_in_main_console)
-          return g_cmd_table[j].cmd_function(argc, (char **)argv);
+          return g_cmd_table[j].cmd_function(argc, argv);
         else
           return sched_create_task((
             int (*)(int, char **))g_cmd_table[j].cmd_function,

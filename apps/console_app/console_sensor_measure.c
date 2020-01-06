@@ -55,6 +55,7 @@ static const char *get_name_from_iaq_index(uint32_t index)
 		return "exteremely polluted";
 }
 
+#ifdef CONFIG_LIBRARY_BSEC
 static void bsec_out_data(int64_t time_stamp, float iaq, uint8_t iaq_accuracy,
  float temperature, float humidity, float pressure, float raw_temperature,
  float raw_humidity, float gas, bsec_library_return_t bsec_status,
@@ -72,6 +73,7 @@ static void bsec_out_data(int64_t time_stamp, float iaq, uint8_t iaq_accuracy,
         temperature_real % 100,
 				(uint32_t)(humidity), (uint32_t)pressure / 100, ((uint32_t)pressure) % 100);
 }
+#endif /* CONFIG_LIBRARY_BSEC */
 
 static uint32_t state_load(uint8_t *state_buffer, uint32_t n_buffer)
 {
@@ -109,7 +111,7 @@ static int8_t bus_read(uint8_t dev_addr, uint8_t reg_addr,
     .data_len     = data_len,
   };
 
-  int8_t ret = ioctl(g_sensor_fd, IO_BME680_BUS_READ, &transaction);
+  int8_t ret = ioctl(g_sensor_fd, IO_BME680_BUS_READ, (unsigned long)&transaction);
   return ret;
 }
 
@@ -123,14 +125,16 @@ static int8_t bus_write(uint8_t dev_addr, uint8_t reg_addr,
     .data_len     = data_len,
   };
 
-  int8_t ret = ioctl(g_sensor_fd, IO_BME680_BUS_WRITE, &transaction);
+  int8_t ret = ioctl(g_sensor_fd, IO_BME680_BUS_WRITE, (unsigned long)&transaction);
   return ret;
 }
 
 int console_sensor_measure(int argc, const char *argv[])
 {
   int ret;
+#ifdef CONFIG_LIBRARY_BSEC
   return_values_init bsec_ret;
+#endif
 
   g_sensor_fd = open(CONFIG_SENSOR_BME680_PATH_NAME, 0);
   if (g_sensor_fd < 0) {
@@ -138,6 +142,7 @@ int console_sensor_measure(int argc, const char *argv[])
     return g_sensor_fd;
   }
 
+#ifdef CONFIG_LIBRARY_BSEC
   bsec_ret = bsec_iot_init(BSEC_SAMPLE_RATE_LP, 0.0f, bus_write, bus_read, sleep,
     state_load, config_load);
   if (bsec_ret.bme680_status) {
@@ -147,6 +152,7 @@ int console_sensor_measure(int argc, const char *argv[])
   }
 
   bsec_iot_loop(sleep, get_timestamp_us, bsec_out_data, state_save, 10000);
+#endif
 
   close(g_sensor_fd);
   return OK;
