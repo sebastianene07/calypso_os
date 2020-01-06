@@ -17,6 +17,10 @@ config FATFS_SUPPORT
 config SYSTEM_CLOCK_FREQUENCY
   int "System core clock frequency in MhZ"
   default 25
+
+config SYSTEM_SCHEDULER_SLICE_FREQUENCY
+  int "The pre-emption interrupt frequency in Hz"
+  default 2000
 endmenu
 
 menu "Device Drivers"

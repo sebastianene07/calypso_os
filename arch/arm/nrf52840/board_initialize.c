@@ -47,7 +47,7 @@ static unsigned int LED = 13;
 static unsigned int BUTTON_1 = 11;
 
 /* System Core Clock Frequency */
-static uint32_t SystemCoreClock = CONFIG_SYSTEM_CLOCK_FREQUENCY * 1000000;
+static uint32_t g_system_core_clock_freq = CONFIG_SYSTEM_CLOCK_FREQUENCY * 1000000;
 
 /****************************************************************************
  * Private Functions
@@ -171,5 +171,5 @@ void board_init(void)
       &spi_devs[CONFIG_SENSOR_BME680_SPI_ID]);
 #endif
 
-  SysTick_Config(SystemCoreClock / 2000);
+  SysTick_Config(g_system_core_clock_freq / CONFIG_SYSTEM_SCHEDULER_SLICE_FREQUENCY);
 }
