@@ -10,6 +10,13 @@ typedef int ssize_t;
 typedef uint32_t mode_t;
 typedef uint64_t useconds_t;
 
+/* Basic operations during open */
+#define O_RDONLY                        (1 << 0)
+#define O_WRONLY                        (1 << 1)
+#define O_CREATE                        (1 << 2)
+#define O_RW                            (1 << 3)
+#define O_APPEND                        (1 << 4)
+
 /**************************************************************************
  * Name:
  *  read

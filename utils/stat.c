@@ -16,13 +16,62 @@
  */
 int open(const char *pathname, int flags, ...)
 {
+  struct vfs_node_s *node = NULL;
+
   /* 1. Look through VFS and find the node identified by pathname */
 
   size_t name_len = strlen(pathname);
-  struct vfs_node_s *node = vfs_get_matching_node(pathname,
-                                                  name_len);
+  if (name_len == 0)
+    return -EINVAL;
+
+  int ret;
+  char *path_without_name;
+  int i = name_len - 1;
+
+  if (pathname[name_len - 1] == '/') {
+    while (pathname[i] == '/') { i--; }
+  }
+
+  while (pathname[i] != '/') { i--; }
+  path_without_name = calloc(1, i + 1);
+  if (path_without_name == NULL)
+    return -ENOMEM;
+
+  strncpy(path_without_name, pathname, i);
+
+  if (flags & O_CREATE) {
+
+    struct vfs_node_s *parent_node = vfs_get_matching_node(path_without_name,
+      strlen(path_without_name));
+
+    ret = vfs_register_node(pathname,
+                            name_len,
+                            parent_node->ops,
+                            VFS_TYPE_FILE,
+                            NULL);
+    node = vfs_get_matching_node(pathname, name_len);
+  } else if (flags & O_APPEND) {
+    node = vfs_get_matching_node(pathname, name_len);
+    if (node == NULL) {
+      /* Create a new one */
+
+      struct vfs_node_s *parent_node = vfs_get_matching_node(path_without_name,
+        strlen(path_without_name));
+
+      ret = vfs_register_node(pathname,
+                              name_len,
+                              parent_node->ops,
+                              VFS_TYPE_FILE,
+                              NULL);
+      node = vfs_get_matching_node(pathname, name_len);
+    }
+  } else {
+    node = vfs_get_matching_node(pathname, name_len);
+  }
+
   if (node == NULL) {
-    return -ENOENT;
+    ret = -ENOENT;
+    goto free_with_path;
   }
 
   /* Grab an entry from the tcb FILE structure. */
@@ -30,22 +79,26 @@ int open(const char *pathname, int flags, ...)
   struct opened_resource_s *res =
     sched_allocate_resource(node, 0);
   if (res == NULL) {
-    return -ENFILE;
+    ret = -ENFILE;
+    goto free_with_path;
   }
 
   /* Call the vfs open method */
 
-  int ret = -ENODEV;
   if (node->ops != NULL && node->ops->open != NULL) {
     ret = node->ops->open(res, pathname, flags, 0);
   }
 
   if (ret < 0) {
     sched_free_resource(res->fd);
-    return ret;
+    goto free_with_path;
   }
 
-  return res->fd;
+  ret = res->fd;
+
+free_with_path:
+  free(path_without_name);
+  return ret;
 }
 
 int ioctl(int fd, unsigned long request, unsigned long arg)

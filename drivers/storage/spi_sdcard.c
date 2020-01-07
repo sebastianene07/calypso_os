@@ -7,6 +7,7 @@
 
 #define LOG_ERR(msg, ...)  printf("[sd_spi] Error:"msg"\r\n", ##__VA_ARGS__)
 
+#define CONFIG_DEBUG_SD_CARD
 #ifdef CONFIG_DEBUG_SD_CARD
 #define LOG_INFO(msg, ...) printf("[sd_spi] Info:"msg"\r\n", ##__VA_ARGS__)
 #else
@@ -462,7 +463,7 @@ int sd_spi_init(spi_master_dev_t *spi)
   uint8_t buffer[64];
   memset(buffer, 0, 64);
 
-  ret = sd_spi_read_logical_block(spi, buffer, 0, 0, 64);
+  sd_spi_read_logical_block(spi, buffer, 0, 0, 64);
 
   for (int i = 0; i < sizeof(buffer); i += 8) {
     printf("%x %x %x %x %x %x %x %x\n",
@@ -606,9 +607,11 @@ static int sd_spi_write_logical_block(spi_master_dev_t *spi, uint8_t *buffer,
   sd_spi_send_cmd(SD_CMD_SET_WRITE_BLOCK, lba_index);
   sd_spi_set_cs(1);
 
+  g_rsp_index = 0;
   spi_rsp = sd_read_byte_ignore_char(0xFF);
   if (spi_rsp != 0) {
-    LOG_ERR("write logical block %d\n", lba_index);
+    LOG_ERR("write logical block %d offset_lba %d w_size %d\n", lba_index,
+      offset_in_lba, requested_write_size);
     return -ENOSYS;
   }
 

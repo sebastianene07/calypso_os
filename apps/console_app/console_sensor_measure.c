@@ -25,7 +25,7 @@
                                         + (REG_OFFSET)))                      \
 
 
-static int g_sensor_fd;
+static int g_sensor_fd, g_logger_fd;
 
 extern volatile uint64_t g_rtc_ticks_ms;
 
@@ -62,16 +62,33 @@ static void bsec_out_data(int64_t time_stamp, float iaq, uint8_t iaq_accuracy,
  float static_iaq, float co2_equivalent, float breath_voc_equivalent)
 {
 	uint32_t int_iaq = (uint32_t)iaq;
-  printf("air quality:%s IAQ: %d, accuracy: %d\n",
-				 get_name_from_iaq_index(int_iaq), int_iaq, iaq_accuracy);
-  printf("(VOC: %d, CO2: %d)\n", (uint32_t)(breath_voc_equivalent),
-				(uint32_t)(co2_equivalent));
+  char print_buffer[80] = {0};
 
   uint32_t temperature_real = temperature * 100;
 
-  printf("temperature %d.%d, humidity: %d pressure %d.%d\n", temperature_real / 100,
-        temperature_real % 100,
-				(uint32_t)(humidity), (uint32_t)pressure / 100, ((uint32_t)pressure) % 100);
+  snprintf(print_buffer, sizeof(print_buffer),
+           "%s IAQ %d, ACCURACY %d\n"
+           "VOC %d, CO2 %d\n"
+           "Temp %d.%dC, Humidity %d, Pressure %d.%d Pa\n",
+           get_name_from_iaq_index(int_iaq),
+           int_iaq,
+           iaq_accuracy,
+           (uint32_t)(breath_voc_equivalent),
+           (uint32_t)(co2_equivalent),
+           temperature_real / 100, temperature_real % 100,
+           (uint32_t)(humidity),
+           (uint32_t)pressure / 100, ((uint32_t)pressure) % 100);
+
+  printf("%s", print_buffer);
+
+  g_logger_fd = open("/mnt/LOGGER", O_APPEND);
+  if (g_logger_fd < 0) {
+//    printf("Error %d open LOGGER\n", g_logger_fd);
+    return;
+  }
+
+  write(g_logger_fd, print_buffer, strlen(print_buffer));
+  close(g_logger_fd);
 }
 #endif /* CONFIG_LIBRARY_BSEC */
 
@@ -136,7 +153,7 @@ int console_sensor_measure(int argc, const char *argv[])
   return_values_init bsec_ret;
 #endif
 
-  g_sensor_fd = open(CONFIG_SENSOR_BME680_PATH_NAME, 0);
+  g_sensor_fd = open(CONFIG_SENSOR_BME680_PATH_NAME, O_APPEND);
   if (g_sensor_fd < 0) {
     printf("Error %d open\n", g_sensor_fd);
     return g_sensor_fd;
