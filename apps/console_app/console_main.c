@@ -46,6 +46,10 @@ int console_sensor_measure(int argc, const char *argv[]);
 int console_sleep(int argc, const char *argv[]);
 #endif
 
+#ifdef CONFIG_CONSOLE_ECHO
+int console_echo(int argc, const char *argv[]);
+#endif
+
 static int console_help(int argc, const char *argv[]);
 
 /* Shutdown flag */
@@ -122,6 +126,16 @@ static console_command_entry_t g_cmd_table[] =
     .cmd_help            = "sleep command in miliseconds",
   },
 #endif
+
+#ifdef CONFIG_CONSOLE_ECHO
+  {
+    .cmd_name            = "echo",
+    .cmd_function        = console_echo,
+    .run_in_main_console = true,
+    .cmd_help            = "Echo a message to the console",
+  },
+#endif
+
 
   { .cmd_name     = "help",
     .cmd_function = console_help,

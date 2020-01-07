@@ -49,4 +49,8 @@ config CONSOLE_SLEEP
   bool "Sleep the console for the specified interval"
   default n
 
+config CONSOLE_ECHO
+  bool "Echo a message to the console"
+  default n
+
 endif # CONSOLE_APP

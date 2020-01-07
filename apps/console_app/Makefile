@@ -36,6 +36,10 @@ ifeq ($(CONFIG_CONSOLE_SLEEP),y)
 SRC+= console_sleep.c
 endif
 
+ifeq ($(CONFIG_CONSOLE_ECHO),y)
+SRC+= console_echo.c
+endif
+
 OBJS:=$(patsubst %.c,%.o,$(SRC))
 CONSOLE_FLAGS := ${CFLAGS}  \
 	-I$(TOPDIR)/include \
