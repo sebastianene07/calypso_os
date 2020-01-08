@@ -45,6 +45,17 @@ config CONSOLE_SENSOR_MEASURE
   bool "Tool to read the gas sensor data"
   default n
 
+if CONSOLE_SENSOR_MEASURE
+
+config SENSOR_LOG
+  bool "Log the sensor data"
+  default n
+
+config SENSOR_LOG_FILENAME
+  string "The path used to log BME680 data"
+  default "/mnt/LOGGER.CSV"
+endif
+
 config CONSOLE_SLEEP
   bool "Sleep the console for the specified interval"
   default n

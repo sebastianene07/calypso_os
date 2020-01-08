@@ -131,9 +131,9 @@ static bsec_library_return_t bme680_bsec_update_subscription(float sample_rate)
     requested_virtual_sensors[4].sample_rate = sample_rate;
     requested_virtual_sensors[5].sensor_id = BSEC_OUTPUT_RAW_TEMPERATURE;
     requested_virtual_sensors[5].sample_rate = sample_rate;
-    requested_virtual_sensors[6].sensor_id = BSEC_OUTPUT_RAW_HUMIDITY;
+    requested_virtual_sensors[6].sensor_id   = BSEC_OUTPUT_CO2_EQUIVALENT,                         /*!< co2 equivalent estimate [ppm] */
     requested_virtual_sensors[6].sample_rate = sample_rate;
-    requested_virtual_sensors[7].sensor_id = BSEC_OUTPUT_STATIC_IAQ;
+    requested_virtual_sensors[7].sensor_id   = BSEC_OUTPUT_BREATH_VOC_EQUIVALENT,                  /*!< breath VOC concentration estimate [ppm] */
     requested_virtual_sensors[7].sample_rate = sample_rate;
 
     /* Call bsec_update_subscription() to enable/disable the requested virtual sensors */

@@ -1,5 +1,6 @@
 #include <board.h>
 #include <console_main.h>
+#include <console_date.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -20,14 +21,13 @@
 #include "bsec_lib/bsec_integration.h"
 #endif
 
+
 #define TIMER_0_BASE_ADDRESS    (0x40008000)
 #define TIMER_FUNCTION_REGISTER(REG_OFFSET)    (*(volatile uint32_t *)((TIMER_0_BASE_ADDRESS) \
                                         + (REG_OFFSET)))                      \
 
 
-static int g_sensor_fd, g_logger_fd;
-
-extern volatile uint64_t g_rtc_ticks_ms;
+static int g_sensor_fd;
 
 static const char *get_name_from_iaq_index(uint32_t index)
 {
@@ -62,33 +62,40 @@ static void bsec_out_data(int64_t time_stamp, float iaq, uint8_t iaq_accuracy,
  float static_iaq, float co2_equivalent, float breath_voc_equivalent)
 {
 	uint32_t int_iaq = (uint32_t)iaq;
-  char print_buffer[80] = {0};
-
+  char print_buffer[130] = {0};
   uint32_t temperature_real = temperature * 100;
+  local_time_t current_time;
+  uint32_t voc = breath_voc_equivalent * 100;
+
+  get_local_time(&current_time);
 
   snprintf(print_buffer, sizeof(print_buffer),
-           "%s IAQ %d, ACCURACY %d\n"
-           "VOC %d, CO2 %d\n"
-           "Temp %d.%dC, Humidity %d, Pressure %d.%d Pa\n",
+           "[%02u:%02u:%02u] %s IAQ %d, ACCURACY %d, "
+           "VOC %d.%d ppm, CO2 %d ppm, "
+           "Temp %d.%dC, Humidity %d, Pressure %d.%d Pa\r\n",
+           current_time.hour, current_time.min, current_time.seconds,
            get_name_from_iaq_index(int_iaq),
            int_iaq,
            iaq_accuracy,
-           (uint32_t)(breath_voc_equivalent),
+           voc / 100, (uint32_t)(voc * 100),
            (uint32_t)(co2_equivalent),
            temperature_real / 100, temperature_real % 100,
            (uint32_t)(humidity),
            (uint32_t)pressure / 100, ((uint32_t)pressure) % 100);
 
-  printf("%s", print_buffer);
+  printf("%s\r\n",
+         print_buffer);
 
-  g_logger_fd = open("/mnt/LOGGER1", O_APPEND);
-  if (g_logger_fd < 0) {
-    printf("Error %d open LOGGER1\n", g_logger_fd);
+#ifdef CONFIG_SENSOR_LOG
+  int logger_fd = open(CONFIG_SENSOR_LOG_FILENAME, O_APPEND);
+  if (logger_fd < 0) {
+    printf("Error %d open LOGGER1\n", logger_fd);
     return;
   }
 
-  write(g_logger_fd, print_buffer, strlen(print_buffer));
-  close(g_logger_fd);
+  write(logger_fd, print_buffer, strlen(print_buffer));
+  close(logger_fd);
+#endif /* CONFIG_SENSOR_LOG */
 }
 #endif /* CONFIG_LIBRARY_BSEC */
 
@@ -110,7 +117,7 @@ static int64_t get_timestamp_us(void)
 {
   TIMER_FUNCTION_REGISTER(0x040) = 1;
   volatile uint64_t cc = TIMER_FUNCTION_REGISTER(0x540);
-  return cc;
+	return cc;
 }
 
 static void sleep(uint32_t t_ms)
