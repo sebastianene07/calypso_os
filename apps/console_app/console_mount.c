@@ -12,6 +12,9 @@
 #include <vfs.h>
 #include <stdio.h>
 
+const char *mount = "/mnt/";
+
+
 /****************************************************************************
  * Private Functions Declaration
  ****************************************************************************/
@@ -214,7 +217,6 @@ int console_mount(int argc, const char *argv[])
       return -ENOSYS;
     }
 
-    const char *mount = "/mnt/";
     struct vfs_node_s *node = vfs_get_matching_node(mount, strlen(mount));
     if (node != NULL) {
       node->ops = &g_fs_ops;
@@ -241,4 +243,9 @@ int console_umount(int argc, const char *argv[]) {
   f_mount(NULL, "", 0);
   free(g_fatfs);
   g_fatfs = NULL;
+
+  struct vfs_node_s *node = vfs_get_matching_node(mount, strlen(mount));
+  if (node != NULL) {
+    node->ops = NULL;
+  }
 }

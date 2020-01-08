@@ -81,9 +81,9 @@ static void bsec_out_data(int64_t time_stamp, float iaq, uint8_t iaq_accuracy,
 
   printf("%s", print_buffer);
 
-  g_logger_fd = open("/mnt/LOGGER", O_APPEND);
+  g_logger_fd = open("/mnt/LOGGER1", O_APPEND);
   if (g_logger_fd < 0) {
-//    printf("Error %d open LOGGER\n", g_logger_fd);
+    printf("Error %d open LOGGER1\n", g_logger_fd);
     return;
   }
 

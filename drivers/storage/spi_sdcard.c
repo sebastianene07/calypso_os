@@ -7,7 +7,6 @@
 
 #define LOG_ERR(msg, ...)  printf("[sd_spi] Error:"msg"\r\n", ##__VA_ARGS__)
 
-#define CONFIG_DEBUG_SD_CARD
 #ifdef CONFIG_DEBUG_SD_CARD
 #define LOG_INFO(msg, ...) printf("[sd_spi] Info:"msg"\r\n", ##__VA_ARGS__)
 #else
@@ -607,7 +606,6 @@ static int sd_spi_write_logical_block(spi_master_dev_t *spi, uint8_t *buffer,
   sd_spi_send_cmd(SD_CMD_SET_WRITE_BLOCK, lba_index);
   sd_spi_set_cs(1);
 
-  g_rsp_index = 0;
   spi_rsp = sd_read_byte_ignore_char(0xFF);
   if (spi_rsp != 0) {
     LOG_ERR("write logical block %d offset_lba %d w_size %d\n", lba_index,
@@ -616,6 +614,7 @@ static int sd_spi_write_logical_block(spi_master_dev_t *spi, uint8_t *buffer,
   }
 
   sd_spi_set_cs(0);
+	sd_spi_write(SD_TOKEN_FLOATING_BUS);
 	sd_spi_write(SD_TOKEN_START);
 
 	/* Pad data with 0 */
@@ -632,8 +631,10 @@ static int sd_spi_write_logical_block(spi_master_dev_t *spi, uint8_t *buffer,
 	}
 
 	/* Write dummy CRC */
-	sd_spi_write(0xFF);
-	sd_spi_write(0xFF);
+	sd_spi_write(0x0);
+	sd_spi_write(0x0);
+
+  for (int bc = 65000; sd_spi_write(0xFF) != 0xFF && bc; bc--);
 
 	sd_spi_set_cs(1);
 
