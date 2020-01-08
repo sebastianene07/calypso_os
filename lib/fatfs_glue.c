@@ -68,7 +68,7 @@ DSTATUS MMC_disk_initialize(void)
     return mmc_fd;
   }
 
-  int ret = ioctl(mmc_fd, GET_SD_SPI_OPS, 
+  int ret = ioctl(mmc_fd, GET_SD_SPI_OPS,
     (unsigned long)&g_fatfs_config.spi_sd_card_ops);
   if (ret < 0) {
     printf("Error: %d cannot get SD SPI ops\n", ret);
@@ -104,6 +104,11 @@ DRESULT MMC_disk_read(BYTE *buff, DWORD sector, BYTE count)
 DRESULT MMC_disk_write(const BYTE *buff, DWORD sector, BYTE count)
 {
   /* Schedule the following operation on the initialization thread */
+
+  int ret = g_fatfs_config.spi_sd_card_ops.write_spi_card(buff, sector, count * 512);
+  if (ret < 0) {
+    return RES_PARERR;
+  }
 
   return 0;
 }

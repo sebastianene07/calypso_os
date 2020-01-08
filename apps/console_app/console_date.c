@@ -1,5 +1,7 @@
 #include <board.h>
 #include <console_main.h>
+#include <console_date.h>
+
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -14,7 +16,7 @@
 #define NUM_ARGS_DATE_SET       (2)
 
 /* The clock that will be shown hh:min:sec */
-static uint8_t g_clock[3];
+static local_time_t g_clock;
 
 /* The set clock hh:min:sec (offset) */
 static uint32_t g_clock_offset[3];
@@ -70,14 +72,28 @@ int console_date(int argc, const char *argv[])
   uint32_t minutes = seconds / 60;
   uint32_t hour = minutes / 60;
 
-  g_clock[SEC_OFFSET] = (seconds + g_clock_offset[SEC_OFFSET]) % 60;
-  g_clock[MIN_OFFSET] = (minutes + g_clock_offset[MIN_OFFSET]) % 60;
-  g_clock[HOUR_OFFSET] = (hour + g_clock_offset[HOUR_OFFSET]) % 24;
+  g_clock.seconds = (seconds + g_clock_offset[SEC_OFFSET]) % 60;
+  g_clock.min     = (minutes + g_clock_offset[MIN_OFFSET]) % 60;
+  g_clock.hour    = (hour + g_clock_offset[HOUR_OFFSET]) % 24;
 
-  printf("Local time: %02u : %02u : %02u\n", g_clock[HOUR_OFFSET],
-    g_clock[MIN_OFFSET], g_clock[SEC_OFFSET]);
+  if (argc > 0) {
+    printf("Local time: %02u : %02u : %02u\n",
+           g_clock.hour,
+           g_clock.min,
+           g_clock.seconds);
+  }
 
   close(rtc_fd);
 
   return 0;
 }
+
+void get_local_time(local_time_t *local_time)
+{
+  console_date(0, NULL);
+  if (local_time != NULL) {
+    memcpy(local_time, &g_clock, sizeof(local_time_t));
+  }
+}
+
+

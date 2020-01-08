@@ -12,6 +12,9 @@
 #include <vfs.h>
 #include <stdio.h>
 
+const char *mount = "/mnt/";
+
+
 /****************************************************************************
  * Private Functions Declaration
  ****************************************************************************/
@@ -127,7 +130,7 @@ static int open_fs_node(struct opened_resource_s *file, const char *pathname,
   FRESULT fr;
   FIL *fatfs_file;
   int ret = OK;
-
+  volatile BYTE fatfs_mode = FA_READ;
   fatfs_file = malloc(sizeof(FIL));
   if (fatfs_file == NULL) {
     return -ENOMEM;
@@ -135,7 +138,14 @@ static int open_fs_node(struct opened_resource_s *file, const char *pathname,
 
 //  const char *path = vfs_get_aboslute_path_from_node(file->vfs_node);
 
-  fr = f_open(fatfs_file, file->vfs_node->name, FA_READ);
+  if (flags & O_APPEND)
+    fatfs_mode = FA_OPEN_APPEND | FA_WRITE;
+  else if (flags & O_CREATE)
+    fatfs_mode = FA_CREATE_NEW | FA_WRITE;
+  else if (flags & O_WRONLY)
+    fatfs_mode = FA_WRITE;
+
+  fr = f_open(fatfs_file, file->vfs_node->name, fatfs_mode);
   if (fr) {
     ret = -EINVAL;
     goto clean_mem;
@@ -167,7 +177,15 @@ static int read_fs_node(struct opened_resource_s *file, void *buf, size_t count)
 static int write_fs_node(struct opened_resource_s *file, const void *buf,
   size_t count)
 {
-  return OK;
+  FRESULT fr;
+  UINT br;
+
+  fr = f_write(file->vfs_node->priv, buf, count, &br);
+  if (fr == OK) {
+    return br;
+  }
+
+  return -EINVAL;
 }
 
 static int close_fs_node(struct opened_resource_s *file)
@@ -198,6 +216,11 @@ int console_mount(int argc, const char *argv[])
       free(g_fatfs);
       return -ENOSYS;
     }
+
+    struct vfs_node_s *node = vfs_get_matching_node(mount, strlen(mount));
+    if (node != NULL) {
+      node->ops = &g_fs_ops;
+    }
   }
 
   char *path = malloc(256);
@@ -220,4 +243,9 @@ int console_umount(int argc, const char *argv[]) {
   f_mount(NULL, "", 0);
   free(g_fatfs);
   g_fatfs = NULL;
+
+  struct vfs_node_s *node = vfs_get_matching_node(mount, strlen(mount));
+  if (node != NULL) {
+    node->ops = NULL;
+  }
 }

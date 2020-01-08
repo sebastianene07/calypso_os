@@ -31,8 +31,8 @@ menu "Libraries"
 source lib/Kconfig
 endmenu
 
-menu "Memory Management"
-#source mm/Kconfig
+menu "Scheduler Configuration"
+source sched/Kconfig
 endmenu
 
 menu "Application Configuration"
