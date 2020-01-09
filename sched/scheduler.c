@@ -62,11 +62,19 @@ static int sched_idle_task(int argc, char **argv)
     do {
       is_halt_task = false;
       struct tcb_s *current = NULL;
+
       list_for_each_entry(current, &g_tcb_waiting_list, next_tcb)
       {
         if (current != NULL && current->t_state == HALTED)
         {
           list_del(&current->next_tcb);
+
+          /* Does this task have opened resources ? */
+
+          for (int fd = 0; fd < current->curr_resource_opened; fd++) {
+            sched_free_resource(fd);
+          }
+
           free(current);
           is_halt_task = true;
           break;
@@ -165,7 +173,7 @@ void sched_default_task_exit_point(void)
 int sched_create_task(int (*task_entry_point)(int argc, char **argv),
   uint32_t stack_size, int argc, char **argv)
 {
-  struct tcb_s *task_tcb = malloc(sizeof(struct tcb_s) + stack_size);
+  struct tcb_s *task_tcb = calloc(1, sizeof(struct tcb_s) + stack_size);
   if (task_tcb == NULL)
   {
     return -ENOMEM;
@@ -191,9 +199,6 @@ int sched_create_task(int (*task_entry_point)(int argc, char **argv),
 
   task_tcb->mcu_context[0] = (void *)argc;
   task_tcb->mcu_context[1] = (void *)argv;
-  task_tcb->mcu_context[2] = NULL;
-  task_tcb->mcu_context[3] = NULL;
-  task_tcb->mcu_context[4] = NULL;
   task_tcb->mcu_context[5] = (uint32_t *)sched_default_task_exit_point;
   task_tcb->mcu_context[6] = task_entry_point;
   task_tcb->mcu_context[7] = (uint32_t *)0x1000000;
