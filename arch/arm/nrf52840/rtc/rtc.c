@@ -39,6 +39,8 @@
 static int rtc_open(struct opened_resource_s *priv, const char *pathname, int flags, mode_t mode);
 static int rtc_close(struct opened_resource_s *priv);
 static int rtc_read(struct opened_resource_s *priv, void *buf, size_t count);
+static int rtc_ioctl(struct opened_resource_s *priv, unsigned long request, unsigned long arg);
+
 
 /****************************************************************************
  * Private Defintions
@@ -46,13 +48,19 @@ static int rtc_read(struct opened_resource_s *priv, void *buf, size_t count);
 
 /* One tick represent 125 ms - generated from 8Hz event */
 
-volatile uint64_t g_rtc_ticks_ms;
+static volatile uint32_t g_rtc_ticks_ms;
+
+volatile uint32_t g_seconds;
+volatile uint32_t g_minutes;
+volatile uint32_t g_hours;
+volatile uint32_t g_days;
 
 /* Supported RTC operation */
 
 static struct vfs_ops_s g_rtc_ops = {
   .open  = rtc_open,
   .close = rtc_close,
+  .ioctl = rtc_ioctl,
   .read  = rtc_read,
 };
 
@@ -73,6 +81,29 @@ static void rtc_interrupt(void)
   if (EVENTS_TICK_CFG == 1)
   {
     ++g_rtc_ticks_ms;
+
+    if (g_rtc_ticks_ms % 8 == 0) {
+      g_rtc_ticks_ms = 0;
+
+      g_seconds++;
+
+      if (g_seconds % 60 == 0) {
+
+        g_seconds = 0;
+        g_minutes++;
+
+        if (g_minutes % 60 == 0) {
+
+          g_minutes = 0;
+          g_hours++;
+
+          if (g_hours % 24 == 0) {
+            g_hours = 0;
+            g_days++;
+          }
+        }
+      }
+    }
     EVENTS_TICK_CFG = 0;
   }
 }
@@ -92,7 +123,7 @@ static int rtc_open(struct opened_resource_s *res, const char *pathname, int fla
   disable_int();
 
   if (g_opened_count == 0) {
-    PRESCALER_CFG = PRESCALER_1kHZ;//PRESCALER_8_HZ;
+    PRESCALER_CFG = PRESCALER_8_HZ;
     INTENSET_CFG  = 0x01;
 
     attach_int(RTC0_IRQn, rtc_interrupt);
@@ -124,14 +155,41 @@ static int rtc_close(struct opened_resource_s *priv)
 
 static int rtc_read(struct opened_resource_s *priv, void *buf, size_t count)
 {
-  if (buf == NULL || count > sizeof(g_rtc_ticks_ms))
+  if (buf == NULL || count != sizeof(current_time_t))
   {
     return -EINVAL;
   }
 
-  size_t len = count > sizeof(g_rtc_ticks_ms) ? sizeof(g_rtc_ticks_ms) : count;
-  memcpy(buf, (const void *)&g_rtc_ticks_ms, len);
-  return len;
+  current_time_t *user_ptr = (current_time_t *)buf;
+  user_ptr->g_second  = g_seconds;
+  user_ptr->g_minute  = g_minutes;
+  user_ptr->g_hours   = g_hours;
+  user_ptr->g_days    = g_days;
+
+  return sizeof(current_time_t);
+}
+
+static int rtc_ioctl(struct opened_resource_s *priv, unsigned long request, unsigned long arg)
+{
+  switch(request) {
+
+    case SET_RTC_TIME_IO:
+      {
+        current_time_t *new_rtc_time = (current_time_t *)arg;
+
+        disable_int();
+        g_seconds = new_rtc_time->g_second;
+        g_minutes = new_rtc_time->g_minute;
+        g_hours   = new_rtc_time->g_hours;
+        g_rtc_ticks_ms = 0;
+        enable_int();
+        return OK;
+      }
+
+    default:
+      break;
+  }
+  return -ENOSYS;
 }
 
 /*

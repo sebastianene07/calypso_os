@@ -1,6 +1,5 @@
 #include <board.h>
 #include <console_main.h>
-#include <console_date.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -12,6 +11,7 @@
 #include <source/ff.h>
 #include <vfs.h>
 #include <stdio.h>
+#include <rtc.h>
 
 #include <sensors/bme680/bme680.h>
 #include <sensors/bme680/bme_680_main.h>
@@ -64,16 +64,21 @@ static void bsec_out_data(int64_t time_stamp, float iaq, uint8_t iaq_accuracy,
 	uint32_t int_iaq = (uint32_t)iaq;
   char print_buffer[130] = {0};
   uint32_t temperature_real = temperature * 100;
-  local_time_t current_time;
+  current_time_t my_time;
   uint32_t voc = breath_voc_equivalent * 100;
 
-  get_local_time(&current_time);
+  int rtc_fd = open(CONFIG_RTC_PATH, 0);
+  if (rtc_fd >= 0)
+  {
+    read(rtc_fd, &my_time, sizeof(my_time));
+    close(rtc_fd);
+  }
 
   snprintf(print_buffer, sizeof(print_buffer),
            "[%02u:%02u:%02u] %s IAQ %d, ACCURACY %d, "
            "VOC %d.%d ppm, CO2 %d ppm, "
            "Temp %d.%dC, Humidity %d, Pressure %d.%d Pa\r\n",
-           current_time.hour, current_time.min, current_time.seconds,
+           my_time.g_hours, my_time.g_minute, my_time.g_second,
            get_name_from_iaq_index(int_iaq),
            int_iaq,
            iaq_accuracy,
