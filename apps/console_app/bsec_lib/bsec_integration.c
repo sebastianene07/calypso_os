@@ -194,26 +194,22 @@ return_values_init bsec_iot_init(float sample_rate, float temperature_offset, bm
     bsec_config_len = config_load(bsec_config, sizeof(bsec_config));
     if (bsec_config_len != 0)
     {
-#if 0
         ret.bsec_status = bsec_set_configuration(bsec_config, bsec_config_len, work_buffer, sizeof(work_buffer));
         if (ret.bsec_status != BSEC_OK)
         {
             return ret;
         }
-#endif
     }
 
     /* Load previous library state, if available */
     bsec_state_len = state_load(bsec_state, sizeof(bsec_state));
     if (bsec_state_len != 0)
     {
-#if 0
         ret.bsec_status = bsec_set_state(bsec_state, bsec_state_len, work_buffer, sizeof(work_buffer));
         if (ret.bsec_status != BSEC_OK)
         {
             return ret;
         }
-#endif
     }
 
     /* Set temperature offset */
@@ -541,13 +537,11 @@ void bsec_iot_loop(sleep_fct sleep, get_timestamp_us_fct get_timestamp_us, outpu
         /* Retrieve and store state if the passed save_intvl */
         if (n_samples >= save_intvl)
         {
-#if 0
             bsec_status = bsec_get_state(0, bsec_state, sizeof(bsec_state), work_buffer, sizeof(work_buffer), &bsec_state_len);
             if (bsec_status == BSEC_OK)
             {
                 state_save(bsec_state, bsec_state_len);
             }
-#endif
             n_samples = 0;
         }
 

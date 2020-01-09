@@ -111,7 +111,7 @@
  *
  * 
  * - Before shutting down the system, the current state of BSEC can be retrieved and can then be used during 
- *   re-initalization to continue processing.
+ *   re-initialization to continue processing.
  *   
  * | Steps                                  | Function          |
  * |----------------------------------------|-------------------|
@@ -129,7 +129,7 @@
  *    performance of the gas sensor outputs.
  * 
  * @note BSEC library consists of adaptive algorithms which models the gas sensor which improves its performance over 
- *       the time. These will be lost if library is initialised due to system reset. In order to avoid this situation 
+ *       the time. These will be lost if library is initialized due to system reset. In order to avoid this situation 
  *       library state shall be stored in non volatile memory so that it can be loaded after system reset.
  *
  * 
@@ -243,7 +243,7 @@ bsec_library_return_t bsec_init(void);
     requested_virtual_sensors[2].sensor_id = BSEC_OUTPUT_RAW_PRESSURE;
     requested_virtual_sensors[2].sample_rate = BSEC_SAMPLE_RATE_DISABLED; 
     
-    // Allocate a struct for the returned phyisical sensor settings
+    // Allocate a struct for the returned physical sensor settings
     bsec_sensor_configuration_t required_sensor_settings[BSEC_MAX_PHYSICAL_SENSOR];
     uint8_t  n_required_sensor_settings = BSEC_MAX_PHYSICAL_SENSOR;
  
@@ -265,7 +265,7 @@ bsec_library_return_t bsec_update_subscription(const bsec_sensor_configuration_t
  * - The samples of all library inputs must be passed with unique identifiers representing the input signals from 
  *   physical sensors where the order of these inputs can be chosen arbitrary. However, all input have to be provided 
  *   within the same time period as they are read. A sequential provision to the library might result in undefined 
- *   behaviour.
+ *   behavior.
  * - The samples of all library outputs are returned with unique identifiers corresponding to the output signals of 
  *   virtual sensors where the order of the returned outputs may be arbitrary.
  * - The samples of all input as well as output signals of physical as well as virtual sensors use the same 
@@ -319,7 +319,7 @@ bsec_library_return_t bsec_update_subscription(const bsec_sensor_configuration_t
     // Invoke main processing BSEC function
     status = bsec_do_steps( input, n_input, output, &n_output );
 
-    // Iterature through the BSEC output data, if the call succeeded
+    // Iterate through the BSEC output data, if the call succeeded
     if(status == BSEC_OK)
     {
         for(int i = 0; i < n_output; i++)
@@ -365,6 +365,168 @@ bsec_library_return_t bsec_do_steps(const bsec_input_t * const inputs, const uin
 
 bsec_library_return_t bsec_reset_output(uint8_t sensor_id);
 
+
+/*!
+ * @brief Update algorithm configuration parameters
+ *
+ * BSEC uses a default configuration for the modules and common settings. The initial configuration can be customized 
+ * by bsec_set_configuration(). This is an optional step.
+ * 
+ * @note A work buffer with sufficient size is required and has to be provided by the function caller to decompose 
+ * the serialization and apply it to the library and its modules. Please use #BSEC_MAX_PROPERTY_BLOB_SIZE for allotting 
+ * the required size.
+ *
+ * @param[in]       serialized_settings     Settings serialized to a binary blob
+ * @param[in]       n_serialized_settings   Size of the settings blob
+ * @param[in,out]   work_buffer             Work buffer used to parse the blob
+ * @param[in]       n_work_buffer_size      Length of the work buffer available for parsing the blob
+ *
+ * @return Zero when successful, otherwise an error code
+ *
+  \code{.c}
+    // Example // 
+    
+    // Allocate variables
+    uint8_t serialized_settings[BSEC_MAX_PROPERTY_BLOB_SIZE];
+    uint32_t n_serialized_settings_max = BSEC_MAX_PROPERTY_BLOB_SIZE;
+    uint8_t work_buffer[BSEC_MAX_PROPERTY_BLOB_SIZE];
+    uint32_t n_work_buffer = BSEC_MAX_PROPERTY_BLOB_SIZE;
+
+    // Here we will load a provided config string into serialized_settings 
+    
+    // Apply the configuration
+    bsec_set_configuration(serialized_settings, n_serialized_settings_max, work_buffer, n_work_buffer);
+
+  \endcode
+ */
+
+bsec_library_return_t bsec_set_configuration(const uint8_t * const serialized_settings,
+                const uint32_t n_serialized_settings, uint8_t * work_buffer,
+                const uint32_t n_work_buffer_size);
+
+
+/*!
+ * @brief Restore the internal state of the library
+ *
+ * BSEC uses a default state for all signal processing modules and the BSEC module. To ensure optimal performance, 
+ * especially of the gas sensor functionality, it is recommended to retrieve the state using bsec_get_state()
+ * before unloading the library, storing it in some form of non-volatile memory, and setting it using bsec_set_state() 
+ * before resuming further operation of the library.
+ * 
+ * @note A work buffer with sufficient size is required and has to be provided by the function caller to decompose the 
+ * serialization and apply it to the library and its modules. Please use #BSEC_MAX_PROPERTY_BLOB_SIZE for allotting the 
+ * required size.
+ *
+ * @param[in]       serialized_state        States serialized to a binary blob
+ * @param[in]       n_serialized_state      Size of the state blob
+ * @param[in,out]   work_buffer             Work buffer used to parse the blob
+ * @param[in]       n_work_buffer_size      Length of the work buffer available for parsing the blob
+ *
+ * @return Zero when successful, otherwise an error code
+ *
+  \code{.c}
+    // Example // 
+  
+    // Allocate variables
+    uint8_t serialized_state[BSEC_MAX_PROPERTY_BLOB_SIZE];
+    uint32_t  n_serialized_state = BSEC_MAX_PROPERTY_BLOB_SIZE;
+    uint8_t work_buffer_state[BSEC_MAX_PROPERTY_BLOB_SIZE];
+    uint32_t  n_work_buffer_size = BSEC_MAX_PROPERTY_BLOB_SIZE;
+
+    // Here we will load a state string from a previous use of BSEC
+
+    // Apply the previous state to the current BSEC session
+    bsec_set_state(serialized_state, n_serialized_state, work_buffer_state, n_work_buffer_size);
+
+  \endcode
+*/
+
+bsec_library_return_t bsec_set_state(const uint8_t * const serialized_state, const uint32_t n_serialized_state,
+                uint8_t * work_buffer, const uint32_t n_work_buffer_size);
+
+
+/*!
+ * @brief Retrieve the current library configuration
+ *
+ * BSEC allows to retrieve the current configuration using bsec_get_configuration(). Returns a binary blob encoding 
+ * the current configuration parameters of the library in a format compatible with bsec_set_configuration().
+ *
+ * @note The function bsec_get_configuration() is required to be used for debugging purposes only.
+ * @note A work buffer with sufficient size is required and has to be provided by the function caller to decompose the 
+ * serialization and apply it to the library and its modules. Please use #BSEC_MAX_PROPERTY_BLOB_SIZE for allotting the 
+ * required size.
+ * 
+ *
+ * @param[in]       config_id                   Identifier for a specific set of configuration settings to be returned;
+ *                                              shall be zero to retrieve all configuration settings.
+ * @param[out]      serialized_settings         Buffer to hold the serialized config blob
+ * @param[in]       n_serialized_settings_max   Maximum available size for the serialized settings
+ * @param[in,out]   work_buffer                 Work buffer used to parse the binary blob
+ * @param[in]       n_work_buffer               Length of the work buffer available for parsing the blob
+ * @param[out]      n_serialized_settings       Actual size of the returned serialized configuration blob
+ *
+ * @return Zero when successful, otherwise an error code
+ *
+  \code{.c}
+    // Example //
+ 
+    // Allocate variables
+    uint8_t serialized_settings[BSEC_MAX_PROPERTY_BLOB_SIZE];
+    uint32_t n_serialized_settings_max = BSEC_MAX_PROPERTY_BLOB_SIZE;
+    uint8_t work_buffer[BSEC_MAX_PROPERTY_BLOB_SIZE];
+    uint32_t n_work_buffer = BSEC_MAX_PROPERTY_BLOB_SIZE;
+    uint32_t n_serialized_settings = 0;
+    
+    // Configuration of BSEC algorithm is stored in 'serialized_settings'
+    bsec_get_configuration(0, serialized_settings, n_serialized_settings_max, work_buffer, n_work_buffer, &n_serialized_settings);
+
+  \endcode
+ */
+
+bsec_library_return_t bsec_get_configuration(const uint8_t config_id, uint8_t * serialized_settings, const uint32_t n_serialized_settings_max,
+                uint8_t * work_buffer, const uint32_t n_work_buffer, uint32_t * n_serialized_settings);
+
+
+/*!
+ *@brief Retrieve the current internal library state
+ *
+ * BSEC allows to retrieve the current states of all signal processing modules and the BSEC module using 
+ * bsec_get_state(). This allows a restart of the processing after a reboot of the system by calling bsec_set_state().
+ * 
+ * @note A work buffer with sufficient size is required and has to be provided by the function caller to decompose the 
+ * serialization and apply it to the library and its modules. Please use #BSEC_MAX_STATE_BLOB_SIZE for allotting the 
+ * required size.
+ * 
+ *
+ * @param[in]       state_set_id                Identifier for a specific set of states to be returned; shall be
+ *                                              zero to retrieve all states.
+ * @param[out]      serialized_state            Buffer to hold the serialized config blob
+ * @param[in]       n_serialized_state_max      Maximum available size for the serialized states
+ * @param[in,out]   work_buffer                 Work buffer used to parse the blob
+ * @param[in]       n_work_buffer               Length of the work buffer available for parsing the blob
+ * @param[out]      n_serialized_state          Actual size of the returned serialized blob
+ *
+ * @return Zero when successful, otherwise an error code
+ *
+  \code{.c}
+    // Example //
+ 
+    // Allocate variables
+    uint8_t serialized_state[BSEC_MAX_STATE_BLOB_SIZE];
+    uint32_t n_serialized_state_max = BSEC_MAX_STATE_BLOB_SIZE;
+    uint32_t  n_serialized_state = BSEC_MAX_STATE_BLOB_SIZE;
+    uint8_t work_buffer_state[BSEC_MAX_STATE_BLOB_SIZE];
+    uint32_t  n_work_buffer_size = BSEC_MAX_STATE_BLOB_SIZE;
+    
+    // Algorithm state is stored in 'serialized_state'
+    bsec_get_state(0, serialized_state, n_serialized_state_max, work_buffer_state, n_work_buffer_size, &n_serialized_state);
+
+  \endcode
+ */
+
+bsec_library_return_t bsec_get_state(const uint8_t state_set_id, uint8_t * serialized_state,
+                const uint32_t n_serialized_state_max, uint8_t * work_buffer, const uint32_t n_work_buffer,
+                uint32_t * n_serialized_state);
 
 /*!
  * @brief Retrieve BMExxx sensor instructions
