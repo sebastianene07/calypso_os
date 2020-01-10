@@ -114,6 +114,7 @@ static console_command_entry_t g_cmd_table[] =
   {
     .cmd_name     = "sensor_measure",
     .cmd_function = console_sensor_measure,
+    .stack_size   = CONFIG_CONSOLE_SENSOR_MEASURE_STACK_SIZE,
     .cmd_help     = "Read data from the gas sensor",
   },
 #endif
@@ -161,7 +162,8 @@ static int execute_command(int argc, const char *argv[])
         else
           return sched_create_task((
             int (*)(int, char **))g_cmd_table[j].cmd_function,
-            CONFIG_CONSOLE_STACK_SIZE, argc, (char **)argv);
+            g_cmd_table[j].stack_size == 0 ? CONFIG_CONSOLE_STACK_SIZE : g_cmd_table[j].stack_size,
+             argc, (char **)argv);
 #else
         return g_cmd_table[j].cmd_function(argc, (char **)argv);
 #endif /* CONFIG_RUN_APPS_IN_OWN_THREAD */

@@ -27,6 +27,7 @@
                                         + (REG_OFFSET)))                      \
 
 #define CONFIG_BSEC_STATE_SAVE_FILENAME "/mnt/BSEC.STATE"
+#define CONFIG_BSEC_CALIBRATION_FILE    "/mnt/BSECIAQ"
 
 static int g_sensor_fd;
 
@@ -110,12 +111,13 @@ static uint32_t state_load(uint8_t *state_buffer, uint32_t n_buffer)
   int state_fd = open(CONFIG_BSEC_STATE_SAVE_FILENAME, 0);
   if (state_fd < 0) {
     printf("err %d open bsec_state_save\n", state_fd);
-    return state_fd;
+    return 0;
   }
 
   int ret = read(state_fd, state_buffer, n_buffer);
   if (ret < 0) {
     printf("err %d read bsec_state_save\n", ret);
+    return 0;
   }
 
   close(state_fd);
@@ -138,15 +140,22 @@ static void state_save(const uint8_t *state_buffer, uint32_t length)
   close(state_fd);
 }
 
-const uint8_t bsec_config_iaq[454] = 
-     {4,7,4,1,61,0,0,0,0,0,0,0,174,1,0,0,48,0,1,0,0,192,168,71,64,49,119,76,0,0,225,68,137,65,0,63,205,204,204,62,0,0,64,63,205,204,204,62,0,0,0,0,216,85,0,100,0,0,0,0,0,0,0,0,28,0,2,0,0,244,1,225,0,25,0,0,128,64,0,0,32,65,144,1,0,0,112,65,0,0,0,63,16,0,3,0,10,215,163,60,10,215,35,59,10,215,35,59,9,0,5,0,0,0,0,0,1,88,0,9,0,229,208,34,62,0,0,0,0,0,0,0,0,218,27,156,62,225,11,67,64,0,0,160,64,0,0,0,0,0,0,0,0,94,75,72,189,93,254,159,64,66,62,160,191,0,0,0,0,0,0,0,0,33,31,180,190,138,176,97,64,65,241,99,190,0,0,0,0,0,0,0,0,167,121,71,61,165,189,41,192,184,30,189,64,12,0,10,0,0,0,0,0,0,0,0,0,229,0,254,0,2,1,5,48,117,100,0,44,1,112,23,151,7,132,3,197,0,92,4,144,1,64,1,64,1,144,1,48,117,48,117,48,117,48,117,100,0,100,0,100,0,48,117,48,117,48,117,100,0,100,0,48,117,48,117,100,0,100,0,100,0,100,0,48,117,48,117,48,117,100,0,100,0,100,0,48,117,48,117,100,0,100,0,44,1,44,1,44,1,44,1,44,1,44,1,44,1,44,1,44,1,44,1,44,1,44,1,44,1,44,1,8,7,8,7,8,7,8,7,8,7,8,7,8,7,8,7,8,7,8,7,8,7,8,7,8,7,8,7,112,23,112,23,112,23,112,23,112,23,112,23,112,23,112,23,112,23,112,23,112,23,112,23,112,23,112,23,255,255,255,255,255,255,255,255,220,5,220,5,220,5,255,255,255,255,255,255,220,5,220,5,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,44,1,0,0,0,0,138,80,0,0};
-
 static uint32_t config_load(uint8_t *config_buffer, uint32_t n_buffer)
 {
-  memcpy(config_buffer,
-         bsec_config_iaq,
-         sizeof(bsec_config_iaq) > n_buffer ? n_buffer : sizeof(bsec_config_iaq));
-  return 0;
+  int config_fd = open(CONFIG_BSEC_CALIBRATION_FILE, 0);
+  if (config_fd < 0) {
+    printf("err %d open calibration file\n", config_fd);
+    return 0;
+  }
+
+  int ret = read(config_fd, config_buffer, n_buffer);
+  if (ret < 0) {
+    printf("err %d read calibration file\n", ret);
+    ret = 0;
+  }
+
+  close(config_fd);
+  return ret;
 }
 
 static int64_t get_timestamp_us(void)
@@ -211,7 +220,7 @@ int console_sensor_measure(int argc, const char *argv[])
     return -EINVAL;
   }
 
-  bsec_iot_loop(sleep, get_timestamp_us, bsec_out_data, state_save, 1000);
+  bsec_iot_loop(sleep, get_timestamp_us, bsec_out_data, state_save, 100);
 #endif
 
   close(g_sensor_fd);

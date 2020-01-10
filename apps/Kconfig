@@ -47,6 +47,10 @@ config CONSOLE_SENSOR_MEASURE
 
 if CONSOLE_SENSOR_MEASURE
 
+config CONSOLE_SENSOR_MEASURE_STACK_SIZE
+  int "Stack size"
+  default 4096
+
 config SENSOR_LOG
   bool "Log the sensor data"
   default n

@@ -21,6 +21,7 @@ typedef struct console_command_entry_s
 #ifdef CONFIG_RUN_APPS_IN_OWN_THREAD
   bool run_in_main_console;
 #endif
+  uint16_t stack_size;
 } console_command_entry_t;
 
 
