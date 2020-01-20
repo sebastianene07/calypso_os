@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <board_cfg.h>
-#include <nrf52840.h>
+#include <nrf52832.h>
 
 /****************************************************************************
  * Pre-processor Definitions
