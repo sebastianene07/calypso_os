@@ -73,8 +73,8 @@ clean:
 	for src_dir in $(SRC_DIRS) ; do \
 		$(MAKE) -C $$src_dir	clean;	\
 	done ;
-	rm -rf build/ && rm linker* tmp_lib*
-	rm -f include/Kconfig
+	rm -rf build/ && rm -f tmp_lib*
+	rm -f include/Kconfig 2> /dev/null
 
 distclean: clean
 	rm .config
