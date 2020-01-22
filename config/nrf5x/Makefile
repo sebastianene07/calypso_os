@@ -1,2 +1,2 @@
 all:
-	cp scripts/linker.ld $(TOPDIR)/.
+	@echo "Run Makefile in scripts dir"
