@@ -12,10 +12,15 @@ git clone git@github.com:sebastianene07/calypso_os.git
 git submodule update --init --recursive
 ```
 
-Example for building Calypso OS for Norfic NrF52 board:
+Example for building Calypso OS for Norfic NrF5X board:
 
 ```
-make config MACHINE_TYPE=nrf52840
+make config MACHINE_TYPE=nrf5x/nrf52840
+make -j
+```
+or if we have nrf52832:
+```
+make config MACHINE_TYPE=nrf5x/nrf52832
 make -j
 ```
 
