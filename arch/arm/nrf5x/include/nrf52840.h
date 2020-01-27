@@ -1,6 +1,8 @@
 #ifndef __NRF52840_H
 #define __NRF52840_H
 
+void power_manage(void);
+
 #define NUM_IRQS                           (64)
 #define __CHECK_DEVICE_DEFINES             (1)
 

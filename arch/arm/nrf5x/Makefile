@@ -6,7 +6,9 @@ ARCH_FLAGS:=${CFLAGS} -I$(TOPDIR)/include 	\
 		      -I./include/ 	  	\
 		      -I$(TOPDIR)/sched/include \
 		      -I$(TOPDIR)/drivers	\
-		      -I$(TOPDIR)/lib
+		      -I$(TOPDIR)/lib		\
+		      -I$(TOPDIR)/arch/arm/nrf5x/
+
 ASM_FLAGS :=-mcpu=cortex-m4 -mthumb -mfloat-abi=soft
 
 SRC_ASM:=$(wildcard *.s)
@@ -15,6 +17,8 @@ OBJS_ASM:=$(patsubst %.s,%.o,$(SRC_ASM))
 all: $(OBJS) $(OBJS_ASM)
 	echo "Building arch specific"
 	${PREFIX}ar -rc $(TOPDIR)/$(TMP_LIB) $(OBJS) $(OBJS_ASM)
+	echo "Building nrf library"
+	make -C softdevice/ble_proximity/ archive
 
 %.o : %.c
 	${PREFIX}gcc $(ARCH_FLAGS) -c $< -o $@
@@ -24,3 +28,4 @@ all: $(OBJS) $(OBJS_ASM)
 
 clean:
 	find . -iname "*.o" -exec rm -f {} \;
+

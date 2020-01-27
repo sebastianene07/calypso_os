@@ -18,6 +18,10 @@
 #include <sensors/sensors.h>
 #endif
 
+#if 1
+#include <softdevice/ble_proximity/nrf_softdevice_init.h>
+#endif
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -85,6 +89,8 @@ static void clock_init(void)
 void board_init(void)
 {
   /* Driver initialization logic */
+
+  SCB->CPACR |= (3UL << 20) | (3UL << 22);
 
   clock_init();
   rtc_init();
@@ -170,6 +176,8 @@ void board_init(void)
   bme680_sensor_register(CONFIG_SENSOR_BME680_PATH_NAME,
       &spi_devs[CONFIG_SENSOR_BME680_SPI_ID]);
 #endif
+
+  nrf_softdevice_init();
 
   SysTick_Config(g_system_core_clock_freq / CONFIG_SYSTEM_SCHEDULER_SLICE_FREQUENCY);
 }
