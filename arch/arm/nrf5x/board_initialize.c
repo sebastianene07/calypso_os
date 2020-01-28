@@ -90,16 +90,9 @@ void board_init(void)
 {
   /* Driver initialization logic */
 
-  SCB->CPACR |= (3UL << 20) | (3UL << 22);
-
-  attach_int(GPIOTE_IRQn, GPIOTE_IRQHandler);
-  attach_int(SWI2_EGU2_IRQn, SWI2_EGU2_IRQHandler);
-
-  nrf_softdevice_init();
-
-  clock_init();
-  rtc_init();
-  timer_init();
+  //clock_init();
+  //rtc_init();
+  //timer_init();
 
   struct spi_master_config_s spi[] = {
 #ifdef CONFIG_SPI_0
@@ -141,7 +134,7 @@ void board_init(void)
 #endif
   };
 
-  spi_master_dev_t *spi_devs = spi_init(spi, ARRAY_LEN(spi));
+//  spi_master_dev_t *spi_devs = spi_init(spi, ARRAY_LEN(spi));
 
   uart_low_init();
   uart_low_send("\r\n.");

@@ -5,7 +5,7 @@
 
 /* Console app stack size */
 
-#define CONFIG_CONSOLE_STACK_SIZE       (2048)
+#define CONFIG_CONSOLE_STACK_SIZE       (4096)
 
 /* Buffer size for commands */
 

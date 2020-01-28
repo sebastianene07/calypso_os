@@ -51,6 +51,8 @@ int console_echo(int argc, const char *argv[]);
 #endif
 
 static int console_help(int argc, const char *argv[]);
+static int console_nrf_init(int argc, const char *argv[]);
+
 
 /* Shutdown flag */
 
@@ -135,7 +137,10 @@ static console_command_entry_t g_cmd_table[] =
     .cmd_help            = "Echo a message to the console",
   },
 #endif
-
+  { .cmd_name            = "nrf_init",
+    .cmd_function        = console_nrf_init,
+    .cmd_help            = "Start the nrf soft device library",
+  },
 
   { .cmd_name     = "help",
     .cmd_function = console_help,
@@ -184,6 +189,20 @@ static int console_help(int argc, const char *argv[])
                         g_cmd_table[i].cmd_help);
   }
 
+  return 0;
+}
+
+static int console_nrf_init(int argc, const char *argv[])
+{
+  SCB->CPACR |= (3UL << 20) | (3UL << 22);
+
+  attach_int(GPIOTE_IRQn, GPIOTE_IRQHandler);
+  attach_int(SWI2_EGU2_IRQn, SWI2_EGU2_IRQHandler);
+
+  printf("Starting NRF soft device\r\n enter advertise\r\n");
+  nrf_softdevice_init();
+  SCB->CPACR = 0;
+  
   return 0;
 }
 
@@ -236,12 +255,6 @@ int console_main(int argc, char **argv)
    * when there are no more open references the devices closes and doesn't
    * generate interrupts anymore.
    */
-  int rtc_fd = open(CONFIG_RTC_PATH, 0);
-  if (rtc_fd < 0)
-  {
-    return -EINVAL;
-  }
-
   int len = 0;
   bool is_prompt_printed = true;
   g_is_shutdown_set = true;
@@ -300,7 +313,6 @@ int console_main(int argc, char **argv)
   /* This app will exit on a reboot/shutdown command */
 
   close(uart_fd);
-  close(rtc_fd);
 
   return OK;
 }

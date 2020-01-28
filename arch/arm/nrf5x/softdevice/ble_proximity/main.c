@@ -520,8 +520,10 @@ static void bsp_event_handler(bsp_event_t evt)
 
 /**@brief Function for the Power manager.
  */
-static void power_manage(void)
+void power_manage(void)
 {
+    app_sched_execute();
+
     uint32_t err_code = sd_app_evt_wait();
     APP_ERROR_CHECK(err_code);
 }
@@ -567,12 +569,12 @@ int nrf_softdevice_init(void)
     timers_start();
     err_code = ble_advertising_start(BLE_ADV_MODE_FAST);
     APP_ERROR_CHECK(err_code);
-    // Enter main loop
-    for (;;)
-    {
-        app_sched_execute();
-        power_manage();
+
+    for (;;) {
+      power_manage();
     }
+
+    return 0;
 }
 
 /**
