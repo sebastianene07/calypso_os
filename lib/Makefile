@@ -9,7 +9,7 @@ endif
 OBJS_FATFS := $(patsubst %.c, %.o, $(SRCS_FATFS))
 OBJS := $(patsubst %.c, %.o, $(SRCS))
 
-LIB_FLAGS := ${CFLAGS}																					\
+LIB_FLAGS := $(CFLAGS)																					\
 							-I$(TOPDIR)/include																	\
 							-I$(TOPDIR)/s_alloc																	\
 							-I$(TOPDIR)/sched/include														\
@@ -33,9 +33,10 @@ small_print: $(OBJS)
 	${PREFIX}ar -rc $(TOPDIR)/$(TMP_LIB) $(OBJS)
 
 %.o : %.c
+	@echo Flaugurile sunt: $(LIB_FLAGS)
 	${PREFIX}gcc $(LIB_FLAGS) -c $< -o $@
 
 clean:
-	find $(TOPDIR)/$(PATH_FATFS) -iname "*.o" -exec rm -f {} \;
+	find . -iname "*.o" -exec rm -f {} \;
 
 .PHONY: fatfs clean all bsec small_print

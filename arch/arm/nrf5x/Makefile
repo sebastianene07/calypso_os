@@ -11,7 +11,11 @@ ARCH_FLAGS:=${CFLAGS} -I$(TOPDIR)/include 	\
 
 ASM_FLAGS :=-mcpu=cortex-m4 -mthumb -mfloat-abi=soft
 
-SRC_ASM:=$(wildcard *.s)
+ifeq ($(CONFIG_HARDWARE_FP), y)
+SRC_ASM:= context_switch_fp.s
+else
+SRC_ASM:= context_switch.s
+endif
 OBJS_ASM:=$(patsubst %.s,%.o,$(SRC_ASM))
 
 all: $(OBJS) $(OBJS_ASM)
