@@ -1,28 +1,55 @@
-/* Copyright (c) 2012 Nordic Semiconductor. All Rights Reserved.
+/**
+ * Copyright (c) 2012 - 2019, Nordic Semiconductor ASA
  *
- * The information contained herein is property of Nordic Semiconductor ASA.
- * Terms and conditions of usage are described in detail in NORDIC
- * SEMICONDUCTOR STANDARD SOFTWARE LICENSE AGREEMENT.
+ * All rights reserved.
  *
- * Licensees are granted free, non-transferable use of the information. NO
- * WARRANTY of ANY KIND is provided. This heading must NOT be removed from
- * the file.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form, except as embedded into a Nordic
+ *    Semiconductor ASA integrated circuit in a product or a software update for
+ *    such product, must reproduce the above copyright notice, this list of
+ *    conditions and the following disclaimer in the documentation and/or other
+ *    materials provided with the distribution.
+ *
+ * 3. Neither the name of Nordic Semiconductor ASA nor the names of its
+ *    contributors may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
+ *
+ * 4. This software, with or without modification, must only be used with a
+ *    Nordic Semiconductor ASA integrated circuit.
+ *
+ * 5. Any software provided in binary form under this license must not be reverse
+ *    engineered, decompiled, modified and/or disassembled.
+ *
+ * THIS SOFTWARE IS PROVIDED BY NORDIC SEMICONDUCTOR ASA "AS IS" AND ANY EXPRESS
+ * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY, NONINFRINGEMENT, AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL NORDIC SEMICONDUCTOR ASA OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
 /** @file
  *
- * @defgroup ble_sdk_srv_dis Device Information Service
+ * @defgroup ble_dis Device Information Service
  * @{
  * @ingroup ble_sdk_srv
  * @brief Device Information Service module.
  *
  * @details This module implements the Device Information Service.
  *          During initialization it adds the Device Information Service to the BLE stack database.
- *          It then encodes the supplied information, and adds the curresponding characteristics.
+ *          It then encodes the supplied information, and adds the corresponding characteristics.
  *
- * @note Attention! 
- *  To maintain compliance with Nordic Semiconductor ASA Bluetooth profile 
+ * @note Attention!
+ *  To maintain compliance with Nordic Semiconductor ASA Bluetooth profile
  *  qualification listings, this section of source code must not be modified.
  */
 
@@ -32,7 +59,11 @@
 #include <stdint.h>
 #include "ble_srv_common.h"
 
-/** @defgroup DIS_VENDOR_ID_SRC_VALUES Vendor ID Source values  
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/** @defgroup DIS_VENDOR_ID_SRC_VALUES Vendor ID Source values
  * @{
  */
 #define BLE_DIS_VENDOR_ID_SRC_BLUETOOTH_SIG   1                 /**< Vendor ID assigned by Bluetooth SIG. */
@@ -62,7 +93,7 @@ typedef struct
     uint16_t product_version;                                   /**< Product Version. */
 } ble_dis_pnp_id_t;
 
-/**@brief Device Information Service init structure. This contains all possible characteristics 
+/**@brief Device Information Service init structure. This contains all possible characteristics
  *        needed for initialization of the service.
  */
 typedef struct
@@ -76,12 +107,12 @@ typedef struct
     ble_dis_sys_id_t *             p_sys_id;                    /**< System ID. */
     ble_dis_reg_cert_data_list_t * p_reg_cert_data_list;        /**< IEEE 11073-20601 Regulatory Certification Data List. */
     ble_dis_pnp_id_t *             p_pnp_id;                    /**< PnP ID. */
-    ble_srv_security_mode_t        dis_attr_md;                 /**< Initial Security Setting for Device Information Characteristics. */
+    security_req_t                 dis_char_rd_sec;             /**< Security requirement for reading any DIS characteristic value. */
 } ble_dis_init_t;
 
 /**@brief Function for initializing the Device Information Service.
  *
- * @details This call allows the application to initialize the device information service. 
+ * @details This call allows the application to initialize the device information service.
  *          It adds the DIS service and DIS characteristics to the database, using the initial
  *          values supplied through the p_dis_init parameter. Characteristics which are not to be
  *          added, shall be set to NULL in p_dis_init.
@@ -91,7 +122,12 @@ typedef struct
  *
  * @return      NRF_SUCCESS on successful initialization of service.
  */
-uint32_t ble_dis_init(const ble_dis_init_t * p_dis_init);
+uint32_t ble_dis_init(ble_dis_init_t const * p_dis_init);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // BLE_DIS_H__
 

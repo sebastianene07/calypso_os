@@ -1,26 +1,50 @@
-
-/* Copyright (c) 2015 Nordic Semiconductor. All Rights Reserved.
+/**
+ * Copyright (c) 2015 - 2019, Nordic Semiconductor ASA
  *
- * The information contained herein is property of Nordic Semiconductor ASA.
- * Terms and conditions of usage are described in detail in NORDIC
- * SEMICONDUCTOR STANDARD SOFTWARE LICENSE AGREEMENT.
+ * All rights reserved.
  *
- * Licensees are granted free, non-transferable use of the information. NO
- * WARRANTY of ANY KIND is provided. This heading must NOT be removed from
- * the file.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form, except as embedded into a Nordic
+ *    Semiconductor ASA integrated circuit in a product or a software update for
+ *    such product, must reproduce the above copyright notice, this list of
+ *    conditions and the following disclaimer in the documentation and/or other
+ *    materials provided with the distribution.
+ *
+ * 3. Neither the name of Nordic Semiconductor ASA nor the names of its
+ *    contributors may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
+ *
+ * 4. This software, with or without modification, must only be used with a
+ *    Nordic Semiconductor ASA integrated circuit.
+ *
+ * 5. Any software provided in binary form under this license must not be reverse
+ *    engineered, decompiled, modified and/or disassembled.
+ *
+ * THIS SOFTWARE IS PROVIDED BY NORDIC SEMICONDUCTOR ASA "AS IS" AND ANY EXPRESS
+ * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY, NONINFRINGEMENT, AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL NORDIC SEMICONDUCTOR ASA OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
-
 #include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
 #include "sha256.h"
 #include "sdk_errors.h"
+#include "sdk_common.h"
 
 
-#define ROTLEFT(a,b) (((a) << (b)) | ((a) >> (32-(b))))
-#define ROTRIGHT(a,b) (((a) >> (b)) | ((a) << (32-(b))))
+#define ROTLEFT(a,b) (((a) << (b)) | ((a) >> (32 - (b))))
+#define ROTRIGHT(a,b) (((a) >> (b)) | ((a) << (32 - (b))))
 
 #define CH(x,y,z) (((x) & (y)) ^ (~(x) & (z)))
 #define MAJ(x,y,z) (((x) & (y)) ^ ((x) & (z)) ^ ((y) & (z)))
@@ -91,10 +115,7 @@ void sha256_transform(sha256_context_t *ctx, const uint8_t * data)
 
 ret_code_t sha256_init(sha256_context_t *ctx)
 {
-    if (ctx == NULL)
-    {
-        return NRF_ERROR_NULL;
-    }
+    VERIFY_PARAM_NOT_NULL(ctx);
 
     ctx->datalen = 0;
     ctx->bitlen = 0;
@@ -113,7 +134,8 @@ ret_code_t sha256_init(sha256_context_t *ctx)
 
 ret_code_t sha256_update(sha256_context_t *ctx, const uint8_t * data, size_t len)
 {
-    if ((ctx == NULL) || ((len > 0) && (data == NULL)))
+    VERIFY_PARAM_NOT_NULL(ctx);
+    if (((len > 0) && (data == NULL)))
     {
         return NRF_ERROR_NULL;
     }
@@ -134,14 +156,12 @@ ret_code_t sha256_update(sha256_context_t *ctx, const uint8_t * data, size_t len
 }
 
 
-ret_code_t sha256_final(sha256_context_t *ctx, uint8_t * hash)
+ret_code_t sha256_final(sha256_context_t *ctx, uint8_t * hash, uint8_t le)
 {
-    if ((ctx == NULL) || (hash == NULL))
-    {
-        return NRF_ERROR_NULL;
-    }
-
     uint32_t i;
+
+    VERIFY_PARAM_NOT_NULL(ctx);
+    VERIFY_PARAM_NOT_NULL(hash);
 
     i = ctx->datalen;
 
@@ -171,17 +191,34 @@ ret_code_t sha256_final(sha256_context_t *ctx, uint8_t * hash)
     ctx->data[56] = ctx->bitlen >> 56;
     sha256_transform(ctx, ctx->data);
 
-    // Since this implementation uses little endian uint8_t ordering and SHA uses big endian,
-    // reverse all the uint8_ts when copying the final state to the output hash.
-    for (i = 0; i < 4; ++i) {
-        hash[i]      = (ctx->state[0] >> (24 - i * 8)) & 0x000000ff;
-        hash[i + 4]  = (ctx->state[1] >> (24 - i * 8)) & 0x000000ff;
-        hash[i + 8]  = (ctx->state[2] >> (24 - i * 8)) & 0x000000ff;
-        hash[i + 12] = (ctx->state[3] >> (24 - i * 8)) & 0x000000ff;
-        hash[i + 16] = (ctx->state[4] >> (24 - i * 8)) & 0x000000ff;
-        hash[i + 20] = (ctx->state[5] >> (24 - i * 8)) & 0x000000ff;
-        hash[i + 24] = (ctx->state[6] >> (24 - i * 8)) & 0x000000ff;
-        hash[i + 28] = (ctx->state[7] >> (24 - i * 8)) & 0x000000ff;
+    if (le)
+    {
+        for (i = 0; i < 4; ++i) {
+            hash[i]      = (ctx->state[7] >> (i * 8)) & 0x000000ff;
+            hash[i + 4]  = (ctx->state[6] >> (i * 8)) & 0x000000ff;
+            hash[i + 8]  = (ctx->state[5] >> (i * 8)) & 0x000000ff;
+            hash[i + 12] = (ctx->state[4] >> (i * 8)) & 0x000000ff;
+            hash[i + 16] = (ctx->state[3] >> (i * 8)) & 0x000000ff;
+            hash[i + 20] = (ctx->state[2] >> (i * 8)) & 0x000000ff;
+            hash[i + 24] = (ctx->state[1] >> (i * 8)) & 0x000000ff;
+            hash[i + 28] = (ctx->state[0] >> (i * 8)) & 0x000000ff;
+        }
+    }
+    else
+    {
+
+        // Since this implementation uses little endian uint8_t ordering and SHA uses big endian,
+        // reverse all the uint8_ts when copying the final state to the output hash.
+        for (i = 0; i < 4; ++i) {
+            hash[i]      = (ctx->state[0] >> (24 - i * 8)) & 0x000000ff;
+            hash[i + 4]  = (ctx->state[1] >> (24 - i * 8)) & 0x000000ff;
+            hash[i + 8]  = (ctx->state[2] >> (24 - i * 8)) & 0x000000ff;
+            hash[i + 12] = (ctx->state[3] >> (24 - i * 8)) & 0x000000ff;
+            hash[i + 16] = (ctx->state[4] >> (24 - i * 8)) & 0x000000ff;
+            hash[i + 20] = (ctx->state[5] >> (24 - i * 8)) & 0x000000ff;
+            hash[i + 24] = (ctx->state[6] >> (24 - i * 8)) & 0x000000ff;
+            hash[i + 28] = (ctx->state[7] >> (24 - i * 8)) & 0x000000ff;
+        }
     }
 
     return NRF_SUCCESS;

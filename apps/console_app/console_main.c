@@ -196,13 +196,22 @@ static int console_nrf_init(int argc, const char *argv[])
 {
   SCB->CPACR |= (3UL << 20) | (3UL << 22);
 
+  NVIC_ClearPendingIRQ(GPIOTE_IRQn);
+  NVIC_SetPriority(GPIOTE_IRQn, 7);
+  NVIC_EnableIRQ(GPIOTE_IRQn);
+
+  NVIC_ClearPendingIRQ(SWI2_EGU2_IRQn);
+  NVIC_SetPriority(SWI2_EGU2_IRQn, 7);
+  NVIC_EnableIRQ(SWI2_EGU2_IRQn);
+
+
   attach_int(GPIOTE_IRQn, GPIOTE_IRQHandler);
   attach_int(SWI2_EGU2_IRQn, SWI2_EGU2_IRQHandler);
 
   printf("Starting NRF soft device\r\n enter advertise\r\n");
   nrf_softdevice_init();
   SCB->CPACR = 0;
-  
+
   return 0;
 }
 

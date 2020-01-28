@@ -1,15 +1,42 @@
-/* Copyright (c) 2012 Nordic Semiconductor. All Rights Reserved.
+/**
+ * Copyright (c) 2012 - 2019, Nordic Semiconductor ASA
  *
- * The information contained herein is property of Nordic Semiconductor ASA.
- * Terms and conditions of usage are described in detail in NORDIC
- * SEMICONDUCTOR STANDARD SOFTWARE LICENSE AGREEMENT.
+ * All rights reserved.
  *
- * Licensees are granted free, non-transferable use of the information. NO
- * WARRANTY of ANY KIND is provided. This heading must NOT be removed from
- * the file.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form, except as embedded into a Nordic
+ *    Semiconductor ASA integrated circuit in a product or a software update for
+ *    such product, must reproduce the above copyright notice, this list of
+ *    conditions and the following disclaimer in the documentation and/or other
+ *    materials provided with the distribution.
+ *
+ * 3. Neither the name of Nordic Semiconductor ASA nor the names of its
+ *    contributors may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
+ *
+ * 4. This software, with or without modification, must only be used with a
+ *    Nordic Semiconductor ASA integrated circuit.
+ *
+ * 5. Any software provided in binary form under this license must not be reverse
+ *    engineered, decompiled, modified and/or disassembled.
+ *
+ * THIS SOFTWARE IS PROVIDED BY NORDIC SEMICONDUCTOR ASA "AS IS" AND ANY EXPRESS
+ * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY, NONINFRINGEMENT, AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL NORDIC SEMICONDUCTOR ASA OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
 #include "app_scheduler.h"
 #include <stdlib.h>
 #include <stdint.h>
@@ -34,6 +61,10 @@ static volatile uint8_t m_queue_start_index;   /**< Index of queue entry at the 
 static volatile uint8_t m_queue_end_index;     /**< Index of queue entry at the end of the queue. */
 static uint16_t         m_queue_event_size;    /**< Maximum event size in queue. */
 static uint16_t         m_queue_size;          /**< Number of queue entries. */
+
+#if APP_SCHEDULER_WITH_PROFILER
+static uint16_t m_max_queue_utilization;    /**< Maximum observed queue utilization. */
+#endif
 
 static uint32_t m_scheduler_paused_counter = 0; /**< Counter storing the difference between pausing
                                                      and resuming the scheduler. */
@@ -86,8 +117,43 @@ uint32_t app_sched_init(uint16_t event_size, uint16_t queue_size, void * p_event
     m_queue_event_size    = event_size;
     m_queue_size          = queue_size;
 
+#if APP_SCHEDULER_WITH_PROFILER
+    m_max_queue_utilization = 0;
+#endif
+
     return NRF_SUCCESS;
 }
+
+
+uint16_t app_sched_queue_space_get()
+{
+    uint16_t start = m_queue_start_index;
+    uint16_t end   = m_queue_end_index;
+    uint16_t free_space = m_queue_size - ((end >= start) ?
+                           (end - start) : (m_queue_size + 1 - start + end));
+    return free_space;
+}
+
+
+#if APP_SCHEDULER_WITH_PROFILER
+static __INLINE void check_queue_utilization(void)
+{
+    uint16_t start = m_queue_start_index;
+    uint16_t end   = m_queue_end_index;
+    uint16_t queue_utilization = (end >= start) ? (end - start) :
+        (m_queue_size + 1 - start + end);
+
+    if (queue_utilization > m_max_queue_utilization)
+    {
+        m_max_queue_utilization = queue_utilization;
+    }
+}
+
+uint16_t app_sched_queue_utilization_get(void)
+{
+    return m_max_queue_utilization;
+}
+#endif // APP_SCHEDULER_WITH_PROFILER
 
 
 uint32_t app_sched_event_put(void *                    p_event_data,
@@ -127,6 +193,10 @@ uint32_t app_sched_event_put(void *                    p_event_data,
             {
                 m_queue_event_headers[event_index].event_data_size = 0;
             }
+
+        #if APP_SCHEDULER_WITH_PROFILER
+            check_queue_utilization();
+        #endif
 
             err_code = NRF_SUCCESS;
         }
@@ -212,7 +282,6 @@ static __INLINE bool is_app_sched_paused(void)
 {
     return (m_scheduler_paused_counter > 0);
 }
-
 
 void app_sched_execute(void)
 {

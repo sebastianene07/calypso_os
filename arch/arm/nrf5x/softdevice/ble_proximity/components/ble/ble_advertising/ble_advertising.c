@@ -1,80 +1,74 @@
-/* Copyright (c) 2015 Nordic Semiconductor. All Rights Reserved.
+/**
+ * Copyright (c) 2015 - 2019, Nordic Semiconductor ASA
  *
- * The information contained herein is property of Nordic Semiconductor ASA.
- * Terms and conditions of usage are described in detail in NORDIC
- * SEMICONDUCTOR STANDARD SOFTWARE LICENSE AGREEMENT.
+ * All rights reserved.
  *
- * Licensees are granted free, non-transferable use of the information. NO
- * WARRANTY of ANY KIND is provided. This heading must NOT be removed from
- * the file.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form, except as embedded into a Nordic
+ *    Semiconductor ASA integrated circuit in a product or a software update for
+ *    such product, must reproduce the above copyright notice, this list of
+ *    conditions and the following disclaimer in the documentation and/or other
+ *    materials provided with the distribution.
+ *
+ * 3. Neither the name of Nordic Semiconductor ASA nor the names of its
+ *    contributors may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
+ *
+ * 4. This software, with or without modification, must only be used with a
+ *    Nordic Semiconductor ASA integrated circuit.
+ *
+ * 5. Any software provided in binary form under this license must not be reverse
+ *    engineered, decompiled, modified and/or disassembled.
+ *
+ * THIS SOFTWARE IS PROVIDED BY NORDIC SEMICONDUCTOR ASA "AS IS" AND ANY EXPRESS
+ * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY, NONINFRINGEMENT, AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL NORDIC SEMICONDUCTOR ASA OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  */
-
-
+#include  "sdk_common.h"
+#if NRF_MODULE_ENABLED(BLE_ADVERTISING)
 #include "ble_advdata.h"
 #include "ble_advertising.h"
 #include "nrf_soc.h"
-#include "app_trace.h"
-#include "nordic_common.h"
-#include "pstorage.h"
+#include "nrf_log.h"
+#include "sdk_errors.h"
+#include "nrf_sdh_ble.h"
+#include "nrf_sdh_soc.h"
+
+#define BLE_ADV_MODES (5) /**< Total number of possible advertising modes. */
 
 
-#define LOG app_trace_log
-
-static bool                            m_advertising_start_pending = false; /**< Flag to keep track of ongoing operations on persistent memory. */
-
-static ble_gap_addr_t                  m_peer_address;     /**< Address of the most recently connected peer, used for direct advertising. */
-static ble_advdata_t                   m_advdata;          /**< Used by the initialization function to set name, appearance, and UUIDs and advertising flags visible to peer devices. */
-static ble_adv_evt_t                   m_adv_evt;          /**< Advertising event propogated to the main application. The event is either a transaction to a new advertising mode, or a request for whitelist or peer address.. */
-static ble_advertising_evt_handler_t   m_evt_handler;      /**< Handler for the advertising events. Can be initialized as NULL if no handling is implemented on in the main application. */
-static ble_advertising_error_handler_t m_error_handler;    /**< Handler for the advertising error events. */
-
-static ble_adv_mode_t                  m_adv_mode_current; /**< Variable to keep track of the current advertising mode. */
-static ble_adv_modes_config_t          m_adv_modes_config; /**< Struct to keep track of disabled and enabled advertising modes, as well as time-outs and intervals.*/
-
-static ble_gap_whitelist_t             m_whitelist;                                         /**< Struct that points to whitelisted addresses. */
-static ble_gap_addr_t                * mp_whitelist_addr[BLE_GAP_WHITELIST_ADDR_MAX_COUNT]; /**< Pointer to a list of addresses. Pointed to by the whitelist */
-static ble_gap_irk_t                 * mp_whitelist_irk[BLE_GAP_WHITELIST_IRK_MAX_COUNT];   /**< Pointer to a list of Identity Resolving Keys (IRK). Pointed to by the whitelist */
-static bool                            m_whitelist_temporarily_disabled = false;            /**< Flag to keep track of temporary disabling of the whitelist. */
-static bool                            m_whitelist_reply_expected = false;                  /**< Flag to verify that whitelist is only set when it is requested. */
-static bool                            m_peer_addr_reply_expected = false;                  /**< Flag to verify that peer address is only set when requested. */
-
-static ble_advdata_manuf_data_t        m_manuf_specific_data;                      /**< Manufacturer specific data structure*/
-static uint8_t                         m_manuf_data_array[BLE_GAP_ADV_MAX_SIZE];   /**< Array to store the Manufacturer specific data*/
-static ble_advdata_service_data_t      m_service_data;                             /**< Service data structure. */
-static uint8_t                         m_service_data_array[BLE_GAP_ADV_MAX_SIZE]; /**< Array to store the service data. */
-static ble_advdata_conn_int_t          m_slave_conn_int;                           /**< Connection interval range structure.*/
-static int8_t                          m_tx_power_level;                           /**< TX power level*/
-
-
-/**@brief Function for checking that the whitelist has entries.
+/**@brief Function for checking if the whitelist is in use.
+ *
+ * @param[in] p_advertising Advertising module instance.
  */
-static bool whitelist_has_entries(ble_gap_whitelist_t const * whitelist)
+static bool whitelist_has_entries(ble_advertising_t * const p_advertising)
 {
-    if ((whitelist->addr_count != 0) || (whitelist->irk_count != 0))
-    {
-        return true;
-    }
-    return false;
+    return p_advertising->whitelist_in_use;
 }
 
 
-/**@brief Function for setting the stored peer address back to zero.
+/**@brief Function for checking if an address is valid.
+ *
+ * @param[in] p_addr Pointer to a bluetooth address.
  */
-static void ble_advertising_peer_address_clear()
+static bool addr_is_valid(uint8_t const * const p_addr)
 {
-    memset(&m_peer_address, 0, sizeof(m_peer_address));
-}
-
-
-/**@brief Function for checking if an address is non-zero. Used to determine if 
- */
-static bool peer_address_exists(uint8_t const * address)
-{
-    uint32_t i;
-
-    for (i = 0; i < BLE_GAP_ADDR_LEN; i++)
+    for (uint32_t i = 0; i < BLE_GAP_ADDR_LEN; i++)
     {
-        if (address[i] != 0)
+        if (p_addr[i] != 0)
         {
             return true;
         }
@@ -83,482 +77,707 @@ static bool peer_address_exists(uint8_t const * address)
 }
 
 
-uint32_t ble_advertising_init(ble_advdata_t const                 * p_advdata,
-                              ble_advdata_t const                 * p_srdata,
-                              ble_adv_modes_config_t const        * p_config,
-                              ble_advertising_evt_handler_t const   evt_handler,
-                              ble_advertising_error_handler_t const error_handler)
+/**@brief Function for checking the next advertising mode.
+ *
+ * @param[in] adv_mode Current advertising mode.
+ */
+static ble_adv_mode_t adv_mode_next_get(ble_adv_mode_t adv_mode)
 {
-    uint32_t err_code;
-
-    if((p_advdata == NULL) || p_config == NULL)
-    {
-        return NRF_ERROR_NULL;
-    }
-    m_adv_mode_current = BLE_ADV_MODE_IDLE;
-    m_evt_handler      = evt_handler;
-    m_error_handler    = error_handler;
-    m_adv_modes_config = *p_config;
-
-    // If interval or timeout is 0, disable the mode.
-/*
-    if (m_adv_modes_config.ble_adv_fast_interval == 0 || m_adv_modes_config.ble_adv_fast_timeout == 0)
-    {
-        m_adv_modes_config.ble_adv_fast_enabled = false;
-    }
-    if (m_adv_modes_config.ble_adv_slow_interval == 0 || m_adv_modes_config.ble_adv_slow_timeout == 0)
-    {
-        m_adv_modes_config.ble_adv_slow_enabled = false;
-    }
-*/
-    ble_advertising_peer_address_clear();
-
-    // Prepare Whitelist. Address and IRK double pointers point to allocated arrays.
-    m_whitelist.pp_addrs = mp_whitelist_addr;
-    m_whitelist.pp_irks  = mp_whitelist_irk;
-
-    // Copy and set advertising data.
-    memset(&m_advdata, 0, sizeof(m_advdata));
-
-    // Copy advertising data.
-    m_advdata.name_type            = p_advdata->name_type;
-    m_advdata.include_appearance   = p_advdata->include_appearance;
-    m_advdata.flags                = p_advdata->flags;
-    m_advdata.short_name_len       = p_advdata->short_name_len;
-   /* 
-    if(p_advdata->uuids_complete != NULL)
-    {
-        m_advdata.uuids_complete = p_advdata->uuids_complete;
-    }
-    */
-    m_advdata.uuids_complete       = p_advdata->uuids_complete;
-    m_advdata.uuids_more_available = p_advdata->uuids_more_available;
-    m_advdata.uuids_solicited      = p_advdata->uuids_solicited;
-    
-    if(p_advdata->p_manuf_specific_data != NULL)
-    {
-        m_advdata.p_manuf_specific_data   = &m_manuf_specific_data;
-        m_manuf_specific_data.data.p_data = m_manuf_data_array;
-        m_advdata.p_manuf_specific_data->company_identifier =
-        p_advdata->p_manuf_specific_data->company_identifier;
-        m_advdata.p_manuf_specific_data->data.size = p_advdata->p_manuf_specific_data->data.size;
-        
-        for(uint32_t i = 0; i < m_advdata.p_manuf_specific_data->data.size; i++)
-        {
-            m_manuf_data_array[i] = p_advdata->p_manuf_specific_data->data.p_data[i];
-        }
-    }
-    
-    if(p_advdata->p_service_data_array != NULL)
-    {
-        m_service_data.data.p_data                   = m_service_data_array;
-        m_advdata.p_service_data_array               = &m_service_data;
-        m_advdata.p_service_data_array->data.p_data  = m_service_data_array;
-        m_advdata.p_service_data_array->data.size    = p_advdata->p_service_data_array->data.size;
-        m_advdata.p_service_data_array->service_uuid = p_advdata->p_service_data_array->service_uuid;
-
-        for(uint32_t i = 0; i < m_advdata.p_service_data_array->data.size; i++)
-        {
-            m_service_data_array[i] = p_advdata->p_service_data_array->data.p_data[i];
-        }
-
-        m_advdata.service_data_count = p_advdata->service_data_count;
-    }
-
-
-    if(p_advdata->p_slave_conn_int != NULL)
-    {
-        m_advdata.p_slave_conn_int                    = &m_slave_conn_int;
-        m_advdata.p_slave_conn_int->max_conn_interval = p_advdata->p_slave_conn_int->max_conn_interval;
-        m_advdata.p_slave_conn_int->min_conn_interval = p_advdata->p_slave_conn_int->min_conn_interval;
-    }
-    
-    if(p_advdata->p_tx_power_level != NULL)
-    {
-        m_advdata.p_tx_power_level     = &m_tx_power_level;
-        m_advdata.p_tx_power_level     = p_advdata->p_tx_power_level;
-    }
-    err_code = ble_advdata_set(&m_advdata, p_srdata);
-    return err_code;
+    return (ble_adv_mode_t)((adv_mode + 1) % BLE_ADV_MODES);
 }
 
 
-uint32_t ble_advertising_start(ble_adv_mode_t advertising_mode)
+/**@brief Function for handling the Connected event.
+ *
+ * @param[in] p_ble_evt Event received from the BLE stack.
+ */
+static void on_connected(ble_advertising_t * const p_advertising, ble_evt_t const * p_ble_evt)
 {
-    uint32_t             err_code;
-    ble_gap_adv_params_t adv_params;
-
-    m_adv_mode_current = advertising_mode;
-
-    uint32_t             count = 0;
-
-    // Verify if there are any pending flash operations. If so, delay starting advertising until
-    // the flash operations are complete.
-    err_code = pstorage_access_status_get(&count);
-    if (err_code == NRF_ERROR_INVALID_STATE)
+    if (p_ble_evt->evt.gap_evt.params.connected.role == BLE_GAP_ROLE_PERIPH)
     {
-        // Pstorage is not initialized, i.e. not in use.
-        count = 0;
+        p_advertising->current_slave_link_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
     }
-    else if (err_code != NRF_SUCCESS)
+}
+
+
+/**@brief Function for handling the Disconnected event.
+ *
+ * @param[in] p_advertising Advertising module instance.
+ * @param[in] p_ble_evt Event received from the BLE stack.
+ */
+static void on_disconnected(ble_advertising_t * const p_advertising, ble_evt_t const * p_ble_evt)
+{
+    uint32_t ret;
+
+    p_advertising->whitelist_temporarily_disabled = false;
+
+    if (p_ble_evt->evt.gap_evt.conn_handle == p_advertising->current_slave_link_conn_handle &&
+        p_advertising->adv_modes_config.ble_adv_on_disconnect_disabled == false)
     {
-        return err_code;
+       ret = ble_advertising_start(p_advertising, BLE_ADV_MODE_DIRECTED_HIGH_DUTY);
+       if ((ret != NRF_SUCCESS) && (p_advertising->error_handler != NULL))
+       {
+           p_advertising->error_handler(ret);
+       }
+    }
+}
+
+
+/**@brief Function for handling the Timeout event.
+ *
+ * @param[in] p_advertising Advertising module instance.
+ * @param[in] p_ble_evt Event received from the BLE stack.
+ */
+static void on_terminated(ble_advertising_t * const p_advertising, ble_evt_t const * p_ble_evt)
+{
+    ret_code_t ret;
+
+    if (p_ble_evt->header.evt_id != BLE_GAP_EVT_ADV_SET_TERMINATED)
+    {
+        // Nothing to do.
+        return;
     }
 
-    if (count != 0)
+    if (  p_ble_evt->evt.gap_evt.params.adv_set_terminated.reason == BLE_GAP_EVT_ADV_SET_TERMINATED_REASON_TIMEOUT
+        ||p_ble_evt->evt.gap_evt.params.adv_set_terminated.reason == BLE_GAP_EVT_ADV_SET_TERMINATED_REASON_LIMIT_REACHED)
     {
-        m_advertising_start_pending = true;
-        return NRF_SUCCESS;
-    }
+        // Start advertising in the next mode.
+        ret = ble_advertising_start(p_advertising, adv_mode_next_get(p_advertising->adv_mode_current));
 
-    // Fetch the peer address.
-    ble_advertising_peer_address_clear();
-    if (  ((m_adv_modes_config.ble_adv_directed_enabled)
-           && m_adv_mode_current == BLE_ADV_MODE_DIRECTED)
-        ||((m_adv_modes_config.ble_adv_directed_slow_enabled)
-           && m_adv_mode_current == BLE_ADV_MODE_DIRECTED_SLOW))
-    {
-        if (m_evt_handler != NULL)
+        if ((ret != NRF_SUCCESS) && (p_advertising->error_handler != NULL))
         {
-            m_peer_addr_reply_expected = true;
-            m_evt_handler(BLE_ADV_EVT_PEER_ADDR_REQUEST);
-        }
-        else
-        {
-            m_peer_addr_reply_expected = false;
+            p_advertising->error_handler(ret);
         }
     }
+}
 
-    // If a mode is disabled, continue to the next mode. I.e fast instead of direct, slow instead of fast, idle instead of slow.
-    if (  (m_adv_mode_current == BLE_ADV_MODE_DIRECTED)
-        &&(!m_adv_modes_config.ble_adv_directed_enabled || !peer_address_exists(m_peer_address.addr)))
-    {
-        m_adv_mode_current = BLE_ADV_MODE_DIRECTED_SLOW;
-    }
-    if (  (m_adv_mode_current == BLE_ADV_MODE_DIRECTED_SLOW)
-        &&(!m_adv_modes_config.ble_adv_directed_slow_enabled || !peer_address_exists(m_peer_address.addr)))
-    {
-        m_adv_mode_current = BLE_ADV_MODE_FAST;
-    }
-    if (!m_adv_modes_config.ble_adv_fast_enabled && m_adv_mode_current == BLE_ADV_MODE_FAST)
-    {
-        m_adv_mode_current = BLE_ADV_MODE_SLOW;
-    }
-    if (!m_adv_modes_config.ble_adv_slow_enabled && m_adv_mode_current == BLE_ADV_MODE_SLOW)
-    {
-        m_adv_mode_current = BLE_ADV_MODE_IDLE;
-        m_adv_evt          = BLE_ADV_EVT_IDLE;
-    }
 
-    // Fetch the whitelist.
-    if (   (m_evt_handler != NULL)
-        && (m_adv_mode_current == BLE_ADV_MODE_FAST || m_adv_mode_current == BLE_ADV_MODE_SLOW)
-        && (m_adv_modes_config.ble_adv_whitelist_enabled)
-        && (!m_whitelist_temporarily_disabled))
+/**@brief Get the next available advertising mode.
+ *
+ * @param[in] p_advertising Advertising module instance.
+ * @param[in] adv_mode Requested advertising mode.
+ *
+ * @returns adv_mode if possible, or the best available mode if not.
+ */
+static ble_adv_mode_t adv_mode_next_avail_get(ble_advertising_t * const p_advertising,
+                                              ble_adv_mode_t            adv_mode)
+{
+    bool peer_addr_is_valid = addr_is_valid(p_advertising->peer_address.addr);
+
+    // If a mode is disabled, continue to the next mode.
+
+    switch (adv_mode)
     {
-        m_whitelist_reply_expected = true;
-        m_evt_handler(BLE_ADV_EVT_WHITELIST_REQUEST);
+        case BLE_ADV_MODE_DIRECTED_HIGH_DUTY:
+            if (   (p_advertising->adv_modes_config.ble_adv_directed_high_duty_enabled)
+                && (!p_advertising->adv_modes_config.ble_adv_extended_enabled)
+                && (peer_addr_is_valid))
+            {
+                return BLE_ADV_MODE_DIRECTED_HIGH_DUTY;
+            }
+            // Fallthrough.
+
+        case BLE_ADV_MODE_DIRECTED:
+            if ((p_advertising->adv_modes_config.ble_adv_directed_enabled) && peer_addr_is_valid)
+            {
+                return BLE_ADV_MODE_DIRECTED;
+            }
+            // Fallthrough.
+
+        case BLE_ADV_MODE_FAST:
+            if (p_advertising->adv_modes_config.ble_adv_fast_enabled)
+            {
+                return BLE_ADV_MODE_FAST;
+            }
+            // Fallthrough.
+
+        case BLE_ADV_MODE_SLOW:
+            if (p_advertising->adv_modes_config.ble_adv_slow_enabled)
+            {
+                return BLE_ADV_MODE_SLOW;
+            }
+            // Fallthrough.
+
+        default:
+            return BLE_ADV_MODE_IDLE;
+    }
+}
+
+
+/**@brief Function for starting high duty directed advertising.
+ *
+ * @param[in]  p_advertising Advertising instance.
+ * @param[out] p_adv_params Advertising parameters.
+ *
+ * @return NRF_SUCCESS
+ */
+static ret_code_t set_adv_mode_directed_high_duty(ble_advertising_t * const p_advertising,
+                                                  ble_gap_adv_params_t    * p_adv_params)
+{
+    p_advertising->adv_evt    = BLE_ADV_EVT_DIRECTED_HIGH_DUTY;
+    p_advertising->p_adv_data = NULL;
+
+    p_adv_params->p_peer_addr     = &(p_advertising->peer_address);
+    p_adv_params->interval        = 0;
+    p_adv_params->properties.type = BLE_GAP_ADV_TYPE_CONNECTABLE_NONSCANNABLE_DIRECTED_HIGH_DUTY_CYCLE;
+    p_adv_params->duration        = BLE_GAP_ADV_TIMEOUT_HIGH_DUTY_MAX;
+
+    return NRF_SUCCESS;
+}
+
+
+/**@brief Function for starting directed slow advertising.
+ *
+ * @param[in]  p_advertising Advertising module instance.
+ * @param[out] p_adv_params Advertising parameters.
+ *
+ * @return NRF_SUCCESS
+ */
+static ret_code_t set_adv_mode_directed(ble_advertising_t * const p_advertising,
+                                        ble_gap_adv_params_t    * p_adv_params)
+{
+    p_advertising->adv_evt = BLE_ADV_EVT_DIRECTED;
+#if !defined (S112) && !defined(S312)
+    if (p_advertising->adv_modes_config.ble_adv_extended_enabled)
+    {
+        p_adv_params->properties.type = BLE_GAP_ADV_TYPE_EXTENDED_CONNECTABLE_NONSCANNABLE_DIRECTED;
     }
     else
     {
-        m_whitelist_reply_expected = false;
+#endif // !defined (S112) && !defined(S312)
+        p_adv_params->properties.type = BLE_GAP_ADV_TYPE_CONNECTABLE_NONSCANNABLE_DIRECTED;
+#if !defined (S112) && !defined(S312)
+    }
+#endif // !defined (S112) && !defined(S312)
+    p_adv_params->duration = p_advertising->adv_modes_config.ble_adv_directed_timeout;
+
+    p_advertising->p_adv_data = NULL;
+
+    p_adv_params->p_peer_addr = &p_advertising->peer_address;
+    p_adv_params->interval    = p_advertising->adv_modes_config.ble_adv_directed_interval;
+
+    return NRF_SUCCESS;
+}
+
+
+/**@brief Function for indicating whether to use whitelist for advertising.
+ *
+ * @param[in]  p_advertising Advertising module instance.
+ *
+ * @return Whether to use whitelist.
+ */
+static bool use_whitelist(ble_advertising_t * const p_advertising)
+{
+    return((p_advertising->adv_modes_config.ble_adv_whitelist_enabled) &&
+           (!p_advertising->whitelist_temporarily_disabled) &&
+           (whitelist_has_entries(p_advertising)));
+}
+
+
+/**@brief Function for setting new advertising flags in the advertising parameters.
+ *
+ * @param[in]  p_advertising Advertising module instance.
+ * @param[in]  flags         New flags.
+ *
+ * @return Any error from @ref sd_ble_gap_adv_set_configure.
+ */
+static ret_code_t flags_set(ble_advertising_t * const p_advertising, uint8_t flags)
+{
+    uint8_t * p_flags = ble_advdata_parse(p_advertising->adv_data.adv_data.p_data,
+                                          p_advertising->adv_data.adv_data.len,
+                                          BLE_GAP_AD_TYPE_FLAGS);
+
+    if (p_flags != NULL)
+    {
+        *p_flags = flags;
+    }
+
+    return sd_ble_gap_adv_set_configure(&p_advertising->adv_handle, &p_advertising->adv_data, &p_advertising->adv_params);
+}
+
+
+/**@brief Function for starting fast advertising.
+ *
+ * @param[in]  p_advertising Advertising module instance.
+ * @param[out] p_adv_params Advertising parameters.
+ *
+ * @return NRF_SUCCESS or an error from @ref flags_set().
+ */
+static ret_code_t set_adv_mode_fast(ble_advertising_t * const p_advertising,
+                                    ble_gap_adv_params_t    * p_adv_params)
+{
+    ret_code_t ret;
+
+    p_adv_params->interval = p_advertising->adv_modes_config.ble_adv_fast_interval;
+    p_adv_params->duration = p_advertising->adv_modes_config.ble_adv_fast_timeout;
+
+#if !defined (S112) && !defined(S312)
+    if (p_advertising->adv_modes_config.ble_adv_extended_enabled)
+    {
+        p_advertising->adv_params.properties.type = BLE_GAP_ADV_TYPE_EXTENDED_CONNECTABLE_NONSCANNABLE_UNDIRECTED;
+    }
+    else
+    {
+#endif // !defined (S112) && !defined(S312)
+        p_advertising->adv_params.properties.type = BLE_GAP_ADV_TYPE_CONNECTABLE_SCANNABLE_UNDIRECTED;
+#if !defined (S112) && !defined(S312)
+    }
+#endif // !defined (S112) && !defined(S312)
+ 
+    if (use_whitelist(p_advertising))
+    {
+        p_adv_params->filter_policy = BLE_GAP_ADV_FP_FILTER_CONNREQ;
+
+        // Set correct flags.
+        ret = flags_set(p_advertising, BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED);
+        VERIFY_SUCCESS(ret);
+
+        p_advertising->adv_evt = BLE_ADV_EVT_FAST_WHITELIST;
+    }
+    else
+    {
+        p_advertising->adv_evt = BLE_ADV_EVT_FAST;
+    }
+    p_advertising->p_adv_data = &(p_advertising->adv_data);
+    return NRF_SUCCESS;
+}
+
+
+/**@brief Function for starting slow advertising.
+ *
+ * @param[in]  p_advertising Advertising module instance.
+ * @param[out] p_adv_params Advertising parameters.
+ *
+ * @return NRF_SUCCESS or an error from @ref flags_set().
+ */
+static ret_code_t set_adv_mode_slow(ble_advertising_t * const p_advertising,
+                                    ble_gap_adv_params_t    * p_adv_params)
+{
+    ret_code_t ret;
+
+    p_adv_params->interval = p_advertising->adv_modes_config.ble_adv_slow_interval;
+    p_adv_params->duration = p_advertising->adv_modes_config.ble_adv_slow_timeout;
+
+#if !defined (S112) && !defined(S312)
+    if (p_advertising->adv_modes_config.ble_adv_extended_enabled)
+    {
+        p_advertising->adv_params.properties.type = BLE_GAP_ADV_TYPE_EXTENDED_CONNECTABLE_NONSCANNABLE_UNDIRECTED;
+    }
+    else
+    {
+#endif // !defined (S112) && !defined(S312)
+        p_advertising->adv_params.properties.type = BLE_GAP_ADV_TYPE_CONNECTABLE_SCANNABLE_UNDIRECTED;
+#if !defined (S112) && !defined(S312)
+    }
+#endif // !defined (S112) && !defined(S312)
+
+    if (use_whitelist(p_advertising))
+    {
+        p_adv_params->filter_policy = BLE_GAP_ADV_FP_FILTER_CONNREQ;
+
+        // Set correct flags.
+        ret = flags_set(p_advertising, BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED);
+        VERIFY_SUCCESS(ret);
+
+        p_advertising->adv_evt = BLE_ADV_EVT_SLOW_WHITELIST;
+    }
+    else
+    {
+        p_advertising->adv_evt = BLE_ADV_EVT_SLOW;
+    }
+    p_advertising->p_adv_data = &(p_advertising->adv_data);
+    return NRF_SUCCESS;
+}
+
+
+/**@brief Function for checking if an advertising module configuration is legal.
+ *
+ * @details Advertising module can not be initialized if high duty directed advertising is used
+ *          together with extended advertising.
+ *
+ * @param[in] p_config Pointer to the configuration.
+ *
+ * @return True  If the configuration is valid.
+ * @return False If the configuration is invalid.
+ */
+static bool config_is_valid(ble_adv_modes_config_t const * const p_config)
+{
+    if ((p_config->ble_adv_directed_high_duty_enabled == true) &&
+        (p_config->ble_adv_extended_enabled == true))
+    {
+        return false;
+    }
+#if !defined (S140)
+    else if ( p_config->ble_adv_primary_phy == BLE_GAP_PHY_CODED ||
+              p_config->ble_adv_secondary_phy == BLE_GAP_PHY_CODED)
+    {
+        return false;
+    }
+#endif // !defined (S140)
+    else
+    {
+        return true;
+    }
+}
+
+
+void ble_advertising_conn_cfg_tag_set(ble_advertising_t * const p_advertising,
+                                      uint8_t                   ble_cfg_tag)
+{
+    p_advertising->conn_cfg_tag = ble_cfg_tag;
+}
+
+
+uint32_t ble_advertising_init(ble_advertising_t            * const p_advertising,
+                              ble_advertising_init_t const * const p_init)
+{
+    uint32_t ret;
+    if ((p_init == NULL) || (p_advertising == NULL))
+    {
+        return NRF_ERROR_NULL;
+    }
+    if (!config_is_valid(&p_init->config))
+    {
+        return NRF_ERROR_INVALID_PARAM;
+    }
+
+    p_advertising->adv_mode_current               = BLE_ADV_MODE_IDLE;
+    p_advertising->adv_modes_config               = p_init->config;
+    p_advertising->conn_cfg_tag                   = BLE_CONN_CFG_TAG_DEFAULT;
+    p_advertising->evt_handler                    = p_init->evt_handler;
+    p_advertising->error_handler                  = p_init->error_handler;
+    p_advertising->current_slave_link_conn_handle = BLE_CONN_HANDLE_INVALID;
+    p_advertising->p_adv_data                     = &p_advertising->adv_data;
+
+    memset(&p_advertising->peer_address, 0, sizeof(p_advertising->peer_address));
+
+    // Copy advertising data.
+    if (!p_advertising->initialized)
+    {
+        p_advertising->adv_handle = BLE_GAP_ADV_SET_HANDLE_NOT_SET;
+    }
+    p_advertising->adv_data.adv_data.p_data = p_advertising->enc_advdata;
+
+    if (p_advertising->adv_modes_config.ble_adv_extended_enabled == true)
+    {
+#ifdef BLE_GAP_ADV_SET_DATA_SIZE_EXTENDED_CONNECTABLE_MAX_SUPPORTED
+        p_advertising->adv_data.adv_data.len = BLE_GAP_ADV_SET_DATA_SIZE_EXTENDED_CONNECTABLE_MAX_SUPPORTED;
+#else
+    p_advertising->adv_data.adv_data.len = BLE_GAP_ADV_SET_DATA_SIZE_MAX;
+#endif // BLE_GAP_ADV_SET_DATA_SIZE_EXTENDED_CONNECTABLE_MAX_SUPPORTED
+    }
+    else
+    {
+        p_advertising->adv_data.adv_data.len = BLE_GAP_ADV_SET_DATA_SIZE_MAX;
+    }
+
+    ret = ble_advdata_encode(&p_init->advdata, p_advertising->enc_advdata, &p_advertising->adv_data.adv_data.len);
+    VERIFY_SUCCESS(ret);
+
+    p_advertising->adv_data.scan_rsp_data.p_data = p_advertising->enc_scan_rsp_data;
+    if (p_advertising->adv_modes_config.ble_adv_extended_enabled == true)
+    {
+#ifdef BLE_GAP_ADV_SET_DATA_SIZE_EXTENDED_CONNECTABLE_MAX_SUPPORTED
+        p_advertising->adv_data.scan_rsp_data.len = BLE_GAP_ADV_SET_DATA_SIZE_EXTENDED_CONNECTABLE_MAX_SUPPORTED;
+#else
+        p_advertising->adv_data.scan_rsp_data.len = BLE_GAP_ADV_SET_DATA_SIZE_MAX;
+#endif // BLE_GAP_ADV_SET_DATA_SIZE_EXTENDED_CONNECTABLE_MAX_SUPPORTED
+    }
+    else
+    {
+        p_advertising->adv_data.scan_rsp_data.len = BLE_GAP_ADV_SET_DATA_SIZE_MAX;
+    }
+    ret = ble_advdata_encode(&p_init->srdata,
+                              p_advertising->adv_data.scan_rsp_data.p_data,
+                             &p_advertising->adv_data.scan_rsp_data.len);
+    VERIFY_SUCCESS(ret);
+
+    // Configure a initial advertising configuration. The advertising data and and advertising
+    // parameters will be changed later when we call @ref ble_advertising_start, but must be set
+    // to legal values here to define an advertising handle.
+    p_advertising->adv_params.primary_phy     = BLE_GAP_PHY_1MBPS;
+    p_advertising->adv_params.duration        = p_advertising->adv_modes_config.ble_adv_fast_timeout;
+    p_advertising->adv_params.properties.type = BLE_GAP_ADV_TYPE_CONNECTABLE_SCANNABLE_UNDIRECTED;
+    p_advertising->adv_params.p_peer_addr     = NULL;
+    p_advertising->adv_params.filter_policy   = BLE_GAP_ADV_FP_ANY;
+    p_advertising->adv_params.interval        = p_advertising->adv_modes_config.ble_adv_fast_interval;
+
+    ret = sd_ble_gap_adv_set_configure(&p_advertising->adv_handle, NULL, &p_advertising->adv_params);
+    VERIFY_SUCCESS(ret);
+
+    p_advertising->initialized = true;
+    return ret;
+}
+
+
+/**@brief Function for checking that a phy define value matches one of the valid phys from the SD.
+ *
+ * @param[in]  PHY to be validated.
+ *
+ * @retval true  If the PHY value is valid (1mbit, 2mbit, coded).
+ * @retval false If the PHY value is invalid.
+ */
+static bool phy_is_valid(uint32_t const * const p_phy)
+{
+    if ((*p_phy) == BLE_GAP_PHY_1MBPS ||
+        (*p_phy) == BLE_GAP_PHY_2MBPS
+#if defined (S140)
+     || (*p_phy) == BLE_GAP_PHY_CODED
+#endif // !defined (S140)
+        )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+
+uint32_t ble_advertising_start(ble_advertising_t * const p_advertising,
+                               ble_adv_mode_t            advertising_mode)
+{
+    uint32_t ret;
+
+    if (p_advertising->initialized == false)
+    {
+        return NRF_ERROR_INVALID_STATE;
+    }
+
+    p_advertising->adv_mode_current = advertising_mode;
+
+    memset(&p_advertising->peer_address, 0, sizeof(p_advertising->peer_address));
+
+    if (  ((p_advertising->adv_modes_config.ble_adv_directed_high_duty_enabled) && (p_advertising->adv_mode_current == BLE_ADV_MODE_DIRECTED_HIGH_DUTY))
+        ||((p_advertising->adv_modes_config.ble_adv_directed_enabled)           && (p_advertising->adv_mode_current == BLE_ADV_MODE_DIRECTED_HIGH_DUTY))
+        ||((p_advertising->adv_modes_config.ble_adv_directed_enabled)           && (p_advertising->adv_mode_current == BLE_ADV_MODE_DIRECTED))
+       )
+    {
+        if (p_advertising->evt_handler != NULL)
+        {
+            p_advertising->peer_addr_reply_expected = true;
+            p_advertising->evt_handler(BLE_ADV_EVT_PEER_ADDR_REQUEST);
+        }
+        else
+        {
+            p_advertising->peer_addr_reply_expected = false;
+        }
+    }
+
+    p_advertising->adv_mode_current = adv_mode_next_avail_get(p_advertising, advertising_mode);
+
+    // Fetch the whitelist.
+    if ((p_advertising->evt_handler != NULL) &&
+        (p_advertising->adv_mode_current == BLE_ADV_MODE_FAST || p_advertising->adv_mode_current == BLE_ADV_MODE_SLOW) &&
+        (p_advertising->adv_modes_config.ble_adv_whitelist_enabled) &&
+        (!p_advertising->whitelist_temporarily_disabled))
+    {
+        p_advertising->whitelist_in_use         = false;
+        p_advertising->whitelist_reply_expected = true;
+        p_advertising->evt_handler(BLE_ADV_EVT_WHITELIST_REQUEST);
+    }
+    else
+    {
+        p_advertising->whitelist_reply_expected = false;
     }
 
     // Initialize advertising parameters with default values.
-    memset(&adv_params, 0, sizeof(adv_params));
+    memset(&p_advertising->adv_params, 0, sizeof(p_advertising->adv_params));
 
-    adv_params.type        = BLE_GAP_ADV_TYPE_ADV_IND;
-    adv_params.p_peer_addr = NULL;
-    adv_params.fp          = BLE_GAP_ADV_FP_ANY;
-    adv_params.p_whitelist = NULL;
+    p_advertising->adv_params.properties.type = BLE_GAP_ADV_TYPE_CONNECTABLE_SCANNABLE_UNDIRECTED;
+
+    // Use 1MBIT as primary phy if no phy was selected.
+    if (phy_is_valid(&p_advertising->adv_modes_config.ble_adv_primary_phy))
+    {
+        p_advertising->adv_params.primary_phy = p_advertising->adv_modes_config.ble_adv_primary_phy;
+    }
+    else
+    {
+        p_advertising->adv_params.primary_phy = BLE_GAP_PHY_1MBPS;
+    }
+
+    if (p_advertising->adv_modes_config.ble_adv_extended_enabled)
+    {
+        // Use 1MBIT as secondary phy if no phy was selected.
+        if (phy_is_valid(&p_advertising->adv_modes_config.ble_adv_primary_phy))
+        {
+            p_advertising->adv_params.secondary_phy = p_advertising->adv_modes_config.ble_adv_secondary_phy;
+        }
+        else
+        {
+            p_advertising->adv_params.secondary_phy = BLE_GAP_PHY_1MBPS;
+        }
+    }
+    p_advertising->adv_params.filter_policy = BLE_GAP_ADV_FP_ANY;
 
     // Set advertising parameters and events according to selected advertising mode.
-    switch (m_adv_mode_current)
+    switch (p_advertising->adv_mode_current)
     {
-        case BLE_ADV_MODE_DIRECTED:
-            LOG("[ADV]: Starting direct advertisement.\r\n");
-            adv_params.p_peer_addr = &m_peer_address; // Directed advertising.
-            adv_params.type        = BLE_GAP_ADV_TYPE_ADV_DIRECT_IND;
-            adv_params.timeout     = 0;
-            adv_params.interval    = 0;
-            m_adv_evt              = BLE_ADV_EVT_DIRECTED;
+        case BLE_ADV_MODE_DIRECTED_HIGH_DUTY:
+            ret = set_adv_mode_directed_high_duty(p_advertising, &p_advertising->adv_params);
             break;
 
-        case BLE_ADV_MODE_DIRECTED_SLOW:
-            LOG("[ADV]: Starting direct advertisement.\r\n");
-            adv_params.p_peer_addr = &m_peer_address; // Directed advertising.
-            adv_params.type        = BLE_GAP_ADV_TYPE_ADV_DIRECT_IND;
-            adv_params.timeout     = m_adv_modes_config.ble_adv_directed_slow_timeout;
-            adv_params.interval    = m_adv_modes_config.ble_adv_directed_slow_interval;
-            m_adv_evt              = BLE_ADV_EVT_DIRECTED_SLOW;
+        case BLE_ADV_MODE_DIRECTED:
+            ret = set_adv_mode_directed(p_advertising, &p_advertising->adv_params);
             break;
 
         case BLE_ADV_MODE_FAST:
-            adv_params.timeout  = m_adv_modes_config.ble_adv_fast_timeout;
-            adv_params.interval = m_adv_modes_config.ble_adv_fast_interval;
-
-            if (   whitelist_has_entries(&m_whitelist)
-                && m_adv_modes_config.ble_adv_whitelist_enabled
-                && !m_whitelist_temporarily_disabled)
-            {
-                adv_params.fp          = BLE_GAP_ADV_FP_FILTER_CONNREQ;
-                adv_params.p_whitelist = &m_whitelist;
-                m_advdata.flags        = BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED;
-                err_code               = ble_advdata_set(&m_advdata, NULL);
-                if(err_code != NRF_SUCCESS)
-                {
-                    return err_code;
-                }
-
-                m_adv_evt = BLE_ADV_EVT_FAST_WHITELIST;
-                LOG("[ADV]: Starting fast advertisement with whitelist.\r\n");
-            }
-            else
-            {
-                m_adv_evt = BLE_ADV_EVT_FAST;
-                LOG("[ADV]: Starting fast advertisement.\r\n");
-            }
+            ret = set_adv_mode_fast(p_advertising, &p_advertising->adv_params);
             break;
 
         case BLE_ADV_MODE_SLOW:
-            adv_params.interval = m_adv_modes_config.ble_adv_slow_interval;
-            adv_params.timeout  = m_adv_modes_config.ble_adv_slow_timeout;
+            ret = set_adv_mode_slow(p_advertising, &p_advertising->adv_params);
+            break;
 
-            if (   whitelist_has_entries(&m_whitelist)
-                && m_adv_modes_config.ble_adv_whitelist_enabled
-                && !m_whitelist_temporarily_disabled)
-            {
-                adv_params.fp          = BLE_GAP_ADV_FP_FILTER_CONNREQ;
-                adv_params.p_whitelist = &m_whitelist;
-                m_advdata.flags        = BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED;
-                err_code               = ble_advdata_set(&m_advdata, NULL);
-                if(err_code != NRF_SUCCESS)
-                {
-                    return err_code;
-                }
-
-                m_adv_evt = BLE_ADV_EVT_SLOW_WHITELIST;
-                LOG("[ADV]: Starting slow advertisement with whitelist.\r\n");
-            }
-            else
-            {
-                m_adv_evt = BLE_ADV_EVT_SLOW;
-                LOG("[ADV]: Starting slow advertisement.\r\n");
-            }
+        case BLE_ADV_MODE_IDLE:
+            p_advertising->adv_evt = BLE_ADV_EVT_IDLE;
             break;
 
         default:
             break;
     }
-    if (m_adv_mode_current != BLE_ADV_MODE_IDLE)
+
+    if (p_advertising->adv_mode_current != BLE_ADV_MODE_IDLE)
     {
-        err_code = sd_ble_gap_adv_start(&adv_params);
-        if(err_code != NRF_SUCCESS)
+
+        ret = sd_ble_gap_adv_set_configure(&p_advertising->adv_handle, p_advertising->p_adv_data, &p_advertising->adv_params);
+        if (ret != NRF_SUCCESS)
         {
-            return err_code;
+            return ret;
+        }
+        ret = sd_ble_gap_adv_start(p_advertising->adv_handle, p_advertising->conn_cfg_tag);
+
+        if (ret != NRF_SUCCESS)
+        {
+            return ret;
         }
     }
-    if (m_evt_handler != NULL)
+
+    if (p_advertising->evt_handler != NULL)
     {
-        m_evt_handler(m_adv_evt);
+        p_advertising->evt_handler(p_advertising->adv_evt);
     }
 
     return NRF_SUCCESS;
 }
 
 
-void ble_advertising_on_ble_evt(ble_evt_t const * p_ble_evt)
+void ble_advertising_on_ble_evt(ble_evt_t const * p_ble_evt, void * p_context)
 {
-    static uint16_t current_slave_link_conn_handle = BLE_CONN_HANDLE_INVALID;
+    ble_advertising_t * p_advertising = (ble_advertising_t *)p_context;
 
     switch (p_ble_evt->header.evt_id)
     {
         case BLE_GAP_EVT_CONNECTED:
-#if (defined(S130) || defined(S132))
-            if (p_ble_evt->evt.gap_evt.params.connected.role == BLE_GAP_ROLE_PERIPH)
-            {
-                current_slave_link_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
-            }
-#else
-            current_slave_link_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
-#endif
+            on_connected(p_advertising, p_ble_evt);
             break;
 
         // Upon disconnection, whitelist will be activated and direct advertising is started.
         case BLE_GAP_EVT_DISCONNECTED:
-        {
-            uint32_t err_code;
-            m_whitelist_temporarily_disabled = false;
-
-            if (p_ble_evt->evt.gap_evt.conn_handle == current_slave_link_conn_handle)
-            {
-               err_code = ble_advertising_start(BLE_ADV_MODE_DIRECTED);
-               if ((err_code != NRF_SUCCESS) && (m_error_handler != NULL))
-               {
-                   m_error_handler(err_code);
-               }
-            }
+            on_disconnected(p_advertising, p_ble_evt);
             break;
-        }
-        // Upon time-out, the next advertising mode is started, i.e. go from fast to slow or from slow to idle.
-        case BLE_GAP_EVT_TIMEOUT:
-            if (p_ble_evt->evt.gap_evt.params.timeout.src == BLE_GAP_TIMEOUT_SRC_ADVERTISING)
-            {
-                switch (m_adv_mode_current)
-                {
-                    case BLE_ADV_MODE_DIRECTED:
-                        LOG("[ADV]: Timed out from directed advertising.\r\n");
-                        {
-                            uint32_t err_code;
-                            err_code = ble_advertising_start(BLE_ADV_MODE_DIRECTED_SLOW);
-                            if ((err_code != NRF_SUCCESS) && (m_error_handler != NULL))
-                            {
-                                m_error_handler(err_code);
-                            }
-                        }
-                        break;
-                    case BLE_ADV_MODE_DIRECTED_SLOW:
-                        LOG("[ADV]: Timed out from directed slow advertising.\r\n");
-                        {
-                            uint32_t err_code;
-                            err_code = ble_advertising_start(BLE_ADV_MODE_FAST);
-                            if ((err_code != NRF_SUCCESS) && (m_error_handler != NULL))
-                            {
-                                m_error_handler(err_code);
-                            }
-                        }
-                        break;
-                    case BLE_ADV_MODE_FAST:
-                    {
-                        uint32_t err_code;
-                        m_adv_evt = BLE_ADV_EVT_FAST;
-                        LOG("[ADV]: Timed out from fast advertising, starting slow advertising.\r\n");
-                        err_code = ble_advertising_start(BLE_ADV_MODE_SLOW);
-                        if ((err_code != NRF_SUCCESS) && (m_error_handler != NULL))
-                        {
-                            m_error_handler(err_code);
-                        }
-                        break;
-                    }
-                    case BLE_ADV_MODE_SLOW:
-                        m_adv_evt = BLE_ADV_EVT_IDLE;
-                        LOG("[ADV]: Timed out from slow advertising, stopping advertising.\r\n");
-                        if (m_evt_handler != NULL)
-                        {
-                            m_evt_handler(m_adv_evt);
-                        }
-                        break;
 
-                    default:
-                        // No implementation needed.
-                        break;
-                }
-            }
+        // Upon terminated advertising (time-out), the next advertising mode is started.
+        case BLE_GAP_EVT_ADV_SET_TERMINATED:
+            on_terminated(p_advertising, p_ble_evt);
             break;
 
         default:
-            // No implementation needed.
-            break;
-    }
-}
-void ble_advertising_on_sys_evt(uint32_t sys_evt)
-{
-    uint32_t err_code = NRF_SUCCESS;
-    switch (sys_evt)
-    {
-
-        case NRF_EVT_FLASH_OPERATION_SUCCESS:
-        // Fall through.
-
-        //When a flash operation finishes, advertising no longer needs to be pending.
-        case NRF_EVT_FLASH_OPERATION_ERROR:
-            if (m_advertising_start_pending)
-            {
-                m_advertising_start_pending = false;
-                err_code = ble_advertising_start(m_adv_mode_current);
-                if ((err_code != NRF_SUCCESS) && (m_error_handler != NULL))
-                {
-                    m_error_handler(err_code);
-                }
-            }
-            break;
-
-        default:
-            // No implementation needed.
             break;
     }
 }
 
-uint32_t ble_advertising_peer_addr_reply(ble_gap_addr_t * p_peer_address)
+
+void ble_advertising_on_sys_evt(uint32_t evt_id, void * p_context)
 {
-    if(m_peer_addr_reply_expected == false)
+    // Changes to advertising and fds components have made this function obsolete.
+    // This function will be removed in a future major release.
+}
+
+
+uint32_t ble_advertising_peer_addr_reply(ble_advertising_t * const p_advertising,
+                                         ble_gap_addr_t          * p_peer_address)
+{
+    if (!p_advertising->peer_addr_reply_expected)
     {
         return NRF_ERROR_INVALID_STATE;
     }
 
-    m_peer_address.addr_type = p_peer_address->addr_type;
+    p_advertising->peer_addr_reply_expected = false;
 
-    for (int i = 0; i < BLE_GAP_ADDR_LEN; i++)
-    {
-        m_peer_address.addr[i] = p_peer_address->addr[i];
-    }
+    memcpy(&p_advertising->peer_address, p_peer_address, sizeof(p_advertising->peer_address));
 
-    m_peer_addr_reply_expected = false;
     return NRF_SUCCESS;
 }
 
 
-uint32_t ble_advertising_whitelist_reply(ble_gap_whitelist_t * p_whitelist)
+uint32_t ble_advertising_whitelist_reply(ble_advertising_t * const p_advertising,
+                                         ble_gap_addr_t    const * p_gap_addrs,
+                                         uint32_t               addr_cnt,
+                                         ble_gap_irk_t  const * p_gap_irks,
+                                         uint32_t               irk_cnt)
 {
-    uint32_t i;
-
-    if(m_whitelist_reply_expected == false)
+    if (!p_advertising->whitelist_reply_expected)
     {
         return NRF_ERROR_INVALID_STATE;
     }
 
-    m_whitelist.addr_count = p_whitelist->addr_count;
-    m_whitelist.irk_count  = p_whitelist->irk_count;
+    p_advertising->whitelist_reply_expected = false;
+    p_advertising->whitelist_in_use         = ((addr_cnt > 0) || (irk_cnt > 0));
 
-    for (i = 0; i < m_whitelist.irk_count; i++)
-    {
-        mp_whitelist_irk[i] = p_whitelist->pp_irks[i];
-    }
-
-    for (i = 0; i < m_whitelist.addr_count; i++)
-    {
-        mp_whitelist_addr[i] = p_whitelist->pp_addrs[i];
-    }
-
-    m_whitelist_reply_expected = false;
     return NRF_SUCCESS;
 }
 
 
-uint32_t ble_advertising_restart_without_whitelist(void)
+uint32_t ble_advertising_restart_without_whitelist(ble_advertising_t * const p_advertising)
 {
-    uint32_t err_code;
+    ret_code_t ret;
 
-    if(     m_adv_modes_config.ble_adv_whitelist_enabled == BLE_ADV_WHITELIST_ENABLED
-        && !m_whitelist_temporarily_disabled)
+    (void) sd_ble_gap_adv_stop(p_advertising->adv_handle);
+
+    p_advertising->whitelist_temporarily_disabled = true;
+    p_advertising->whitelist_in_use               = false;
+    p_advertising->adv_params.filter_policy       = BLE_GAP_ADV_FP_ANY;
+    // Set correct flags.
+    ret = flags_set(p_advertising, BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE);
+    VERIFY_SUCCESS(ret);
+
+    ret = ble_advertising_start(p_advertising, p_advertising->adv_mode_current);
+    if ((ret != NRF_SUCCESS) && (p_advertising->error_handler != NULL))
     {
-        if (m_adv_mode_current != BLE_ADV_MODE_IDLE)
-        {
-            err_code = sd_ble_gap_adv_stop();
-            if(err_code != NRF_SUCCESS)
-            {
-                return err_code;
-            }
-        }
-        m_whitelist_temporarily_disabled = true;
-
-        err_code = ble_advertising_start(m_adv_mode_current);
-        if ((err_code != NRF_SUCCESS) && (m_error_handler != NULL))
-        {
-            m_error_handler(err_code);
-        }
+        p_advertising->error_handler(ret);
     }
+
     return NRF_SUCCESS;
 }
 
 
+void ble_advertising_modes_config_set(ble_advertising_t            * const p_advertising,
+                                      ble_adv_modes_config_t const * const p_adv_modes_config)
+{
+    p_advertising->adv_modes_config = *p_adv_modes_config;
+}
+
+
+ret_code_t ble_advertising_advdata_update(ble_advertising_t  * const p_advertising,
+                                          ble_gap_adv_data_t * const p_new_advdata_buf,
+                                          bool                       permanent)
+{
+    if (permanent)
+    {
+        memcpy(&p_advertising->adv_data, p_new_advdata_buf, sizeof(p_advertising->adv_data));
+        p_advertising->p_adv_data = &p_advertising->adv_data;
+    }
+    else
+    {
+        p_advertising->p_adv_data = p_new_advdata_buf;
+    }
+
+    return sd_ble_gap_adv_set_configure(&p_advertising->adv_handle,
+                                        p_advertising->p_adv_data,
+                                        NULL);
+}
+
+
+#endif // NRF_MODULE_ENABLED(BLE_ADVERTISING)

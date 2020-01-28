@@ -1,15 +1,42 @@
-/* Copyright (c) 2009 Nordic Semiconductor. All Rights Reserved.
+/**
+ * Copyright (c) 2009 - 2019, Nordic Semiconductor ASA
  *
- * The information contained herein is property of Nordic Semiconductor ASA.
- * Terms and conditions of usage are described in detail in NORDIC
- * SEMICONDUCTOR STANDARD SOFTWARE LICENSE AGREEMENT.
+ * All rights reserved.
  *
- * Licensees are granted free, non-transferable use of the information. NO
- * WARRANTY of ANY KIND is provided. This heading must NOT be removed from
- * the file.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form, except as embedded into a Nordic
+ *    Semiconductor ASA integrated circuit in a product or a software update for
+ *    such product, must reproduce the above copyright notice, this list of
+ *    conditions and the following disclaimer in the documentation and/or other
+ *    materials provided with the distribution.
+ *
+ * 3. Neither the name of Nordic Semiconductor ASA nor the names of its
+ *    contributors may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
+ *
+ * 4. This software, with or without modification, must only be used with a
+ *    Nordic Semiconductor ASA integrated circuit.
+ *
+ * 5. Any software provided in binary form under this license must not be reverse
+ *    engineered, decompiled, modified and/or disassembled.
+ *
+ * THIS SOFTWARE IS PROVIDED BY NORDIC SEMICONDUCTOR ASA "AS IS" AND ANY EXPRESS
+ * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY, NONINFRINGEMENT, AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL NORDIC SEMICONDUCTOR ASA OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
 #ifndef SYNAPTICS_TOUCHPAD_H
 #define SYNAPTICS_TOUCHPAD_H
 
@@ -18,18 +45,22 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** @file
 * @brief Synaptics Touchpad driver
 *
 *
-* @defgroup nrf_drivers_synaptics_touchpad Synaptics Touchpad driver.
+* @defgroup nrf_drivers_synaptics_touchpad Synaptics Touchpad driver
 * @{
-* @ingroup nrf_drivers
+* @ingroup ext_drivers
 * @brief Synaptics Touchpad driver.
 */
 
 /**
-  Touchpad register addresses. 
+  Touchpad register addresses.
 */
 #define TOUCHPAD_INT_STATUS    0x14    //!< Interrupt status register
 #define TOUCHPAD_BUTTON_STATUS 0x41    //!< Button status register
@@ -46,8 +77,8 @@
 /**
   Operational states
 */
-typedef enum                     
-{  
+typedef enum
+{
   SleepmodeNormal        = 0x00,  //!< Normal operation
   SleepmodeSensorSleep   = 0x01  //!< Low power operation
 } TouchpadSleepMode_t;
@@ -85,7 +116,7 @@ bool touchpad_interrupt_status_read(uint8_t *interrupt_status);
 bool touchpad_set_sleep_mode(TouchpadSleepMode_t mode);
 
 /**
-  @brief Function for reading a touchpad register contents over TWI.  
+  @brief Function for reading a touchpad register contents over TWI.
   @param[in] register_address Register address
   @param[out] value Pointer to a data buffer where read data will be stored
   @retval true Register read succeeded
@@ -124,5 +155,10 @@ bool touchpad_product_id_verify(void);
  **/
 
 /*lint --flb "Leave library region" */
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __TOUCHPAD_H__ */

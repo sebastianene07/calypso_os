@@ -1,239 +1,250 @@
-/* Copyright (c) 2013 Nordic Semiconductor. All Rights Reserved.
+/**
+ * Copyright (c) 2012 - 2019, Nordic Semiconductor ASA
  *
- * The information contained herein is property of Nordic Semiconductor ASA.
- * Terms and conditions of usage are described in detail in NORDIC
- * SEMICONDUCTOR STANDARD SOFTWARE LICENSE AGREEMENT.
+ * All rights reserved.
  *
- * Licensees are granted free, non-transferable use of the information. NO
- * WARRANTY of ANY KIND is provided. This heading must NOT be removed from
- * the file.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form, except as embedded into a Nordic
+ *    Semiconductor ASA integrated circuit in a product or a software update for
+ *    such product, must reproduce the above copyright notice, this list of
+ *    conditions and the following disclaimer in the documentation and/or other
+ *    materials provided with the distribution.
+ *
+ * 3. Neither the name of Nordic Semiconductor ASA nor the names of its
+ *    contributors may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
+ *
+ * 4. This software, with or without modification, must only be used with a
+ *    Nordic Semiconductor ASA integrated circuit.
+ *
+ * 5. Any software provided in binary form under this license must not be reverse
+ *    engineered, decompiled, modified and/or disassembled.
+ *
+ * THIS SOFTWARE IS PROVIDED BY NORDIC SEMICONDUCTOR ASA "AS IS" AND ANY EXPRESS
+ * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY, NONINFRINGEMENT, AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL NORDIC SEMICONDUCTOR ASA OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
-/**@file
+/** @file
  *
- * @defgroup ble_sdk_srv_dfu Device Firmware Update Service
+ * @defgroup ble_dfu Buttonless DFU Service
  * @{
- * @ingroup  ble_sdk_srv
- * @brief    Device Firmware Update Service
+ * @ingroup ble_sdk_srv
+ * @brief Buttonless DFU Service module.
  *
- * @details  The Device Firmware Update (DFU) service is a GATT based service that can be used for
- *           performing firmware updates over BLE. Note that this implementation uses vendor
- *           specific UUIDs for service and characteristics and is intended to demonstrate the
- *           firmware updates over BLE. Refer @ref bledfu_transport_bleservice and @ref
- *            bledfu_transport_bleprofile for more information on the service and profile respectively.
+ * @details This module implements a proprietary Buttonless Secure DFU Service. The service can
+ *          be configured to support bonds or not. The bond support configuration must correspond to the
+ *          requirement of Secure DFU bootloader.
+ *
+ * @note Attention!
+ *  To maintain compliance with Nordic Semiconductor ASA Bluetooth profile
+ *  qualification listings, this section of source code must not be modified.
  */
 
 #ifndef BLE_DFU_H__
 #define BLE_DFU_H__
 
 #include <stdint.h>
-#include "ble_gatts.h"
-#include "ble_gap.h"
-#include "ble.h"
 #include "ble_srv_common.h"
+#include "nrf_sdh_ble.h"
 
-#define BLE_DFU_SERVICE_UUID                 0x1530                       /**< The UUID of the DFU Service. */
-#define BLE_DFU_PKT_CHAR_UUID                0x1532                       /**< The UUID of the DFU Packet Characteristic. */
-#define BLE_DFU_CTRL_PT_UUID                 0x1531                       /**< The UUID of the DFU Control Point. */
-#define BLE_DFU_STATUS_REP_UUID              0x1533                       /**< The UUID of the DFU Status Report Characteristic. */
-#define BLE_DFU_REV_CHAR_UUID                0x1534                       /**< The UUID of the DFU Revision Characteristic. */
 
-/**@brief   DFU Event type.
- *
- * @details This enumeration contains the types of events that will be received from the DFU Service.
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+/**@brief   SoC observer priority.
+ * @details Priority of this module's SoC event handler.
+ */
+#define BLE_DFU_SOC_OBSERVER_PRIO   1
+
+#define BLE_DFU_BUTTONLESS_CHAR_UUID        (0x0003)    /**< Value combined with vendor-specific base to create Unbonded Buttonless characteristic UUID. */
+#define BLE_DFU_BUTTONLESS_BONDED_CHAR_UUID (0x0004)    /**< Value combined with vendor-specific base to create Bonded Buttonless characteristic UUID. */
+
+
+/**@brief Nordic vendor-specific base UUID.
+ */
+#define BLE_NORDIC_VENDOR_BASE_UUID                 \
+{{                                                  \
+    0x50, 0xEA, 0xDA, 0x30, 0x88, 0x83, 0xB8, 0x9F, \
+    0x60, 0x4F, 0x15, 0xF3, 0x00, 0x00, 0xC9, 0x8E  \
+}}
+
+
+/**@brief Nordic Buttonless DFU Service event type .
  */
 typedef enum
 {
-    BLE_DFU_START,                                                      /**< The event indicating that the peer wants the application to prepare for a new firmware update. */
-    BLE_DFU_RECEIVE_INIT_DATA,                                          /**< The event indicating that the peer wants the application to prepare to receive init parameters. */
-    BLE_DFU_RECEIVE_APP_DATA,                                           /**< The event indicating that the peer wants the application to prepare to receive the new firmware image. */
-    BLE_DFU_VALIDATE,                                                   /**< The event indicating that the peer wants the application to validate the newly received firmware image. */
-    BLE_DFU_ACTIVATE_N_RESET,                                           /**< The event indicating that the peer wants the application to undergo activate new firmware and restart with new valid application */
-    BLE_DFU_SYS_RESET,                                                  /**< The event indicating that the peer wants the application to undergo a reset and start the currently valid application image.*/
-    BLE_DFU_PKT_RCPT_NOTIF_ENABLED,                                     /**< The event indicating that the peer has enabled packet receipt notifications. It is the responsibility of the application to call @ref ble_dfu_pkts_rcpt_notify each time the number of packets indicated by num_of_pkts field in @ref ble_dfu_evt_t is received.*/
-    BLE_DFU_PKT_RCPT_NOTIF_DISABLED,                                    /**< The event indicating that the peer has disabled the packet receipt notifications.*/
-    BLE_DFU_PACKET_WRITE,                                               /**< The event indicating that the peer has written a value to the 'DFU Packet' characteristic. The data received from the peer will be present in the @ref BLE_DFU_PACKET_WRITE element contained within @ref ble_dfu_evt_t.*/
-    BLE_DFU_BYTES_RECEIVED_SEND                                         /**< The event indicating that the peer is requesting for the number of bytes of firmware data last received by the application. It is the responsibility of the application to call @ref ble_dfu_pkts_rcpt_notify in response to this event. */
-} ble_dfu_evt_type_t;
+    BLE_DFU_EVT_BOOTLOADER_ENTER_PREPARE,   /**< Event indicating that the device is preparing to enter bootloader.*/
+    BLE_DFU_EVT_BOOTLOADER_ENTER,           /**< Event indicating that the bootloader will be entered after return of this event.*/
+    BLE_DFU_EVT_BOOTLOADER_ENTER_FAILED,    /**< Failure to enter bootloader mode.*/
+    BLE_DFU_EVT_RESPONSE_SEND_ERROR,        /**< Failure to send response.*/
+} ble_dfu_buttonless_evt_type_t;
 
-/**@brief   DFU Procedure type.
- *
- * @details This enumeration contains the types of DFU procedures.
+
+/**@brief Nordic Buttonless DFU Service event handler type.
+ */
+typedef void (*ble_dfu_buttonless_evt_handler_t) (ble_dfu_buttonless_evt_type_t p_evt);
+/**@brief Enumeration of Bootloader DFU response codes.
  */
 typedef enum
 {
-    BLE_DFU_START_PROCEDURE        = 1,                                 /**< DFU Start procedure.*/
-    BLE_DFU_INIT_PROCEDURE         = 2,                                 /**< DFU Initialization procedure.*/
-    BLE_DFU_RECEIVE_APP_PROCEDURE  = 3,                                 /**< Firmware receiving procedure.*/
-    BLE_DFU_VALIDATE_PROCEDURE     = 4,                                 /**< Firmware image validation procedure .*/
-    BLE_DFU_PKT_RCPT_REQ_PROCEDURE = 8                                  /**< Packet receipt notification request procedure. */
-} ble_dfu_procedure_t;
+    DFU_RSP_INVALID               = 0x00,                                           /**< Invalid op code. */
+    DFU_RSP_SUCCESS               = 0x01,                                           /**< Success. */
+    DFU_RSP_OP_CODE_NOT_SUPPORTED = 0x02,                                           /**< Op code not supported. */
+    DFU_RSP_OPERATION_FAILED      = 0x04,                                           /**< Operation failed. */
+    DFU_RSP_ADV_NAME_INVALID      = 0x05,                                           /**< Requested advertisement name is too short or too long. */
+    DFU_RSP_BUSY                  = 0x06,                                           /**< Ongoing async operation. */
+    DFU_RSP_NOT_BONDED            = 0x07,                                           /**< Buttonless unavailable due to device not bonded. */
+} ble_dfu_buttonless_rsp_code_t;
 
-/**@brief   DFU Response value type.
+
+/**@brief Enumeration of Bootloader DFU Operation codes.
  */
 typedef enum
 {
-    BLE_DFU_RESP_VAL_SUCCESS = 1,                                       /**< Success.*/
-    BLE_DFU_RESP_VAL_INVALID_STATE,                                     /**< Invalid state.*/
-    BLE_DFU_RESP_VAL_NOT_SUPPORTED,                                     /**< Operation not supported.*/
-    BLE_DFU_RESP_VAL_DATA_SIZE,                                         /**< Data size exceeds limit.*/
-    BLE_DFU_RESP_VAL_CRC_ERROR,                                         /**< CRC Error.*/
-    BLE_DFU_RESP_VAL_OPER_FAILED                                        /**< Operation failed.*/
-} ble_dfu_resp_val_t;
+    DFU_OP_RESERVED         = 0x00, /**< Reserved for future use. */
+    DFU_OP_ENTER_BOOTLOADER = 0x01, /**< Enter bootloader. */
+    DFU_OP_SET_ADV_NAME     = 0x02, /**< Set advertisement name to use in DFU mode. */
+    DFU_OP_RESPONSE_CODE    = 0x20  /**< Response code. */
+} ble_dfu_buttonless_op_code_t;
 
 
-/**@brief   DFU Packet structure.
- *
- * @details This structure contains the value of the DFU Packet characteristic as written by the
- *          peer and the length of the value written. It will be filled by the DFU Service when the
- *          peer writes to the DFU Packet characteristic.
+/**@brief Type holding memory used by Secure DFU Buttonless Service.
+  */
+typedef struct
+{
+    uint8_t                             uuid_type;                      /**< UUID type for DFU UUID. */
+    uint16_t                            service_handle;                 /**< Service Handle of DFU (as provided by the SoftDevice). */
+    uint16_t                            conn_handle;                    /**< Connection handle for the current peer. */
+    ble_gatts_char_handles_t            control_point_char;             /**< Handles related to the DFU Control Point characteristic. */
+    uint32_t                            peers_count;                    /**< Counter to see how many persistently stored peers must be updated for Service Changed indication. This value will be counted down when comparing write requests. */
+    ble_dfu_buttonless_evt_handler_t    evt_handler;                    /**< Event handler that is called upon Buttonless DFU events. See @ref ble_dfu_buttonless_evt_type_t. */
+    bool                                is_ctrlpt_indication_enabled;   /**< Flag indicating that indication is enabled for the control point. */
+    bool                                is_waiting_for_reset;           /**< Flag indicating that the device will enter bootloader. */
+    bool                                is_waiting_for_svci;            /**< Flag indicating that the device is waiting for async SVCI operation */
+} ble_dfu_buttonless_t;
+
+
+/**@brief Type used to initialize the Secure DFU Buttonless Service.
  */
 typedef struct
 {
-    uint8_t                      len;                                   /**< Length of the packet received. */
-    uint8_t *                    p_data;                                /**< Pointer to the received packet. This will point to a word aligned memory location.*/
-} ble_dfu_pkt_write_t;
+    ble_dfu_buttonless_evt_handler_t evt_handler;                       /**< Bootloader event handler. */
+} ble_dfu_buttonless_init_t;
 
-/**@brief   Packet receipt notification request structure.
+
+/**@brief Function for initializing the Device Firmware Update module.
  *
- * @details This structure contains the contents of the packet receipt notification request
- *          sent by the DFU Controller.
+ * @param[in]   p_dfu_init   Structure containing the values of characteristics needed by the
+ *                           service.
+ * @retval      NRF_SUCCESS on successful initialization of the service.
  */
-typedef struct
-{
-    uint16_t                     num_of_pkts;                           /**< The number of packets of firmware data to be received by application before sending the next Packet Receipt Notification to the peer. */
-} ble_pkt_rcpt_notif_req_t;
+uint32_t ble_dfu_buttonless_init(const ble_dfu_buttonless_init_t * p_dfu_init);
 
-/**@brief   DFU Event structure.
+
+/**@brief Function for initializing the async SVCI interface.
  *
- * @details This structure contains the event generated by the DFU Service based on the data
- *          received from the peer.
+ * @warning Ensure that no interrupts are triggered when calling this functions as
+ *          interrupts and exceptions are forwarded to the bootloader for the period
+ *          of the call and may be lost.
+ *
+ * @details This configures the async interface for calling to the
+ *          bootloader through SVCI interface.
+ *
+ * @retval NRF_SUCCESS on success, otherwise an error code.
  */
-typedef struct
-{
-    ble_dfu_evt_type_t           ble_dfu_evt_type;                      /**< Type of the event.*/
-    union
-    {
-        ble_dfu_pkt_write_t      ble_dfu_pkt_write;                     /**< The DFU packet received. This field is when the @ref ble_dfu_evt_type field is set to @ref BLE_DFU_PACKET_WRITE.*/
-        ble_pkt_rcpt_notif_req_t pkt_rcpt_notif_req;                    /**< Packet receipt notification request. This field is when the @ref ble_dfu_evt_type field is set to @ref BLE_DFU_PKT_RCPT_NOTIF_ENABLED.*/
-    } evt;
-} ble_dfu_evt_t;
+uint32_t ble_dfu_buttonless_async_svci_init(void);
 
-// Forward declaration of the ble_dfu_t type.
-typedef struct ble_dfu_s ble_dfu_t;
 
-/**@brief DFU Service event handler type. */
-typedef void (*ble_dfu_evt_handler_t) (ble_dfu_t * p_dfu, ble_dfu_evt_t * p_evt);
-
-/**@brief   DFU service structure.
+/**@brief Function to initialize the backend Secure DFU Buttonless service which is either
+ *        supports bonds or not.
  *
- * @details This structure contains status information related to the service.
+ * @note    Do not call this function directly. It is called internally by @ref ble_dfu_buttonless_init.
+ *
+ * @param[in] p_dfu     Nordic DFU Service structure.
+ *
+ * @return NRF_SUCCESS  On sucessfully initializing, otherwise an error code.
  */
-struct ble_dfu_s
-{
-    uint16_t                     conn_handle;                           /**< Handle of the current connection (as provided by the S110 SoftDevice). This will be BLE_CONN_HANDLE_INVALID when not in a connection. */
-    uint16_t                     revision;                              /**< Handle of DFU Service (as provided by the S110 SoftDevice). */
-    uint16_t                     service_handle;                        /**< Handle of DFU Service (as provided by the S110 SoftDevice). */
-    uint8_t                      uuid_type;                             /**< UUID type assigned for DFU Service by the S110 SoftDevice. */
-    ble_gatts_char_handles_t     dfu_pkt_handles;                       /**< Handles related to the DFU Packet characteristic. */
-    ble_gatts_char_handles_t     dfu_ctrl_pt_handles;                   /**< Handles related to the DFU Control Point characteristic. */
-    ble_gatts_char_handles_t     dfu_status_rep_handles;                /**< Handles related to the DFU Status Report characteristic. */
-    ble_gatts_char_handles_t     dfu_rev_handles;                       /**< Handles related to the DFU Revision characteristic. */
-    ble_dfu_evt_handler_t        evt_handler;                           /**< The event handler to be called when an event is to be sent to the application.*/
-    ble_srv_error_handler_t      error_handler;                         /**< Function to be called in case of an error. */
-};
+uint32_t ble_dfu_buttonless_backend_init(ble_dfu_buttonless_t * p_dfu);
 
-/**@brief      DFU service initialization structure.
+
+
+/**@brief Function for adding the buttonless characteristic.
  *
- * @details    This structure contains the initialization information for the DFU Service. The
- *             application needs to fill this structure and pass it to the DFU Service using the
- *             @ref ble_dfu_init function.
+ * @note This will be implemented differently on bonded/unbonded Buttonless DFU service.
+ *
+ * @param[in] p_dfu       Nordic DFU Service structure.
+ *
+ * @return NRF_SUCCESS on success, otherwise an error code.
  */
-typedef struct
-{
-    uint16_t                     revision;                              /**< Revision number to be exposed by the DFU service. */
-    ble_dfu_evt_handler_t        evt_handler;                           /**< Event handler to be called for handling events in the Device Firmware Update Service. */
-    ble_srv_error_handler_t      error_handler;                         /**< Function to be called in case of an error. */
-} ble_dfu_init_t;
+uint32_t ble_dfu_buttonless_char_add(ble_dfu_buttonless_t * p_dfu);
 
-/**@brief      Function for handling a BLE event.
+
+/**@brief Function for sending a response back to the client.
  *
- * @details    The DFU service expects the application to call this function each time an event
- *             is received from the S110 SoftDevice. This function processes the event, if it is
- *             relevant for the DFU service and calls the DFU event handler of the application if
- *             necessary.
+ * @param[in]   op_code     Operation code to send the response for.
+ * @param[in]   rsp_code    Response code for the operation.
  *
- * @param[in]  p_dfu        Pointer to the DFU service structure.
- * @param[in]  p_ble_evt    Pointer to the event received from S110 SoftDevice.
+ * @retval NRF_SUCCESS on success, otherwise an error code.
  */
-void ble_dfu_on_ble_evt(ble_dfu_t * p_dfu, ble_evt_t * p_ble_evt);
+uint32_t ble_dfu_buttonless_resp_send(ble_dfu_buttonless_op_code_t op_code, ble_dfu_buttonless_rsp_code_t rsp_code);
 
-/**@brief      Function for initializing the DFU service.
+
+/**@brief Function for handling the application's BLE stack events.
  *
- * @param[out] p_dfu        Device Firmware Update service structure. This structure will have to be
- *                          supplied by the application. It will be initialized by this function,
- *                          and will later be used to identify the service instance.
- * @param[in]  p_dfu_init   Information needed to initialize the service.
+ * @details Handles all events from the BLE stack of interest to the DFU buttonless service.
  *
- * @return     NRF_SUCCESS if the DFU service and its characteristics were successfully added to the
- *             S110 SoftDevice. Otherwise an error code.
- *             This function returns NRF_ERROR_NULL if the value of evt_handler in p_dfu_init
- *             structure provided is NULL or if the pointers supplied as input are NULL.
+ * @param[in]   p_ble_evt   Event received from the BLE stack.
+ * @param[in]   p_context   BLE context structure.
  */
-uint32_t ble_dfu_init(ble_dfu_t * p_dfu, ble_dfu_init_t * p_dfu_init);
+void ble_dfu_buttonless_on_ble_evt(ble_evt_t const * p_ble_evt, void * p_context);
 
-/**@brief       Function for sending response to a control point command.
+
+/**@brief Function for handling control point write requests.
  *
- * @details     This function will encode a DFU Control Point response using the given input
- *              parameters and will send a notification of the same to the peer.
+ * @details Handles write requests to the control point in
+ *          DFU with bonds or without bonds.
  *
- * @param[in]   p_dfu       Pointer to the DFU service structure.
- * @param[in]   dfu_proc    Procedure for which this response is to be sent.
- * @param[in]   resp_val    Response value.
- *
- * @return      NRF_SUCCESS if the DFU Service has successfully requested the S110 SoftDevice to
- *              send the notification. Otherwise an error code.
- *              This function returns NRF_ERROR_INVALID_STATE if the device is not connected to a
- *              peer or if the DFU service is not initialized or if the notification of the DFU
- *              Status Report characteristic was not enabled by the peer. It returns NRF_ERROR_NULL
- *              if the pointer p_dfu is NULL.
+ * @param[in]   p_evt_write     GATTS write event.
  */
-uint32_t ble_dfu_response_send(ble_dfu_t *          p_dfu,
-                               ble_dfu_procedure_t  dfu_proc,
-                               ble_dfu_resp_val_t   resp_val);
+void ble_dfu_buttonless_on_ctrl_pt_write(ble_gatts_evt_write_t const * p_evt_write);
 
-/**@brief      Function for notifying the peer about the number of bytes of firmware data received.
+
+/**@brief Function for preparing to enter the bootloader.
  *
- * @param[in]  p_dfu                      Pointer to the DFU service structure.
- * @param[in]  num_of_firmware_bytes_rcvd Number of bytes.
+ * @warning This function is called directly. (It is called internally).
  *
- * @return     NRF_SUCCESS if the DFU Service has successfully requested the S110 SoftDevice to send
- *             the notification. Otherwise an error code.
- *             This function returns NRF_ERROR_INVALID_STATE if the device is not connected to a
- *             peer or if the DFU service is not initialized or if the notification of the DFU
- *             Status Report characteristic was not enabled by the peer. It returns NRF_ERROR_NULL
- *             if the pointer p_dfu is NULL.
+ * @retval Any error code from calling @ref sd_ble_gap_disconnect.
  */
-uint32_t ble_dfu_bytes_rcvd_report(ble_dfu_t * p_dfu, uint32_t num_of_firmware_bytes_rcvd);
+uint32_t ble_dfu_buttonless_bootloader_start_prepare(void);
 
-/**@brief      Function for sending Packet Receipt Notification to the peer.
+
+/**@brief Function for finalizing entering the bootloader.
  *
- *             This function will encode the number of bytes received as input parameter into a
- *             notification of the control point characteristic and send it to the peer.
+ * @warning This function is not to be called. (It is called internally).
  *
- * @param[in]  p_dfu                      Pointer to the DFU service structure.
- * @param[in]  num_of_firmware_bytes_rcvd Number of bytes of firmware image received.
- *
- * @return     NRF_SUCCESS if the DFU Service has successfully requested the S110 SoftDevice to send
- *             the notification. Otherwise an error code.
- *             This function returns NRF_ERROR_INVALID_STATE if the device is not connected to a
- *             peer or if the DFU service is not initialized or if the notification of the DFU
- *             Status Report characteristic was not enabled by the peer. It returns NRF_ERROR_NULL
- *             if the pointer p_dfu is NULL.
+ * @retval NRF_SUCCESS Finalize was started correctly.
  */
-uint32_t ble_dfu_pkts_rcpt_notify(ble_dfu_t * p_dfu, uint32_t num_of_firmware_bytes_rcvd);
+uint32_t ble_dfu_buttonless_bootloader_start_finalize(void);
 
-#endif // BLE_DFU_H__
+#ifdef __cplusplus
+}
+#endif
+
+#endif // BLE_DIS_H__
 
 /** @} */

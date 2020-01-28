@@ -1,29 +1,55 @@
-/* Copyright (c) 2012 Nordic Semiconductor. All Rights Reserved.
+/**
+ * Copyright (c) 2012 - 2019, Nordic Semiconductor ASA
  *
- * The information contained herein is property of Nordic Semiconductor ASA.
- * Terms and conditions of usage are described in detail in NORDIC
- * SEMICONDUCTOR STANDARD SOFTWARE LICENSE AGREEMENT.
+ * All rights reserved.
  *
- * Licensees are granted free, non-transferable use of the information. NO
- * WARRANTY of ANY KIND is provided. This heading must NOT be removed from
- * the file.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form, except as embedded into a Nordic
+ *    Semiconductor ASA integrated circuit in a product or a software update for
+ *    such product, must reproduce the above copyright notice, this list of
+ *    conditions and the following disclaimer in the documentation and/or other
+ *    materials provided with the distribution.
+ *
+ * 3. Neither the name of Nordic Semiconductor ASA nor the names of its
+ *    contributors may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
+ *
+ * 4. This software, with or without modification, must only be used with a
+ *    Nordic Semiconductor ASA integrated circuit.
+ *
+ * 5. Any software provided in binary form under this license must not be reverse
+ *    engineered, decompiled, modified and/or disassembled.
+ *
+ * THIS SOFTWARE IS PROVIDED BY NORDIC SEMICONDUCTOR ASA "AS IS" AND ANY EXPRESS
+ * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY, NONINFRINGEMENT, AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL NORDIC SEMICONDUCTOR ASA OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
-/* Attention! 
-*  To maintain compliance with Nordic Semiconductor ASA’s Bluetooth profile 
-*  qualification listings, this section of source code must not be modified.
-*/
-
+/* Attention!
+ * To maintain compliance with Nordic Semiconductor ASA's Bluetooth profile
+ * qualification listings, this section of source code must not be modified.
+ */
+#include "sdk_common.h"
+#if NRF_MODULE_ENABLED(BLE_DIS)
 #include "ble_dis.h"
 
 #include <stdlib.h>
 #include <string.h>
 #include "app_error.h"
 #include "ble_gatts.h"
-#include "nordic_common.h"
 #include "ble_srv_common.h"
-#include "app_util.h"
 
 
 #define BLE_DIS_SYS_ID_LEN 8  /**< Length of System ID Characteristic Value. */
@@ -46,7 +72,7 @@ static ble_gatts_char_handles_t pnp_id_handles;
  * @param[out]  p_encoded_buffer   Buffer where the encoded data will be written.
  * @param[in]   p_sys_id           System ID to be encoded.
  */
-static void sys_id_encode(uint8_t * p_encoded_buffer, const ble_dis_sys_id_t * p_sys_id)
+static void sys_id_encode(uint8_t * p_encoded_buffer, ble_dis_sys_id_t const * p_sys_id)
 {
     APP_ERROR_CHECK_BOOL(p_sys_id != NULL);
     APP_ERROR_CHECK_BOOL(p_encoded_buffer != NULL);
@@ -68,7 +94,7 @@ static void sys_id_encode(uint8_t * p_encoded_buffer, const ble_dis_sys_id_t * p
  * @param[out]  p_encoded_buffer   Buffer where the encoded data will be written.
  * @param[in]   p_pnp_id           PnP ID to be encoded.
  */
-static void pnp_id_encode(uint8_t * p_encoded_buffer, const ble_dis_pnp_id_t * p_pnp_id)
+static void pnp_id_encode(uint8_t * p_encoded_buffer, ble_dis_pnp_id_t const * p_pnp_id)
 {
     uint8_t len = 0;
 
@@ -90,7 +116,7 @@ static void pnp_id_encode(uint8_t * p_encoded_buffer, const ble_dis_pnp_id_t * p
  * @param[in]   uuid           UUID of characteristic to be added.
  * @param[in]   p_char_value   Initial value of characteristic to be added.
  * @param[in]   char_len       Length of initial value. This will also be the maximum value.
- * @param[in]   dis_attr_md    Security settings of characteristic to be added.
+ * @param[in]   rd_sec         Security requirement for reading characteristic value.
  * @param[out]  p_handles      Handles of new characteristic.
  *
  * @return      NRF_SUCCESS on success, otherwise an error code.
@@ -98,52 +124,28 @@ static void pnp_id_encode(uint8_t * p_encoded_buffer, const ble_dis_pnp_id_t * p
 static uint32_t char_add(uint16_t                        uuid,
                          uint8_t                       * p_char_value,
                          uint16_t                        char_len,
-                         const ble_srv_security_mode_t * dis_attr_md,
+                         security_req_t const            rd_sec,
                          ble_gatts_char_handles_t      * p_handles)
 {
-    ble_uuid_t          ble_uuid;
-    ble_gatts_char_md_t char_md;
-    ble_gatts_attr_t    attr_char_value;
-    ble_gatts_attr_md_t attr_md;
+    ble_add_char_params_t add_char_params;
 
     APP_ERROR_CHECK_BOOL(p_char_value != NULL);
     APP_ERROR_CHECK_BOOL(char_len > 0);
 
-    // The ble_gatts_char_md_t structure uses bit fields. So we reset the memory to zero.
-    memset(&char_md, 0, sizeof(char_md));
+    memset(&add_char_params, 0, sizeof(add_char_params));
 
-    char_md.char_props.read  = 1;
-    char_md.p_char_user_desc = NULL;
-    char_md.p_char_pf        = NULL;
-    char_md.p_user_desc_md   = NULL;
-    char_md.p_cccd_md        = NULL;
-    char_md.p_sccd_md        = NULL;
+    add_char_params.uuid            = uuid;
+    add_char_params.max_len         = char_len;
+    add_char_params.init_len        = char_len;
+    add_char_params.p_init_value    = p_char_value;
+    add_char_params.char_props.read = 1;
+    add_char_params.read_access     = rd_sec;
 
-    BLE_UUID_BLE_ASSIGN(ble_uuid, uuid);
-
-    memset(&attr_md, 0, sizeof(attr_md));
-
-    attr_md.read_perm  = dis_attr_md->read_perm;
-    attr_md.write_perm = dis_attr_md->write_perm;
-    attr_md.vloc       = BLE_GATTS_VLOC_STACK;
-    attr_md.rd_auth    = 0;
-    attr_md.wr_auth    = 0;
-    attr_md.vlen       = 0;
-
-    memset(&attr_char_value, 0, sizeof(attr_char_value));
-
-    attr_char_value.p_uuid    = &ble_uuid;
-    attr_char_value.p_attr_md = &attr_md;
-    attr_char_value.init_len  = char_len;
-    attr_char_value.init_offs = 0;
-    attr_char_value.max_len   = char_len;
-    attr_char_value.p_value   = p_char_value;
-
-    return sd_ble_gatts_characteristic_add(service_handle, &char_md, &attr_char_value, p_handles);
+    return characteristic_add(service_handle, &add_char_params, p_handles);
 }
 
 
-uint32_t ble_dis_init(const ble_dis_init_t * p_dis_init)
+uint32_t ble_dis_init(ble_dis_init_t const * p_dis_init)
 {
     uint32_t   err_code;
     ble_uuid_t ble_uuid;
@@ -163,7 +165,7 @@ uint32_t ble_dis_init(const ble_dis_init_t * p_dis_init)
         err_code = char_add(BLE_UUID_MANUFACTURER_NAME_STRING_CHAR,
                             p_dis_init->manufact_name_str.p_str,
                             p_dis_init->manufact_name_str.length,
-                            &p_dis_init->dis_attr_md,
+                            p_dis_init->dis_char_rd_sec,
                             &manufact_name_handles);
         if (err_code != NRF_SUCCESS)
         {
@@ -175,7 +177,7 @@ uint32_t ble_dis_init(const ble_dis_init_t * p_dis_init)
         err_code = char_add(BLE_UUID_MODEL_NUMBER_STRING_CHAR,
                             p_dis_init->model_num_str.p_str,
                             p_dis_init->model_num_str.length,
-                            &p_dis_init->dis_attr_md,
+                            p_dis_init->dis_char_rd_sec,
                             &model_num_handles);
         if (err_code != NRF_SUCCESS)
         {
@@ -187,7 +189,7 @@ uint32_t ble_dis_init(const ble_dis_init_t * p_dis_init)
         err_code = char_add(BLE_UUID_SERIAL_NUMBER_STRING_CHAR,
                             p_dis_init->serial_num_str.p_str,
                             p_dis_init->serial_num_str.length,
-                            &p_dis_init->dis_attr_md,
+                            p_dis_init->dis_char_rd_sec,
                             &serial_num_handles);
         if (err_code != NRF_SUCCESS)
         {
@@ -199,7 +201,7 @@ uint32_t ble_dis_init(const ble_dis_init_t * p_dis_init)
         err_code = char_add(BLE_UUID_HARDWARE_REVISION_STRING_CHAR,
                             p_dis_init->hw_rev_str.p_str,
                             p_dis_init->hw_rev_str.length,
-                            &p_dis_init->dis_attr_md,
+                            p_dis_init->dis_char_rd_sec,
                             &hw_rev_handles);
         if (err_code != NRF_SUCCESS)
         {
@@ -211,7 +213,7 @@ uint32_t ble_dis_init(const ble_dis_init_t * p_dis_init)
         err_code = char_add(BLE_UUID_FIRMWARE_REVISION_STRING_CHAR,
                             p_dis_init->fw_rev_str.p_str,
                             p_dis_init->fw_rev_str.length,
-                            &p_dis_init->dis_attr_md,
+                            p_dis_init->dis_char_rd_sec,
                             &fw_rev_handles);
         if (err_code != NRF_SUCCESS)
         {
@@ -223,7 +225,7 @@ uint32_t ble_dis_init(const ble_dis_init_t * p_dis_init)
         err_code = char_add(BLE_UUID_SOFTWARE_REVISION_STRING_CHAR,
                             p_dis_init->sw_rev_str.p_str,
                             p_dis_init->sw_rev_str.length,
-                            &p_dis_init->dis_attr_md,
+                            p_dis_init->dis_char_rd_sec,
                             &sw_rev_handles);
         if (err_code != NRF_SUCCESS)
         {
@@ -238,7 +240,7 @@ uint32_t ble_dis_init(const ble_dis_init_t * p_dis_init)
         err_code = char_add(BLE_UUID_SYSTEM_ID_CHAR,
                             encoded_sys_id,
                             BLE_DIS_SYS_ID_LEN,
-                            &p_dis_init->dis_attr_md,
+                            p_dis_init->dis_char_rd_sec,
                             &sys_id_handles);
         if (err_code != NRF_SUCCESS)
         {
@@ -250,7 +252,7 @@ uint32_t ble_dis_init(const ble_dis_init_t * p_dis_init)
         err_code = char_add(BLE_UUID_IEEE_REGULATORY_CERTIFICATION_DATA_LIST_CHAR,
                             p_dis_init->p_reg_cert_data_list->p_list,
                             p_dis_init->p_reg_cert_data_list->list_len,
-                            &p_dis_init->dis_attr_md,
+                            p_dis_init->dis_char_rd_sec,
                             &reg_cert_data_list_handles);
         if (err_code != NRF_SUCCESS)
         {
@@ -265,7 +267,7 @@ uint32_t ble_dis_init(const ble_dis_init_t * p_dis_init)
         err_code = char_add(BLE_UUID_PNP_ID_CHAR,
                             encoded_pnp_id,
                             BLE_DIS_PNP_ID_LEN,
-                            &p_dis_init->dis_attr_md,
+                            p_dis_init->dis_char_rd_sec,
                             &pnp_id_handles);
         if (err_code != NRF_SUCCESS)
         {
@@ -275,3 +277,4 @@ uint32_t ble_dis_init(const ble_dis_init_t * p_dis_init)
 
     return NRF_SUCCESS;
 }
+#endif // NRF_MODULE_ENABLED(BLE_DIS)

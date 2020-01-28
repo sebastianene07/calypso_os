@@ -1,31 +1,64 @@
-/* Copyright (c) 2012 Nordic Semiconductor. All Rights Reserved.
+/**
+ * Copyright (c) 2012 - 2019, Nordic Semiconductor ASA
  *
- * The information contained herein is property of Nordic Semiconductor ASA.
- * Terms and conditions of usage are described in detail in NORDIC
- * SEMICONDUCTOR STANDARD SOFTWARE LICENSE AGREEMENT.
+ * All rights reserved.
  *
- * Licensees are granted free, non-transferable use of the information. NO
- * WARRANTY of ANY KIND is provided. This heading must NOT be removed from
- * the file.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form, except as embedded into a Nordic
+ *    Semiconductor ASA integrated circuit in a product or a software update for
+ *    such product, must reproduce the above copyright notice, this list of
+ *    conditions and the following disclaimer in the documentation and/or other
+ *    materials provided with the distribution.
+ *
+ * 3. Neither the name of Nordic Semiconductor ASA nor the names of its
+ *    contributors may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
+ *
+ * 4. This software, with or without modification, must only be used with a
+ *    Nordic Semiconductor ASA integrated circuit.
+ *
+ * 5. Any software provided in binary form under this license must not be reverse
+ *    engineered, decompiled, modified and/or disassembled.
+ *
+ * THIS SOFTWARE IS PROVIDED BY NORDIC SEMICONDUCTOR ASA "AS IS" AND ANY EXPRESS
+ * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY, NONINFRINGEMENT, AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL NORDIC SEMICONDUCTOR ASA OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  */
-
 /** @file
  *
- * @defgroup ble_sdk_srv_hts Health Thermometer Service
+ * @defgroup ble_hts Health Thermometer Service
  * @{
  * @ingroup ble_sdk_srv
  * @brief Health Thermometer Service module.
  *
  * @details This module implements the Health Thermometer Service.
  *
- *          If an event handler is supplied by the application, the Health Thermometer 
+ *          If an event handler is supplied by the application, the Health Thermometer
  *          Service will generate Health Thermometer Service events to the application.
  *
- * @note The application must propagate BLE stack events to the Health Thermometer Service
- *       module by calling ble_hts_on_ble_evt() from the @ref softdevice_handler function.
+ * @note    The application must register this module as BLE event observer using the
+ *          NRF_SDH_BLE_OBSERVER macro. Example:
+ *          @code
+ *              ble_hts_t instance;
+ *              NRF_SDH_BLE_OBSERVER(anything, BLE_HTS_BLE_OBSERVER_PRIO,
+ *                                   ble_hts_on_ble_evt, &instance);
+ *          @endcode
  *
- * @note Attention! 
- *  To maintain compliance with Nordic Semiconductor ASA Bluetooth profile 
+ * @note Attention!
+ *  To maintain compliance with Nordic Semiconductor ASA Bluetooth profile
  *  qualification listings, this section of source code must not be modified.
  */
 
@@ -37,17 +70,34 @@
 #include "ble.h"
 #include "ble_srv_common.h"
 #include "ble_date_time.h"
+#include "nrf_sdh_ble.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**@brief   Macro for defining a ble_hts instance.
+ *
+ * @param   _name   Name of the instance.
+ * @hideinitializer
+ */
+#define BLE_HTS_DEF(_name)                                                                          \
+static ble_hts_t _name;                                                                             \
+NRF_SDH_BLE_OBSERVER(_name ## _obs,                                                                 \
+                     BLE_HTS_BLE_OBSERVER_PRIO,                                                     \
+                     ble_hts_on_ble_evt, &_name)
 
 // Temperature Type measurement locations
-#define BLE_HTS_TEMP_TYPE_ARMPIT      1
-#define BLE_HTS_TEMP_TYPE_BODY        2
-#define BLE_HTS_TEMP_TYPE_EAR         3
-#define BLE_HTS_TEMP_TYPE_FINGER      4
-#define BLE_HTS_TEMP_TYPE_GI_TRACT    5
-#define BLE_HTS_TEMP_TYPE_MOUTH       6
-#define BLE_HTS_TEMP_TYPE_RECTUM      7
-#define BLE_HTS_TEMP_TYPE_TOE         8
-#define BLE_HTS_TEMP_TYPE_EAR_DRUM    9
+#define BLE_HTS_TEMP_TYPE_ARMPIT        1
+#define BLE_HTS_TEMP_TYPE_BODY          2
+#define BLE_HTS_TEMP_TYPE_EAR           3
+#define BLE_HTS_TEMP_TYPE_FINGER        4
+#define BLE_HTS_TEMP_TYPE_GI_TRACT      5
+#define BLE_HTS_TEMP_TYPE_MOUTH         6
+#define BLE_HTS_TEMP_TYPE_RECTUM        7
+#define BLE_HTS_TEMP_TYPE_TOE           8
+#define BLE_HTS_TEMP_TYPE_EAR_DRUM      9
+
 
 /**@brief Health Thermometer Service event type. */
 typedef enum
@@ -63,7 +113,7 @@ typedef struct
     ble_hts_evt_type_t evt_type;                                            /**< Type of event. */
 } ble_hts_evt_t;
 
-// Forward declaration of the ble_hts_t type. 
+// Forward declaration of the ble_hts_t type.
 typedef struct ble_hts_s ble_hts_t;
 
 /**@brief Health Thermometer Service event handler type. */
@@ -82,8 +132,8 @@ typedef struct
 typedef struct
 {
     ble_hts_evt_handler_t        evt_handler;                               /**< Event handler to be called for handling events in the Health Thermometer Service. */
-    ble_srv_cccd_security_mode_t hts_meas_attr_md;                          /**< Initial security level for health thermometer measurement attribute */
-    ble_srv_security_mode_t      hts_temp_type_attr_md;                     /**< Initial security level for health thermometer tempearture type attribute */
+    security_req_t               ht_meas_cccd_wr_sec;                       /**< Security requirement for writing health thermometer measurement characteristic CCCD. */
+    security_req_t               ht_type_rd_sec;                            /**< Security requirement for reading health thermometer type characteristic. */
     uint8_t                      temp_type_as_characteristic;               /**< Set non-zero if temp type given as characteristic */
     uint8_t                      temp_type;                                 /**< Temperature type if temperature characteristic is used */
 } ble_hts_init_t;
@@ -113,6 +163,7 @@ typedef struct ble_hts_meas_s
     uint8_t                      temp_type;                                 /**< Temperature Type. */
 } ble_hts_meas_t;
 
+
 /**@brief Function for initializing the Health Thermometer Service.
  *
  * @param[out]  p_hts       Health Thermometer Service structure. This structure will have to
@@ -124,14 +175,16 @@ typedef struct ble_hts_meas_s
  */
 uint32_t ble_hts_init(ble_hts_t * p_hts, const ble_hts_init_t * p_hts_init);
 
+
 /**@brief Function for handling the Application's BLE Stack events.
  *
  * @details Handles all events from the BLE stack of interest to the Health Thermometer Service.
  *
- * @param[in]   p_hts      Health Thermometer Service structure.
- * @param[in]   p_ble_evt  Event received from the BLE stack.
+ * @param[in]   p_ble_evt   Event received from the BLE stack.
+ * @param[in]   p_context   Health Thermometer Service structure.
  */
-void ble_hts_on_ble_evt(ble_hts_t * p_hts, ble_evt_t * p_ble_evt);
+void ble_hts_on_ble_evt(ble_evt_t const * p_ble_evt, void * p_context);
+
 
 /**@brief Function for sending health thermometer measurement if indication has been enabled.
  *
@@ -146,6 +199,7 @@ void ble_hts_on_ble_evt(ble_hts_t * p_hts, ble_evt_t * p_ble_evt);
  */
 uint32_t ble_hts_measurement_send(ble_hts_t * p_hts, ble_hts_meas_t * p_hts_meas);
 
+
 /**@brief Function for checking if indication of Temperature Measurement is currently enabled.
  *
  * @param[in]   p_hts                  Health Thermometer Service structure.
@@ -154,6 +208,11 @@ uint32_t ble_hts_measurement_send(ble_hts_t * p_hts, ble_hts_meas_t * p_hts_meas
  * @return      NRF_SUCCESS on success, otherwise an error code.
  */
 uint32_t ble_hts_is_indication_enabled(ble_hts_t * p_hts, bool * p_indication_enabled);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // BLE_HTS_H__
 

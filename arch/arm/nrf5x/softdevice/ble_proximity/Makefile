@@ -1,231 +1,344 @@
-PROJECT_NAME := ble_app_template_s132_pca10036
+PROJECT_NAME     := ble_app_template_pca10040_s132
+TARGETS          := nrf52832_xxaa
+OUTPUT_DIRECTORY := _build
 
-export OUTPUT_FILENAME
-#MAKEFILE_NAME := $(CURDIR)/$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
-MAKEFILE_NAME := $(MAKEFILE_LIST)
-MAKEFILE_DIR := $(dir $(MAKEFILE_NAME) ) 
+SDK_ROOT := .
+PROJ_DIR := .
 
-MK := mkdir
-RM := rm -rf
+$(OUTPUT_DIRECTORY)/nrf52832_xxaa.out: \
+  LINKER_SCRIPT  := ble_app_template_gcc_nrf52.ld
 
-#echo suspend
-ifeq ("$(VERBOSE)","1")
-NO_ECHO := 
-else
-NO_ECHO := @
-endif
+# $(SDK_ROOT)/modules/nrfx/mdk/gcc_startup_nrf52.S \
+# Source files common to all targets
+SRC_FILES += \
+  $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_rtt.c \
+  $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_serial.c \
+  $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_uart.c \
+  $(SDK_ROOT)/components/libraries/log/src/nrf_log_default_backends.c \
+  $(SDK_ROOT)/components/libraries/log/src/nrf_log_frontend.c \
+  $(SDK_ROOT)/components/libraries/log/src/nrf_log_str_formatter.c \
+  $(SDK_ROOT)/components/libraries/button/app_button.c \
+  $(SDK_ROOT)/components/libraries/util/app_error.c \
+  $(SDK_ROOT)/components/libraries/util/app_error_handler_gcc.c \
+  $(SDK_ROOT)/components/libraries/util/app_error_weak.c \
+  $(SDK_ROOT)/components/libraries/scheduler/app_scheduler.c \
+  $(SDK_ROOT)/components/libraries/timer/app_timer.c \
+  $(SDK_ROOT)/components/libraries/util/app_util_platform.c \
+  $(SDK_ROOT)/components/libraries/crc16/crc16.c \
+  $(SDK_ROOT)/components/libraries/fds/fds.c \
+  $(SDK_ROOT)/components/libraries/hardfault/hardfault_implementation.c \
+  $(SDK_ROOT)/components/libraries/util/nrf_assert.c \
+  $(SDK_ROOT)/components/libraries/atomic_fifo/nrf_atfifo.c \
+  $(SDK_ROOT)/components/libraries/atomic_flags/nrf_atflags.c \
+  $(SDK_ROOT)/components/libraries/atomic/nrf_atomic.c \
+  $(SDK_ROOT)/components/libraries/balloc/nrf_balloc.c \
+  $(SDK_ROOT)/external/fprintf/nrf_fprintf.c \
+  $(SDK_ROOT)/external/fprintf/nrf_fprintf_format.c \
+  $(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage.c \
+  $(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage_sd.c \
+  $(SDK_ROOT)/components/libraries/memobj/nrf_memobj.c \
+  $(SDK_ROOT)/components/libraries/pwr_mgmt/nrf_pwr_mgmt.c \
+  $(SDK_ROOT)/components/libraries/ringbuf/nrf_ringbuf.c \
+  $(SDK_ROOT)/components/libraries/experimental_section_vars/nrf_section_iter.c \
+  $(SDK_ROOT)/components/libraries/strerror/nrf_strerror.c \
+  $(SDK_ROOT)/components/libraries/sensorsim/sensorsim.c \
+  $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52.c \
+  $(SDK_ROOT)/components/boards/boards.c \
+  $(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_clock.c \
+  $(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_uart.c \
+  $(SDK_ROOT)/modules/nrfx/soc/nrfx_atomic.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_clock.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_gpiote.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/prs/nrfx_prs.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uart.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uarte.c \
+  $(SDK_ROOT)/components/libraries/bsp/bsp.c \
+  $(SDK_ROOT)/components/libraries/bsp/bsp_btn_ble.c \
+  $(PROJ_DIR)/main.c \
+  $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
+  $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_Syscalls_GCC.c \
+  $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \
+  $(SDK_ROOT)/components/ble/peer_manager/auth_status_tracker.c \
+  $(SDK_ROOT)/components/ble/common/ble_advdata.c \
+  $(SDK_ROOT)/components/ble/ble_advertising/ble_advertising.c \
+  $(SDK_ROOT)/components/ble/common/ble_conn_params.c \
+  $(SDK_ROOT)/components/ble/common/ble_conn_state.c \
+  $(SDK_ROOT)/components/ble/common/ble_srv_common.c \
+  $(SDK_ROOT)/components/ble/peer_manager/gatt_cache_manager.c \
+  $(SDK_ROOT)/components/ble/peer_manager/gatts_cache_manager.c \
+  $(SDK_ROOT)/components/ble/peer_manager/id_manager.c \
+  $(SDK_ROOT)/components/ble/nrf_ble_gatt/nrf_ble_gatt.c \
+  $(SDK_ROOT)/components/ble/nrf_ble_qwr/nrf_ble_qwr.c \
+  $(SDK_ROOT)/components/ble/peer_manager/peer_data_storage.c \
+  $(SDK_ROOT)/components/ble/peer_manager/peer_database.c \
+  $(SDK_ROOT)/components/ble/peer_manager/peer_id.c \
+  $(SDK_ROOT)/components/ble/peer_manager/peer_manager.c \
+  $(SDK_ROOT)/components/ble/peer_manager/peer_manager_handler.c \
+  $(SDK_ROOT)/components/ble/peer_manager/pm_buffer.c \
+  $(SDK_ROOT)/components/ble/peer_manager/security_dispatcher.c \
+  $(SDK_ROOT)/components/ble/peer_manager/security_manager.c \
+  $(SDK_ROOT)/external/utf_converter/utf.c \
+  $(SDK_ROOT)/components/softdevice/common/nrf_sdh.c \
+  $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ble.c \
+  $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c \
 
-GNU_PREFIX := arm-none-eabi
+#INC_VAR= -I .
 
-# Toolchain commands                                                               
-CC              := '$(GNU_PREFIX)-gcc'                                             
-AS              := '$(GNU_PREFIX)-as'                                              
-AR              := '$(GNU_PREFIX)-ar' -r                                           
-LD              := '$(GNU_PREFIX)-ld'                                              
-NM              := '$(GNU_PREFIX)-nm'                                              
-OBJDUMP         := '$(GNU_PREFIX)-objdump'                                         
-OBJCOPY         := '$(GNU_PREFIX)-objcopy'                                         
-SIZE            := '$(GNU_PREFIX)-size'
+# Include folders common to all targets
+INC_FOLDER = -I./components/nfc/ndef/generic/message
+INC_FOLDER += -I./components/nfc/t2t_lib
+INC_FOLDER += -I./components/nfc/t4t_parser/hl_detection_procedure
+INC_FOLDER += -I./components/ble/ble_services/ble_ancs_c
+INC_FOLDER += -I./components/ble/ble_services/ble_ias_c
+INC_FOLDER += -I./components/libraries/pwm
+INC_FOLDER += -I./components/softdevice/s132/headers/nrf52
+INC_FOLDER += -I./components/libraries/usbd/class/cdc/acm
+INC_FOLDER += -I./components/libraries/usbd/class/hid/generic
+INC_FOLDER += -I./components/libraries/usbd/class/msc
+INC_FOLDER += -I./components/libraries/usbd/class/hid
+INC_FOLDER += -I./modules/nrfx/hal
+INC_FOLDER += -I./components/nfc/ndef/conn_hand_parser/le_oob_rec_parser
+INC_FOLDER += -I./components/libraries/log
+INC_FOLDER += -I./components/ble/ble_services/ble_gls
+INC_FOLDER += -I./components/libraries/fstorage
+INC_FOLDER += -I./components/nfc/ndef/text
+INC_FOLDER += -I./components/libraries/mutex
+INC_FOLDER += -I./components/libraries/gpiote
+INC_FOLDER += -I./components/libraries/bootloader/ble_dfu
+INC_FOLDER += -I./components/nfc/ndef/connection_handover/common
+INC_FOLDER += -I./components/boards
+INC_FOLDER += -I./components/nfc/ndef/generic/record
+INC_FOLDER += -I./components/nfc/t4t_parser/cc_file
+INC_FOLDER += -I./components/ble/ble_advertising
+INC_FOLDER += -I./external/utf_converter
+INC_FOLDER += -I./components/ble/ble_services/ble_bas_c
+INC_FOLDER += -I./modules/nrfx/drivers/include
+INC_FOLDER += -I./components/libraries/experimental_task_manager
+INC_FOLDER += -I./components/ble/ble_services/ble_hrs_c
+INC_FOLDER += -I./components/nfc/ndef/connection_handover/le_oob_rec
+INC_FOLDER += -I./components/libraries/queue
+INC_FOLDER += -I./components/libraries/pwr_mgmt
+INC_FOLDER += -I./components/ble/ble_dtm
+INC_FOLDER += -I./components/toolchain/cmsis/include
+INC_FOLDER += -I./components/ble/ble_services/ble_rscs_c
+INC_FOLDER += -I./components/ble/common
+INC_FOLDER += -I./components/ble/ble_services/ble_lls
+INC_FOLDER += -I./components/libraries/bsp
+INC_FOLDER += -I./components/nfc/ndef/connection_handover/ac_rec
+INC_FOLDER += -I./components/ble/ble_services/ble_bas
+INC_FOLDER += -I./components/libraries/mpu
+INC_FOLDER += -I./components/libraries/experimental_section_vars
+INC_FOLDER += -I./components/softdevice/s132/headers
+INC_FOLDER += -I./components/ble/ble_services/ble_ans_c
+INC_FOLDER += -I./components/libraries/slip
+INC_FOLDER += -I./components/libraries/delay
+INC_FOLDER += -I./components/libraries/csense_drv
+INC_FOLDER += -I./components/libraries/memobj
+INC_FOLDER += -I./components/ble/ble_services/ble_nus_c
+INC_FOLDER += -I./components/softdevice/common
+INC_FOLDER += -I./components/ble/ble_services/ble_ias
+INC_FOLDER += -I./components/libraries/usbd/class/hid/mouse
+INC_FOLDER += -I./components/libraries/low_power_pwm
+INC_FOLDER += -I./components/nfc/ndef/conn_hand_parser/ble_oob_advdata_parser
+INC_FOLDER += -I./components/ble/ble_services/ble_dfu
+INC_FOLDER += -I./external/fprintf
+INC_FOLDER += -I./components/libraries/svc
+INC_FOLDER += -I./components/libraries/atomic
+INC_FOLDER += -I./components
+INC_FOLDER += -I./components/libraries/scheduler
+INC_FOLDER += -I./components/libraries/cli
+INC_FOLDER += -I./components/ble/ble_services/ble_lbs
+INC_FOLDER += -I./components/ble/ble_services/ble_hts
+INC_FOLDER += -I./components/libraries/crc16
+INC_FOLDER += -I./components/nfc/t4t_parser/apdu
+INC_FOLDER += -I./components/libraries/util
+INC_FOLDER += -I./config
+INC_FOLDER += -I./components/libraries/usbd/class/cdc
+INC_FOLDER += -I./components/libraries/csense
+INC_FOLDER += -I./components/libraries/balloc
+INC_FOLDER += -I./components/libraries/ecc
+INC_FOLDER += -I./components/libraries/hardfault
+INC_FOLDER += -I./components/ble/ble_services/ble_cscs
+INC_FOLDER += -I./components/libraries/hci
+INC_FOLDER += -I./components/libraries/timer
+INC_FOLDER += -I./integration/nrfx
+INC_FOLDER += -I./components/nfc/t4t_parser/tlv
+INC_FOLDER += -I./components/libraries/sortlist
+INC_FOLDER += -I./components/libraries/spi_mngr
+INC_FOLDER += -I./components/libraries/led_softblink
+INC_FOLDER += -I./components/nfc/ndef/conn_hand_parser
+INC_FOLDER += -I./components/libraries/sdcard
+INC_FOLDER += -I./components/nfc/ndef/parser/record
+INC_FOLDER += -I./modules/nrfx/mdk
+INC_FOLDER += -I./components/ble/ble_services/ble_cts_c
+INC_FOLDER += -I./components/ble/ble_services/ble_nus
+INC_FOLDER += -I./components/libraries/twi_mngr
+INC_FOLDER += -I./components/ble/ble_services/ble_hids
+INC_FOLDER += -I./components/libraries/strerror
+INC_FOLDER += -I./components/libraries/crc32
+INC_FOLDER += -I./components/nfc/ndef/connection_handover/ble_oob_advdata
+INC_FOLDER += -I./components/nfc/t2t_parser
+INC_FOLDER += -I./components/nfc/ndef/connection_handover/ble_pair_msg
+INC_FOLDER += -I./components/libraries/usbd/class/audio
+INC_FOLDER += -I./components/libraries/sensorsim
+INC_FOLDER += -I./components/nfc/t4t_lib
+INC_FOLDER += -I./components/ble/peer_manager
+INC_FOLDER += -I./components/libraries/mem_manager
+INC_FOLDER += -I./components/libraries/ringbuf
+INC_FOLDER += -I./components/ble/ble_services/ble_tps
+INC_FOLDER += -I./components/nfc/ndef/parser/message
+INC_FOLDER += -I./components/ble/ble_services/ble_dis
+INC_FOLDER += -I./components/nfc/ndef/uri
+INC_FOLDER += -I./components/ble/nrf_ble_gatt
+INC_FOLDER += -I./components/ble/nrf_ble_qwr
+INC_FOLDER += -I./components/libraries/gfx
+INC_FOLDER += -I./components/libraries/button
+INC_FOLDER += -I./modules/nrfx
+INC_FOLDER += -I./components/libraries/twi_sensor
+INC_FOLDER += -I./integration/nrfx/legacy
+INC_FOLDER += -I./components/libraries/usbd/class/hid/kbd
+INC_FOLDER += -I./components/nfc/ndef/connection_handover/ep_oob_rec
+INC_FOLDER += -I./external/segger_rtt
+INC_FOLDER += -I./components/libraries/atomic_fifo
+INC_FOLDER += -I./components/ble/ble_services/ble_lbs_c
+INC_FOLDER += -I./components/nfc/ndef/connection_handover/ble_pair_lib
+INC_FOLDER += -I./components/libraries/crypto
+INC_FOLDER += -I./components/ble/ble_racp
+INC_FOLDER += -I./components/libraries/fds
+INC_FOLDER += -I./components/nfc/ndef/launchapp
+INC_FOLDER += -I./components/libraries/atomic_flags
+INC_FOLDER += -I./components/ble/ble_services/ble_hrs
+INC_FOLDER += -I./components/ble/ble_services/ble_rscs
+INC_FOLDER += -I./components/nfc/ndef/connection_handover/hs_rec
+INC_FOLDER += -I./components/libraries/usbd
+INC_FOLDER += -I./components/nfc/ndef/conn_hand_parser/ac_rec_parser
+INC_FOLDER += -I./components/libraries/stack_guard
+INC_FOLDER += -I./components/libraries/log/src
 
-#function for removing duplicates in a list
-remduplicates = $(strip $(if $1,$(firstword $1) $(call remduplicates,$(filter-out $(firstword $1),$1))))
+# Libraries common to all targets
+LIB_FILES += \
 
-#source common to all targets
-C_SOURCE_FILES += \
-./components/libraries/button/app_button.c \
-./components/libraries/util/app_error.c \
-./components/libraries/scheduler/app_scheduler.c \
-./components/libraries/timer/app_timer.c \
-./components/libraries/timer/app_timer_appsh.c \
-./components/libraries/trace/app_trace.c \
-./components/libraries/util/nrf_assert.c \
-./components/libraries/uart/retarget.c \
-./components/libraries/uart/app_uart.c \
-./components/drivers_nrf/delay/nrf_delay.c \
-./components/drivers_nrf/common/nrf_drv_common.c \
-./components/drivers_nrf/gpiote/nrf_drv_gpiote.c \
-./components/drivers_nrf/uart/nrf_drv_uart.c \
-./components/drivers_nrf/pstorage/pstorage.c \
-./bsp/bsp.c \
-./main.c \
-./components/ble/common/ble_advdata.c \
-./components/ble/ble_advertising/ble_advertising.c \
-./components/ble/common/ble_conn_params.c \
-./components/ble/common/ble_srv_common.c \
-./components/toolchain/system_nrf52.c \
-./components/softdevice/common/softdevice_handler/softdevice_handler.c \
+# Optimization flags
+OPT = -O3 -g3
+# Uncomment the line below to enable link time optimization
+#OPT += -flto
 
-#assembly files common to all targets
-#ASM_SOURCE_FILES  = ./components/toolchain/gcc/gcc_startup_nrf52.s
-
-#includes common to all targets
-INC_PATHS  = -I./config
-INC_PATHS += -I./components/libraries/scheduler
-INC_PATHS += -I./components/drivers_nrf/config
-INC_PATHS += -I./bsp
-INC_PATHS += -I./components/drivers_nrf/delay
-INC_PATHS += -I./components/softdevice/s132/headers/nrf52
-INC_PATHS += -I./components/libraries/util
-INC_PATHS += -I./components/drivers_nrf/uart
-INC_PATHS += -I./components/ble/common
-INC_PATHS += -I./components/drivers_nrf/pstorage
-INC_PATHS += -I./components/libraries/uart
-INC_PATHS += -I./components/device
-INC_PATHS += -I./components/libraries/button
-INC_PATHS += -I./components/libraries/timer
-INC_PATHS += -I./components/softdevice/s132/headers
-INC_PATHS += -I./components/drivers_nrf/gpiote
-INC_PATHS += -I./components/drivers_nrf/hal
-INC_PATHS += -I./components/toolchain/gcc
-INC_PATHS += -I./components/toolchain
-INC_PATHS += -I./components/drivers_nrf/common
-INC_PATHS += -I./components/ble/ble_advertising
-INC_PATHS += -I./components/libraries/trace
-INC_PATHS += -I./components/softdevice/common/softdevice_handler
-
-OBJECT_DIRECTORY = _build
-LISTING_DIRECTORY = $(OBJECT_DIRECTORY)
-OUTPUT_BINARY_DIRECTORY = $(OBJECT_DIRECTORY)
-
-# Sorting removes duplicates
-BUILD_DIRECTORIES := $(sort $(OBJECT_DIRECTORY) $(OUTPUT_BINARY_DIRECTORY) $(LISTING_DIRECTORY) )
-
-#flags common to all targets
-CFLAGS  = -DSWI_DISABLE0
-CFLAGS += -DSOFTDEVICE_PRESENT
-CFLAGS += -DNRF52
-CFLAGS += -DBOARD_PCA10036
+# C flags common to all targets
+CFLAGS += $(OPT)
+CFLAGS += -DBOARD_PCA10040
 CFLAGS += -DCONFIG_GPIO_AS_PINRESET
+CFLAGS += -DFLOAT_ABI_HARD
+CFLAGS += -DNRF52
+CFLAGS += -DNRF52832_XXAA
+CFLAGS += -DNRF52_PAN_74 -g
+CFLAGS += -DNRF_SD_BLE_API_VERSION=6
 CFLAGS += -DS132
-CFLAGS += -DBLE_STACK_SUPPORT_REQD
+CFLAGS += -DSOFTDEVICE_PRESENT
+CFLAGS += -DSWI_DISABLE0
 CFLAGS += -mcpu=cortex-m4
-CFLAGS += -mthumb -mabi=aapcs --std=gnu99 -g
-CFLAGS += -Wall -Werror -O3
+CFLAGS += -mthumb -mabi=aapcs
+CFLAGS += -Wall -Werror
 #CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
-# keep every function in separate section. This will allow linker to dump unused functions
+# keep every function in a separate section, this allows linker to discard unused ones
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
-CFLAGS += -fno-builtin --short-enums
+CFLAGS += -fno-builtin -fshort-enums
 
-# keep every function in separate section. This will allow linker to dump unused functions
-LDFLAGS += -Xlinker -Map=$(LISTING_DIRECTORY)/$(OUTPUT_FILENAME).map
-LDFLAGS += -mthumb -mabi=aapcs -L $(TEMPLATE_PATH) -T$(LINKER_SCRIPT)
+# C++ flags common to all targets
+CXXFLAGS += $(OPT)
+
+# Assembler flags common to all targets
+ASMFLAGS += -g3
+ASMFLAGS += -mcpu=cortex-m4
+ASMFLAGS += -mthumb -mabi=aapcs
+#ASMFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
+ASMFLAGS += -DBOARD_PCA10040
+ASMFLAGS += -DCONFIG_GPIO_AS_PINRESET
+ASMFLAGS += -DFLOAT_ABI_HARD
+ASMFLAGS += -DNRF52
+ASMFLAGS += -DNRF52832_XXAA
+ASMFLAGS += -DNRF52_PAN_74
+ASMFLAGS += -DNRF_SD_BLE_API_VERSION=6
+ASMFLAGS += -DS132
+ASMFLAGS += -DSOFTDEVICE_PRESENT
+ASMFLAGS += -DSWI_DISABLE0
+
+# Linker flags
+LDFLAGS += $(OPT)
+LDFLAGS += -mthumb -mabi=aapcs -L$(SDK_ROOT)/modules/nrfx/mdk -T$(LINKER_SCRIPT)
 LDFLAGS += -mcpu=cortex-m4
 #LDFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
-# let linker to dump unused sections
+# let linker dump unused sections
 LDFLAGS += -Wl,--gc-sections
 # use newlib in nano version
-LDFLAGS += --specs=nano.specs -lc -lnosys
+LDFLAGS += --specs=nano.specs
 
-# Assembler flags
-ASMFLAGS += -x assembler-with-cpp
-ASMFLAGS += -DSWI_DISABLE0
-ASMFLAGS += -DSOFTDEVICE_PRESENT
-ASMFLAGS += -DNRF52
-ASMFLAGS += -DBOARD_PCA10036
-ASMFLAGS += -DCONFIG_GPIO_AS_PINRESET
-ASMFLAGS += -DS132
-ASMFLAGS += -DBLE_STACK_SUPPORT_REQD
-#default target - first one defined
-default: clean nrf52832_xxaa_s132
+nrf52832_xxaa: CFLAGS += -D__HEAP_SIZE=8192
+nrf52832_xxaa: CFLAGS += -D__STACK_SIZE=8192
+nrf52832_xxaa: ASMFLAGS += -D__HEAP_SIZE=8192
+nrf52832_xxaa: ASMFLAGS += -D__STACK_SIZE=8192
 
-#building all targets
-all: clean
-	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e cleanobj
-	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e nrf52832_xxaa_s132 
+# Add standard libraries at the very end of the linker input, after all objects
+# that may need symbols provided by these libraries.
+LIB_FILES += -lc -lnosys -lm
 
-#target for printing all targets
+
+.PHONY: default help
+
+# Default target - first one defined
+default: nrf52832_xxaa
+
+# Print all targets that can be built
 help:
 	@echo following targets are available:
-	@echo 	nrf52832_xxaa_s132
-	@echo 	flash_softdevice
+	@echo		nrf52832_xxaa
+	@echo		flash_softdevice
+	@echo		sdk_config - starting external tool for editing sdk_config.h
+	@echo		flash      - flashing binary
+
+TEMPLATE_PATH := $(SDK_ROOT)/components/toolchain/gcc
 
 
-C_SOURCE_FILE_NAMES = $(notdir $(C_SOURCE_FILES))
-C_PATHS = $(call remduplicates, $(dir $(C_SOURCE_FILES) ) )
-C_OBJECTS = $(addprefix $(OBJECT_DIRECTORY)/, $(C_SOURCE_FILE_NAMES:.c=.o) )
+include $(TEMPLATE_PATH)/Makefile.common
 
-ASM_SOURCE_FILE_NAMES = $(notdir $(ASM_SOURCE_FILES))
-ASM_PATHS = $(call remduplicates, $(dir $(ASM_SOURCE_FILES) ))
-ASM_OBJECTS = $(addprefix $(OBJECT_DIRECTORY)/, $(ASM_SOURCE_FILE_NAMES:.s=.o) )
+$(foreach target, $(TARGETS), $(call define_target, $(target)))
+
+.PHONY: flash flash_softdevice erase
+
+C_SOURCE_FILE_NAMES = $(notdir $(SRC_FILES))
+C_PATHS = $(call remduplicates, $(dir $(SRC_FILES) ) )
+OBJECTS = $(addprefix $(OUTPUT_DIRECTORY)/, $(SRC_FILES:.c=.o) )
 
 vpath %.c $(C_PATHS)
-vpath %.s $(ASM_PATHS)
 
-OBJECTS = $(C_OBJECTS) $(ASM_OBJECTS)
+# Flash the program
+flash: default
+	@echo Flashing: $(OUTPUT_DIRECTORY)/nrf52832_xxaa.hex
+	nrfjprog -f nrf52 --program $(OUTPUT_DIRECTORY)/nrf52832_xxaa.hex --sectorerase
+	nrfjprog -f nrf52 --reset
 
-nrf52832_xxaa_s132: OUTPUT_FILENAME := nrf52832_xxaa_s132
-nrf52832_xxaa_s132: LINKER_SCRIPT=ble_app_template_gcc_nrf52.ld
-nrf52832_xxaa_s132: $(BUILD_DIRECTORIES) $(OBJECTS)
-	@echo Linking target: $(OUTPUT_FILENAME).out
-	$(NO_ECHO)$(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out
-	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e finalize
+# Flash softdevice
+flash_softdevice:
+	@echo Flashing: s132_nrf52_6.1.1_softdevice.hex
+	nrfjprog -f nrf52 --program $(SDK_ROOT)/components/softdevice/s132/hex/s132_nrf52_6.1.1_softdevice.hex --sectorerase
+	nrfjprog -f nrf52 --reset
+
+erase:
+	nrfjprog -f nrf52 --eraseall
+
+SDK_CONFIG_FILE := ../config/sdk_config.h
+CMSIS_CONFIG_TOOL := $(SDK_ROOT)/external_tools/cmsisconfig/CMSIS_Configuration_Wizard.jar
+sdk_config:
+	java -jar $(CMSIS_CONFIG_TOOL) $(SDK_CONFIG_FILE)
 
 ## Create build directories
-$(BUILD_DIRECTORIES):
+$(OUTPUT_DIRECTORY):
 	echo $(MAKEFILE_NAME)
 	$(MK) $@
 
-# Create objects from C SRC files
-$(OBJECT_DIRECTORY)/%.o: %.c
+$(OUTPUT_DIRECTORY)/%.o: %.c
 	@echo Compiling file: $(notdir $<)
-	$(NO_ECHO)$(CC) $(CFLAGS) $(INC_PATHS) -c -o $@ $<
+	$(CC) $(CFLAGS) $(INC_FOLDER) -c -o $(OUTPUT_DIRECTORY)/$(notdir $@) $<
 
-# Assemble files
-$(OBJECT_DIRECTORY)/%.o: %.s
-	@echo Compiling file: $(notdir $<)
-	$(NO_ECHO)$(CC) $(ASMFLAGS) $(INC_PATHS) -c -o $@ $<
-
-
-# Link
-$(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out: $(BUILD_DIRECTORIES) $(OBJECTS)
-	@echo Linking target: $(OUTPUT_FILENAME).out
-	$(NO_ECHO)$(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out
-
-
-## Create binary .bin file from the .out file
-$(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).bin: $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out
-	@echo Preparing: $(OUTPUT_FILENAME).bin
-	$(NO_ECHO)$(OBJCOPY) -O binary $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).bin
-
-## Create binary .hex file from the .out file
-$(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).hex: $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out
-	@echo Preparing: $(OUTPUT_FILENAME).hex
-	$(NO_ECHO)$(OBJCOPY) -O ihex $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).hex
-
-finalize: genbin genhex echosize
-
-genbin:
-	@echo Preparing: $(OUTPUT_FILENAME).bin
-	$(NO_ECHO)$(OBJCOPY) -O binary $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).bin
-
-## Create binary .hex file from the .out file
-genhex: 
-	@echo Preparing: $(OUTPUT_FILENAME).hex
-	$(NO_ECHO)$(OBJCOPY) -O ihex $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).hex
-
-echosize:
-	-@echo ''
-	$(NO_ECHO)$(SIZE) $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out
-	-@echo ''
-
-clean:
-	$(RM) $(BUILD_DIRECTORIES)
-
-cleanobj:
-	$(RM) $(BUILD_DIRECTORIES)/*.o
-
-archive: $(OBJECTS)
-	${PREFIX}ar -rc $(TOPDIR)/$(TMP_LIB) $(OBJECTS)
-
-flash: $(MAKECMDGOALS)
-	@echo Flashing: $(OUTPUT_BINARY_DIRECTORY)/$<.hex
-	nrfjprog --erasepage 0x1f000-0x80000 -f nrf52
-	nrfjprog --program $(OUTPUT_BINARY_DIRECTORY)/$<.hex -f nrf52
-	nrfjprog --reset
-
-## Flash softdevice
-flash_softdevice:
-	@echo Flashing: s132_nrf52_1.0.0-3.alpha_softdevice.hex
-	nrfjprog --erasepage 0x0-0x1f000 -f nrf52
-	nrfjprog --program ../../../../../../components/softdevice/s132/hex/s132_nrf52_1.0.0-3.alpha_softdevice.hex -f nrf52
-	nrfjprog --reset
+archive: $(OUTPUT_DIRECTORY) $(OBJECTS)
+	@echo Building: $(OBJECTS)
+	$(AR) -rc $(TOPDIR)/$(TMP_LIB) $(OUTPUT_DIRECTORY)/*.o
