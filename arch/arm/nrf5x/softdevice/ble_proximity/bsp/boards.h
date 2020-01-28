@@ -32,6 +32,8 @@
   #include "pca10031.h"
 #elif defined(BOARD_PCA10036)
   #include "pca10036.h"
+#elif defined(BOARD_PCA10040)
+  #include "pca10040.h"
 #elif defined(BOARD_WT51822)
   #include "wt51822.h"
 #elif defined(BOARD_CUSTOM)

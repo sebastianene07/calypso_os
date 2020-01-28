@@ -1,4 +1,4 @@
-GNU_INSTALL_ROOT := /Users/sebastianene/Downloads/toolchain/gcc-arm-none-eabi-8-2018-q4-major/
+GNU_INSTALL_ROOT := /Users/sebastianene/Downloads/toolchain/gcc-arm-none-eabi-8-2018-q4-major
 GNU_VERSION := 4.9.3
 GNU_PREFIX := arm-none-eabi
 

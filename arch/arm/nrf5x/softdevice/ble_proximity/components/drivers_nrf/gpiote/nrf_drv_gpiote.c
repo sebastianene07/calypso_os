@@ -32,31 +32,31 @@ typedef struct
     int8_t                       handlers_to_pins[GPIOTE_CONFIG_NUM_OF_LOW_POWER_EVENTS];
 } gpiote_control_block_t;
 
-static gpiote_control_block_t m_cb;
+static volatile gpiote_control_block_t g_gpio_control_block = {0};
 
 __STATIC_INLINE bool pin_in_use(uint32_t pin)
 {
-    return (m_cb.pin_assignments[pin] != PIN_NOT_USED) ? true : false;
+    return (g_gpio_control_block.pin_assignments[pin] != PIN_NOT_USED) ? true : false;
 }
 
 __STATIC_INLINE bool pin_in_use_as_non_task_out(uint32_t pin)
 {
-    return (m_cb.pin_assignments[pin] == PIN_USED) ? true : false;
+    return (g_gpio_control_block.pin_assignments[pin] == PIN_USED) ? true : false;
 }
 
 __STATIC_INLINE bool pin_in_use_by_te(uint32_t pin)
 {
-    return (m_cb.pin_assignments[pin] >= 0 && m_cb.pin_assignments[pin] < NUMBER_OF_GPIO_TE) ? true : false;
+    return (g_gpio_control_block.pin_assignments[pin] >= 0 && g_gpio_control_block.pin_assignments[pin] < NUMBER_OF_GPIO_TE) ? true : false;
 }
 
 __STATIC_INLINE bool pin_in_use_by_port(uint32_t pin)
 {
-    return (m_cb.pin_assignments[pin] >= NUMBER_OF_GPIO_TE) ? true : false;
+    return (g_gpio_control_block.pin_assignments[pin] >= NUMBER_OF_GPIO_TE) ? true : false;
 }
 
 __STATIC_INLINE bool pin_in_use_by_gpiote(uint32_t pin)
 {
-    return (m_cb.pin_assignments[pin] >= 0) ? true : false;
+    return (g_gpio_control_block.pin_assignments[pin] >= 0) ? true : false;
 }
 
 __STATIC_INLINE void pin_in_use_by_te_set(uint32_t pin,
@@ -64,37 +64,37 @@ __STATIC_INLINE void pin_in_use_by_te_set(uint32_t pin,
                                           nrf_drv_gpiote_evt_handler_t handler,
                                           bool is_channel)
 {
-    m_cb.pin_assignments[pin] = channel_id;
-    m_cb.handlers[channel_id] = handler;
+    g_gpio_control_block.pin_assignments[pin] = channel_id;
+    g_gpio_control_block.handlers[channel_id] = handler;
     if (!is_channel)
     {
-        m_cb.handlers_to_pins[channel_id-NUMBER_OF_GPIO_TE] = (int8_t)pin;
+        g_gpio_control_block.handlers_to_pins[channel_id-NUMBER_OF_GPIO_TE] = (int8_t)pin;
     }
 }
 
 __STATIC_INLINE void pin_in_use_set(uint32_t pin)
 {
-    m_cb.pin_assignments[pin] = PIN_USED;
+    g_gpio_control_block.pin_assignments[pin] = PIN_USED;
 }
 
 __STATIC_INLINE void pin_in_use_clear(uint32_t pin)
 {
-    m_cb.pin_assignments[pin] = PIN_NOT_USED;
+    g_gpio_control_block.pin_assignments[pin] = PIN_NOT_USED;
 }
 
 __STATIC_INLINE int8_t channel_port_get(uint32_t pin)
 {
-    return m_cb.pin_assignments[pin];
+    return g_gpio_control_block.pin_assignments[pin];
 }
 
 __STATIC_INLINE uint8_t pin_from_port_get(uint32_t port_channel)
 {
-    return m_cb.handlers_to_pins[port_channel];
+    return g_gpio_control_block.handlers_to_pins[port_channel];
 }
 
 __STATIC_INLINE nrf_drv_gpiote_evt_handler_t channel_handler_get(uint32_t channel)
 {
-    return m_cb.handlers[channel];
+    return g_gpio_control_block.handlers[channel];
 }
 
 static int8_t channel_port_alloc(uint32_t pin,nrf_drv_gpiote_evt_handler_t handler, bool channel)
@@ -108,7 +108,7 @@ static int8_t channel_port_alloc(uint32_t pin,nrf_drv_gpiote_evt_handler_t handl
 
     for (i = start_idx; i < end_idx; i++)
     {
-        if (m_cb.handlers[i] == FORBIDDEN_HANDLER_ADDRESS)
+        if (g_gpio_control_block.handlers[i] == FORBIDDEN_HANDLER_ADDRESS)
         {
             pin_in_use_by_te_set(pin, i, handler, channel);
             channel_id = i;
@@ -121,16 +121,16 @@ static int8_t channel_port_alloc(uint32_t pin,nrf_drv_gpiote_evt_handler_t handl
 
 static void channel_free(uint8_t channel_id)
 {
-    m_cb.handlers[channel_id] = FORBIDDEN_HANDLER_ADDRESS;
+    g_gpio_control_block.handlers[channel_id] = FORBIDDEN_HANDLER_ADDRESS;
     if (channel_id >= NUMBER_OF_GPIO_TE)
     {
-        m_cb.handlers_to_pins[channel_id-NUMBER_OF_GPIO_TE] = (int8_t)-1;
+        g_gpio_control_block.handlers_to_pins[channel_id-NUMBER_OF_GPIO_TE] = (int8_t)-1;
     }
 }
 
 ret_code_t nrf_drv_gpiote_init(void)
 {
-    if (m_cb.state != NRF_DRV_STATE_UNINITIALIZED)
+    if (g_gpio_control_block.state != NRF_DRV_STATE_UNINITIALIZED)
     {
         return NRF_ERROR_INVALID_STATE;
     }
@@ -147,19 +147,19 @@ ret_code_t nrf_drv_gpiote_init(void)
 
     nrf_drv_common_irq_enable(GPIOTE_IRQn, GPIOTE_CONFIG_IRQ_PRIORITY);
     nrf_gpiote_int_enable(GPIOTE_INTENSET_PORT_Msk);
-    m_cb.state = NRF_DRV_STATE_INITIALIZED;
+    g_gpio_control_block.state = NRF_DRV_STATE_INITIALIZED;
 
     return NRF_SUCCESS;
 }
 
 bool nrf_drv_gpiote_is_init(void)
 {
-    return (m_cb.state != NRF_DRV_STATE_UNINITIALIZED) ? true : false;
+    return (g_gpio_control_block.state != NRF_DRV_STATE_UNINITIALIZED) ? true : false;
 }
 
 void nrf_drv_gpiote_uninit(void)
 {
-    ASSERT(m_cb.state!=NRF_DRV_STATE_UNINITIALIZED);
+    ASSERT(g_gpio_control_block.state!=NRF_DRV_STATE_UNINITIALIZED);
 
     uint32_t i;
     for (i = 0; i < NUMBER_OF_PINS; i++)
@@ -176,13 +176,13 @@ void nrf_drv_gpiote_uninit(void)
             nrf_drv_gpiote_in_uninit(i);
         }
     }
-    m_cb.state = NRF_DRV_STATE_UNINITIALIZED;
+    g_gpio_control_block.state = NRF_DRV_STATE_UNINITIALIZED;
 }
 
 ret_code_t nrf_drv_gpiote_out_init(nrf_drv_gpiote_pin_t pin, nrf_drv_gpiote_out_config_t * p_config)
 {
     ASSERT(pin < NUMBER_OF_PINS);
-    ASSERT(m_cb.state == NRF_DRV_STATE_INITIALIZED);
+    ASSERT(g_gpio_control_block.state == NRF_DRV_STATE_INITIALIZED);
     ASSERT(p_config);
 
     ret_code_t result = NRF_SUCCESS;
@@ -236,7 +236,7 @@ void nrf_drv_gpiote_out_uninit(nrf_drv_gpiote_pin_t pin)
 
     if (pin_in_use_by_te(pin))
     {
-        channel_free((uint8_t)m_cb.pin_assignments[pin]);
+        channel_free((uint8_t)g_gpio_control_block.pin_assignments[pin]);
     }
     pin_in_use_clear(pin);
 
@@ -276,7 +276,7 @@ void nrf_drv_gpiote_out_task_enable(nrf_drv_gpiote_pin_t pin)
     ASSERT(pin_in_use(pin));
     ASSERT(pin_in_use_by_te(pin))
 
-    nrf_gpiote_task_enable(m_cb.pin_assignments[pin]);
+    nrf_gpiote_task_enable(g_gpio_control_block.pin_assignments[pin]);
 }
 
 void nrf_drv_gpiote_out_task_disable(nrf_drv_gpiote_pin_t pin)
@@ -285,7 +285,7 @@ void nrf_drv_gpiote_out_task_disable(nrf_drv_gpiote_pin_t pin)
     ASSERT(pin_in_use(pin));
     ASSERT(pin_in_use_by_te(pin))
 
-    nrf_gpiote_task_disable(m_cb.pin_assignments[pin]);
+    nrf_gpiote_task_disable(g_gpio_control_block.pin_assignments[pin]);
 }
 
 uint32_t nrf_drv_gpiote_out_task_addr_get(nrf_drv_gpiote_pin_t pin)
@@ -304,7 +304,7 @@ void nrf_drv_gpiote_out_task_force(nrf_drv_gpiote_pin_t pin, uint8_t state)
     ASSERT(pin_in_use_by_te(pin));
     
     nrf_gpiote_outinit_t init_val = state ? NRF_GPIOTE_INITIAL_VALUE_HIGH : NRF_GPIOTE_INITIAL_VALUE_LOW;
-    nrf_gpiote_task_force(m_cb.pin_assignments[pin], init_val);
+    nrf_gpiote_task_force(g_gpio_control_block.pin_assignments[pin], init_val);
 }
 
 void nrf_drv_gpiote_out_task_trigger(nrf_drv_gpiote_pin_t pin)
@@ -348,7 +348,7 @@ ret_code_t nrf_drv_gpiote_in_init(nrf_drv_gpiote_pin_t pin,
             }
             else
             {
-                m_cb.handlers_to_pins[channel-NUMBER_OF_GPIO_TE] |= (p_config->sense)<< SENSE_FIELD_POS;
+                g_gpio_control_block.handlers_to_pins[channel-NUMBER_OF_GPIO_TE] |= (p_config->sense)<< SENSE_FIELD_POS;
             }
         }
         else

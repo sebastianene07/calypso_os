@@ -47,6 +47,7 @@ SECTIONS {
                 . = ALIGN(4);
                 _sbss = .;              /* the . sets the symbol to value of current counter */
                 *(.bss)
+		*(.bss.*)
                 *(COMMON)
                 . = ALIGN(4);
                 _ebss = .;
