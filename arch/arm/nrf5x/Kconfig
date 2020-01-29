@@ -135,3 +135,25 @@ config RAM_BASE
 config RAM_LENGTH
     hex "The length of the SRAM memory in bytes"
     default 0x10000
+
+config HARDWARE_FP
+    bool "Hardware floating point instructions"
+    default n
+
+config SYSTEM_CLOCK_FREQUENCY
+  int "System core clock frequency in MhZ"
+  default 25
+
+config SYSTEM_SCHEDULER_SLICE_FREQUENCY
+  int "The pre-emption interrupt frequency in Hz"
+  default 2000
+
+config NRF5X_RTC
+  bool "Support for nordic real time clock"
+  select RTC_DRIVER
+  default n
+
+config NRF5X_TIMER
+  bool "Support for nordic timers"
+  select TIMER_DRIVER
+  default n

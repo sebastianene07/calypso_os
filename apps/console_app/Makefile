@@ -40,6 +40,10 @@ ifeq ($(CONFIG_CONSOLE_ECHO),y)
 SRC+= console_echo.c
 endif
 
+ifeq ($(CONFIG_CONSOLE_NRF_INIT_SOFTDEVICE_APP),y)
+SRC+=console_nrf_init.c
+endif
+
 OBJS:=$(patsubst %.c,%.o,$(SRC))
 CONSOLE_FLAGS := ${CFLAGS}  \
 	-I$(TOPDIR)/include \

@@ -15,6 +15,12 @@ void dummy_fn(void);
 
 void Pend_SV_Handler(void);
 void SysTick_Handler(void);
+void SVC_Handler(void);
+void NMI_Handler(void);
+
+/* This function is implemented in assembly and returns the ISR number */
+int up_get_irq_number(void);
+
 static void generic_isr_handler(void);
 
 /* The fault handler implementation calls a function called
@@ -27,8 +33,8 @@ static void HardFault_Handler(void)
 __attribute__((section(".isr_vector")))
 void (*g_vectors[NUM_IRQS])(void) = {
         STACK_TOP,
-        os_startup,
-        dummy_fn,
+        _start,
+        NMI_Handler,
         HardFault_Handler,
         dummy_fn,
         dummy_fn,
@@ -37,7 +43,7 @@ void (*g_vectors[NUM_IRQS])(void) = {
         dummy_fn,
         dummy_fn,
         dummy_fn,
-        dummy_fn,
+        SVC_Handler,
         dummy_fn,
         dummy_fn,
         Pend_SV_Handler,
@@ -103,10 +109,19 @@ void dummy_fn(void)
         }
 }
 
+void SVC_Handler(void)
+{
+}
+
+void NMI_Handler(void)
+{
+}
+
 static void generic_isr_handler(void)
 {
   /* get the exception number */
-  uint8_t isr_num = (SCB->ICSR & 0xF);
+  volatile uint8_t isr_num = up_get_irq_number();
+  isr_num -= 16;
 
   if (isr_num >= NUM_IRQS || g_ram_vectors[isr_num] == NULL)
     return;

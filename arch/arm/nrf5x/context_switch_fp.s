@@ -11,16 +11,34 @@
 .global SysTick_Handler
 .global Pend_SV_Handler
 .global sched_context_switch
+.global up_get_irq_number
 
 .extern sched_get_next_task
 .extern sched_preempt_task
 
 .section .text
 
-/* We are not using floating point stacking so here is the order of the registers saved:
- *   ______
- *	| xPSR | <---- Stack grows downwards so here are big address - Stack Base before
- *	|  PC  |       stacking.
+/* We are using floating point stacking so here is the order of the registers saved:
+ *   _____
+ *      | FPCSR | <---- Stack grows downwards so here are big address - 
+ *      | S15   |       before stacking
+ *      | S14   |
+ *      | S13   |
+ *      | S12   |
+ *      | S11   |
+ *      | S10   |
+ *      | S9    |
+ *      | S8    |
+ *      | S7    |
+ *      | S6    |
+ *      | S5    |
+ *      | S4    |
+ *      | S3    |
+ *      | S2    |
+ *      | S1    |
+ *      | S0    |
+ *	| xPSR |  
+*	|  PC  |      
  *	|  LR  |
  *	| R12  |
  *	|  R3  |
@@ -29,7 +47,7 @@
  *	|  R0  |
  *   ______	 <---- Stack ptr after stacking
  *
- *  32 bytes stored by the interrupt controller to save context.
+ *  100 bytes stored by the interrupt controller to save context.
  */
 
 /* We also need to store :
@@ -52,57 +70,57 @@
 
 SysTick_Handler:
 	stmdb sp!, {lr}					    // Store the link register on the stack
-	bl sched_get_current_task		// Get current TCB address in R0
+	bl sched_get_current_task			    // Get current TCB address in R0
 	ldmia sp!, {lr}					    // Restore the link register from the stack
 
-	cmp r0, #0						      // Verify NULL pointer TCB
-	beq SysTick_Handler_ret			// Handle NULL pointer to return from handler
+	cmp r0, #0					    // Verify NULL pointer TCB
+	beq SysTick_Handler_ret			            // Handle NULL pointer to return from handler
 	ldr r1, [r0, #4]				    // Load the state of the task
-  cmp r1, 2                   // Is this task waiting for sem ?
-  beq sched_do_switch         //
-  cmp r1, 3                   // Is this task shutting down ?
-  beq sched_do_switch         //
+	cmp r1, 2                   			// Is this task waiting for sem ?
+	beq sched_do_switch         			//
+	cmp r1, 3                   			// Is this task shutting down ?
+	beq sched_do_switch         			//
 
-	cmp r1, 1						        // Is this task currently running ?
+	cmp r1, 1					// Is this task currently running ?
 	bne SysTick_Handle_context_switch
 
-/* Task is running so switch it to (not running) READY */
+	/* Task is running so switch it to (not running) READY */
 
-  mov r1, #0
-  str r1, [r0, #4]
+	mov r1, #0
+	str r1, [r0, #4]
 
-/* Save the R4-R11 registers on the stack (we are on the running TCB stack) */
+	/* Save the R4-R11 registers on the stack (we are on the running TCB stack) */
 
-  push {R4-R11}
+	push {R4-R11}
 
-/* Save the SP in the TCB */
+	/* Save the SP in the TCB */
 
-  mov r1, sp
-  str r1, [r0, #16]
+	mov r1, sp
+	str r1, [r0, #16]
 
-/* Get the next task ptr in R0 */
+	/* Get the next task ptr in R0 */
 
 	stmdb sp!, {lr}					    // Store the link register on the stack
-	bl sched_get_next_task			// Get the next TCB address in R0
+	bl sched_get_next_task				    // Get the next TCB address in R0
 	ldmia sp!, {lr}					    // Restore the link register from the stack
 
-	cmp r0, #0						      // Verify NULL pointer TCB
-	beq SysTick_Handler_ret			// Handle NULL pointer to return from handler
+	cmp r0, #0					    // Verify NULL pointer TCB
+	beq SysTick_Handler_ret			            // Handle NULL pointer to return from handler
 
 SysTick_Handle_context_switch:
 	mov r1, #1
 	str r1, [r0, #4]				// Switch task state to running
-	mov r5, r0						  // Save task TCB ptr in r5
-	add r5, #16						  // Get the address of the sp from TCB struct in r5
+	mov r5, r0			                // Save task TCB ptr in r5
+	add r5, #16			                // Get the address of the sp from TCB struct in r5
 
-/* The SP of the new task should have already some stacking values */
+	/* The SP of the new task should have already some stacking values */
 
-	ldr r0, [r5]							  // Set SP to point to the task SP
-	mov sp, r0								  //
-  pop {R4-R11}                // Pop R4-R11
+	ldr r0, [r5]					// Set SP to point to the task SP
+	mov sp, r0					//
+	pop {R4-R11}                			// Pop R4-R11
 
 SysTick_Handler_ret:
-	bx lr							          // Return from handler
+	bx lr						// Return from handler
 
 sched_context_switch:
   /* Stack all the registers */
@@ -186,6 +204,10 @@ sched_context_switch_ret:
 //  cpsie i
 //  ldr pc, [sp, #-0x4]
 //
+
+up_get_irq_number:
+  mrs r0, ipsr
+  bx lr
 
 Pend_SV_Handler:
   nop

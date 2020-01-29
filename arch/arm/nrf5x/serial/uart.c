@@ -279,6 +279,7 @@ static int nrf52840_lpuart_open(const struct uart_lower_s *lower)
 
   attach_int(UARTE0_UART0_IRQn, nrf52840_lpuart_int);
   NVIC_EnableIRQ(UARTE0_UART0_IRQn);
+  NVIC_SetPriority(UARTE0_UART0_IRQn, 0x07);
 
   enable_int();
 
