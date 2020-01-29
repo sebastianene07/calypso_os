@@ -30,7 +30,7 @@ static void HardFault_Handler(void)
 __attribute__((section(".isr_vector")))
 void (*g_vectors[NUM_IRQS])(void) = {
         STACK_TOP,
-        os_startup,
+        _start,
         NMI_Handler,
         HardFault_Handler,
         dummy_fn,

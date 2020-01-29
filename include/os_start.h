@@ -9,7 +9,7 @@
 void os_appstart(void);
 
 /*
- * os_startup - initialize the OS resources
+ * _start - initialize the OS resources
  *
  *  Mount the virtual file system and initialize the device drivers. Pass
  *  the execution to os_appstart to start spwanning the initial tasks.
@@ -17,6 +17,6 @@ void os_appstart(void);
  *  HEAP memory was initialized and the SysTick was configured to allow
  *  context switching.
  */
-void os_startup(void);
+void _start(void);
 
 #endif /* __OS_START */

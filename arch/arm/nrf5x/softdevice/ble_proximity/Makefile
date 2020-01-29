@@ -1,30 +1,31 @@
-PROJECT_NAME := ble_app_template_s132_pca10036
+PROJECT_NAME := ble_app_proximity_s132_pca10036
 
 export OUTPUT_FILENAME
 #MAKEFILE_NAME := $(CURDIR)/$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
 MAKEFILE_NAME := $(MAKEFILE_LIST)
 MAKEFILE_DIR := $(dir $(MAKEFILE_NAME) ) 
+MAKECMDGOALS := nrf58232_xxaa_s132
 
 MK := mkdir
 RM := rm -rf
 
 #echo suspend
-ifeq ("$(VERBOSE)","1")
-NO_ECHO := 
-else
+#ifeq ("$(VERBOSE)","1")
+#NO_ECHO := 
+#else
 NO_ECHO := @
-endif
+#endif
 
 GNU_PREFIX := arm-none-eabi
 
-# Toolchain commands                                                               
-CC              := '$(GNU_PREFIX)-gcc'                                             
-AS              := '$(GNU_PREFIX)-as'                                              
-AR              := '$(GNU_PREFIX)-ar' -r                                           
-LD              := '$(GNU_PREFIX)-ld'                                              
-NM              := '$(GNU_PREFIX)-nm'                                              
-OBJDUMP         := '$(GNU_PREFIX)-objdump'                                         
-OBJCOPY         := '$(GNU_PREFIX)-objcopy'                                         
+# Toolchain commands
+CC              := '$(GNU_PREFIX)-gcc'
+AS              := '$(GNU_PREFIX)-as'
+AR              := '$(GNU_PREFIX)-ar' -r
+LD              := '$(GNU_PREFIX)-ld'
+NM              := '$(GNU_PREFIX)-nm'
+OBJDUMP         := '$(GNU_PREFIX)-objdump'
+OBJCOPY         := '$(GNU_PREFIX)-objcopy'
 SIZE            := '$(GNU_PREFIX)-size'
 
 #function for removing duplicates in a list
@@ -32,55 +33,68 @@ remduplicates = $(strip $(if $1,$(firstword $1) $(call remduplicates,$(filter-ou
 
 #source common to all targets
 C_SOURCE_FILES += \
-./components/libraries/button/app_button.c \
-./components/libraries/util/app_error.c \
-./components/libraries/scheduler/app_scheduler.c \
-./components/libraries/timer/app_timer.c \
-./components/libraries/timer/app_timer_appsh.c \
-./components/libraries/trace/app_trace.c \
-./components/libraries/util/nrf_assert.c \
-./components/libraries/uart/retarget.c \
-./components/libraries/uart/app_uart.c \
-./components/drivers_nrf/delay/nrf_delay.c \
-./components/drivers_nrf/common/nrf_drv_common.c \
-./components/drivers_nrf/gpiote/nrf_drv_gpiote.c \
-./components/drivers_nrf/uart/nrf_drv_uart.c \
-./components/drivers_nrf/pstorage/pstorage.c \
-./bsp/bsp.c \
-./main.c \
-./components/ble/common/ble_advdata.c \
-./components/ble/ble_advertising/ble_advertising.c \
-./components/ble/common/ble_conn_params.c \
-./components/ble/common/ble_srv_common.c \
-./components/toolchain/system_nrf52.c \
-./components/softdevice/common/softdevice_handler/softdevice_handler.c \
+components/libraries/button/app_button.c \
+components/libraries/util/app_error.c \
+components/libraries/timer/app_timer.c \
+components/libraries/trace/app_trace.c \
+components/libraries/util/nrf_assert.c \
+components/libraries/uart/retarget.c \
+components/libraries/sensorsim/sensorsim.c \
+components/libraries/uart/app_uart.c \
+components/drivers_nrf/delay/nrf_delay.c \
+components/drivers_nrf/common/nrf_drv_common.c \
+components/drivers_nrf/gpiote/nrf_drv_gpiote.c \
+components/drivers_nrf/saadc/nrf_drv_saadc.c \
+components/drivers_nrf/uart/nrf_drv_uart.c \
+components/drivers_nrf/hal/nrf_saadc.c \
+components/drivers_nrf/pstorage/pstorage.c \
+bsp/bsp.c \
+bsp/bsp_btn_ble.c \
+main.c \
+components/ble/common/ble_advdata.c \
+components/ble/ble_services/ble_bas/ble_bas.c \
+components/ble/common/ble_conn_params.c \
+components/ble/ble_services/ble_ias/ble_ias.c \
+components/ble/ble_services/ble_ias_c/ble_ias_c.c \
+components/ble/ble_services/ble_lls/ble_lls.c \
+components/ble/common/ble_srv_common.c \
+components/ble/ble_services/ble_tps/ble_tps.c \
+components/ble/device_manager/device_manager_peripheral.c \
+components/toolchain/system_nrf52.c \
+components/softdevice/common/softdevice_handler/softdevice_handler.c \
 
 #assembly files common to all targets
 #ASM_SOURCE_FILES  = ./components/toolchain/gcc/gcc_startup_nrf52.s
 
 #includes common to all targets
 INC_PATHS  = -I./config
-INC_PATHS += -I./components/libraries/scheduler
 INC_PATHS += -I./components/drivers_nrf/config
 INC_PATHS += -I./bsp
+INC_PATHS += -I./components/ble/ble_services/ble_ias_c
 INC_PATHS += -I./components/drivers_nrf/delay
 INC_PATHS += -I./components/softdevice/s132/headers/nrf52
 INC_PATHS += -I./components/libraries/util
+INC_PATHS += -I./components/drivers_nrf/pstorage
 INC_PATHS += -I./components/drivers_nrf/uart
 INC_PATHS += -I./components/ble/common
-INC_PATHS += -I./components/drivers_nrf/pstorage
+INC_PATHS += -I./components/libraries/sensorsim
+INC_PATHS += -I./components/ble/ble_services/ble_lls
+INC_PATHS += -I./components/ble/ble_services/ble_tps
+INC_PATHS += -I./components/ble/device_manager
 INC_PATHS += -I./components/libraries/uart
 INC_PATHS += -I./components/device
 INC_PATHS += -I./components/libraries/button
 INC_PATHS += -I./components/libraries/timer
 INC_PATHS += -I./components/softdevice/s132/headers
 INC_PATHS += -I./components/drivers_nrf/gpiote
+INC_PATHS += -I./components/drivers_nrf/saadc
 INC_PATHS += -I./components/drivers_nrf/hal
 INC_PATHS += -I./components/toolchain/gcc
 INC_PATHS += -I./components/toolchain
 INC_PATHS += -I./components/drivers_nrf/common
-INC_PATHS += -I./components/ble/ble_advertising
+INC_PATHS += -I./components/ble/ble_services/ble_ias
 INC_PATHS += -I./components/libraries/trace
+INC_PATHS += -I./components/ble/ble_services/ble_bas
 INC_PATHS += -I./components/softdevice/common/softdevice_handler
 
 OBJECT_DIRECTORY = _build
@@ -95,12 +109,12 @@ CFLAGS  = -DSWI_DISABLE0
 CFLAGS += -DSOFTDEVICE_PRESENT
 CFLAGS += -DNRF52
 CFLAGS += -DBOARD_PCA10036
+CFLAGS += -DBLE_STACK_SUPPORT_REQD
 CFLAGS += -DCONFIG_GPIO_AS_PINRESET
 CFLAGS += -DS132
-CFLAGS += -DBLE_STACK_SUPPORT_REQD
 CFLAGS += -mcpu=cortex-m4
-CFLAGS += -mthumb -mabi=aapcs --std=gnu99 -g
-CFLAGS += -Wall -Werror -O3
+CFLAGS += -mthumb -mabi=aapcs --std=gnu99
+CFLAGS += -Wall -Werror -O0 -g
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 # keep every function in separate section. This will allow linker to dump unused functions
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
@@ -122,21 +136,21 @@ ASMFLAGS += -DSWI_DISABLE0
 ASMFLAGS += -DSOFTDEVICE_PRESENT
 ASMFLAGS += -DNRF52
 ASMFLAGS += -DBOARD_PCA10036
+ASMFLAGS += -DBLE_STACK_SUPPORT_REQD
 ASMFLAGS += -DCONFIG_GPIO_AS_PINRESET
 ASMFLAGS += -DS132
-ASMFLAGS += -DBLE_STACK_SUPPORT_REQD
 #default target - first one defined
-default: clean nrf52832_xxaa_s132
+default: clean nrf58232_xxaa_s132
 
 #building all targets
 all: clean
 	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e cleanobj
-	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e nrf52832_xxaa_s132 
+	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e nrf58232_xxaa_s132 
 
 #target for printing all targets
 help:
 	@echo following targets are available:
-	@echo 	nrf52832_xxaa_s132
+	@echo 	nrf58232_xxaa_s132
 	@echo 	flash_softdevice
 
 
@@ -153,9 +167,9 @@ vpath %.s $(ASM_PATHS)
 
 OBJECTS = $(C_OBJECTS) $(ASM_OBJECTS)
 
-nrf52832_xxaa_s132: OUTPUT_FILENAME := nrf52832_xxaa_s132
-nrf52832_xxaa_s132: LINKER_SCRIPT=ble_app_template_gcc_nrf52.ld
-nrf52832_xxaa_s132: $(BUILD_DIRECTORIES) $(OBJECTS)
+nrf58232_xxaa_s132: OUTPUT_FILENAME := nrf58232_xxaa_s132
+nrf58232_xxaa_s132: LINKER_SCRIPT=ble_app_proximity_gcc_nrf52.ld
+nrf58232_xxaa_s132: $(BUILD_DIRECTORIES) $(OBJECTS)
 	@echo Linking target: $(OUTPUT_FILENAME).out
 	$(NO_ECHO)$(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out
 	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e finalize
@@ -214,9 +228,6 @@ clean:
 cleanobj:
 	$(RM) $(BUILD_DIRECTORIES)/*.o
 
-archive: $(OBJECTS)
-	${PREFIX}ar -rc $(TOPDIR)/$(TMP_LIB) $(OBJECTS)
-
 flash: $(MAKECMDGOALS)
 	@echo Flashing: $(OUTPUT_BINARY_DIRECTORY)/$<.hex
 	nrfjprog --erasepage 0x1f000-0x80000 -f nrf52
@@ -227,5 +238,8 @@ flash: $(MAKECMDGOALS)
 flash_softdevice:
 	@echo Flashing: s132_nrf52_1.0.0-3.alpha_softdevice.hex
 	nrfjprog --erasepage 0x0-0x1f000 -f nrf52
-	nrfjprog --program ../../../../../../components/softdevice/s132/hex/s132_nrf52_1.0.0-3.alpha_softdevice.hex -f nrf52
+	nrfjprog --program components/softdevice/s132/hex/s132_nrf52_1.0.0-3.alpha_softdevice.hex -f nrf52
 	nrfjprog --reset
+
+archive: $(OBJECTS)
+	${PREFIX}ar -rc $(TOPDIR)/$(TMP_LIB) $(OBJECTS)
