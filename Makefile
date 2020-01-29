@@ -77,6 +77,6 @@ clean:
 	rm -f include/Kconfig 2> /dev/null
 
 distclean: clean
-	rm .config
+	rm -f .config
 	rm -f Make.defs
-	rm include/Kconfig
+	rm -f include/Kconfig

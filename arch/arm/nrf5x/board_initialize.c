@@ -18,10 +18,6 @@
 #include <sensors/sensors.h>
 #endif
 
-#if 1
-#include <softdevice/nrf_softdevice_init.h>
-#endif
-
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -139,7 +135,9 @@ void board_init(void)
 #endif
   };
 
-//  spi_master_dev_t *spi_devs = spi_init(spi, ARRAY_LEN(spi));
+#if defined(CONFIG_SPI_0) || defined(CONFIG_SPI_1)
+  spi_master_dev_t *spi_devs = spi_init(spi, ARRAY_LEN(spi));
+#endif
 
   uart_low_init();
   uart_low_send("\r\n.");
