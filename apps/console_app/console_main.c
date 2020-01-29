@@ -192,6 +192,8 @@ static int console_help(int argc, const char *argv[])
   return 0;
 }
 
+int nrf_softdevice_init(void);
+
 static int console_nrf_init(int argc, const char *argv[])
 {
   SCB->CPACR |= (3UL << 20) | (3UL << 22);
@@ -199,10 +201,9 @@ static int console_nrf_init(int argc, const char *argv[])
   attach_int(GPIOTE_IRQn, GPIOTE_IRQHandler);
   attach_int(SWI2_EGU2_IRQn, SWI2_EGU2_IRQHandler);
 
-  printf("Starting NRF soft device\r\n enter advertise\r\n");
+  printf("Starting NRF soft device\r\n");
   nrf_softdevice_init();
-  SCB->CPACR = 0;
-  
+ 
   return 0;
 }
 

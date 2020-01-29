@@ -117,7 +117,8 @@ void NMI_Handler(void)
 static void generic_isr_handler(void)
 {
   /* get the exception number */
-  uint8_t isr_num = (SCB->ICSR & 0xF);
+  volatile uint8_t isr_num = up_get_irq_number();
+  isr_num -= 16;
 
   if (isr_num >= NUM_IRQS || g_ram_vectors[isr_num] == NULL)
     return;

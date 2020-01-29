@@ -11,6 +11,7 @@
 .global SysTick_Handler
 .global Pend_SV_Handler
 .global sched_context_switch
+.global up_get_irq_number
 
 .extern sched_get_next_task
 .extern sched_preempt_task
@@ -203,6 +204,10 @@ sched_context_switch_ret:
 //  cpsie i
 //  ldr pc, [sp, #-0x4]
 //
+
+up_get_irq_number:
+  mrs r0, ipsr
+  bx lr
 
 Pend_SV_Handler:
   nop

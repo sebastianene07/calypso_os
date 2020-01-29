@@ -161,7 +161,9 @@ static nrf_saadc_value_t adc_buf[2];
  */
 void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
 {
-    app_error_handler(DEAD_BEEF, line_num, p_file_name);
+  printf("[NRF] Soft device ASSERT from file %s line %d\n", p_file_name,
+    line_num); 
+  app_error_handler(DEAD_BEEF, line_num, p_file_name);
 }
 
 
@@ -174,7 +176,8 @@ void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
  */
 static void service_error_handler(uint32_t nrf_error)
 {
-    APP_ERROR_HANDLER(nrf_error);
+  printf("[NRF] service error %d\n", (int)nrf_error);
+  APP_ERROR_HANDLER(nrf_error);
 }
 
 
@@ -267,6 +270,7 @@ static void advertising_start(void)
     adv_params.fp          = BLE_GAP_ADV_FP_ANY;
     adv_params.p_whitelist = NULL;
 
+    printf("[NRF] Advertising mode : %d\n", m_advertising_mode);
     // Configure advertisement according to current advertising state
     switch (m_advertising_mode)
     {
@@ -569,7 +573,8 @@ static void services_init(void)
  */
 static void conn_params_error_handler(uint32_t nrf_error)
 {
-    APP_ERROR_HANDLER(nrf_error);
+  printf("[NRF] connection parameters error %d\n", (int)nrf_error);
+  APP_ERROR_HANDLER(nrf_error);
 }
 
 
@@ -603,6 +608,7 @@ static void conn_params_init(void)
 static void alert_signal(uint8_t alert_level)
 {
     uint32_t err_code;
+    printf("[NRF] Alert level %d\n", alert_level);
     switch (alert_level)
     {
         case BLE_CHAR_ALERT_LEVEL_NO_ALERT:
@@ -633,6 +639,7 @@ static void alert_signal(uint8_t alert_level)
  */
 static void sleep_mode_enter(void)
 {
+    printf("[NRF] Enter sleep mode\n");
     uint32_t err_code = bsp_indication_set(BSP_INDICATE_IDLE);
     APP_ERROR_CHECK(err_code);
 
@@ -682,6 +689,7 @@ static void on_lls_evt(ble_lls_t * p_lls, ble_lls_evt_t * p_evt)
     switch (p_evt->evt_type)
     {
         case BLE_LLS_EVT_LINK_LOSS_ALERT:
+            printf("[NRF] Link loss alert %d\n", p_evt->params.alert_level);
             alert_signal(p_evt->params.alert_level);
             break;
 
@@ -764,6 +772,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 {
     uint32_t        err_code      = NRF_SUCCESS;
 
+    printf("[NRF] received BLE evt %d\n", p_ble_evt->header.evt_id);
     switch (p_ble_evt->header.evt_id)
     {
         case BLE_GAP_EVT_CONNECTED:
@@ -1067,6 +1076,8 @@ int nrf_softdevice_init(void)
 
     // Start execution.
     advertising_start();
+
+    printf("[NRF] init softdevice - complete\n");
 
     // Enter main loop.
     for (;;)
