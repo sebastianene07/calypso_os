@@ -54,7 +54,7 @@ config SENSOR_LOG
 config SENSOR_LOG_FILENAME
   string "The path used to log BME680 data"
   default "/mnt/LOGGER.CSV"
-endif
+endif # CONSOLE_SENSOR_MEASURE
 
 config CONSOLE_SLEEP
   bool "Sleep the console for the specified interval"
@@ -64,4 +64,14 @@ config CONSOLE_ECHO
   bool "Echo a message to the console"
   default n
 
+if !TIMER_DRIVER && !RTC_DRIVER
+config CONSOLE_NRF_INIT_SOFTDEVICE_APP
+  bool "Start nordic soft device application"
+  default n
+  ---help---
+  The application can be started from console when this is enabled. There are
+  some dependecies to get this working: soft device should be flashed on the
+  nrf5X board before having this enabled (make flash_softdevice from softdevice
+  folder).
+endif
 endif # CONSOLE_APP

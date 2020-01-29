@@ -90,9 +90,14 @@ void board_init(void)
 {
   /* Driver initialization logic */
 
-  //clock_init();
-  //rtc_init();
-  //timer_init();
+  clock_init();
+#ifdef CONFIG_NRF5X_RTC
+  rtc_init();
+#endif
+
+#ifdef CONFIG_NRF5X_TIMER
+  timer_init();
+#endif
 
   struct spi_master_config_s spi[] = {
 #ifdef CONFIG_SPI_0

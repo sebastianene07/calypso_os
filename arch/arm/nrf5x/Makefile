@@ -10,19 +10,25 @@ ARCH_FLAGS:=${CFLAGS} -I$(TOPDIR)/include 	\
 		      -I$(TOPDIR)/arch/arm/nrf5x/
 
 ASM_FLAGS :=-mcpu=cortex-m4 -mthumb -mfloat-abi=soft
-
-ifeq ($(CONFIG_HARDWARE_FP), y)
 SRC_ASM:= context_switch_fp.s
-else
-SRC_ASM:= context_switch.s
-endif
+
 OBJS_ASM:=$(patsubst %.s,%.o,$(SRC_ASM))
 
-all: $(OBJS) $(OBJS_ASM)
+DIRS :=
+
+ifeq ($(CONFIG_CONSOLE_NRF_INIT_SOFTDEVICE_APP),y)
+DIRS+=softdevice/ble_proximity/
+endif
+
+all: ARCH_LIBRARIES $(OBJS) $(OBJS_ASM) 
 	echo "Building arch specific"
 	${PREFIX}ar -rc $(TOPDIR)/$(TMP_LIB) $(OBJS) $(OBJS_ASM)
-	echo "Building nrf library"
-	make -C softdevice/ble_proximity/ archive
+
+ARCH_LIBRARIES:
+	echo "Building arch libraries"
+	for lib_dir in $(DIRS) ; do \
+	make -C $$lib_dir archive ;\
+	done ;
 
 %.o : %.c
 	${PREFIX}gcc $(ARCH_FLAGS) -c $< -o $@

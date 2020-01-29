@@ -18,6 +18,9 @@ void SysTick_Handler(void);
 void SVC_Handler(void);
 void NMI_Handler(void);
 
+/* This function is implemented in assembly and returns the ISR number */
+int up_get_irq_number(void);
+
 static void generic_isr_handler(void);
 
 /* The fault handler implementation calls a function called

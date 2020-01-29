@@ -48,3 +48,20 @@ config SENSOR_DRIVERS
 if SENSOR_DRIVERS
 source drivers/sensors/Kconfig
 endif # SENSOR_DRIVERS
+
+####### RTC Drivers ##########
+###############################
+config RTC_DRIVER
+  bool "RTC driver support"
+  default n
+  ---help---
+  Support for RTC driver.
+
+####### Timer Drivers ##########
+###############################
+config TIMER_DRIVER
+  bool "Timer driver support"
+  default n
+  ---help---
+  Support for RTC driver.
+

@@ -50,8 +50,11 @@ int console_sleep(int argc, const char *argv[]);
 int console_echo(int argc, const char *argv[]);
 #endif
 
+#ifdef CONFIG_CONSOLE_NRF_INIT_SOFTDEVICE_APP
+int console_nrf_init(int argc, const char *argv[]);
+#endif
+
 static int console_help(int argc, const char *argv[]);
-static int console_nrf_init(int argc, const char *argv[]);
 
 
 /* Shutdown flag */
@@ -137,10 +140,13 @@ static console_command_entry_t g_cmd_table[] =
     .cmd_help            = "Echo a message to the console",
   },
 #endif
+
+#ifdef CONFIG_CONSOLE_NRF_INIT_SOFTDEVICE_APP
   { .cmd_name            = "nrf_init",
     .cmd_function        = console_nrf_init,
-    .cmd_help            = "Start the nrf soft device library",
+    .cmd_help            = "Nordic soft device application",
   },
+#endif
 
   { .cmd_name     = "help",
     .cmd_function = console_help,
@@ -192,21 +198,6 @@ static int console_help(int argc, const char *argv[])
   return 0;
 }
 
-int nrf_softdevice_init(void);
-
-static int console_nrf_init(int argc, const char *argv[])
-{
-  SCB->CPACR |= (3UL << 20) | (3UL << 22);
-
-  attach_int(GPIOTE_IRQn, GPIOTE_IRQHandler);
-  attach_int(SWI2_EGU2_IRQn, SWI2_EGU2_IRQHandler);
-
-  printf("Starting NRF soft device\r\n");
-  nrf_softdevice_init();
- 
-  return 0;
-}
-
 /*
  * parse_arguments - Parse the console arguments
  *
@@ -251,6 +242,19 @@ int console_main(int argc, char **argv)
   {
     return -EINVAL;
   }
+
+#ifdef CONFIG_RTC_DRIVER
+  /* We open the RTC device here to prevent the RTC peripheral from going to
+   * sleep.When there are no more open references the devices closes and doesn't
+   * generate interrupts anymore and time is not keeped.
+   */
+  int rtc_fd = open(CONFIG_RTC_PATH, 0);
+  if (rtc_fd < 0)
+  {
+    printf("Cannot open RTC device %d\n", rtc_fd);
+    return -EINVAL;
+  }
+#endif
 
   /* We open the RTC device here to prevent the device from going to sleep.
    * when there are no more open references the devices closes and doesn't
@@ -315,5 +319,8 @@ int console_main(int argc, char **argv)
 
   close(uart_fd);
 
+#ifdef CONFIG_RTC_DRIVER
+  close(rtc_fd);
+#endif
   return OK;
 }
