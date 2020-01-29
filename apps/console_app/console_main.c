@@ -68,6 +68,7 @@ static console_command_entry_t g_cmd_table[] =
 #ifdef CONFIG_CONSOLE_DATE_ON
   { .cmd_name     = "time",
     .cmd_function = console_date,
+    .stack_size   = CONFIG_CONSOLE_STACK_SIZE,
     .cmd_help     = "View/Set the current time or close RTC device",
   },
 #endif
@@ -75,6 +76,7 @@ static console_command_entry_t g_cmd_table[] =
 #ifdef CONFIG_CONSOLE_TEST_DISPLAY
   { .cmd_name     = "display",
     .cmd_function = console_display,
+    .stack_size   = CONFIG_CONSOLE_STACK_SIZE,
     .cmd_help     = "Test functionality for SSD1331 display"
   },
 #endif
@@ -82,6 +84,7 @@ static console_command_entry_t g_cmd_table[] =
 #ifdef CONFIG_CONSOLE_FREE
   { .cmd_name     = "free",
     .cmd_function = console_free,
+    .stack_size   = CONFIG_CONSOLE_STACK_SIZE,
     .cmd_help     = "View the available system memory",
   },
 #endif
@@ -90,6 +93,7 @@ static console_command_entry_t g_cmd_table[] =
   {
     .cmd_name     = "ls",
     .cmd_function = console_ls,
+    .stack_size   = CONFIG_CONSOLE_STACK_SIZE,
     .cmd_help     = "List file-system contents",
   },
 #endif
@@ -98,11 +102,13 @@ static console_command_entry_t g_cmd_table[] =
   {
     .cmd_name      = "mount",
     .cmd_function  = console_mount,
+    .stack_size    = CONFIG_CONSOLE_STACK_SIZE,
     .cmd_help      = "Mount a filesystem",
   },
   {
     .cmd_name      = "umount",
     .cmd_function  = console_umount,
+    .stack_size    = CONFIG_CONSOLE_STACK_SIZE,
     .cmd_help      = "Unmount a previously mounted FS",
   },
 #endif
@@ -111,6 +117,7 @@ static console_command_entry_t g_cmd_table[] =
   {
     .cmd_name     = "cat",
     .cmd_function = console_cat,
+    .stack_size   = CONFIG_CONSOLE_STACK_SIZE,
     .cmd_help     = "Read files speicifed by <path> argument",
   },
 #endif
@@ -119,6 +126,7 @@ static console_command_entry_t g_cmd_table[] =
   {
     .cmd_name     = "sensor_measure",
     .cmd_function = console_sensor_measure,
+    .stack_size   = CONFIG_CONSOLE_STACK_SIZE,
     .cmd_help     = "Read data from the gas sensor",
   },
 #endif
@@ -127,6 +135,7 @@ static console_command_entry_t g_cmd_table[] =
   {
     .cmd_name            = "sleep",
     .cmd_function        = console_sleep,
+    .stack_size          = CONFIG_CONSOLE_STACK_SIZE,
     .run_in_main_console = true,
     .cmd_help            = "sleep command in miliseconds",
   },
@@ -136,6 +145,7 @@ static console_command_entry_t g_cmd_table[] =
   {
     .cmd_name            = "echo",
     .cmd_function        = console_echo,
+    .stack_size          = CONFIG_CONSOLE_STACK_SIZE,
     .run_in_main_console = true,
     .cmd_help            = "Echo a message to the console",
   },
@@ -144,16 +154,19 @@ static console_command_entry_t g_cmd_table[] =
 #ifdef CONFIG_CONSOLE_NRF_INIT_SOFTDEVICE_APP
   { .cmd_name            = "nrf_init",
     .cmd_function        = console_nrf_init,
+    .stack_size          = CONFIG_CONSOLE_NRF_INIT_SOFTDEVICE_APP_STACK_SIZE, 
     .cmd_help            = "Nordic soft device application",
   },
 #endif
 
   { .cmd_name     = "help",
     .cmd_function = console_help,
+    .stack_size   = CONFIG_CONSOLE_STACK_SIZE,
     .cmd_help     = CONSOLE_HELP_DESCRIPTION
   },
   { .cmd_name     = "?",
     .cmd_function = console_help,
+    .stack_size   = CONFIG_CONSOLE_STACK_SIZE,
     .cmd_help     = CONSOLE_HELP_DESCRIPTION
   },
 };
@@ -172,7 +185,7 @@ static int execute_command(int argc, const char *argv[])
         else
           return sched_create_task((
             int (*)(int, char **))g_cmd_table[j].cmd_function,
-            CONFIG_CONSOLE_STACK_SIZE, argc, (char **)argv);
+            g_cmd_table[j].stack_size, argc, (char **)argv);
 #else
         return g_cmd_table[j].cmd_function(argc, (char **)argv);
 #endif /* CONFIG_RUN_APPS_IN_OWN_THREAD */
