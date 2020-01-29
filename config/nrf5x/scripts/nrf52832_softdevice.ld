@@ -21,14 +21,31 @@ SECTIONS {
           _srodata = .;
           *(.rodata)
           *(.rodata.*)
-          . = ALIGN(4);
+	  . = ALIGN(4);
         } > FLASH
 
         .text : {
                 . = ALIGN(4);
                 *(.text)                /* Program code */
                 *(.text.*)
-                . = ALIGN(4);
+		KEEP(*(.init))
+		KEEP(*(.fini))
+
+		/* .ctors */
+		*crtbegin.o(.ctors)
+		*crtbegin?.o(.ctors)
+		*(EXCLUDE_FILE(*crtend?.o *crtend.o) .ctors)
+		*(SORT(.ctors.*))
+		*(.ctors)
+
+		/* .dtors */
+ 		*crtbegin.o(.dtors)
+ 		*crtbegin?.o(.dtors)
+ 		*(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors)
+ 		*(SORT(.dtors.*))
+ 		*(.dtors)
+
+		. = ALIGN(4);
                 _etext = .;             /* _etext is end of program code */
         } >FLASH                        /* this section is code, hence gos to FLASH */
 
@@ -36,9 +53,35 @@ SECTIONS {
                 . = ALIGN(4);           /* also, this section is for initialized
                                              global/static variables */
                 _sdata = .;
+		__data_start__ = .;
+		*(vtable)
                 *(.data)
                 *(.data.*)
                 . = ALIGN(4);
+		/* preinit data */
+		PROVIDE_HIDDEN (__preinit_array_start = .);
+		*(.preinit_array)
+		PROVIDE_HIDDEN (__preinit_array_end = .);
+
+		. = ALIGN(4);
+		/* init data */
+		PROVIDE_HIDDEN (__init_array_start = .);
+		*(SORT(.init_array.*))
+		*(.init_array)
+		PROVIDE_HIDDEN (__init_array_end = .);
+
+
+		. = ALIGN(4);
+		/* finit data */
+		PROVIDE_HIDDEN (__fini_array_start = .);
+		*(SORT(.fini_array.*))
+		*(.fini_array)
+		PROVIDE_HIDDEN (__fini_array_end = .);
+
+		*(.jcr)
+		. = ALIGN(4);
+		/* All data end */
+		__data_end__ = .;
                 _edata = .;
         } >RAM                          /* this section go into this RAM */
 
@@ -46,10 +89,12 @@ SECTIONS {
                                         variables, which we set to zero */
                 . = ALIGN(4);
                 _sbss = .;              /* the . sets the symbol to value of current counter */
-                *(.bss)
+		__bss_start__ = .;
+		*(.bss)
 		*(.bss.*)
                 *(COMMON)
                 . = ALIGN(4);
+		__bss_end__ = .;
                 _ebss = .;
         } >RAM
 
