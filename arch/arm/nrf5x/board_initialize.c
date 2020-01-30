@@ -85,8 +85,10 @@ static void clock_init(void)
 void board_init(void)
 {
   /* Driver initialization logic */
-
+#ifdef CONFIG_NRF5X_CLOCK
   clock_init();
+#endif
+
 #ifdef CONFIG_NRF5X_RTC
   rtc_init();
 #endif

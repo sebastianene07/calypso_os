@@ -157,3 +157,7 @@ config NRF5X_TIMER
   bool "Support for nordic timers"
   select TIMER_DRIVER
   default n
+
+config NRF5X_CLOCK
+  bool "Configure the nordic clock source"
+  default n

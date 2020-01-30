@@ -21,6 +21,15 @@ void NMI_Handler(void);
 /* This function is implemented in assembly and returns the ISR number */
 int up_get_irq_number(void);
 
+#ifdef CONFIG_CONSOLE_NRF_INIT_SOFTDEVICE_APP
+/* This symbol is defined in the soft device assembly and is the entry point
+ * from soft device application. It's usefull to call this because it 
+ * calls some initialization functions that help the soft device library.
+ * After this we resume the execution to the _start entry point from assembly.
+ */
+void Reset_Handler(void);
+#endif
+
 static void generic_isr_handler(void);
 
 /* The fault handler implementation calls a function called
@@ -33,7 +42,11 @@ static void HardFault_Handler(void)
 __attribute__((section(".isr_vector")))
 void (*g_vectors[NUM_IRQS])(void) = {
         STACK_TOP,
-        _start,
+#ifdef CONFIG_CONSOLE_NRF_INIT_SOFTDEVICE_APP
+        Reset_Handler,
+#else
+        _startup,
+#endif
         NMI_Handler,
         HardFault_Handler,
         dummy_fn,
