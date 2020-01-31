@@ -54,6 +54,11 @@ config SENSOR_LOG
 config SENSOR_LOG_FILENAME
   string "The path used to log BME680 data"
   default "/mnt/LOGGER.CSV"
+
+config CONSOLE_SENSOR_MEASURE_STACKSIZE
+  int "Stack size in bytes"
+  default 4096
+
 endif # CONSOLE_SENSOR_MEASURE
 
 config CONSOLE_SLEEP

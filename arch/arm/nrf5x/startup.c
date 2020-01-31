@@ -45,7 +45,7 @@ void (*g_vectors[NUM_IRQS])(void) = {
 #ifdef CONFIG_CONSOLE_NRF_INIT_SOFTDEVICE_APP
         Reset_Handler,
 #else
-        _startup,
+        _start,
 #endif
         NMI_Handler,
         HardFault_Handler,

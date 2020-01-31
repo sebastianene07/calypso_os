@@ -126,7 +126,7 @@ static console_command_entry_t g_cmd_table[] =
   {
     .cmd_name     = "sensor_measure",
     .cmd_function = console_sensor_measure,
-    .stack_size   = CONFIG_CONSOLE_STACK_SIZE,
+    .stack_size   = CONFIG_CONSOLE_SENSOR_MEASURE_STACKSIZE,
     .cmd_help     = "Read data from the gas sensor",
   },
 #endif
@@ -136,7 +136,9 @@ static console_command_entry_t g_cmd_table[] =
     .cmd_name            = "sleep",
     .cmd_function        = console_sleep,
     .stack_size          = CONFIG_CONSOLE_STACK_SIZE,
+#ifdef CONFIG_RUN_APPS_IN_OWN_THREAD
     .run_in_main_console = true,
+#endif
     .cmd_help            = "sleep command in miliseconds",
   },
 #endif
@@ -146,7 +148,9 @@ static console_command_entry_t g_cmd_table[] =
     .cmd_name            = "echo",
     .cmd_function        = console_echo,
     .stack_size          = CONFIG_CONSOLE_STACK_SIZE,
+#ifdef CONFIG_RUN_APPS_IN_OWN_THREAD
     .run_in_main_console = true,
+#endif
     .cmd_help            = "Echo a message to the console",
   },
 #endif

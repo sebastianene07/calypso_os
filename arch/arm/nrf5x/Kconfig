@@ -116,13 +116,29 @@ config CONSOLE_UART_PATH
     string "The path where we mount the serial console node"
     default "/dev/ttyUSB0"
 
-config SERIAL_CONSOLE_TX
+config SERIAL_CONSOLE_BAUDRATE
+    hex "The baudrate for the serial console peripheral"
+    default 0x01D60000
+    ---help---
+    Other possible values can be: 0x0004F000 - baud1200
+    0x0009D000 - baud 2400, 0x0013B000 - baud 4800
+    0x00275000 - baud 9600.
+
+config SERIAL_CONSOLE_TX_PIN
     int "The TX serial console pin"
     default 6
 
-config SERIAL_CONSOLE_RX
+config SERIAL_CONSOLE_TX_PORT
+    int "The TX serial console port"
+    default 0
+
+config SERIAL_CONSOLE_RX_PIN
     int "The RX serial console pin"
     default 8
+
+config SERIAL_CONSOLE_RX_PORT
+    int "The RX serial console port"
+    default 0
 
 config RTC_PATH
     string "The path where we mount the rtc driver node"
