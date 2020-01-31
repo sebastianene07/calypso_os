@@ -112,10 +112,11 @@ config SPI_BUFFER_LEN
     int "SPI Buffer len in bytes"
     default 32
 
-config CONSOLE_UART_PATH
-    string "The path where we mount the serial console node"
-    default "/dev/ttyUSB0"
-
+config UART_PERIPHERAL_0
+  bool "Support for uart peripheral 0"
+  default y
+ 
+if UART_PERIPHERAL_0
 config SERIAL_CONSOLE_BAUDRATE
     hex "The baudrate for the serial console peripheral"
     default 0x01D60000
@@ -123,6 +124,10 @@ config SERIAL_CONSOLE_BAUDRATE
     Other possible values can be: 0x0004F000 - baud1200
     0x0009D000 - baud 2400, 0x0013B000 - baud 4800
     0x00275000 - baud 9600.
+
+config CONSOLE_UART_PATH
+    string "The path where we mount the serial console node"
+    default "/dev/ttyUSB0"
 
 config SERIAL_CONSOLE_TX_PIN
     int "The TX serial console pin"
@@ -139,6 +144,42 @@ config SERIAL_CONSOLE_RX_PIN
 config SERIAL_CONSOLE_RX_PORT
     int "The RX serial console port"
     default 0
+endif 
+
+config UART_PERIPHERAL_1
+  bool "Support for uart peripheral 1"
+  default n
+
+if UART_PERIPHERAL_1
+
+config UART_PERIPHERAL_1_PATH
+  string "The path where we mount the second UART peripheral" 
+  default "/dev/ttyUSB1"
+
+config UART_PERIPHERAL_1_BAUDRATE
+    hex "The baudrate for the serial console peripheral"
+    default 0x01D60000
+    ---help---
+    Other possible values can be: 0x0004F000 - baud1200
+    0x0009D000 - baud 2400, 0x0013B000 - baud 4800
+    0x00275000 - baud 9600.
+
+config UART_PERIPHERAL_1_TX_PIN
+    int "The TX serial console pin"
+    default 9
+
+config UART_PERIPHERAL_1_TX_PORT
+    int "The TX serial console port"
+    default 0
+
+config UART_PERIPHERAL_1_RX_PIN
+    int "The RX serial console pin"
+    default 10
+
+config UART_PERIPHERAL_1_RX_PORT
+    int "The RX serial console port"
+    default 0
+endif
 
 config RTC_PATH
     string "The path where we mount the rtc driver node"

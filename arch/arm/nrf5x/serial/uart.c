@@ -154,6 +154,28 @@ static struct nrf52840_uart_priv_s g_uart_low_0_priv =
   .tx_port             = CONFIG_SERIAL_CONSOLE_TX_PORT,
 };
 
+#ifdef CONFIG_UART_PERIPHERAL_1
+static struct nrf52840_uart_priv_s g_uart_low_1_priv = 
+{
+  .base_peripheral_ptr = (void *)UART_BASE_1,
+  .irq                 = UARTE1_IRQn,
+  .is_initialized      = false,
+  .is_flow_control     = false,
+  .is_dma_control      = false,
+  .is_parity_included  = false,
+  .is_one_stopbit      = true,
+  
+  .is_byte_received_event = true,
+
+  .baud_rate           = CONFIG_UART_PERIPHERAL_1_BAUDRATE,
+  .rx_pin              = CONFIG_UART_PERIPHERAL_1_RX_PIN,
+  .rx_port             = CONFIG_UART_PERIPHERAL_1_RX_PORT,
+
+  .tx_pin              = CONFIG_UART_PERIPHERAL_1_TX_PIN,
+  .tx_port             = CONFIG_UART_PERIPHERAL_1_TX_PORT,
+};
+#endif
+
 /* Uart 0 lower half operations. There is no need to provide a read_cb function
  * because we notify the incmming data through rx_notify semaphore and we 
  * copy it in the rx_buffer from interrupt.
@@ -164,6 +186,15 @@ static struct uart_lower_s g_uart_low_0 =
   .open_cb  = nrf52840_lpuart_open,
   .write_cb = nrf52840_lpuart_write,
 };
+
+#ifdef CONFIG_UART_PERIPHERAL_1
+static struct uart_lower_s g_uart_low_1 =
+{
+  .priv     = &g_uart_low_1_priv,  
+  .open_cb  = nrf52840_lpuart_open,
+  .write_cb = nrf52840_lpuart_write,
+};
+#endif
 
 /****************************************************************************
  * Private Functions
@@ -262,12 +293,15 @@ static void nrf52840_lpuart_int(void)
 
   if (irq_number == UARTE0_UART0_IRQn) {
     lower = &g_uart_low_0;
-  } else if (irq_number == UARTE1_IRQn) {
+  }
+#ifdef CONFIG_UART_PERIPHERAL_1
+  else if (irq_number == UARTE1_IRQn) {
+    lower = &g_uart_low_1;
   } 
+#endif
 
   assert(lower != NULL);
 
-//  lower->index_write_rx_buffer +=  
   struct nrf52840_uart_priv_s *uart_priv = lower->priv; 
  
   if (UART_EVENTS_RXDRDY_CFG(uart_priv->base_peripheral_ptr)) {
@@ -295,14 +329,6 @@ static int nrf52840_lpuart_open(const struct uart_lower_s *lower)
     sem_post(&lower->lock);
     return -EOPNOTSUPP;
   }
-
-#if 0
-  /* Attach the uart interrupt */
-
-  UART_EVENTS_RXDRDY_CFG(uart_priv->base_peripheral_ptr)    = 0;
-  UART_EVENTS_ENDRX_CFG(uart_priv->base_peripheral_ptr)     = 0;
-  UART_EVENTS_RXSTARTED_CFG(uart_priv->base_peripheral_ptr) = 0;
-#endif
 
   disable_int();
   attach_int(uart_priv->irq, nrf52840_lpuart_int);
@@ -367,6 +393,15 @@ int uart_init(void)
   if (ret != 0) {
     return ret;
   }
+
+#ifdef CONFIG_UART_PERIPHERAL_1
+  sem_init(&g_uart_low_1.rx_notify, 0, 0);
+  sem_init(&g_uart_low_1.lock, 0, 1);
+
+  ret = uart_register(CONFIG_UART_PERIPHERAL_1_PATH, &g_uart_low_1);
+#endif
+
+  return ret;
 }
 
 sem_t *get_console_sema(void)
