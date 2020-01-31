@@ -142,14 +142,14 @@ void board_init(void)
 #endif
 
   uart_low_init();
-  uart_low_send("\r\n.");
+  printf("\r\n.");
 
   gpio_init();
-  uart_low_send(".");
+  printf(".");
 
   gpio_configure(LED, 0, GPIO_DIRECTION_OUT, GPIO_PIN_INPUT_DISCONNECT,
                  GPIO_NO_PULL, GPIO_PIN_S0S1, GPIO_PIN_NO_SENS);
-  uart_low_send(".\r\n");
+  printf(".\r\n");
 
   uart_init();
 

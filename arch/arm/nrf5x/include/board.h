@@ -19,4 +19,6 @@
 
 void board_init(void);
 
+int up_get_irq_number(void);
+
 #endif /* __CORE_CM4 */

@@ -31,8 +31,6 @@
 #include <stdlib.h>
 #include <semaphore.h>
 
-extern sem_t g_console_print_sema;
-
 static void printchar(char **str, int c)
 {
 	if (str) {
@@ -136,7 +134,9 @@ static int print(char **out, int *varg)
 	register char *format = (char *)(*varg++);
 	char scr[2];
 
-  sem_wait(&g_console_print_sema);
+  sem_t *console_sema = get_console_sema();
+
+  sem_wait(console_sema);
 
 	for (; *format != 0; ++format) {
 		if (*format == '%') {
@@ -193,8 +193,7 @@ static int print(char **out, int *varg)
 	}
 	if (out) **out = '\0';
 
-  sem_post(&g_console_print_sema);
-
+  sem_post(console_sema);
 	return pc;
 }
 

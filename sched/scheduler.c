@@ -27,9 +27,6 @@ LIST_HEAD(g_tcb_waiting_list);
 
 struct list_head *g_current_tcb = NULL;
 
-/* Console global semaphore */
-sem_t g_console_print_sema;
-
 /* The interrupt vector table */
 
 extern void (*g_vectors[NUM_IRQS])(void);
@@ -115,9 +112,6 @@ int sched_init(void)
 
   g_current_tcb = g_tcb_list.next;
 
-  /* Initialize the console semaphore */
-
-  sem_init(&g_console_print_sema, 0, 1);
   return 0;
 }
 

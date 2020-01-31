@@ -18,9 +18,6 @@ void SysTick_Handler(void);
 void SVC_Handler(void);
 void NMI_Handler(void);
 
-/* This function is implemented in assembly and returns the ISR number */
-int up_get_irq_number(void);
-
 #ifdef CONFIG_CONSOLE_NRF_INIT_SOFTDEVICE_APP
 /* This symbol is defined in the soft device assembly and is the entry point
  * from soft device application. It's usefull to call this because it 

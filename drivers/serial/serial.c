@@ -98,7 +98,7 @@ static int uart_read(struct opened_resource_s *res, void *buf, size_t count)
     uint8_t min_copy = count > available_rx_bytes ? available_rx_bytes : count;
     if (available_rx_bytes > 0)
     {
-      memcpy(buf, lower->rx_buffer, min_copy);
+      memcpy(buf, lower->rx_buffer + lower->index_read_rx_buffer, min_copy);
 
       lower->index_read_rx_buffer += min_copy;
       lower->index_read_rx_buffer = lower->index_read_rx_buffer % UART_RX_BUFFER;
