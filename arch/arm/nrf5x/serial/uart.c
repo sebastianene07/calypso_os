@@ -127,6 +127,8 @@ static int nrf52840_lpuart_open(const struct uart_lower_s *lower);
 static int nrf52840_lpuart_write(const struct uart_lower_s *lower,
                                  const void *ptr_data,
                                  unsigned int sz);
+static int nrf52840_lpuart_read(const struct uart_lower_s *lower, void *data,
+                                unsigned int max_buf_sz);
 static int nrf52840_lpuart_config(struct nrf52840_uart_priv_s *config);
 
 /****************************************************************************
@@ -185,6 +187,7 @@ static struct uart_lower_s g_uart_low_0 =
   .priv     = &g_uart_low_0_priv,  
   .open_cb  = nrf52840_lpuart_open,
   .write_cb = nrf52840_lpuart_write,
+  .read_cb  = nrf52840_lpuart_read,
 };
 
 #ifdef CONFIG_UART_PERIPHERAL_1
@@ -193,6 +196,7 @@ static struct uart_lower_s g_uart_low_1 =
   .priv     = &g_uart_low_1_priv,  
   .open_cb  = nrf52840_lpuart_open,
   .write_cb = nrf52840_lpuart_write,
+  .read_cb  = nrf52840_lpuart_read,
 };
 #endif
 
@@ -360,6 +364,62 @@ static int nrf52840_lpuart_write(const struct uart_lower_s *lower,
   sem_post((sem_t *)&lower->lock);
 
   return 0;
+}
+
+static int nrf52840_lpuart_read(const struct uart_lower_s *lower_half, void *buf,
+                                unsigned int count)
+{
+  int ret = OK;
+  uint32_t min_copy = 0;
+  uint32_t total_copy = 0;
+
+  struct uart_lower_s *lower = (struct uart_lower_s *)lower_half;
+  struct nrf52840_uart_priv_s *uart_priv = lower->priv;
+
+  /* NOTE: This function is not available/visible by the applications that
+   * are accessing the device from open(/dev/uart_pathname,..). Applications
+   * are reading data drom the uart by using the upper layer uart_read call.
+   *
+   * This function is intended for driver access - for sensors or other devices
+   * that are talking on the UART bus.
+   */
+
+  do {
+    uint8_t available_rx_bytes = 0;
+
+    sem_wait((sem_t *)&lower->lock);
+
+    if (lower->index_read_rx_buffer < lower->index_write_rx_buffer)
+    {
+      available_rx_bytes = lower->index_write_rx_buffer -
+        lower->index_read_rx_buffer;
+    }
+    else if (lower->index_read_rx_buffer != lower->index_write_rx_buffer)
+    {
+      available_rx_bytes = UART_RX_BUFFER -
+      (lower->index_read_rx_buffer - lower->index_write_rx_buffer);
+    }
+
+
+    min_copy = count > available_rx_bytes ? available_rx_bytes : count;
+    if (available_rx_bytes > 0)
+    {
+      memcpy(buf, lower->rx_buffer + lower->index_read_rx_buffer, min_copy);
+
+      lower->index_read_rx_buffer += min_copy;
+      lower->index_read_rx_buffer = lower->index_read_rx_buffer % UART_RX_BUFFER;
+
+      sem_post((sem_t *)&lower->lock);
+      total_copy += min_copy;
+    }
+    else
+    {
+      sem_post((sem_t *)&lower->lock);
+      sem_wait(&lower->rx_notify);
+    }
+  } while (total_copy < count);
+
+  return total_copy;
 }
 
 /****************************************************************************

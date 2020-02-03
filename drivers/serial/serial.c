@@ -72,8 +72,8 @@ static int uart_read(struct opened_resource_s *res, void *buf, size_t count)
 {
   struct uart_upper_s *uart_up = (struct uart_upper_s *)res->vfs_node->priv;
 
-  /* Blocking read. Wait until 'count' bytes are available from
-   * this device.
+  /* Blocking read. Return up to 'count' bytes if they are available from
+   * this device
    */
   struct uart_lower_s *lower = (struct uart_lower_s *)uart_up->lower;
   if (lower == NULL)
