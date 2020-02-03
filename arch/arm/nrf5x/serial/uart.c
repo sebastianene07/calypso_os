@@ -319,14 +319,14 @@ static int nrf52840_lpuart_open(const struct uart_lower_s *lower)
 {
   struct nrf52840_uart_priv_s *uart_priv = lower->priv; 
 
-  sem_wait(&lower->lock);
+  sem_wait((sem_t *)&lower->lock);
 
   if (!uart_priv->is_initialized) {
     nrf52840_lpuart_config(uart_priv);
   }
 
   if (uart_priv->is_dma_control) {
-    sem_post(&lower->lock);
+    sem_post((sem_t *)&lower->lock);
     return -EOPNOTSUPP;
   }
 
@@ -336,7 +336,7 @@ static int nrf52840_lpuart_open(const struct uart_lower_s *lower)
   NVIC_SetPriority(uart_priv->irq, 0x07);
   enable_int();
 
-  sem_post(&lower->lock);
+  sem_post((sem_t *)&lower->lock);
 
   return 0;
 }
@@ -347,7 +347,7 @@ static int nrf52840_lpuart_write(const struct uart_lower_s *lower,
 {
   struct nrf52840_uart_priv_s *uart_priv = lower->priv; 
 
-  sem_wait(&lower->lock);
+  sem_wait((sem_t *)&lower->lock);
 
   for (int i = 0; i < sz; i++) {
 
@@ -357,7 +357,7 @@ static int nrf52840_lpuart_write(const struct uart_lower_s *lower,
     while (UART_EVENT_TXRDY(uart_priv->base_peripheral_ptr) == 0);
   }
 
-  sem_post(&lower->lock);
+  sem_post((sem_t *)&lower->lock);
 
   return 0;
 }
