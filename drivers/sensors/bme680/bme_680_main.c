@@ -179,28 +179,29 @@ static int bme680_sensor_close(struct opened_resource_s *res)
 static int bme680_sensor_read(struct opened_resource_s *res, void *buf,
  size_t count)
 {
-  uint16_t meas_period;
-
   bme680_sensor_t *gas_sensor = (bme680_sensor_t *)res->vfs_node->priv;
   struct bme680_dev *dev = &gas_sensor->dev;
+  struct bme680_field_data data;
 
   sem_wait(&gas_sensor->lock_sensor);
 
+  uint16_t meas_period;
   bme680_get_profile_dur(&meas_period, dev);
-
-  struct bme680_field_data data;
-
   bme680_sensor_delay_ms(meas_period);
-  int rslt = bme680_get_sensor_data(&data, dev);
 
-  memcpy(buf, &data, sizeof(struct bme680_field_data) > count ? count :
-    sizeof(struct bme680_field_data));
+  int rslt      = bme680_get_sensor_data(&data, dev);
+  int data_size = sizeof(struct bme680_field_data) > count ? count :
+    sizeof(struct bme680_field_data);
+
+  memcpy(buf, &data, data_size);
 
   if (dev->power_mode == BME680_FORCED_MODE) {
     rslt = bme680_set_sensor_mode(dev);
   }
 
   sem_post(&gas_sensor->lock_sensor);
+
+  return data_size; 
 }
 
 static int bme680_sensor_ioctl(struct opened_resource_s *priv,
@@ -212,13 +213,17 @@ static int bme680_sensor_ioctl(struct opened_resource_s *priv,
   bme680_sensor_t *gas_sensor = (bme680_sensor_t *)priv->vfs_node->priv;
   struct bme680_dev *dev = &gas_sensor->dev;
 
+  sem_wait(&gas_sensor->lock_sensor);
+
   switch (request) {
 #ifdef CONFIG_LIBRARY_BSEC
     case IO_BME680_SET_CONFIG:
       {
         bsec_bme_settings_t *sensor_settings = (bsec_bme_settings_t *)arg;
-        if (sensor_settings == NULL)
+        if (sensor_settings == NULL) {
+          sem_post(&gas_sensor->lock_sensor);
           return -EINVAL;
+        }
 
         if (sensor_settings->trigger_measurement) {
           dev->tph_sett.os_hum = sensor_settings->humidity_oversampling;
@@ -234,17 +239,18 @@ static int bme680_sensor_ioctl(struct opened_resource_s *priv,
 
           ret = bme680_set_sensor_settings(set_required_settings, dev);
           if (ret != BME680_OK) {
+            sem_post(&gas_sensor->lock_sensor);
             return -EIO;
           }
 
           ret = bme680_set_sensor_mode(dev);
           if (ret != BME680_OK) {
+            sem_post(&gas_sensor->lock_sensor);
             return -EACCES;
           }
         }
       }
       break;
-
 #endif
 
     case IO_BME680_BUS_READ:
@@ -276,6 +282,8 @@ static int bme680_sensor_ioctl(struct opened_resource_s *priv,
     default:
       break;
   }
+
+  sem_post(&gas_sensor->lock_sensor);
 
   return ret;
 }
