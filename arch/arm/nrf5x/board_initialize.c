@@ -151,7 +151,8 @@ void board_init(void)
                  GPIO_NO_PULL, GPIO_PIN_S0S1, GPIO_PIN_NO_SENS);
   printf(".\r\n");
 
-  uart_init();
+  size_t num_uart = 0;
+  struct uart_lower_s **uart_peripheral = uart_init(&num_uart);
 
 #ifdef CONFIG_DISPLAY_SSD1331
   ssd1331_config_t display_config = {
@@ -178,6 +179,10 @@ void board_init(void)
 #ifdef CONFIG_SENSOR_BME680
   bme680_sensor_register(CONFIG_SENSOR_BME680_PATH_NAME,
       &spi_devs[CONFIG_SENSOR_BME680_SPI_ID]);
+#endif
+
+#ifdef CONFIG_SENSORS_PMSA003
+  pmsa_sensor_register(SENSOR_PMSA003_PATH_NAME, uart_peripheral[SENSOR_PSMA003_UART_ID]);
 #endif
 
   SysTick_Config(g_system_core_clock_freq / CONFIG_SYSTEM_SCHEDULER_SLICE_FREQUENCY);

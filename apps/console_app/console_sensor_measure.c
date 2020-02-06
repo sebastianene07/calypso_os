@@ -158,13 +158,18 @@ static int8_t bus_write(uint8_t dev_addr, uint8_t reg_addr,
   return ret;
 }
 
-int console_sensor_measure(int argc, const char *argv[])
+static void sensor_measure_print_usage(void)
+{
+  printf("Usage: sensor_measure <sensor_type>\n"
+         "where sensor type: bma680 or pmsa003\n");
+}
+
+static int sensor_measure_bma680(void)
 {
   int ret;
 #ifdef CONFIG_LIBRARY_BSEC
   return_values_init bsec_ret;
 #endif
-
   g_sensor_fd = open(CONFIG_SENSOR_BME680_PATH_NAME, O_APPEND);
   if (g_sensor_fd < 0) {
     printf("Error %d open\n", g_sensor_fd);
@@ -182,7 +187,33 @@ int console_sensor_measure(int argc, const char *argv[])
 
   bsec_iot_loop(sleep, get_timestamp_us, bsec_out_data, state_save, 10000);
 #endif
-
   close(g_sensor_fd);
+  return ret;
+}
+
+static int sensor_measure_pmsa003(void)
+{
+  int ret = OK;
+
+  return ret;
+}
+
+int console_sensor_measure(int argc, const char *argv[])
+{
+  int ret;
+
+  if (argc != 2) {
+    sensor_measure_print_usage();
+    return; 
+  } 
+
+  if (!strcmp(argv[1], "bma680")) {
+    return sensor_measure_bma680();
+  } else if (!strcmp(argv[1], "pmsa003")) {
+    return sensor_measure_pmsa003();
+  } else {
+    printf("Unkown parameter: %s\n", argv[1]);
+  }
+
   return OK;
 }

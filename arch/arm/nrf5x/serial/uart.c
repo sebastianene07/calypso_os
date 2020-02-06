@@ -442,26 +442,42 @@ int putchar(int c)
   return 0;
 }
 
-int uart_init(void)
+struct uart_lower_s **uart_init(size_t *uart_num)
 {
   int ret = 0;
+  static struct uart_lower_s *uart[2] = {NULL, NULL};
+
+  if (uart_num == NULL) {
+    return NULL;
+  }
+  
+  *uart_num = 0;
 
   sem_init(&g_uart_low_0.rx_notify, 0, 0);
   sem_init(&g_uart_low_0.lock, 0, 1);
 
   ret = uart_register(CONFIG_CONSOLE_UART_PATH, &g_uart_low_0);
-  if (ret != 0) {
-    return ret;
+  if (ret < 0) {
+    return NULL;
   }
+
+  uart[*uart_num] = &g_uart_low_0;
+  *uart_num += 1;
 
 #ifdef CONFIG_UART_PERIPHERAL_1
   sem_init(&g_uart_low_1.rx_notify, 0, 0);
   sem_init(&g_uart_low_1.lock, 0, 1);
 
   ret = uart_register(CONFIG_UART_PERIPHERAL_1_PATH, &g_uart_low_1);
+  if (ret < 0) {
+    return NULL;
+  }
+
+  uart[*uart_num] = &g_uart_low_1;
+  *uart_num += 1;
 #endif
 
-  return ret;
+  return uart;
 }
 
 sem_t *get_console_sema(void)

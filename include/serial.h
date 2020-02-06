@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <semaphore.h>
+#include <stddef.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -66,7 +67,7 @@ int putchar(int c);
 
 int uart_register(const char *name, const struct uart_lower_s *uart_lowerhalf);
 
-int uart_init(void);
+struct uart_lower_s **uart_init(size_t *uart_num);
 
 sem_t *get_console_sema(void);
 
