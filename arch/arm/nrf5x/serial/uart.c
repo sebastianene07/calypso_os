@@ -182,23 +182,26 @@ static struct nrf52840_uart_priv_s g_uart_low_1_priv =
  * because we notify the incmming data through rx_notify semaphore and we 
  * copy it in the rx_buffer from interrupt.
  */ 
-static struct uart_lower_s g_uart_low_0 =
+static struct uart_lower_s g_uart_lowerhalfs[] = 
 {
-  .priv     = &g_uart_low_0_priv,  
-  .open_cb  = nrf52840_lpuart_open,
-  .write_cb = nrf52840_lpuart_write,
-  .read_cb  = nrf52840_lpuart_read,
-};
+  {
+    .priv     = &g_uart_low_0_priv,  
+    .open_cb  = nrf52840_lpuart_open,
+    .write_cb = nrf52840_lpuart_write,
+    .read_cb  = nrf52840_lpuart_read,
+    .dev_path = CONFIG_CONSOLE_UART_PATH,
+  },
 
 #ifdef CONFIG_UART_PERIPHERAL_1
-static struct uart_lower_s g_uart_low_1 =
-{
-  .priv     = &g_uart_low_1_priv,  
-  .open_cb  = nrf52840_lpuart_open,
-  .write_cb = nrf52840_lpuart_write,
-  .read_cb  = nrf52840_lpuart_read,
-};
+  {
+    .priv     = &g_uart_low_1_priv,  
+    .open_cb  = nrf52840_lpuart_open,
+    .write_cb = nrf52840_lpuart_write,
+    .read_cb  = nrf52840_lpuart_read,
+    .dev_path = CONFIG_UART_PERIPHERAL_1_PATH,
+  },
 #endif
+};
 
 /****************************************************************************
  * Private Functions
@@ -280,8 +283,8 @@ static int nrf52840_lpuart_config(struct nrf52840_uart_priv_s *config)
 
   UART_ENABLE(config->base_peripheral_ptr) = enable;
 
-  UART_TX_START_TASK(g_uart_low_0_priv.base_peripheral_ptr) = 1;
-  UART_RX_START_TASK(g_uart_low_0_priv.base_peripheral_ptr) = 1;
+  UART_TX_START_TASK(config->base_peripheral_ptr) = 1;
+  UART_RX_START_TASK(config->base_peripheral_ptr) = 1;
   
   config->is_initialized = true;
 
@@ -296,11 +299,12 @@ static void nrf52840_lpuart_int(void)
   irq_number -= 16;
 
   if (irq_number == UARTE0_UART0_IRQn) {
-    lower = &g_uart_low_0;
+    lower = &g_uart_lowerhalfs[0];
   }
+
 #ifdef CONFIG_UART_PERIPHERAL_1
   else if (irq_number == UARTE1_IRQn) {
-    lower = &g_uart_low_1;
+    lower = &g_uart_lowerhalfs[1];
   } 
 #endif
 
@@ -428,8 +432,8 @@ static int nrf52840_lpuart_read(const struct uart_lower_s *lower_half, void *buf
 
 int uart_low_init(void)
 {
-  sem_init(&g_uart_low_0.lock, 0, 1);
-  nrf52840_lpuart_config(&g_uart_low_0_priv);
+  sem_init(&g_uart_lowerhalfs[0].lock, 0, 1);
+  nrf52840_lpuart_config(g_uart_lowerhalfs[0].priv);
   return 0;
 }
 
@@ -442,45 +446,31 @@ int putchar(int c)
   return 0;
 }
 
-struct uart_lower_s **uart_init(size_t *uart_num)
+struct uart_lower_s *uart_init(size_t *uart_num)
 {
   int ret = 0;
-  static struct uart_lower_s *uart[2] = {NULL, NULL};
 
   if (uart_num == NULL) {
     return NULL;
   }
   
-  *uart_num = 0;
+  *uart_num = ARRAY_LEN(g_uart_lowerhalfs);
 
-  sem_init(&g_uart_low_0.rx_notify, 0, 0);
-  sem_init(&g_uart_low_0.lock, 0, 1);
+  for (int i = 0; i < *uart_num; i++) {
 
-  ret = uart_register(CONFIG_CONSOLE_UART_PATH, &g_uart_low_0);
-  if (ret < 0) {
-    return NULL;
+    sem_init(&g_uart_lowerhalfs[i].rx_notify, 0, 0);
+    sem_init(&g_uart_lowerhalfs[i].lock, 0, 1);
+
+    ret = uart_register(g_uart_lowerhalfs[i].dev_path, &g_uart_lowerhalfs[i]);
+    if (ret < 0) {
+      return NULL;
+    }
   }
 
-  uart[*uart_num] = &g_uart_low_0;
-  *uart_num += 1;
-
-#ifdef CONFIG_UART_PERIPHERAL_1
-  sem_init(&g_uart_low_1.rx_notify, 0, 0);
-  sem_init(&g_uart_low_1.lock, 0, 1);
-
-  ret = uart_register(CONFIG_UART_PERIPHERAL_1_PATH, &g_uart_low_1);
-  if (ret < 0) {
-    return NULL;
-  }
-
-  uart[*uart_num] = &g_uart_low_1;
-  *uart_num += 1;
-#endif
-
-  return uart;
+  return g_uart_lowerhalfs;
 }
 
 sem_t *get_console_sema(void)
 {
-  return &g_uart_low_0.lock;
+  return &g_uart_lowerhalfs[0].lock;
 }

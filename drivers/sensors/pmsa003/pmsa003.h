@@ -17,4 +17,6 @@ typedef struct pmsa003_sensor_s {
   struct uart_lower_s *interface;
 } pmsa003_sensor_t;
 
+int pmsa_sensor_register(const char *name, struct uart_lower_s *uart_lowerhalf);
+
 #endif /* __PMSA003_H */

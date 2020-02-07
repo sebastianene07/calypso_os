@@ -48,6 +48,7 @@ struct uart_lower_s {
   uart_lowerhalf_write write_cb;
   uart_lowerhalf_read  read_cb;
   uart_lowerhalf_ioctl ioctl_cb;
+  const char *dev_path;
 };
 
 /* The upper half structure */
@@ -67,7 +68,7 @@ int putchar(int c);
 
 int uart_register(const char *name, const struct uart_lower_s *uart_lowerhalf);
 
-struct uart_lower_s **uart_init(size_t *uart_num);
+struct uart_lower_s *uart_init(size_t *uart_num);
 
 sem_t *get_console_sema(void);
 

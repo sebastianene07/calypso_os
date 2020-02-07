@@ -1,4 +1,6 @@
 #include <board.h>
+
+#include <assert.h>
 #include <spi.h>
 #include <serial.h>
 #include <gpio.h>
@@ -152,7 +154,7 @@ void board_init(void)
   printf(".\r\n");
 
   size_t num_uart = 0;
-  struct uart_lower_s **uart_peripheral = uart_init(&num_uart);
+  struct uart_lower_s *uart_peripheral = uart_init(&num_uart);
 
 #ifdef CONFIG_DISPLAY_SSD1331
   ssd1331_config_t display_config = {
@@ -181,8 +183,10 @@ void board_init(void)
       &spi_devs[CONFIG_SENSOR_BME680_SPI_ID]);
 #endif
 
-#ifdef CONFIG_SENSORS_PMSA003
-  pmsa_sensor_register(SENSOR_PMSA003_PATH_NAME, uart_peripheral[SENSOR_PSMA003_UART_ID]);
+#ifdef CONFIG_SENSOR_PMSA003
+  assert(CONFIG_SENSOR_PSMA003_UART_ID < num_uart);
+  pmsa_sensor_register(CONFIG_SENSOR_PMSA003_PATH_NAME,
+      &uart_peripheral[CONFIG_SENSOR_PSMA003_UART_ID]);
 #endif
 
   SysTick_Config(g_system_core_clock_freq / CONFIG_SYSTEM_SCHEDULER_SLICE_FREQUENCY);

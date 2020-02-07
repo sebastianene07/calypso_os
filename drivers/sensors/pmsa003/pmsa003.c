@@ -78,6 +78,13 @@ static int pmsa_sensor_open(struct opened_resource_s *res,
     const char *pathname, int flags, mode_t mode)
 {
   int ret = OK;
+  pmsa003_sensor_t *pm_sensor     = (pmsa003_sensor_t *)res->vfs_node->priv;
+  struct uart_lower_s *uart_lower = pm_sensor->interface;
+
+  ret = uart_lower->open_cb(uart_lower); 
+  if (ret < 0) {
+    return ret;
+  }
 
   return ret;
 }
@@ -162,14 +169,14 @@ static int pmsa_sensor_ioctl(struct opened_resource_s *res, unsigned long reques
   switch (request) {
     case IO_PMSA003_ENTER_IDLE:
       { 
-        cmd      = PMSA003_CMD_ENTER_IDLE;
+        cmd      = (char *)PMSA003_CMD_ENTER_IDLE;
         cmd_size = sizeof(PMSA003_CMD_ENTER_IDLE);
       }
       break;
 
     case IO_PMSA003_ENTER_NORMAL:
       {
-        cmd      = PMSA003_CMD_ENTER_NORMAL;
+        cmd      = (char *)PMSA003_CMD_ENTER_NORMAL;
         cmd_size = sizeof(PMSA003_CMD_ENTER_NORMAL);
       }
       break;
