@@ -38,7 +38,6 @@
 #define UART_BAUDRATE_OFFSET                (0x524)
 #define UART_TXD_DMA_OFFSET                 (0x544)
 #define UART_TXD_MAXCNT                     (0x548)
-#define UART_ENDTX_OFFSET                   (0x120)
 #define UART_EVENTS_TXSTOPPED_OFFSET        (0x158)
 #define UART_INTENSET_OFFSET                (0x304)
 #define UART_RXD_PTR                        (0x534)
@@ -47,6 +46,7 @@
 #define UART_EVENTS_RXSTARTED_OFFSET        (0x14C)
 #define UART_EVENTS_RXDRDY_OFFSET           (0x108)
 #define UART_EVENTS_ENDRX_OFFSET            (0x110)
+#define UART_EVENTS_ENDTX_OFFSET            (0x120)
 #define UART_SHORTS_OFFSET                  (0x200)
 
 #define UART_TXD_OFFSET                     (0x51C)
@@ -69,7 +69,7 @@
 #define UART_TXD_MAXCNT_CONFIG(base_peripheral) UART_CONFIG((base_peripheral) , UART_TXD_MAXCNT)
 #define UART_TX_START_TASK(base_peripheral)     UART_CONFIG((base_peripheral) , UART_TASK_START_TX_OFFSET)
 #define UART_RX_START_TASK(base_peripheral)     UART_CONFIG((base_peripheral) , UART_TASK_START_RX_OFFSET)
-#define UART_ENDTX(base_peripheral)             UART_CONFIG((base_peripheral) , UART_ENDTX_OFFSET)
+#define UART_ENDTX_EVENT(base_peripheral)             UART_CONFIG((base_peripheral) , UART_EVENTS_ENDTX_OFFSET)
 #define UART_STOP_TX_TASK(base_peripheral)      UART_CONFIG((base_peripheral) , UART_TASK_STOP_TX_OFFSET)
 #define UART_EVENTS_TXSTOPPED(base_peripheral)  UART_CONFIG((base_peripheral) , UART_EVENTS_TXSTOPPED_OFFSET)
 #define UART_INTENSET_CONFIG(base_peripheral)   UART_CONFIG((base_peripheral) , UART_INTENSET_OFFSET)
@@ -82,6 +82,7 @@
 #define UART_EVENTS_RXSTARTED_CFG(base_peripheral)  UART_CONFIG((base_peripheral) , UART_EVENTS_RXSTARTED_OFFSET)
 #define UART_EVENTS_RXDRDY_CFG(base_peripheral)     UART_CONFIG((base_peripheral) , UART_EVENTS_RXDRDY_OFFSET   )
 #define UART_EVENTS_ENDRX_CFG(base_peripheral)      UART_CONFIG((base_peripheral) , UART_EVENTS_ENDRX_OFFSET    )
+#define UART_EVENTS_EVENTS_ENDTX(base_peripheral)   UART_CONFIG((base_peripheral) , 
 
 #define UART_DMA_RX_LEN                         (UART_RX_BUFFER / 8)
 
@@ -113,6 +114,8 @@ struct nrf52840_uart_priv_s {
   bool is_one_stopbit;
 
   bool is_byte_received_event;
+  bool is_end_rx_event;
+  bool is_end_tx_event;
   bool is_error_event;
   bool is_timeout_event;
 
@@ -163,11 +166,13 @@ static struct nrf52840_uart_priv_s g_uart_low_1_priv =
   .irq                 = UARTE1_IRQn,
   .is_initialized      = false,
   .is_flow_control     = false,
-  .is_dma_control      = false,
+  .is_dma_control      = true,
   .is_parity_included  = false,
   .is_one_stopbit      = true,
   
-  .is_byte_received_event = true,
+  .is_byte_received_event = false,
+  .is_end_rx_event        = true,
+  .is_end_tx_event        = true,
 
   .baud_rate           = CONFIG_UART_PERIPHERAL_1_BAUDRATE,
   .rx_pin              = CONFIG_UART_PERIPHERAL_1_RX_PIN,
@@ -239,6 +244,14 @@ static int nrf52840_lpuart_config(struct nrf52840_uart_priv_s *config)
     event_reg |= (1 << 2);
   }
 
+  if (config->is_end_rx_event) {
+    event_reg |= (1 << 4);
+  }
+
+  if (config->is_end_tx_event) {
+    event_reg |= (1 << 8);
+  }
+
   if (config->is_error_event) {
     event_reg |= (1 << 9);
   }
@@ -248,7 +261,7 @@ static int nrf52840_lpuart_config(struct nrf52840_uart_priv_s *config)
   }
 
   /* Configure the event register */
-  UART_INTENSET_CONFIG(config->base_peripheral_ptr) =  event_reg;
+  UART_INTENSET_CONFIG(config->base_peripheral_ptr) = event_reg;
 
   /* Configure UART baud rate  */
   UART_BAUDRATE(config->base_peripheral_ptr) = config->baud_rate;
@@ -283,12 +296,14 @@ static int nrf52840_lpuart_config(struct nrf52840_uart_priv_s *config)
 
   UART_ENABLE(config->base_peripheral_ptr) = enable;
 
-  UART_TX_START_TASK(config->base_peripheral_ptr) = 1;
-  UART_RX_START_TASK(config->base_peripheral_ptr) = 1;
-  
-  config->is_initialized = true;
+  /* If we are in DMA mode the task are started on demand */
+  if (!config->is_dma_control) {
+    UART_TX_START_TASK(config->base_peripheral_ptr) = 1;
+    UART_RX_START_TASK(config->base_peripheral_ptr) = 1;
+  }
 
-  return 0;
+  config->is_initialized = true;
+  return OK;
 }
 
 static void nrf52840_lpuart_int(void)
@@ -301,7 +316,6 @@ static void nrf52840_lpuart_int(void)
   if (irq_number == UARTE0_UART0_IRQn) {
     lower = &g_uart_lowerhalfs[0];
   }
-
 #ifdef CONFIG_UART_PERIPHERAL_1
   else if (irq_number == UARTE1_IRQn) {
     lower = &g_uart_lowerhalfs[1];
@@ -319,7 +333,14 @@ static void nrf52840_lpuart_int(void)
       UART_RXD_CONFIG(uart_priv->base_peripheral_ptr);
     lower->index_write_rx_buffer = (lower->index_write_rx_buffer + 1) % UART_RX_BUFFER;
 
+    /* Notify incomming RX characters */
     sem_post(&lower->rx_notify);
+  } 
+  else if (UART_ENDTX_EVENT(uart_priv->base_peripheral_ptr)) {
+    UART_ENDTX_EVENT(uart_priv->base_peripheral_ptr) = 0;
+
+    /* Notify that the data was sent  */
+    sem_post(&lower->tx_notify);
   }
 }
 
@@ -331,11 +352,6 @@ static int nrf52840_lpuart_open(const struct uart_lower_s *lower)
 
   if (!uart_priv->is_initialized) {
     nrf52840_lpuart_config(uart_priv);
-  }
-
-  if (uart_priv->is_dma_control) {
-    sem_post((sem_t *)&lower->lock);
-    return -EOPNOTSUPP;
   }
 
   disable_int();
@@ -357,12 +373,25 @@ static int nrf52840_lpuart_write(const struct uart_lower_s *lower,
 
   sem_wait((sem_t *)&lower->lock);
 
-  for (int i = 0; i < sz; i++) {
+  if (!uart_priv->is_dma_control) {
+    for (int i = 0; i < sz; i++) {
 
-    UART_EVENT_TXRDY(uart_priv->base_peripheral_ptr) = 0;
-    UART_TXD_CONFIG(uart_priv->base_peripheral_ptr)  = *((unsigned char *)(ptr_data + i));
+      UART_EVENT_TXRDY(uart_priv->base_peripheral_ptr) = 0;
+      UART_TXD_CONFIG(uart_priv->base_peripheral_ptr)  = *((unsigned char *)(ptr_data + i));
 
-    while (UART_EVENT_TXRDY(uart_priv->base_peripheral_ptr) == 0);
+      while (UART_EVENT_TXRDY(uart_priv->base_peripheral_ptr) == 0);
+    }
+  } else {
+
+    UART_TXD_PTR_CONFIG(uart_priv->base_peripheral_ptr)    = (uint32_t) ptr_data;
+    UART_TXD_MAXCNT_CONFIG(uart_priv->base_peripheral_ptr) = sz;
+
+    UART_TX_START_TASK(uart_priv->base_peripheral_ptr) = 1;
+
+    sem_post((sem_t *)&lower->lock);
+    sem_wait((sem_t *)&lower->tx_notify);
+
+    return 0;
   }
 
   sem_post((sem_t *)&lower->lock);
