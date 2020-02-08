@@ -2,6 +2,7 @@
 #define __SERIAL_H
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <semaphore.h>
 #include <stddef.h>
 
@@ -49,6 +50,7 @@ struct uart_lower_s {
   uart_lowerhalf_read  read_cb;
   uart_lowerhalf_ioctl ioctl_cb;
   const char *dev_path;
+  bool is_dma_control;
 };
 
 /* The upper half structure */

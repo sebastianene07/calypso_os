@@ -186,7 +186,16 @@ static int pmsa_sensor_ioctl(struct opened_resource_s *res, unsigned long reques
   }
 
   if (cmd != NULL) {
-    ret = uart_lower->write_cb(uart_lower, cmd, cmd_size);
+
+    uint8_t *cmd_copy = calloc(1, cmd_size);
+    if (cmd_copy == NULL) {
+      return -ENOMEM;
+    }
+
+    memcpy(cmd_copy, cmd, cmd_size);
+    ret = uart_lower->write_cb(uart_lower, cmd_copy, cmd_size);
+    free(cmd_copy);
+
     if (ret < 0) {
       sem_post(&pm_sensor->lock_sensor);
       return ret;
