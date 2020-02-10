@@ -53,10 +53,10 @@ static struct vfs_ops_s g_pmsa_ops = {
 };
 
 /* Commands sent to sensor */
-static const char PMSA003_CMD_ENTER_IDLE[] = 
+static const char PMSA003_CMD_ENTER_IDLE[] =
   {PMSA003_DATA_START, 0x4D, 0xE4, 0x00, 0x00, 0x01, 0x73};
 
-static const char PMSA003_CMD_ENTER_NORMAL[] = 
+static const char PMSA003_CMD_ENTER_NORMAL[] =
   {PMSA003_DATA_START, 0x4D, 0xE4, 0x00, 0x01, 0x01, 0x74};
 
 /****************************************************************************
@@ -81,7 +81,7 @@ static int pmsa_sensor_open(struct opened_resource_s *res,
   pmsa003_sensor_t *pm_sensor     = (pmsa003_sensor_t *)res->vfs_node->priv;
   struct uart_lower_s *uart_lower = pm_sensor->interface;
 
-  ret = uart_lower->open_cb(uart_lower); 
+  ret = uart_lower->open_cb(uart_lower);
   if (ret < 0) {
     return ret;
   }
@@ -101,7 +101,7 @@ static int pmsa_sensor_read(struct opened_resource_s *res, void *buf, size_t cou
   int ret = OK;
   pmsa003_sensor_t *pm_sensor     = (pmsa003_sensor_t *)res->vfs_node->priv;
   struct uart_lower_s *uart_lower = pm_sensor->interface;
-  const int bytes_read_up_limit   = 32;
+  const int bytes_read_up_limit   = PMSA003_DATA_LEN;
   int bytes_read                  = 0;
 
   if (count != PMSA003_DATA_LEN) {
@@ -110,20 +110,20 @@ static int pmsa_sensor_read(struct opened_resource_s *res, void *buf, size_t cou
 
   sem_wait(&pm_sensor->lock_sensor);
 
-  while (bytes_read < bytes_read_up_limit) {
+  while (1) {
     uint8_t cmd = 0;
-    ret = uart_lower->read_cb(uart_lower, &cmd, sizeof(cmd)); 
-    if (ret < 0) {
-      ret = -EINVAL;
-      goto errout;
+    ret = uart_lower->read_cb(uart_lower, &cmd, sizeof(cmd));
+    if (ret <= 0) {
+      continue;
     }
 
     if (cmd != PMSA003_DATA_START) {
       bytes_read++;
+      printf("ERROR: not a start frame %x\n", cmd);
       continue;
-    } 
+    }
 
-    ret = uart_lower->read_cb(uart_lower, &cmd, sizeof(cmd)); 
+    ret = uart_lower->read_cb(uart_lower, &cmd, sizeof(cmd));
     if (ret < 0) {
       ret = -EINVAL;
       goto errout;
@@ -131,8 +131,9 @@ static int pmsa_sensor_read(struct opened_resource_s *res, void *buf, size_t cou
 
     if (cmd != PMSA003_DATA_SAMPLE_START) {
       bytes_read++;
+      printf("ERROR: no sample start %d\n", cmd);
       continue;
-    } 
+    }
 
     /* This should be a blocking call until we get all the data */
     ret = uart_lower->read_cb(uart_lower, buf + 2,
@@ -142,9 +143,9 @@ static int pmsa_sensor_read(struct opened_resource_s *res, void *buf, size_t cou
       goto errout;
     } else {
       ret = PMSA003_DATA_LEN;
-      break; 
+      break;
     }
-  } 
+  }
 
   if (bytes_read >= bytes_read_up_limit) {
     ret = -ENOSYS;
@@ -168,7 +169,7 @@ static int pmsa_sensor_ioctl(struct opened_resource_s *res, unsigned long reques
   sem_wait(&pm_sensor->lock_sensor);
   switch (request) {
     case IO_PMSA003_ENTER_IDLE:
-      { 
+      {
         cmd      = (char *)PMSA003_CMD_ENTER_IDLE;
         cmd_size = sizeof(PMSA003_CMD_ENTER_IDLE);
       }
@@ -219,7 +220,7 @@ int pmsa_sensor_register(const char *name, struct uart_lower_s *uart_lowerhalf)
   pmsa003_sensor_t *pm_sensor = calloc(1, sizeof(pmsa003_sensor_t));
   if (pm_sensor == NULL) {
     return -ENOMEM;
-  }  
+  }
 
   sem_init(&pm_sensor->lock_sensor, 0, 1);
   pm_sensor->interface = uart_lowerhalf;

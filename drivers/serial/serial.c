@@ -87,14 +87,6 @@ static int uart_read(struct opened_resource_s *res, void *buf, size_t count)
 
     sem_wait((sem_t *)&lower->lock);
 
-    if (lower->is_dma_control) {
-      sem_post((sem_t *)&lower->lock);
-      ret = lower->read_cb(lower, buf, count);
-      if (ret == -EINVAL) {
-        continue;
-      }
-    }
-
     if (lower->index_read_rx_buffer < lower->index_write_rx_buffer)
     {
       available_rx_bytes = lower->index_write_rx_buffer -
@@ -113,7 +105,7 @@ static int uart_read(struct opened_resource_s *res, void *buf, size_t count)
 
       lower->index_read_rx_buffer += min_copy;
       lower->index_read_rx_buffer = lower->index_read_rx_buffer % UART_RX_BUFFER;
-      sem_post((sem_t *)&lower->lock); 
+      sem_post((sem_t *)&lower->lock);
 
       return min_copy;
     }

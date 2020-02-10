@@ -386,6 +386,9 @@ void sched_run(void)
 *************************************************************************/
 struct tcb_s *sched_get_current_task(void)
 {
+  if (g_current_tcb == NULL)
+    return NULL;
+
   struct tcb_s *current_tcb = (struct tcb_s *)container_of(g_current_tcb,
     struct tcb_s, next_tcb);
   return current_tcb;

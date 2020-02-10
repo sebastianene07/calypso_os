@@ -48,6 +48,8 @@
 #define UART_EVENTS_ENDRX_OFFSET            (0x110)
 #define UART_EVENTS_ENDTX_OFFSET            (0x120)
 #define UART_SHORTS_OFFSET                  (0x200)
+#define UART_ERROR_EVENT_OFFSET             (0x124)
+#define UART_RXTIMEOUT_EVENT_OFFSET         (0x144)
 
 #define UART_TXD_OFFSET                     (0x51C)
 #define UART_RXD_OFFSET                     (0x518)
@@ -70,6 +72,8 @@
 #define UART_TX_START_TASK(base_peripheral)     UART_CONFIG((base_peripheral) , UART_TASK_START_TX_OFFSET)
 #define UART_RX_START_TASK(base_peripheral)     UART_CONFIG((base_peripheral) , UART_TASK_START_RX_OFFSET)
 #define UART_ENDTX_EVENT(base_peripheral)             UART_CONFIG((base_peripheral) , UART_EVENTS_ENDTX_OFFSET)
+#define UART_ERROR_EVENT(base_peripheral)       UART_CONFIG((base_peripheral) , UART_ERROR_EVENT_OFFSET)
+#define UART_RXTIMEOUT_EVENT(base_peripheral)   UART_CONFIG((base_peripheral) , UART_RXTIMEOUT_EVENT_OFFSET)
 #define UART_STOP_TX_TASK(base_peripheral)      UART_CONFIG((base_peripheral) , UART_TASK_STOP_TX_OFFSET)
 #define UART_EVENTS_TXSTOPPED(base_peripheral)  UART_CONFIG((base_peripheral) , UART_EVENTS_TXSTOPPED_OFFSET)
 #define UART_INTENSET_CONFIG(base_peripheral)   UART_CONFIG((base_peripheral) , UART_INTENSET_OFFSET)
@@ -82,7 +86,7 @@
 #define UART_EVENTS_RXSTARTED_CFG(base_peripheral)  UART_CONFIG((base_peripheral) , UART_EVENTS_RXSTARTED_OFFSET)
 #define UART_EVENTS_RXDRDY_CFG(base_peripheral)     UART_CONFIG((base_peripheral) , UART_EVENTS_RXDRDY_OFFSET   )
 #define UART_ENDRX_EVENT(base_peripheral)      UART_CONFIG((base_peripheral) , UART_EVENTS_ENDRX_OFFSET    )
-#define UART_EVENTS_EVENTS_ENDTX(base_peripheral)   UART_CONFIG((base_peripheral) , 
+#define UART_EVENTS_EVENTS_ENDTX(base_peripheral)   UART_CONFIG((base_peripheral) ,
 
 #define UART_DMA_RX_LEN                         (UART_RX_BUFFER / 8)
 
@@ -116,8 +120,12 @@ struct nrf52840_uart_priv_s {
   bool is_byte_received_event;
   bool is_end_rx_event;
   bool is_end_tx_event;
+  bool is_rx_started_event;
   bool is_error_event;
   bool is_timeout_event;
+  bool is_auto_rx_start;
+
+  bool is_error_detected;
 
   uint32_t baud_rate;
 };
@@ -133,13 +141,14 @@ static int nrf52840_lpuart_write(const struct uart_lower_s *lower,
 static int nrf52840_lpuart_read(const struct uart_lower_s *lower, void *data,
                                 unsigned int max_buf_sz);
 static int nrf52840_lpuart_config(struct uart_lower_s *lower);
+static void nrf52840_lpuart_int(void);
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
 /* Private data for the UART 0 peripheral */
-static struct nrf52840_uart_priv_s g_uart_low_0_priv = 
+static struct nrf52840_uart_priv_s g_uart_low_0_priv =
 {
   .base_peripheral_ptr = (void *)UART_BASE_0,
   .irq                 = UARTE0_UART0_IRQn,
@@ -147,9 +156,8 @@ static struct nrf52840_uart_priv_s g_uart_low_0_priv =
   .is_flow_control     = false,
   .is_parity_included  = false,
   .is_one_stopbit      = true,
-  
-  .is_byte_received_event = true,
 
+  .is_byte_received_event = true,
   .baud_rate           = CONFIG_SERIAL_CONSOLE_BAUDRATE,
   .rx_pin              = CONFIG_SERIAL_CONSOLE_RX_PIN,
   .rx_port             = CONFIG_SERIAL_CONSOLE_RX_PORT,
@@ -159,7 +167,7 @@ static struct nrf52840_uart_priv_s g_uart_low_0_priv =
 };
 
 #ifdef CONFIG_UART_PERIPHERAL_1
-static struct nrf52840_uart_priv_s g_uart_low_1_priv = 
+static struct nrf52840_uart_priv_s g_uart_low_1_priv =
 {
   .base_peripheral_ptr = (void *)UART_BASE_1,
   .irq                 = UARTE1_IRQn,
@@ -167,10 +175,13 @@ static struct nrf52840_uart_priv_s g_uart_low_1_priv =
   .is_flow_control     = false,
   .is_parity_included  = false,
   .is_one_stopbit      = true,
-  
-  .is_byte_received_event = false,
+  .is_auto_rx_start    = true,
+
+  .is_rx_started_event    = true,
   .is_end_rx_event        = true,
   .is_end_tx_event        = true,
+  .is_error_event         = true,
+  .is_timeout_event       = true,
 
   .baud_rate           = CONFIG_UART_PERIPHERAL_1_BAUDRATE,
   .rx_pin              = CONFIG_UART_PERIPHERAL_1_RX_PIN,
@@ -182,13 +193,13 @@ static struct nrf52840_uart_priv_s g_uart_low_1_priv =
 #endif
 
 /* Uart 0 lower half operations. There is no need to provide a read_cb function
- * because we notify the incmming data through rx_notify semaphore and we 
+ * because we notify the incmming data through rx_notify semaphore and we
  * copy it in the rx_buffer from interrupt.
- */ 
-static struct uart_lower_s g_uart_lowerhalfs[] = 
+ */
+static struct uart_lower_s g_uart_lowerhalfs[] =
 {
   {
-    .priv     = &g_uart_low_0_priv,  
+    .priv     = &g_uart_low_0_priv,
     .open_cb  = nrf52840_lpuart_open,
     .write_cb = nrf52840_lpuart_write,
     .read_cb  = nrf52840_lpuart_read,
@@ -197,7 +208,7 @@ static struct uart_lower_s g_uart_lowerhalfs[] =
 
 #ifdef CONFIG_UART_PERIPHERAL_1
   {
-    .priv     = &g_uart_low_1_priv,  
+    .priv     = &g_uart_low_1_priv,
     .open_cb  = nrf52840_lpuart_open,
     .write_cb = nrf52840_lpuart_write,
     .read_cb  = nrf52840_lpuart_read,
@@ -214,13 +225,13 @@ static struct uart_lower_s g_uart_lowerhalfs[] =
 static int nrf52840_lpuart_config(struct uart_lower_s *lower)
 {
   struct nrf52840_uart_priv_s *config = lower->priv;
-    
+
   /* Configure UART0 - no hardware flow control, no pairty, one stop bit */
-  uint8_t config_reg = 0;
+  uint32_t config_reg = 0;
 
   if (config->is_flow_control) {
-    config_reg |= (1 << 0);
-  } 
+    config_reg |= (2 << 0);
+  }
 
   if (config->is_parity_included) {
     config_reg |= (7 << 1);
@@ -234,7 +245,7 @@ static int nrf52840_lpuart_config(struct uart_lower_s *lower)
   UART_CONFIG_REG(config->base_peripheral_ptr) = config_reg;
 
   /* Enable EndRX and RX started event */
-  uint8_t event_reg = 0;
+  uint32_t event_reg = 0;
 
   if (config->is_flow_control) {
     event_reg |= (1 << 0);
@@ -289,9 +300,19 @@ static int nrf52840_lpuart_config(struct uart_lower_s *lower)
     UART_RTS_PORT_CONFIG(config->base_peripheral_ptr) = config->rts_pin | ((config->rts_port & 0x01) << 5);
   }
 
-  uint8_t enable = 0x4;
+  uint32_t enable = 0x4;
   if (lower->is_dma_control) {
     enable = 0x08;
+  }
+
+  disable_int();
+  attach_int(config->irq, nrf52840_lpuart_int);
+  NVIC_EnableIRQ(config->irq);
+  NVIC_SetPriority(config->irq, 0x07);
+  enable_int();
+
+  if (config->is_auto_rx_start) {
+    UART_SHORTS_CONFIG(config->base_peripheral_ptr)  = (1 << 5);
   }
 
   UART_ENABLE(config->base_peripheral_ptr) = enable;
@@ -300,6 +321,11 @@ static int nrf52840_lpuart_config(struct uart_lower_s *lower)
   if (!lower->is_dma_control) {
     UART_TX_START_TASK(config->base_peripheral_ptr) = 1;
     UART_RX_START_TASK(config->base_peripheral_ptr) = 1;
+  }
+  else {
+    UART_RXD_PTR_CONFIG(config->base_peripheral_ptr)   = (uint32_t)lower->rx_buffer;
+    UART_RX_MAXCNT_CONFIG(config->base_peripheral_ptr) = 1;
+    UART_RX_START_TASK(config->base_peripheral_ptr)    = 1;
   }
 
   config->is_initialized = true;
@@ -326,7 +352,18 @@ static void nrf52840_lpuart_int(void)
 
   struct nrf52840_uart_priv_s *uart_priv = lower->priv;
 
-  if (UART_EVENTS_RXDRDY_CFG(uart_priv->base_peripheral_ptr)) {
+  if (uart_priv->is_rx_started_event &&
+      UART_EVENTS_RXSTARTED_CFG(uart_priv->base_peripheral_ptr) && lower->is_dma_control) {
+      UART_EVENTS_RXSTARTED_CFG(uart_priv->base_peripheral_ptr) = 0;
+
+      uint8_t next_index = (lower->index_write_rx_buffer + 1) % UART_RX_BUFFER;
+      UART_RXD_PTR_CONFIG(uart_priv->base_peripheral_ptr) = lower->rx_buffer + next_index;
+      UART_RX_MAXCNT_CONFIG(uart_priv->base_peripheral_ptr) = 1;
+  }
+
+  if (uart_priv->is_byte_received_event &&
+      UART_EVENTS_RXDRDY_CFG(uart_priv->base_peripheral_ptr)) {
+
     UART_EVENTS_RXDRDY_CFG(uart_priv->base_peripheral_ptr) = 0;
 
     lower->rx_buffer[lower->index_write_rx_buffer] =
@@ -336,23 +373,47 @@ static void nrf52840_lpuart_int(void)
     /* Notify incomming RX characters */
     sem_post(&lower->rx_notify);
   }
-  else if (UART_ENDTX_EVENT(uart_priv->base_peripheral_ptr)) {
+
+  if (uart_priv->is_end_tx_event &&
+    UART_ENDTX_EVENT(uart_priv->base_peripheral_ptr)) {
     UART_ENDTX_EVENT(uart_priv->base_peripheral_ptr) = 0;
 
     /* Notify that the data was sent  */
     sem_post(&lower->tx_notify);
   }
-  else if (UART_ENDRX_EVENT(uart_priv->base_peripheral_ptr)) {
-    UART_ENDRX_EVENT(uart_priv->base_peripheral_ptr) = 0;
+
+  if (uart_priv->is_end_rx_event &&
+      UART_ENDRX_EVENT(uart_priv->base_peripheral_ptr)) {
+      UART_ENDRX_EVENT(uart_priv->base_peripheral_ptr) = 0;
+
+    lower->index_write_rx_buffer = (lower->index_write_rx_buffer +
+      UART_RX_AMOUNT_CFG(uart_priv->base_peripheral_ptr)) % UART_RX_BUFFER;
+
+    UART_RX_START_TASK(uart_priv->base_peripheral_ptr)    = 1;
 
     /* Notify that the read request from the peripheral is done */
+    sem_post(&lower->rx_notify);
+  }
+
+  if ((uart_priv->is_error_event ||
+      uart_priv->is_timeout_event) &&
+      UART_ERROR_EVENT(uart_priv->base_peripheral_ptr) ||
+      UART_RXTIMEOUT_EVENT(uart_priv->base_peripheral_ptr)) {
+
+    UART_ERROR_EVENT(uart_priv->base_peripheral_ptr)     = 0;
+    UART_RXTIMEOUT_EVENT(uart_priv->base_peripheral_ptr) = 0;
+
+    /* Set a local flag in the private structure */
+    uart_priv->is_error_detected = true;
+
+    /* Unblock the notify sema */
     sem_post(&lower->rx_notify);
   }
 }
 
 static int nrf52840_lpuart_open(const struct uart_lower_s *lower)
 {
-  struct nrf52840_uart_priv_s *uart_priv = lower->priv; 
+  struct nrf52840_uart_priv_s *uart_priv = lower->priv;
 
   sem_wait((sem_t *)&lower->lock);
 
@@ -360,15 +421,38 @@ static int nrf52840_lpuart_open(const struct uart_lower_s *lower)
     nrf52840_lpuart_config((struct uart_lower_s *)lower);
   }
 
-  disable_int();
-  attach_int(uart_priv->irq, nrf52840_lpuart_int);
-  NVIC_EnableIRQ(uart_priv->irq);
-  NVIC_SetPriority(uart_priv->irq, 0x07);
-  enable_int();
-
   sem_post((sem_t *)&lower->lock);
 
   return 0;
+}
+
+static void nrf52840_lpuart_dma_write(const struct uart_lower_s *lower,
+                                     const void *ptr_data,
+                                     unsigned int sz)
+{
+  struct nrf52840_uart_priv_s *uart_priv = lower->priv;
+  uint8_t tx_buffer[128];
+  bool is_copied = false;
+
+  if (ptr_data < 0x20000000) {
+    /* Data is in flash and can't be sent through DMA.
+     * make a copy of it
+     */
+    memcpy(tx_buffer, ptr_data, sz);
+    is_copied = true;
+  }
+
+  UART_TX_START_TASK(uart_priv->base_peripheral_ptr)      = 0;
+  UART_EVENTS_TXSTOPPED(uart_priv->base_peripheral_ptr)   = 0;
+  UART_ENDTX_EVENT(uart_priv->base_peripheral_ptr)        = 0;
+
+  UART_TXD_PTR_CONFIG(uart_priv->base_peripheral_ptr)    = is_copied ? tx_buffer :
+    (uint32_t) ptr_data;
+  UART_TXD_MAXCNT_CONFIG(uart_priv->base_peripheral_ptr) = sz;
+
+  UART_TX_START_TASK(uart_priv->base_peripheral_ptr) = 1;
+
+  while (sem_wait((sem_t *)&lower->tx_notify) == -EAGAIN) {;;}
 }
 
 static int nrf52840_lpuart_write(const struct uart_lower_s *lower,
@@ -388,22 +472,13 @@ static int nrf52840_lpuart_write(const struct uart_lower_s *lower,
       while (UART_EVENT_TXRDY(uart_priv->base_peripheral_ptr) == 0);
     }
   } else {
-
-    UART_TX_START_TASK(uart_priv->base_peripheral_ptr)      = 0;
-    UART_EVENTS_TXSTOPPED(uart_priv->base_peripheral_ptr)   = 0;
-    UART_ENDTX_EVENT(uart_priv->base_peripheral_ptr)        = 0;
-
-    UART_TXD_PTR_CONFIG(uart_priv->base_peripheral_ptr)    = (uint32_t) ptr_data;
-    UART_TXD_MAXCNT_CONFIG(uart_priv->base_peripheral_ptr) = 1;
-
-    UART_TX_START_TASK(uart_priv->base_peripheral_ptr) = 1;
-
-    sem_wait((sem_t *)&lower->tx_notify);
+    sem_post((sem_t *)&lower->lock);
+    nrf52840_lpuart_dma_write(lower, ptr_data, sz);
+    return sz;
   }
 
   sem_post((sem_t *)&lower->lock);
-
-  return 0;
+  return sz;
 }
 
 static int nrf52840_lpuart_read(const struct uart_lower_s *lower_half, void *buf,
@@ -411,34 +486,47 @@ static int nrf52840_lpuart_read(const struct uart_lower_s *lower_half, void *buf
 {
   int ret = OK;
   uint32_t min_copy = 0;
-  uint32_t total_copy = 0;
+  int total_copy = 0;
 
   struct uart_lower_s *lower = (struct uart_lower_s *)lower_half;
   struct nrf52840_uart_priv_s *uart_priv = lower->priv;
-  static volatile int nreaders = 0;
 
-  sem_wait((sem_t *)&lower->lock);
-  nreaders++;
+  do {
+    uint8_t available_rx_bytes = 0;
 
-  /* Prevent other threads from writing to the peripheral registers while 
-   * there is one thread waiting for RX end event notification.
-   */ 
-  if (nreaders != 1) {
-    sem_post((sem_t *)&lower->lock);
-    return -EINVAL;
-  }
+    sem_wait((sem_t *)&lower->lock);
 
-  UART_RXD_PTR_CONFIG(uart_priv->base_peripheral_ptr)   = (uint32_t)buf;
-  UART_RX_MAXCNT_CONFIG(uart_priv->base_peripheral_ptr) = count;
-  UART_RX_START_TASK(uart_priv->base_peripheral_ptr)    = 1;
-  sem_post((sem_t *)&lower->lock);
+    if (lower->index_read_rx_buffer < lower->index_write_rx_buffer)
+    {
+      available_rx_bytes = lower->index_write_rx_buffer -
+        lower->index_read_rx_buffer;
+    }
+    else if (lower->index_read_rx_buffer != lower->index_write_rx_buffer)
+    {
+      available_rx_bytes = UART_RX_BUFFER -
+      (lower->index_read_rx_buffer - lower->index_write_rx_buffer);
+    }
 
-  /* Wait an interrupt here to signal us the complete transfer */
-  sem_wait((sem_t *)&lower->rx_notify);
+    uint8_t min_copy = count > available_rx_bytes ? available_rx_bytes : count;
+    if (min_copy > 0)
+    {
+      memcpy(buf + total_copy, lower->rx_buffer + lower->index_read_rx_buffer,
+             min_copy);
 
-  sem_wait((sem_t *)&lower->lock);
-  nreaders--;
-  sem_post((sem_t *)&lower->lock);
+      total_copy += min_copy;
+      count      -= min_copy;
+
+      lower->index_read_rx_buffer += min_copy;
+      lower->index_read_rx_buffer = lower->index_read_rx_buffer % UART_RX_BUFFER;
+
+      sem_post((sem_t *)&lower->lock);
+    }
+    else
+    {
+      sem_post((sem_t *)&lower->lock);
+      sem_wait(&lower->rx_notify);
+    }
+  } while (count > 0);
 
   return total_copy;
 }
@@ -449,17 +537,27 @@ static int nrf52840_lpuart_read(const struct uart_lower_s *lower_half, void *buf
 
 int uart_low_init(void)
 {
-  sem_init(&g_uart_lowerhalfs[0].lock, 0, 1);
-  nrf52840_lpuart_config(&g_uart_lowerhalfs[0]);
+  if (!g_uart_low_0_priv.is_initialized) {
+    sem_init(&g_uart_lowerhalfs[0].lock, 0, 1);
+    nrf52840_lpuart_config((struct uart_lower_s *)&g_uart_lowerhalfs[0]);
+  }
+
   return 0;
 }
 
 int putchar(int c)
 {
-  UART_EVENT_TXRDY(UART_BASE_0) = 0;
-  UART_TXD_CONFIG(UART_BASE_0) = (unsigned char)c;
+  if (g_uart_lowerhalfs[0].is_dma_control == false)
+  {
+    UART_EVENT_TXRDY(UART_BASE_0) = 0;
+    UART_TXD_CONFIG(UART_BASE_0) = (unsigned char)c;
 
-  while (UART_EVENT_TXRDY(UART_BASE_0) == 0);
+    while (UART_EVENT_TXRDY(UART_BASE_0) == 0);
+  }
+  else
+  {
+    nrf52840_lpuart_dma_write(&g_uart_lowerhalfs[0], &c, 1);
+  }
   return 0;
 }
 

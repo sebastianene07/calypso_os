@@ -34,28 +34,28 @@ static int g_sensor_fd;
 
 static const char *get_name_from_iaq_index(uint32_t index)
 {
-	if (index >= 0 && index <= 50)
-		/* Pure air; best for well-being */
-		return "excellent";
-	else if (index > 50 && index <= 100)
-		/* No irritation or impact on well-being */
-		return "good";
-	else if (index > 100 && index <= 150)
-		/* Reduction of well-being possible */
-		return "lightly polluted";
-	else if (index > 150 && index <= 200)
-		/* More significant irritation possible */
-		return "moderated polluted";
-	else if (index > 200 && index <= 250)
-		/* Exposition might lead to effects like headache depending on type
+  if (index >= 0 && index <= 50)
+    /* Pure air; best for well-being */
+    return "excellent";
+  else if (index > 50 && index <= 100)
+    /* No irritation or impact on well-being */
+    return "good";
+  else if (index > 100 && index <= 150)
+    /* Reduction of well-being possible */
+    return "lightly polluted";
+  else if (index > 150 && index <= 200)
+    /* More significant irritation possible */
+    return "moderated polluted";
+  else if (index > 200 && index <= 250)
+    /* Exposition might lead to effects like headache depending on type
      * of VOCs */
-		return "heavily polluted";
-	else if (index > 250 && index <= 350)
-		/* More severe health issue possible if harmful VOC present */
-		return "severely polluted";
-	else
-		/* Headaches, additional neurotoxic effects possible */
-		return "exteremely polluted";
+    return "heavily polluted";
+  else if (index > 250 && index <= 350)
+    /* More severe health issue possible if harmful VOC present */
+    return "severely polluted";
+  else
+    /* Headaches, additional neurotoxic effects possible */
+    return "exteremely polluted";
 }
 
 #ifdef CONFIG_LIBRARY_BSEC
@@ -64,7 +64,7 @@ static void bsec_out_data(int64_t time_stamp, float iaq, uint8_t iaq_accuracy,
  float raw_humidity, float gas, bsec_library_return_t bsec_status,
  float static_iaq, float co2_equivalent, float breath_voc_equivalent)
 {
-	uint32_t int_iaq = (uint32_t)iaq;
+  uint32_t int_iaq = (uint32_t)iaq;
   char print_buffer[130] = {0};
   uint32_t temperature_real = temperature * 100;
   current_time_t my_time;
@@ -125,7 +125,7 @@ static int64_t get_timestamp_us(void)
 {
   TIMER_FUNCTION_REGISTER(0x040) = 1;
   volatile uint64_t cc = TIMER_FUNCTION_REGISTER(0x540);
-	return cc;
+  return cc;
 }
 
 static void sleep(uint32_t t_ms)
@@ -194,12 +194,17 @@ static int sensor_measure_bma680(void)
   return ret;
 }
 
+static inline uint16_t convert_to_littleendian(uint16_t data)
+{
+  return ((data & 0xFF) << 8) | ((data & 0xFF00) >> 8);
+}
+
 static int sensor_measure_pmsa003(void)
 {
   int ret = OK, fd;
 
 #ifdef CONFIG_SENSOR_PMSA003
-  uint8_t data_sample[PMSA003_DATA_LEN];
+  pmsa003_msg_t data_sample;
 
   ret = open(CONFIG_SENSOR_PMSA003_PATH_NAME, 0);
   if (ret < 0) {
@@ -209,22 +214,41 @@ static int sensor_measure_pmsa003(void)
 
   fd = ret;
 
-  ret = ioctl(fd, IO_PMSA003_ENTER_NORMAL, 0); 
+  ret = ioctl(fd, IO_PMSA003_ENTER_NORMAL, 0);
   if (ret < 0) {
     printf("Error %d cannot enter normal mode\n", ret);
     close(fd);
     return ret;
   }
 
+  current_time_t my_time;
+  int rtc_fd = open(CONFIG_RTC_PATH, 0);
+  if (rtc_fd < 0)
+  {
+    printf("[ERROR] %d open RTC\n", rtc_fd);
+  }
+
   for (;;) {
-    ret = read(fd, &data_sample, PMSA003_DATA_LEN);
+    ret = read(fd, &data_sample, sizeof(pmsa003_msg_t));
     if (ret < 0) {
       printf("Error %d reading pmsa003 sensor", ret);
       close(fd);
       return ret;
     }
 
-    printf("[PMSA003] returned %d bytes\n", ret);
+    ret = read(rtc_fd, &my_time, sizeof(my_time));
+    if (ret < 0) {
+      printf("[ERROR] %d read RTC\n", ret);
+      close(rtc_fd);
+      close(fd);
+      return ret;
+    }
+
+    printf("[%02u:%02u:%02u] pm1.0: %d pm2.5: %d pm10: %d\n",
+           my_time.g_hours, my_time.g_minute, my_time.g_second,
+           convert_to_littleendian(data_sample.pm1_0),
+           convert_to_littleendian(data_sample.pm2_5),
+           convert_to_littleendian(data_sample.pm2_5));
   }
 
 #endif
@@ -237,8 +261,8 @@ int console_sensor_measure(int argc, const char *argv[])
 
   if (argc != 2) {
     sensor_measure_print_usage();
-    return -1; 
-  } 
+    return -1;
+  }
 
   if (!strcmp(argv[1], "bma680")) {
     return sensor_measure_bma680();
