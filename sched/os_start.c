@@ -64,7 +64,7 @@ void _start(void)
   /* Init dummy serial console */
 
   uart_low_init();
-  uart_low_send(CONFIG_POWERON_MESSAGE);
+  printf(CONFIG_POWERON_MESSAGE);
 
   /* Initialize the HEAP memory */
 

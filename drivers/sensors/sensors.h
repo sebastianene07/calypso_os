@@ -7,4 +7,8 @@
 #include <sensors/bme680/bme_680_main.h>
 #endif
 
+#ifdef CONFIG_SENSOR_PMSA003
+#include <sensors/pmsa003/pmsa003.h>
+#endif
+
 #endif /* __SENSORS_H */

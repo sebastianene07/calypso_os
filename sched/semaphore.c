@@ -1,4 +1,6 @@
 #include <board.h>
+
+#include <errno.h>
 #include <semaphore.h>
 #include <scheduler.h>
 #include <stdbool.h>
@@ -67,6 +69,20 @@ int sem_wait(sem_t *sem)
      */
 
     struct tcb_s *tcb     = sched_get_current_task();
+
+    /* There was an error or tasks were not initialized.
+     * If there is only one task in the ready to run list don't change
+     * the state to WAITING_FOR_SEM. Instead, we should return an error
+     * like EAGAIN.
+     */
+
+
+    if ((tcb == NULL) ||
+        (g_current_tcb->next == g_current_tcb->prev)) {
+      enable_int();
+      return -EAGAIN;
+    }
+
     tcb->t_state          = WAITING_FOR_SEM;
     tcb->waiting_tcb_sema = sem;
 
@@ -76,7 +92,7 @@ int sem_wait(sem_t *sem)
     sched_context_switch();
     enable_int();
 
-    return -1;
+    return 0;
   }
 
   return 0;

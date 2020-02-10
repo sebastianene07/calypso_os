@@ -1,4 +1,6 @@
 #include <board.h>
+
+#include <assert.h>
 #include <spi.h>
 #include <serial.h>
 #include <gpio.h>
@@ -85,8 +87,10 @@ static void clock_init(void)
 void board_init(void)
 {
   /* Driver initialization logic */
-
+#ifdef CONFIG_NRF5X_CLOCK
   clock_init();
+#endif
+
 #ifdef CONFIG_NRF5X_RTC
   rtc_init();
 #endif
@@ -140,16 +144,17 @@ void board_init(void)
 #endif
 
   uart_low_init();
-  uart_low_send("\r\n.");
+  printf("\r\n.");
 
   gpio_init();
-  uart_low_send(".");
+  printf(".");
 
   gpio_configure(LED, 0, GPIO_DIRECTION_OUT, GPIO_PIN_INPUT_DISCONNECT,
                  GPIO_NO_PULL, GPIO_PIN_S0S1, GPIO_PIN_NO_SENS);
-  uart_low_send(".\r\n");
+  printf(".\r\n");
 
-  uart_init();
+  size_t num_uart = 0;
+  struct uart_lower_s *uart_peripheral = uart_init(&num_uart);
 
 #ifdef CONFIG_DISPLAY_SSD1331
   ssd1331_config_t display_config = {
@@ -176,6 +181,12 @@ void board_init(void)
 #ifdef CONFIG_SENSOR_BME680
   bme680_sensor_register(CONFIG_SENSOR_BME680_PATH_NAME,
       &spi_devs[CONFIG_SENSOR_BME680_SPI_ID]);
+#endif
+
+#ifdef CONFIG_SENSOR_PMSA003
+  assert(CONFIG_SENSOR_PSMA003_UART_ID < num_uart);
+  pmsa_sensor_register(CONFIG_SENSOR_PMSA003_PATH_NAME,
+      &uart_peripheral[CONFIG_SENSOR_PSMA003_UART_ID]);
 #endif
 
   SysTick_Config(g_system_core_clock_freq / CONFIG_SYSTEM_SCHEDULER_SLICE_FREQUENCY);

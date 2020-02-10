@@ -12,3 +12,19 @@ config SENSOR_BME680_SPI_ID
 	int "Select which SPI interface to use [0:2]"
 	default 1
 
+config SENSOR_PMSA003
+	bool "Plantower PMSA003 sensor"
+	default n
+
+if SENSOR_PMSA003
+config SENSOR_PMSA003_PATH_NAME
+	string "The path where we register the sensor"
+	default "/dev/pmsa003"
+
+config SENSOR_PSMA003_UART_ID
+	int "Select the uart bus number where the sensor is connected"
+	default 1
+	---help---
+	This specifies the UART peripheral index that this sensor is connected
+	to.
+endif

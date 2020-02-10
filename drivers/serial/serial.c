@@ -71,9 +71,10 @@ static int uart_write(struct opened_resource_s *res, const void *buf, size_t cou
 static int uart_read(struct opened_resource_s *res, void *buf, size_t count)
 {
   struct uart_upper_s *uart_up = (struct uart_upper_s *)res->vfs_node->priv;
+  int ret = 0;
 
-  /* Blocking read. Wait until 'count' bytes are available from
-   * this device.
+  /* Blocking read. Return up to 'count' bytes if they are available from
+   * this device
    */
   struct uart_lower_s *lower = (struct uart_lower_s *)uart_up->lower;
   if (lower == NULL)
@@ -83,6 +84,8 @@ static int uart_read(struct opened_resource_s *res, void *buf, size_t count)
 
   do {
     uint8_t available_rx_bytes = 0;
+
+    sem_wait((sem_t *)&lower->lock);
 
     if (lower->index_read_rx_buffer < lower->index_write_rx_buffer)
     {
@@ -98,14 +101,17 @@ static int uart_read(struct opened_resource_s *res, void *buf, size_t count)
     uint8_t min_copy = count > available_rx_bytes ? available_rx_bytes : count;
     if (available_rx_bytes > 0)
     {
-      memcpy(buf, lower->rx_buffer, min_copy);
+      memcpy(buf, lower->rx_buffer + lower->index_read_rx_buffer, min_copy);
 
       lower->index_read_rx_buffer += min_copy;
       lower->index_read_rx_buffer = lower->index_read_rx_buffer % UART_RX_BUFFER;
+      sem_post((sem_t *)&lower->lock);
+
       return min_copy;
     }
     else
     {
+      sem_post((sem_t *)&lower->lock);
       sem_wait(&lower->rx_notify);
     }
   } while (1);

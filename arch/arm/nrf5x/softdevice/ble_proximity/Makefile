@@ -64,7 +64,7 @@ components/toolchain/system_nrf52.c \
 components/softdevice/common/softdevice_handler/softdevice_handler.c \
 
 #assembly files common to all targets
-#ASM_SOURCE_FILES  = ./components/toolchain/gcc/gcc_startup_nrf52.s
+ASM_SOURCE_FILES  = ./components/toolchain/gcc/gcc_startup_nrf52.s
 
 #includes common to all targets
 INC_PATHS  = -I./config

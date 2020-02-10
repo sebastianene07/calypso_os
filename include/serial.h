@@ -2,7 +2,9 @@
 #define __SERIAL_H
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <semaphore.h>
+#include <stddef.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -41,11 +43,14 @@ struct uart_lower_s {
   sem_t rx_notify;
   uint8_t tx_buffer[UART_TX_BUFFER];
   sem_t tx_notify;
+  sem_t lock;
   uart_lowerhalf_open  open_cb;
   uart_lowerhalf_close close_cb;
   uart_lowerhalf_write write_cb;
   uart_lowerhalf_read  read_cb;
   uart_lowerhalf_ioctl ioctl_cb;
+  const char *dev_path;
+  bool is_dma_control;
 };
 
 /* The upper half structure */
@@ -61,14 +66,12 @@ struct uart_upper_s {
 
 int uart_low_init(void);
 
-int uart_low_send(char *msg);
-
 int putchar(int c);
-
-char uart_low_receive(void);
 
 int uart_register(const char *name, const struct uart_lower_s *uart_lowerhalf);
 
-int uart_init(void);
+struct uart_lower_s *uart_init(size_t *uart_num);
+
+sem_t *get_console_sema(void);
 
 #endif /* __SERIAL_H */

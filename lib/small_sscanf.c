@@ -70,7 +70,7 @@ int sscanf(const char *str, const char *format, ...)
   va_list args;
   char arg_buffer[32];
 
-  va_start(args, num_args);
+  va_start(args, format);
 
   const char *fmt = format;
   for (int i = 0; i < num_args; ++i)

@@ -21,6 +21,9 @@
 #include "bsec_lib/bsec_integration.h"
 #endif
 
+#ifdef CONFIG_SENSOR_PMSA003
+#include <sensors/pmsa003/pmsa003.h>
+#endif
 
 #define TIMER_0_BASE_ADDRESS    (0x40008000)
 #define TIMER_FUNCTION_REGISTER(REG_OFFSET)    (*(volatile uint32_t *)((TIMER_0_BASE_ADDRESS) \
@@ -31,28 +34,28 @@ static int g_sensor_fd;
 
 static const char *get_name_from_iaq_index(uint32_t index)
 {
-	if (index >= 0 && index <= 50)
-		/* Pure air; best for well-being */
-		return "excellent";
-	else if (index > 50 && index <= 100)
-		/* No irritation or impact on well-being */
-		return "good";
-	else if (index > 100 && index <= 150)
-		/* Reduction of well-being possible */
-		return "lightly polluted";
-	else if (index > 150 && index <= 200)
-		/* More significant irritation possible */
-		return "moderated polluted";
-	else if (index > 200 && index <= 250)
-		/* Exposition might lead to effects like headache depending on type
+  if (index >= 0 && index <= 50)
+    /* Pure air; best for well-being */
+    return "excellent";
+  else if (index > 50 && index <= 100)
+    /* No irritation or impact on well-being */
+    return "good";
+  else if (index > 100 && index <= 150)
+    /* Reduction of well-being possible */
+    return "lightly polluted";
+  else if (index > 150 && index <= 200)
+    /* More significant irritation possible */
+    return "moderated polluted";
+  else if (index > 200 && index <= 250)
+    /* Exposition might lead to effects like headache depending on type
      * of VOCs */
-		return "heavily polluted";
-	else if (index > 250 && index <= 350)
-		/* More severe health issue possible if harmful VOC present */
-		return "severely polluted";
-	else
-		/* Headaches, additional neurotoxic effects possible */
-		return "exteremely polluted";
+    return "heavily polluted";
+  else if (index > 250 && index <= 350)
+    /* More severe health issue possible if harmful VOC present */
+    return "severely polluted";
+  else
+    /* Headaches, additional neurotoxic effects possible */
+    return "exteremely polluted";
 }
 
 #ifdef CONFIG_LIBRARY_BSEC
@@ -61,7 +64,7 @@ static void bsec_out_data(int64_t time_stamp, float iaq, uint8_t iaq_accuracy,
  float raw_humidity, float gas, bsec_library_return_t bsec_status,
  float static_iaq, float co2_equivalent, float breath_voc_equivalent)
 {
-	uint32_t int_iaq = (uint32_t)iaq;
+  uint32_t int_iaq = (uint32_t)iaq;
   char print_buffer[130] = {0};
   uint32_t temperature_real = temperature * 100;
   current_time_t my_time;
@@ -122,7 +125,7 @@ static int64_t get_timestamp_us(void)
 {
   TIMER_FUNCTION_REGISTER(0x040) = 1;
   volatile uint64_t cc = TIMER_FUNCTION_REGISTER(0x540);
-	return cc;
+  return cc;
 }
 
 static void sleep(uint32_t t_ms)
@@ -158,14 +161,19 @@ static int8_t bus_write(uint8_t dev_addr, uint8_t reg_addr,
   return ret;
 }
 
-int console_sensor_measure(int argc, const char *argv[])
+static void sensor_measure_print_usage(void)
+{
+  printf("Usage: sensor_measure <sensor_type>\n"
+         "where sensor type: bma680 or pmsa003\n");
+}
+
+static int sensor_measure_bma680(void)
 {
   int ret;
 #ifdef CONFIG_LIBRARY_BSEC
   return_values_init bsec_ret;
 #endif
-
-  g_sensor_fd = open(CONFIG_SENSOR_BME680_PATH_NAME, O_APPEND);
+  g_sensor_fd = open(CONFIG_SENSOR_BME680_PATH_NAME, 0);
   if (g_sensor_fd < 0) {
     printf("Error %d open\n", g_sensor_fd);
     return g_sensor_fd;
@@ -182,7 +190,87 @@ int console_sensor_measure(int argc, const char *argv[])
 
   bsec_iot_loop(sleep, get_timestamp_us, bsec_out_data, state_save, 10000);
 #endif
-
   close(g_sensor_fd);
+  return ret;
+}
+
+static inline uint16_t convert_to_littleendian(uint16_t data)
+{
+  return ((data & 0xFF) << 8) | ((data & 0xFF00) >> 8);
+}
+
+static int sensor_measure_pmsa003(void)
+{
+  int ret = OK, fd;
+
+#ifdef CONFIG_SENSOR_PMSA003
+  pmsa003_msg_t data_sample;
+
+  ret = open(CONFIG_SENSOR_PMSA003_PATH_NAME, 0);
+  if (ret < 0) {
+    printf("Error %d open pmsa003 sensor\n", ret);
+    return ret;
+  }
+
+  fd = ret;
+
+  ret = ioctl(fd, IO_PMSA003_ENTER_NORMAL, 0);
+  if (ret < 0) {
+    printf("Error %d cannot enter normal mode\n", ret);
+    close(fd);
+    return ret;
+  }
+
+  current_time_t my_time;
+  int rtc_fd = open(CONFIG_RTC_PATH, 0);
+  if (rtc_fd < 0)
+  {
+    printf("[ERROR] %d open RTC\n", rtc_fd);
+  }
+
+  for (;;) {
+    ret = read(fd, &data_sample, sizeof(pmsa003_msg_t));
+    if (ret < 0) {
+      printf("Error %d reading pmsa003 sensor", ret);
+      close(fd);
+      return ret;
+    }
+
+    ret = read(rtc_fd, &my_time, sizeof(my_time));
+    if (ret < 0) {
+      printf("[ERROR] %d read RTC\n", ret);
+      close(rtc_fd);
+      close(fd);
+      return ret;
+    }
+
+    printf("[%02u:%02u:%02u] pm1.0: %d pm2.5: %d pm10: %d\n",
+           my_time.g_hours, my_time.g_minute, my_time.g_second,
+           convert_to_littleendian(data_sample.pm1_0),
+           convert_to_littleendian(data_sample.pm2_5),
+           convert_to_littleendian(data_sample.pm2_5));
+  }
+
+#endif
+  return ret;
+}
+
+int console_sensor_measure(int argc, const char *argv[])
+{
+  int ret;
+
+  if (argc != 2) {
+    sensor_measure_print_usage();
+    return -1;
+  }
+
+  if (!strcmp(argv[1], "bma680")) {
+    return sensor_measure_bma680();
+  } else if (!strcmp(argv[1], "pmsa003")) {
+    return sensor_measure_pmsa003();
+  } else {
+    printf("Unkown parameter: %s\n", argv[1]);
+  }
+
   return OK;
 }
