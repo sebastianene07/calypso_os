@@ -10,7 +10,7 @@
  ****************************************************************************/
 
 #define RAM_BASE              (void *)(0x10000)
-#define STACK_TOP             (void *)(0xDEADBEEF)
+#define STACK_TOP             (void *)(0x11000)
 
 #define HEAP_BLOCK_SIZE       (16)
 

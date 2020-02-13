@@ -129,5 +129,5 @@ void dummy_fn(void)
 void board_init(void)
 {
   uart_low_init();
-  printf("QEMU versatilepb initializing\r\n.");
+  printf("\r\nQEMU versatilepb initializing\r\n.");
 }
