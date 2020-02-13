@@ -3,3 +3,13 @@ config WFI_ENABLE
   default n
   ---help---
   Allow the CPU to enter wait for interrupt state to sleep.
+
+config SYSTEM_CLOCK_FREQUENCY
+  int "Clock tick frequency in MhZ"
+  default 200
+  ---help---
+    The system core clock frequency in MhZ.
+
+config SYSTEM_SCHEDULER_SLICE_FREQUENCY
+  int "The pre-emption interrupt frequency in Hz"
+  default 2000
