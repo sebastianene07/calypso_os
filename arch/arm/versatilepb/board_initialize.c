@@ -36,7 +36,7 @@ void SysTick_Handler(void)
 __attribute__((section(".isr_vector")))
 void (*g_vectors[NUM_IRQS])(void) = {
         STACK_TOP,
-        os_startup,
+        _start,
         dummy_fn,
         HardFault_Handler,
         dummy_fn,
@@ -129,7 +129,5 @@ void dummy_fn(void)
 void board_init(void)
 {
   uart_low_init();
-  uart_low_send("\r\n.");
-
-  uart_init();
+  printf("QEMU versatilepb initializing\r\n.");
 }
