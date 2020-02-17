@@ -8,8 +8,8 @@
 #
 CONFIG_MACHINE_TYPE="lx6"
 CONFIG_MACHINE_CPU="xtensa"
-CONFIG_CFLAGS="-fno-strict-aliasing -fdata-sections -ffunction-sections -Os -g -Wall -nostdlib -nostartfiles"
-CONFIG_LDFLAGS=" ${CFLAGS} -Wl,-T${TOPDIR}/linker.ld "
+CONFIG_CFLAGS="-fno-strict-aliasing -fdata-sections -ffunction-sections -Os -g -Wall -nostdlib -nostartfiles -mlongcalls -mtext-section-literals -fstrict-volatile-bitfields"
+CONFIG_LDFLAGS=" ${CFLAGS} -Wl,-T${TOPDIR}/config/xtensa/esp32dev/scripts/linker.ld "
 # CONFIG_SPI_0 is not set
 # CONFIG_SPI_1 is not set
 CONFIG_SPI_BUFFER_LEN=32
@@ -64,7 +64,7 @@ CONFIG_SYSTEM_SCHEDULER_SLICE_FREQUENCY=2000
 CONFIG_RUN_APPS_IN_OWN_THREAD=y
 CONFIG_CONSOLE_APP=y
 CONFIG_CONSOLE_PROMPT_STR="root:#>"
-CONFIG_CONSOLE_ECHO_ON=y
+# CONFIG_CONSOLE_ECHO_ON is not set
 # CONFIG_CONSOLE_DATE_ON is not set
 # CONFIG_CONSOLE_CAT is not set
 # CONFIG_CONSOLE_FREE is not set
