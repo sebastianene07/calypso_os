@@ -1,3 +1,5 @@
+ENTRY( _start );
+
 /* Specify main memory areas */
 MEMORY
 {

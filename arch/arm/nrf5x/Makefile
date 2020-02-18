@@ -20,7 +20,7 @@ ifeq ($(CONFIG_CONSOLE_NRF_INIT_SOFTDEVICE_APP),y)
 DIRS+=softdevice/ble_proximity/
 endif
 
-all: ARCH_LIBRARIES $(OBJS) $(OBJS_ASM) 
+all: ARCH_LIBRARIES $(OBJS) $(OBJS_ASM)
 	echo "Building arch specific"
 	${PREFIX}ar -rc $(TOPDIR)/$(TMP_LIB) $(OBJS) $(OBJS_ASM)
 

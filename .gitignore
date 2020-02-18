@@ -1,8 +1,6 @@
 /tmp_lib.a
-/include/Kconfig
-include/board_cfg.h
-include/board.h
-/include/nrf52840.h
+board_cfg.h
+/include/chip/*
 .config
 .config.old
 *.o

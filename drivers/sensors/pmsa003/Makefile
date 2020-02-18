@@ -5,6 +5,7 @@ SRC_ASM:=$(wildcard *.s)
 OBJS_ASM:=$(patsubst %.s,%.o,$(SRC_ASM))
 CONSOLE_FLAGS := ${CFLAGS}																					\
 							-I$(TOPDIR)/include																	\
+						  -I$(TOPDIR)/include/chip/														\
 							-I$(TOPDIR)/s_alloc																	\
 							-I$(TOPDIR)/sched/include														\
 							-I$(TOPDIR)/drivers														\

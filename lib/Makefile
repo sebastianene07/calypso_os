@@ -9,8 +9,9 @@ endif
 OBJS_FATFS := $(patsubst %.c, %.o, $(SRCS_FATFS))
 OBJS := $(patsubst %.c, %.o, $(SRCS))
 
-LIB_FLAGS := $(CFLAGS)																					\
+LIB_FLAGS := $(CFLAGS)																						\
 							-I$(TOPDIR)/include																	\
+							-I$(TOPDIR)/include/chip														\
 							-I$(TOPDIR)/s_alloc																	\
 							-I$(TOPDIR)/sched/include														\
 							-I$(TOPDIR)/drivers/

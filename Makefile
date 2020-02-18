@@ -16,7 +16,7 @@ TARGET=$(MACHINE_TYPE)
 
 # List the directories that contain the MACHINE_TYPE name
 
-SRC_DIRS := $(shell find . -wholename $(MACHINE_TYPE))
+SRC_DIRS := $(shell find . -iname $(MACHINE_TYPE))
 SRC_DIRS += sched s_alloc utils apps lib drivers
 
 # This is the archive where we will bundle the object files
@@ -44,7 +44,7 @@ all: create_board_file
 	echo "Build finished successfully."
 
 create_board_file:
-	cp arch/*/$(MACHINE_TYPE)/include/*.h include/.
+	mkdir -p include/chip/ && cp arch/*/$(MACHINE_TYPE)/include/*.h include/chip/.
 	echo "#ifndef __BOARD_CFG_H\n#define __BOARD_CFG_H" > include/board_cfg.h
 	cat .config | grep -v "^#" | grep -v "^$$" | tail -n +4 | sed 's/^/#define /' | sed 's/=/ /' >> include/board_cfg.h
 	echo "#endif /* __BOARD_CFG_H */" >> include/board_cfg.h
@@ -75,8 +75,10 @@ clean:
 	done ;
 	rm -rf build/ && rm -f tmp_lib*
 	rm -f include/Kconfig 2> /dev/null
+	rm -f include/chip/* 2> /dev/null
 
 distclean: clean
 	rm -f .config
 	rm -f Make.defs
 	rm -f include/Kconfig
+	rm -f include/chip/* 2> /dev/null
