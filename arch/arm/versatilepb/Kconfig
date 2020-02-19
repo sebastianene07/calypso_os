@@ -2,6 +2,14 @@ config MACHINE_TYPE
     string "The machine name"
     default "versatilepb"
 
+config PREFIX_TOOLCHAIN
+    string "The prefix used by the toolchain"
+    default "arm-none-eabi-"
+
+config COMMAND_LOAD
+    string "The command used to load the binnary on the board"
+    default "qemu-system-arm -M versatilepb -m 128M -nographic -kernel build/build.bin"
+
 config CFLAGS
     string "The compilation flags"
     default ''

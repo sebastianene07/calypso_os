@@ -1,4 +1,4 @@
-PREFIX := arm-none-eabi-
+PREFIX :=
 TOPDIR=$(shell pwd)
 DEBUG_PORT=2331
 
@@ -9,6 +9,11 @@ MACHINE_TYPE=$(subst $\",,$(CONFIG_MACHINE_TYPE))
 -include Make.defs
 CFLAGS=$(subst $\",,$(CONFIG_CFLAGS))
 LDFLAGS=$(subst $\",,$(CONFIG_LDFLAGS))
+
+ifneq ($(CONFIG_PREFIX_TOOLCHAIN),)
+PREFIX := $(CONFIG_PREFIX_TOOLCHAIN)
+endif
+
 endif
 
 $(info machine_type=$(MACHINE_TYPE))
@@ -51,7 +56,7 @@ create_board_file:
 	cat .config | grep -v "^#" | grep -v "^$$" | tail -n +4 | sed 's/^/export /' | sed 's/=/ /' > Make.defs
 
 load:
-	nrfjprog -f nrf52 --program build/build.hex --sectorerase
+	eval $(CONFIG_COMMAND_LOAD)
 
 config:
 	cp config/$(MACHINE_TYPE)/release/defconfig .config

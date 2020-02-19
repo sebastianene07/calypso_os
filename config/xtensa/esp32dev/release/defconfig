@@ -8,6 +8,7 @@
 #
 CONFIG_MACHINE_TYPE="lx6"
 CONFIG_MACHINE_CPU="xtensa"
+CONFIG_PREFIX_TOOLCHAIN="xtensa-esp32-elf-"
 CONFIG_CFLAGS="-fno-strict-aliasing -fdata-sections -ffunction-sections -Os -g -Wall -nostdlib -nostartfiles -mlongcalls -mtext-section-literals -fstrict-volatile-bitfields"
 CONFIG_LDFLAGS=" ${CFLAGS} -Wl,-T${TOPDIR}/config/xtensa/esp32dev/scripts/linker.ld "
 # CONFIG_SPI_0 is not set

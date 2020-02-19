@@ -6,6 +6,14 @@ config MACHINE_CPU
 		string "The ARM cpu family"
 		default "Cortex_M4"
 
+config PREFIX_TOOLCHAIN
+    string "The prefix used by the toolchain"
+    default "arm-none-eabi-"
+
+config COMMAND_LOAD
+    string "The command used to load the binnary on the board"
+    default "nrfjprog -f nrf52 --program build/build.hex --sectorerase"
+
 config CFLAGS
     string "The compilation flags"
     default '  -mcpu=cortex-m4 -mthumb -mabi=aapcs -O -ggdb -std=gnu99 '
@@ -115,7 +123,7 @@ config SPI_BUFFER_LEN
 config UART_PERIPHERAL_0
   bool "Support for uart peripheral 0"
   default y
- 
+
 if UART_PERIPHERAL_0
 config SERIAL_CONSOLE_BAUDRATE
     hex "The baudrate for the serial console peripheral"
@@ -144,7 +152,7 @@ config SERIAL_CONSOLE_RX_PIN
 config SERIAL_CONSOLE_RX_PORT
     int "The RX serial console port"
     default 0
-endif 
+endif
 
 config UART_PERIPHERAL_1
   bool "Support for uart peripheral 1"
@@ -153,7 +161,7 @@ config UART_PERIPHERAL_1
 if UART_PERIPHERAL_1
 
 config UART_PERIPHERAL_1_PATH
-  string "The path where we mount the second UART peripheral" 
+  string "The path where we mount the second UART peripheral"
   default "/dev/ttyUSB1"
 
 config UART_PERIPHERAL_1_BAUDRATE
