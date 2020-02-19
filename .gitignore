@@ -1,6 +1,7 @@
 /tmp_lib.a
 board_cfg.h
 /include/chip/*
+/include/Kconfig
 .config
 .config.old
 *.o
