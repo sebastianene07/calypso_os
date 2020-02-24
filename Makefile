@@ -1,4 +1,4 @@
-PREFIX := arm-none-eabi-
+PREFIX :=
 TOPDIR=$(shell pwd)
 DEBUG_PORT=2331
 
@@ -9,6 +9,11 @@ MACHINE_TYPE=$(subst $\",,$(CONFIG_MACHINE_TYPE))
 -include Make.defs
 CFLAGS=$(subst $\",,$(CONFIG_CFLAGS))
 LDFLAGS=$(subst $\",,$(CONFIG_LDFLAGS))
+
+ifneq ($(CONFIG_PREFIX_TOOLCHAIN),)
+PREFIX := $(CONFIG_PREFIX_TOOLCHAIN)
+endif
+
 endif
 
 $(info machine_type=$(MACHINE_TYPE))
@@ -44,14 +49,14 @@ all: create_board_file
 	echo "Build finished successfully."
 
 create_board_file:
-	cp arch/*/$(MACHINE_TYPE)/include/*.h include/.
+	mkdir -p include/chip/ && cp arch/*/$(MACHINE_TYPE)/include/*.h include/chip/.
 	echo "#ifndef __BOARD_CFG_H\n#define __BOARD_CFG_H" > include/board_cfg.h
 	cat .config | grep -v "^#" | grep -v "^$$" | tail -n +4 | sed 's/^/#define /' | sed 's/=/ /' >> include/board_cfg.h
 	echo "#endif /* __BOARD_CFG_H */" >> include/board_cfg.h
 	cat .config | grep -v "^#" | grep -v "^$$" | tail -n +4 | sed 's/^/export /' | sed 's/=/ /' > Make.defs
 
 load:
-	nrfjprog -f nrf52 --program build/build.hex --sectorerase
+	eval $(CONFIG_COMMAND_LOAD)
 
 config:
 	cp config/$(MACHINE_TYPE)/release/defconfig .config
@@ -75,8 +80,10 @@ clean:
 	done ;
 	rm -rf build/ && rm -f tmp_lib*
 	rm -f include/Kconfig 2> /dev/null
+	rm -f include/chip/* 2> /dev/null
 
 distclean: clean
 	rm -f .config
 	rm -f Make.defs
 	rm -f include/Kconfig
+	rm -f include/chip/* 2> /dev/null

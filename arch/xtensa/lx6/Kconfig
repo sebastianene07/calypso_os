@@ -7,12 +7,12 @@ config MACHINE_CPU
 		default "Cortex_M4"
 
 config PREFIX_TOOLCHAIN
-    string "The prefix used by the toolchain"
-    default "arm-none-eabi-"
+    string "The prefix used by th toolchain"
+    default "xtensa-esp32-elf-"
 
 config COMMAND_LOAD
     string "The command used to load the binnary on the board"
-    default "nrfjprog -f nrf52 --program build/build.hex --sectorerase"
+    default "esptool.py --chip esp32 elf2image --flash_mode dio --flash_size 4MB -o calypso.bin build/build.elf && esptool.py --chip esp32 --port /dev/ttyUSB0 write_flash  0x10000 calypso.bin"
 
 config CFLAGS
     string "The compilation flags"

@@ -47,6 +47,7 @@ endif
 OBJS:=$(patsubst %.c,%.o,$(SRC))
 CONSOLE_FLAGS := ${CFLAGS}  \
 	-I$(TOPDIR)/include \
+	-I$(TOPDIR)/include/chip \
 	-I$(TOPDIR)/drivers \
   -I$(TOPDIR)/s_alloc \
 	-I$(TOPDIR)/sched/include	\

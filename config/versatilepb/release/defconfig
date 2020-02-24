@@ -7,6 +7,8 @@
 # Board Setup
 #
 CONFIG_MACHINE_TYPE="versatilepb"
+CONFIG_PREFIX_TOOLCHAIN="arm-none-eabi-"
+CONFIG_COMMAND_LOAD="qemu-system-arm -M versatilepb -m 128M -nographic -kernel build/build.bin"
 CONFIG_CFLAGS=" -march=armv5t -g -Wall -nostdlib -nostartfiles -ffreestanding "
 CONFIG_LDFLAGS=" ${CFLAGS} -Wl,-T${TOPDIR}/linker.ld "
 # CONFIG_SPI_0 is not set
