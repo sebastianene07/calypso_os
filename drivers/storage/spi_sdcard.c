@@ -44,7 +44,7 @@
 #define SD_TOKEN_STOP_TRANSMISSION            (0xFD)
 #define SD_TOKEN_DATA_ACCEPTED                (0x05)
 #define SD_TOKEN_FLOATING_BUS                 (0xFF)
-#define SD_CMD_SET_WRITE_BLOCK 							  (0x18)
+#define SD_CMD_SET_WRITE_BLOCKi               (0x18)
 
 #define SD_LOGICAL_BLOCK_SIZE                 (512)
 #define SD_CRC_BLOCK_SIZE                     (2)
@@ -69,13 +69,27 @@ struct sd_card_s {
  * Private Function Definitions
  ****************************************************************************/
 
-static int sd_spi_open(struct opened_resource_s *priv, const char *pathname, int flags, mode_t mode);
+static int sd_spi_open(struct opened_resource_s *priv,
+                       const char *pathname,
+                       int flags,
+                       mode_t mode);
+
 static int sd_spi_close(struct opened_resource_s *priv);
-static int sd_spi_ioctl(struct opened_resource_s *prov, unsigned long request, unsigned long arg);
-static int sd_spi_read_logical_block(spi_master_dev_t *spi, uint8_t *buffer, uint32_t lba_index,
-  uint8_t offset_in_lba, size_t requested_read_size);
-static int sd_spi_write_logical_block(spi_master_dev_t *spi, uint8_t *buffer, uint32_t lba_index,
-  uint8_t offset_in_lba, size_t requested_write_size);
+static int sd_spi_ioctl(struct opened_resource_s *prov,
+                        unsigned long request,
+                        unsigned long arg);
+
+static int sd_spi_read_logical_block(spi_master_dev_t *spi,
+                                     uint8_t *buffer,
+                                     uint32_t lba_index,
+                                     uint8_t offset_in_lba,
+                                     size_t requested_read_size);
+
+static int sd_spi_write_logical_block(spi_master_dev_t *spi,
+                                      uint8_t *buffer,
+                                      uint32_t lba_index,
+                                      uint8_t offset_in_lba,
+                                      size_t requested_write_size);
 
 /****************************************************************************
  * Private Data
@@ -143,9 +157,9 @@ static void sd_generate_crc_table(void)
   for (i = 0; i < 256; ++i) {
     g_crc7_table[i] = (i & 0x80) ? i ^ crc_poly : i;
     for (j = 1; j < 8; ++j) {
-        g_crc7_table[i] <<= 1;
-        if (g_crc7_table[i] & 0x80)
-            g_crc7_table[i] ^= crc_poly;
+      g_crc7_table[i] <<= 1;
+      if (g_crc7_table[i] & 0x80)
+        g_crc7_table[i] ^= crc_poly;
     }
   }
 }
@@ -160,7 +174,7 @@ static void sd_generate_crc_table(void)
  */
 static uint8_t sd_crc_add(uint8_t crc, uint8_t message_byte)
 {
-    return g_crc7_table[(crc << 1) ^ message_byte];
+  return g_crc7_table[(crc << 1) ^ message_byte];
 }
 
 /*
@@ -186,6 +200,7 @@ static void sd_spi_send_cmd(uint8_t cmd, uint32_t arguments)
   /* Start bit (value 0) followed by transmission bit (value 1)
    * followed by cmd (6 bits).
    */
+
   sd_card_cmd[0] = (cmd & 0x3f) | 0x40;
   crc7 = sd_crc_add(crc7, sd_card_cmd[0]);
 
@@ -202,10 +217,12 @@ static void sd_spi_send_cmd(uint8_t cmd, uint32_t arguments)
   crc7 = sd_crc_add(crc7, sd_card_cmd[4]);
 
   /* CRC7 (7 bits) + end bit (1 bit) */
+
   sd_card_cmd[5] = (crc7 << 1) | 0x1;
 
   memset(g_sd_resp, 0xFF, sizeof(g_sd_resp));
-  spi_send_recv(g_sd_spi, sd_card_cmd, sizeof(sd_card_cmd), g_sd_resp, sizeof(g_sd_resp));
+  spi_send_recv(g_sd_spi, sd_card_cmd, sizeof(sd_card_cmd), g_sd_resp,
+                sizeof(g_sd_resp));
 
   sd_spi_set_cs(1);
 
@@ -271,7 +288,8 @@ static int sd_write_spi_card(uint8_t *buffer, uint16_t sector, size_t count)
   return sd_spi_write_logical_block(g_sd_spi, buffer, sector, 0, count);
 }
 
-static int sd_spi_open(struct opened_resource_s *priv, const char *pathname, int flags, mode_t mode)
+static int sd_spi_open(struct opened_resource_s *priv, const char *pathname,
+                       int flags, mode_t mode)
 {
   return OK;
 }
@@ -281,7 +299,8 @@ static int sd_spi_close(struct opened_resource_s *priv)
   return OK;
 }
 
-static int sd_spi_ioctl(struct opened_resource_s *prov, unsigned long request, unsigned long arg)
+static int sd_spi_ioctl(struct opened_resource_s *prov, unsigned long request,
+                        unsigned long arg)
 {
   int ret = -EINVAL;
 
@@ -292,7 +311,7 @@ static int sd_spi_ioctl(struct opened_resource_s *prov, unsigned long request, u
         uint8_t *sd_ops = (uint8_t *)arg;
         sd_spi_ops_t local_ops = {
           .read_spi_card  = sd_read_spi_card,
-					.write_spi_card = sd_write_spi_card,
+          .write_spi_card = sd_write_spi_card,
         };
 
         memcpy(sd_ops, &local_ops, sizeof(sd_spi_ops_t));
@@ -305,7 +324,9 @@ static int sd_spi_ioctl(struct opened_resource_s *prov, unsigned long request, u
   }
 
   return ret;
-}/****************************************************************************
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -496,8 +517,11 @@ int sd_spi_init(spi_master_dev_t *spi)
  *  This function reads up to requested_read_size and returns 0 upon
  *  success.
  */
-static int sd_spi_read_logical_block(spi_master_dev_t *spi, uint8_t *buffer,
-  uint32_t lba_index, uint8_t offset_in_lba, size_t requested_read_size)
+static int sd_spi_read_logical_block(spi_master_dev_t *spi,
+                                     uint8_t *buffer,
+                                     uint32_t lba_index,
+                                     uint8_t offset_in_lba,
+                                     size_t requested_read_size)
 {
   int timer = 100, trailing_bytes;
   uint8_t spi_rsp;
@@ -577,8 +601,11 @@ static int sd_spi_read_logical_block(spi_master_dev_t *spi, uint8_t *buffer,
  *  This function writes up to requested_write_size and returns 0 upon
  *  success.
  */
-static int sd_spi_write_logical_block(spi_master_dev_t *spi, uint8_t *buffer,
-  uint32_t lba_index, uint8_t offset_in_lba, size_t requested_write_size)
+static int sd_spi_write_logical_block(spi_master_dev_t *spi,
+                                      uint8_t *buffer,
+                                      uint32_t lba_index,
+                                      uint8_t offset_in_lba,
+                                      size_t requested_write_size)
 {
   int timer = 100, trailing_bytes;
   uint8_t spi_rsp;
@@ -614,29 +641,30 @@ static int sd_spi_write_logical_block(spi_master_dev_t *spi, uint8_t *buffer,
   }
 
   sd_spi_set_cs(0);
-	sd_spi_write(SD_TOKEN_FLOATING_BUS);
-	sd_spi_write(SD_TOKEN_START);
+  sd_spi_write(SD_TOKEN_FLOATING_BUS);
+  sd_spi_write(SD_TOKEN_START);
 
-	/* Pad data with 0 */
-	for (int i = 0; i < offset_in_lba; i++) {
-		sd_spi_write(0x00);
-	}
+  /* Pad data with 0 */
+  for (int i = 0; i < offset_in_lba; i++)
+    sd_spi_write(0x00);
 
- 	for (int i = offset_in_lba; i < requested_write_size; i++) {
-		sd_spi_write(buffer[i - offset_in_lba]);
-	}
+  for (int i = offset_in_lba; i < requested_write_size; i++) {
+    sd_spi_write(buffer[i - offset_in_lba]);
+  }
 
- 	for (int i = offset_in_lba + requested_write_size; i < SD_LOGICAL_BLOCK_SIZE; i++) {
-		sd_spi_write(0x00);
-	}
+  offset_in_lba += requested_write_size;
 
-	/* Write dummy CRC */
-	sd_spi_write(0x0);
-	sd_spi_write(0x0);
+  for (int i = offset_in_lba; i < SD_LOGICAL_BLOCK_SIZE; i++) {
+    sd_spi_write(0x00);
+  }
+
+  /* Write dummy CRC */
+
+  sd_spi_write(0x00);
+  sd_spi_write(0x00);
 
   for (int bc = 65000; sd_spi_write(0xFF) != 0xFF && bc; bc--);
 
-	sd_spi_set_cs(1);
-
+  sd_spi_set_cs(1);
   return 0;
 }
