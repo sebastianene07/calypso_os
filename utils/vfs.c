@@ -285,3 +285,53 @@ const char *vfs_get_aboslute_path_from_node(struct vfs_node_s *node)
 {
   return "/mnt/B";
 }
+
+/*
+ * vfs_register_filesystem - register a new filesystem
+ *
+ * @type      - the file system typee
+ * @file_ops  - file operation structure
+ *
+ *  The function registers a new file system that can be mounted later
+ *  using the mount() function call. This function should be called 
+ *  by the filesystem driver.
+ */
+int vfs_register_filesystem(const char *type, struct vfs_ops_s *file_ops); 
+{
+}
+
+/*
+ * vfs_get_registered_filesystem - get the registered filesystem from type
+ *
+ * @type      - the file system typee
+ *
+ *  The function returns the registered filesystem
+ *
+ */
+struct vfs_registration_s *vfs_get_registered_filesystem(const char *type)
+{
+}
+
+/*
+ * vfs_mount_filesystem - mount a new file system in the specified path
+ *
+ * @file_ops - the file operation structure
+ * @mtd_ops  - the MTD operation structure
+ * @mount_path  - the path were we mount the filesystem
+ *
+ *  The function mounts a file system in the speicifed mount path.
+ *
+ */
+struct vfs_mount_filesystem_s *
+vfs_mount_filesystem(struct vfs_registration_s *file_ops,
+                     struct mtd_ops_s *mtd_ops,
+                     const char *mount_path)
+{
+  /* Call the file system mount function */
+
+  int ret = file_ops->mount(mount);
+  if (ret != OK) {
+    vfs_umount_filesystem(mount);
+    return ret;
+  }
+}

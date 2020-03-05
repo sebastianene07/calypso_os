@@ -32,6 +32,7 @@ static int close_fs_node(struct opened_resource_s *priv);
 static FATFS *g_fatfs;
 
 /* Supported file system operations */
+
 static struct vfs_ops_s g_fs_ops = {
   .open   = open_fs_node,
   .close  = close_fs_node,
