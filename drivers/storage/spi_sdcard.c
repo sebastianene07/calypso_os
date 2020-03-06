@@ -4,6 +4,7 @@
 #include <gpio.h>
 #include <string.h>
 #include <vfs.h>
+#include <mtd.h>
 
 #define LOG_ERR(msg, ...)  printf("[sd_spi] Error:"msg"\r\n", ##__VA_ARGS__)
 
@@ -44,7 +45,7 @@
 #define SD_TOKEN_STOP_TRANSMISSION            (0xFD)
 #define SD_TOKEN_DATA_ACCEPTED                (0x05)
 #define SD_TOKEN_FLOATING_BUS                 (0xFF)
-#define SD_CMD_SET_WRITE_BLOCKi               (0x18)
+#define SD_CMD_SET_WRITE_BLOCK                (0x18)
 
 #define SD_LOGICAL_BLOCK_SIZE                 (512)
 #define SD_CRC_BLOCK_SIZE                     (2)
@@ -86,35 +87,52 @@ static int sd_spi_read_logical_block(spi_master_dev_t *spi,
                                      size_t requested_read_size);
 
 static int sd_spi_write_logical_block(spi_master_dev_t *spi,
-                                      uint8_t *buffer,
+                                      const uint8_t *buffer,
                                       uint32_t lba_index,
                                       uint8_t offset_in_lba,
                                       size_t requested_write_size);
+
+static int sd_read_spi_card(uint8_t *buffer, uint32_t sector, size_t count);
+static int sd_write_spi_card(const uint8_t *buffer, uint32_t sector,
+                             size_t count);
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
 /* Local reference to the SPI driver in master mode */
+
 static spi_master_dev_t *g_sd_spi;
 
 /* CRC7 table */
+
 static uint8_t g_crc7_table[256];
 
 /* Current sd card instance */
+
 static struct sd_card_s g_sd_card;
 
 /* Buffer where we keep the response of a command */
+
 static uint8_t g_sd_resp[SPI_CMD_LEN + 9];
 
 /* The index in the response buffer */
+
 static int g_rsp_index = 0;
 
 /* The virtual file system ops */
+
 static struct vfs_ops_s g_sd_spi_ops = {
   .open   = sd_spi_open,
   .close  = sd_spi_close,
   .ioctl  = sd_spi_ioctl,
+};
+
+/* The SPI SD card is a MTD block device with and supports this functions */
+
+static struct mtd_ops_s g_spi_mtd_ops = {
+  .mtd_read_sec  = sd_read_spi_card,
+  .mtd_write_sec = sd_write_spi_card,
 };
 
  /****************************************************************************
@@ -278,12 +296,12 @@ static uint8_t sd_read_byte_ignore_char(uint8_t ignore)
   return 0xFF;
 }
 
-static int sd_read_spi_card(uint8_t *buffer, uint16_t sector, size_t count)
+static int sd_read_spi_card(uint8_t *buffer, uint32_t sector, size_t count)
 {
   return sd_spi_read_logical_block(g_sd_spi, buffer, sector, 0, count);
 }
 
-static int sd_write_spi_card(uint8_t *buffer, uint16_t sector, size_t count)
+static int sd_write_spi_card(const uint8_t *buffer, uint32_t sector, size_t count)
 {
   return sd_spi_write_logical_block(g_sd_spi, buffer, sector, 0, count);
 }
@@ -305,16 +323,10 @@ static int sd_spi_ioctl(struct opened_resource_s *prov, unsigned long request,
   int ret = -EINVAL;
 
   switch (request) {
-    case GET_SD_SPI_OPS:
+    case MTD_GET_OPS:
       {
-
-        uint8_t *sd_ops = (uint8_t *)arg;
-        sd_spi_ops_t local_ops = {
-          .read_spi_card  = sd_read_spi_card,
-          .write_spi_card = sd_write_spi_card,
-        };
-
-        memcpy(sd_ops, &local_ops, sizeof(sd_spi_ops_t));
+        struct mtd_ops_s **mtd_ops = (struct mtd_ops_s **)arg;
+        *mtd_ops = &g_spi_mtd_ops;
         ret = OK;
       }
       break;
@@ -602,7 +614,7 @@ static int sd_spi_read_logical_block(spi_master_dev_t *spi,
  *  success.
  */
 static int sd_spi_write_logical_block(spi_master_dev_t *spi,
-                                      uint8_t *buffer,
+                                      const uint8_t *buffer,
                                       uint32_t lba_index,
                                       uint8_t offset_in_lba,
                                       size_t requested_write_size)

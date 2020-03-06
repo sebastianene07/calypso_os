@@ -7,16 +7,31 @@
 #include "fatfs/source/ff.h"
 #include "fatfs/source/diskio.h"
 
-/* The Fat FS device shructure holding some file descriptiors to opened devices
- */
+/****************************************************************************
+ * Preprocessor Definitions
+ ****************************************************************************/
 
-struct fatfs_device_s
-{
-  int mmc_fd;
-  struct mtd_ops_s *mtd_ops;
-};
+/* The size of a sector in bytes */
 
-static struct fatfs_device_s g_fatfs_config;
+#define SECTOR_SIZE_BYTES                (512U)
+
+/****************************************************************************
+ * Private Data
+ ****************************************************************************/
+
+/* The MTD operations structure */
+
+static struct mtd_ops_s *g_mtd_ops;
+
+/****************************************************************************
+ * Private Methods
+ ****************************************************************************/
+
+
+
+/****************************************************************************
+ * Public GLUE Methods that FatFS links to
+ ****************************************************************************/
 
 #if !FF_FS_READONLY && !FF_FS_NORTC
 DWORD get_fattime(void)
@@ -39,7 +54,7 @@ DSTATUS MMC_disk_initialize(void)
     return mmc_fd;
   }
 
-  int ret = ioctl(mmc_fd, MTD_GET_OPS, (unsigned long)&g_fatfs_config.mtd_ops);
+  int ret = ioctl(mmc_fd, MTD_GET_OPS, (unsigned long)&g_mtd_ops);
   if (ret < 0) {
     printf("Error: %d cannot get SD SPI ops\n", ret);
   }
@@ -63,7 +78,7 @@ DRESULT MMC_disk_read(BYTE *buff, DWORD sector, BYTE count)
 {
   /* Schedule the following operation on the initialization thread */
 
-  int ret = g_fatfs_config.mtd_ops.mtd_read_sector(buff, sector, count * 512);
+  int ret = g_mtd_ops->mtd_read_sec(buff, sector, count * SECTOR_SIZE_BYTES);
   if (ret < 0) {
     return RES_PARERR;
   }
@@ -75,7 +90,7 @@ DRESULT MMC_disk_write(const BYTE *buff, DWORD sector, BYTE count)
 {
   /* Schedule the following operation on the initialization thread */
 
-  int ret = g_fatfs_config.mtd_ops.mtd_write_sector(buff, sector, count * 512);
+  int ret = g_mtd_ops->mtd_write_sec(buff, sector, count * SECTOR_SIZE_BYTES);
   if (ret < 0) {
     return RES_PARERR;
   }
@@ -87,3 +102,8 @@ DRESULT MMC_disk_ioctl(BYTE ctrl, void *buff)
 {
   return 0;
 }
+
+/****************************************************************************
+ * Public Methods
+ ****************************************************************************/
+
