@@ -1,10 +1,14 @@
-#include <vfs.h>
-#include <semaphore.h>
+#include <board.h>
+
 #include <errno.h>
+#include <filesystems.h>
 #include <list.h>
+#include <semaphore.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+
+#include <vfs.h>
 
 /****************************************************************************
  * Private Variables
@@ -66,6 +70,8 @@ enum vfs_types_e get_fs_type_from_name(const char *fs_type_name)
  */
 int vfs_init(const char *node_name[], size_t num_nodes)
 {
+  int ret = OK;
+
   /* Verify is we use the default mount points */
 
   if (node_name == NULL) {
@@ -106,7 +112,11 @@ int vfs_init(const char *node_name[], size_t num_nodes)
     new_node[i].node_type   = VFS_TYPE_DIR;
   }
 
-  return OK;
+#ifdef CONFIG_LIBRARY_FATFS
+  ret = fatfs_filesystem_register();
+#endif
+
+  return ret;
 }
 
 /*
@@ -481,7 +491,7 @@ int vfs_mount_filesystem(struct vfs_registration_s *fs,
 
   /* Call the file system mount function */
 
-  int ret = fs->mount_cb(mount);
+  int ret = fs->mount_cb(fs_mount);
   if (ret != OK) {
     free(mount_path_copy);
     free(fs_mount);
@@ -517,7 +527,7 @@ int vfs_umount_filesystem(const char *mount_path)
       fs->registered_fs->umount_cb(mount_path);
 
       list_del(it);
-      free(fs->mount_path);
+      free((void *)fs->mount_path);
       free(fs);
 
       sem_post(&g_mounted_fs_sema);

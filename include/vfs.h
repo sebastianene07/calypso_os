@@ -117,6 +117,7 @@ struct vfs_mount_filesystem_s {
   struct vfs_registration_s *registered_fs; /* Pointer to registration struct */
   const char *mount_path;                   /* The path where we mount the FS */
   struct mtd_ops_s *mtd_ops;                /* MTD / block dev operations */
+  void *priv;
 };
 
 /****************************************************************************
