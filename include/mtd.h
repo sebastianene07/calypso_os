@@ -9,9 +9,9 @@
 
 /* The MTD group IOCTL */
 
-#define MTD_GROUP
+#define MTD_GROUP                   (0x100)
 
-/* The device that supports MTD operations should implement this IOCTL to 
+/* The device that supports MTD operations should implement this IOCTL to
  * retrieve the mtd ops structure.
  */
 

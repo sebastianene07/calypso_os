@@ -13,10 +13,7 @@
 struct fatfs_device_s
 {
   int mmc_fd;
-  int ramdev_fd;
-  int usb_fd;
-
-  sd_spi_ops_t spi_sd_card_ops;
+  struct mtd_ops_s *mtd_ops;
 };
 
 static struct fatfs_device_s g_fatfs_config;
@@ -27,32 +24,6 @@ DWORD get_fattime(void)
   return 0;
 }
 #endif
-
-DSTATUS RAM_disk_initialize(void)
-{
-  return 0;
-}
-
-DSTATUS RAM_disk_status(void)
-{
-  return 0;
-}
-
-DRESULT RAM_disk_read(BYTE *buff, DWORD sector, BYTE count)
-{
-  return 0;
-}
-
-DRESULT RAM_disk_write(const BYTE *buff, DWORD sector, BYTE count)
-{
-  return 0;
-}
-
-DRESULT RAM_disk_ioctl(BYTE ctrl, void *buff)
-{
-  return 0;
-}
-
 
 DSTATUS MMC_disk_initialize(void)
 {
@@ -68,8 +39,7 @@ DSTATUS MMC_disk_initialize(void)
     return mmc_fd;
   }
 
-  int ret = ioctl(mmc_fd, GET_SD_SPI_OPS,
-    (unsigned long)&g_fatfs_config.spi_sd_card_ops);
+  int ret = ioctl(mmc_fd, MTD_GET_OPS, (unsigned long)&g_fatfs_config.mtd_ops);
   if (ret < 0) {
     printf("Error: %d cannot get SD SPI ops\n", ret);
   }
@@ -93,7 +63,7 @@ DRESULT MMC_disk_read(BYTE *buff, DWORD sector, BYTE count)
 {
   /* Schedule the following operation on the initialization thread */
 
-  int ret = g_fatfs_config.spi_sd_card_ops.read_spi_card(buff, sector, count * 512);
+  int ret = g_fatfs_config.mtd_ops.mtd_read_sector(buff, sector, count * 512);
   if (ret < 0) {
     return RES_PARERR;
   }
@@ -105,7 +75,7 @@ DRESULT MMC_disk_write(const BYTE *buff, DWORD sector, BYTE count)
 {
   /* Schedule the following operation on the initialization thread */
 
-  int ret = g_fatfs_config.spi_sd_card_ops.write_spi_card(buff, sector, count * 512);
+  int ret = g_fatfs_config.mtd_ops.mtd_write_sector(buff, sector, count * 512);
   if (ret < 0) {
     return RES_PARERR;
   }
@@ -114,32 +84,6 @@ DRESULT MMC_disk_write(const BYTE *buff, DWORD sector, BYTE count)
 }
 
 DRESULT MMC_disk_ioctl(BYTE ctrl, void *buff)
-{
-  return 0;
-}
-
-
-DSTATUS USB_disk_initialize(void)
-{
-  return 0;
-}
-
-DSTATUS USB_disk_status(void)
-{
-  return 0;
-}
-
-DRESULT USB_disk_read(BYTE *buff, DWORD sector, BYTE count)
-{
-  return 0;
-}
-
-DRESULT USB_disk_write(const BYTE *buff, DWORD sector, BYTE count)
-{
-  return 0;
-}
-
-DRESULT USB_disk_ioctl(BYTE ctrl, void *buff)
 {
   return 0;
 }

@@ -4,12 +4,17 @@
 #include <board.h>
 
 #include <list.h>
+#include <mtd.h>
 #include <scheduler.h>
 #include <unistd.h>
 
 /* The max path length in bytes */
 
 #define VFS_MAX_PATH_LEN            (80)
+
+/* Path delimitator */
+
+#define VFS_PATH_DELIM              "/"
 
 /****************************************************************************
  * Public Types
@@ -27,7 +32,7 @@ typedef int (*read_cb)(struct opened_resource_s *priv, void *buf, size_t count);
 typedef int (*ioctl_cb)(struct opened_resource_s *priv, unsigned long request,
                         unsigned long arg);
 
-/* Generic open/read/write/ioctl/close opeartion structure for a node in the 
+/* Generic open/read/write/ioctl/close opeartion structure for a node in the
  * Virtual file system.
  */
 
@@ -35,6 +40,7 @@ struct vfs_ops_s {
   open_cb open;
   close_cb close;
   write_cb write;
+  read_cb read;
   ioctl_cb ioctl;
 };
 
@@ -80,10 +86,10 @@ struct vfs_init_mountpoint_s {
 
 /* forward declaration */
 
-struct vfs_registration_s;
+struct vfs_mount_filesystem_s;
 
 /* The callback used to mount/unmount a filesystem - These should be
- * implemented by the filesystem and should be provided during 
+ * implemented by the filesystem and should be provided during
  * registration with vfs_register_filesystem
  * */
 
@@ -94,11 +100,11 @@ typedef int (*filesystem_umount_cb)(const char *mount_path);
 /* Filesystem registration structure */
 
 struct vfs_registration_s {
-  struct list_head known_filesystems; /* We keep the known filesystems in a 
+  struct list_head known_filesystems; /* We keep the known filesystems in a
                                        * list */
 
-  enum vfs_types_e fs_type;           /* The file system type */ 
-  struct vfs_ops_s file_ops;          /* File structure operation */
+  enum vfs_types_e fs_type;           /* The file system type */
+  struct vfs_ops_s *file_ops;         /* File structure operation */
 
   filesystem_mount_cb mount_cb;
   filesystem_umount_cb umount_cb;
@@ -108,9 +114,9 @@ struct vfs_registration_s {
 
 struct vfs_mount_filesystem_s {
   struct list_head mounted_filesystems;     /* The list of mounted FS */
-  struct vfs_registration_s *registered_fs; /* Pointer to registration struct */ 
+  struct vfs_registration_s *registered_fs; /* Pointer to registration struct */
   const char *mount_path;                   /* The path where we mount the FS */
-  struct mtd_ops_s mtd_ops;                 /* MTD / block dev operations */
+  struct mtd_ops_s *mtd_ops;                /* MTD / block dev operations */
 };
 
 /****************************************************************************
@@ -198,13 +204,17 @@ const char *vfs_get_aboslute_path_from_node(struct vfs_node_s *node);
  *
  * @type      - the file system typee
  * @file_ops  - file operation structure
+ * @mount_cb  - the mount filesystem callback
+ * @umount_cb - the unmount callback
  *
  *  The function registers a new file system that can be mounted later
- *  using the mount() function call. This function should be called 
+ *  using the mount() function call. This function should be called
  *  by the filesystem driver.
  */
-int vfs_register_filesystem(const char *type, struct vfs_ops_s *file_ops); 
-
+int vfs_register_filesystem(const char *type,
+                            struct vfs_ops_s *file_ops,
+                            filesystem_mount_cb mount_cb,
+                            filesystem_umount_cb umount_cb);
 /*
  * vfs_unregister_filesystem - unregister a new filesystem
  *
@@ -213,7 +223,7 @@ int vfs_register_filesystem(const char *type, struct vfs_ops_s *file_ops);
  *  The function removes a registered filesystem from the registration list.
  *
  */
-int vfs_unregister_filesystem(const char *type); 
+int vfs_unregister_filesystem(const char *type);
 
 /*
  * vfs_get_registered_filesystem - get the registered filesystem from type
@@ -235,10 +245,9 @@ struct vfs_registration_s *vfs_get_registered_filesystem(const char *type);
  *  The function mounts a file system in the speicifed mount path.
  *
  */
-struct vfs_mount_filesystem_s *
-vfs_mount_filesystem(struct vfs_registration_s *file_ops,
-                     struct mtd_ops_s *mtd_ops,
-                     const char *mount_path);
+int vfs_mount_filesystem(struct vfs_registration_s *file_ops,
+                         struct mtd_ops_s *mtd_ops,
+                         const char *mount_path);
 
 /*
  * vfs_umount_filesystem - unmount a file systemh

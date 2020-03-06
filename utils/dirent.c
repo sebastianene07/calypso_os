@@ -2,8 +2,6 @@
 #include <semaphore.h>
 #include <string.h>
 
-extern sem_t g_vfs_sema;
-
 /*
  * opendir - open a directory entry
  *
@@ -13,14 +11,7 @@ extern sem_t g_vfs_sema;
  */
 DIR *opendir(const char *name)
 {
-  size_t name_len = strlen(name);
-  struct vfs_node_s *node = vfs_get_matching_node(name,
-                                                  name_len);
-  if (node != NULL) {
-    sem_wait(&g_vfs_sema);
-  }
-
-  return node;
+  return vfs_get_matching_node(name, strlen(name));
 }
 
 /*
@@ -35,9 +26,5 @@ DIR *opendir(const char *name)
  */
 int closedir(DIR *dirp)
 {
-  if (dirp != NULL) {
-    sem_post(&g_vfs_sema);
-  }
-
   return 0;
 }

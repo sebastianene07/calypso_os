@@ -6,13 +6,17 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+/****************************************************************************
+ * Private Variables
+ ****************************************************************************/
+
 /* Virtual file system tree */
 
 static struct vfs_node_s g_root_vfs;
 
 /* VFS mutual exclusion sema */
 
-sem_t g_vfs_sema;
+static sem_t g_vfs_sema;
 
 /* VFS default mountpoints */
 
@@ -21,7 +25,33 @@ static struct vfs_init_mountpoint_s g_vfs_default_mtpt = {
   .num_nodes = 5,
 };
 
-static const char *delim = "/";
+/* Known filesystems list */
+
+struct list_head g_known_filesystems;
+static sem_t g_known_fs_sema;
+
+/* Mounted filesystems list */
+
+struct list_head g_mounted_filesystems;
+static sem_t g_mounted_fs_sema;
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+enum vfs_types_e get_fs_type_from_name(const char *fs_type_name)
+{
+  if (!strcmp(fs_type_name, "FAT") || !strcmp(fs_type_name, "fat"))
+    return VFS_FILESYSTEM_FAT32;
+  else if (!strcmp(fs_type_name, "EXFAT") || !strcmp(fs_type_name, "exfat"))
+    return VFS_FILESYSTEM_EXFAT;
+
+  return VFS_FILESYSTEM_UNSUPPORTED;
+}
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
 
 /*
  * vfs_init - initialize the root nodes
@@ -38,35 +68,39 @@ int vfs_init(const char *node_name[], size_t num_nodes)
 {
   /* Verify is we use the default mount points */
 
-  if (node_name == NULL)
-  {
+  if (node_name == NULL) {
     struct vfs_init_mountpoint_s *default_mtpt = vfs_get_default();
     node_name = default_mtpt->node_name;
     num_nodes = default_mtpt->num_nodes;
   }
 
+  /* Initialize the VFS semaphores */
+
   sem_init(&g_vfs_sema, 0, 1);
+  sem_init(&g_known_fs_sema, 0, 1);
+  sem_init(&g_mounted_fs_sema, 0, 1);
 
-  g_root_vfs.parent = NULL;
+  INIT_LIST_HEAD(&g_known_filesystems);
+  INIT_LIST_HEAD(&g_mounted_filesystems);
 
-  g_root_vfs.name       = "/";
+  /* The root virtual file system node */
+
+  g_root_vfs.parent     = NULL;
+  g_root_vfs.name       = VFS_PATH_DELIM;
   g_root_vfs.node_type  = VFS_TYPE_DIR;
 
   /* Create the VFS child nodes */
 
   struct vfs_node_s *new_node;
-
   new_node = calloc(num_nodes, sizeof(struct vfs_node_s));
-  if (new_node == NULL)
-  {
+  if (new_node == NULL) {
     return -ENOMEM;
   }
 
   g_root_vfs.child         = new_node;
   g_root_vfs.num_children  = num_nodes;
 
-  for (int i = 0; i < num_nodes; ++i)
-  {
+  for (int i = 0; i < num_nodes; ++i) {
     new_node[i].parent      = &g_root_vfs;
     new_node[i].name        = node_name[i];
     new_node[i].node_type   = VFS_TYPE_DIR;
@@ -117,13 +151,13 @@ struct vfs_node_s *vfs_get_matching_node(const char *name, size_t name_len)
   char *node_name = NULL;
   bool not_found;
 
-  if (name_len == 1 && strcmp(name, "/") == 0) {
+  if (name_len == 1 && strcmp(name, VFS_PATH_DELIM) == 0) {
     current_node = parent;
     goto free_with_sem;
   }
 
   do {
-    node_name = strtok_r(ptr_copy, delim, &olds);
+    node_name = strtok_r(ptr_copy, VFS_PATH_DELIM, &olds);
     ptr_copy = NULL;
 
     if (node_name && strlen(node_name) == 0)
@@ -214,7 +248,7 @@ int vfs_register_node(const char *name,
   char *olds;
 
   do {
-    node_name = strtok_r(ptr_copy, delim, &olds);
+    node_name = strtok_r(ptr_copy, VFS_PATH_DELIM, &olds);
     ptr_copy = NULL;
 
     if (node_name && strlen(node_name) == 0)
@@ -283,6 +317,7 @@ free_with_sem:
  */
 const char *vfs_get_aboslute_path_from_node(struct vfs_node_s *node)
 {
+  /* TODO : */
   return "/mnt/B";
 }
 
@@ -291,13 +326,91 @@ const char *vfs_get_aboslute_path_from_node(struct vfs_node_s *node)
  *
  * @type      - the file system typee
  * @file_ops  - file operation structure
+ * @mount_cb  - the mount filesystem callback
+ * @umount_cb - the unmount callback
  *
  *  The function registers a new file system that can be mounted later
- *  using the mount() function call. This function should be called 
+ *  using the mount() function call. This function should be called
  *  by the filesystem driver.
  */
-int vfs_register_filesystem(const char *type, struct vfs_ops_s *file_ops); 
+int vfs_register_filesystem(const char *type,
+                            struct vfs_ops_s *file_ops,
+                            filesystem_mount_cb mount_cb,
+                            filesystem_umount_cb umount_cb)
 {
+  enum vfs_types_e fs_type = get_fs_type_from_name(type);
+  if (fs_type == VFS_FILESYSTEM_UNSUPPORTED) {
+    return -EINVAL;
+  }
+
+  sem_wait(&g_known_fs_sema);
+
+  struct list_head *it, *temp;
+  list_for_each_safe(it, temp, &g_known_filesystems) {
+    struct vfs_registration_s *fs = container_of(it, struct vfs_registration_s,
+                                                 known_filesystems);
+    if (fs_type == fs->fs_type) {
+
+      /* Already registered filesystem type */
+      sem_post(&g_known_fs_sema);
+      return -EEXIST;
+    }
+  }
+
+  sem_post(&g_known_fs_sema);
+
+  struct vfs_registration_s *new_fs = calloc(1, sizeof(struct vfs_registration_s));
+  if (new_fs == NULL) {
+    return -ENOMEM;
+  }
+
+  new_fs->mount_cb  = mount_cb;
+  new_fs->umount_cb = umount_cb;
+  new_fs->file_ops  = file_ops;
+  new_fs->fs_type      = fs_type;
+
+  sem_wait(&g_known_fs_sema);
+  list_add(&new_fs->known_filesystems, &g_known_filesystems);
+  sem_post(&g_known_fs_sema);
+
+  return OK;
+}
+
+/*
+ * vfs_unregister_filesystem - unregister a new filesystem
+ *
+ * @type      - the file system typee
+ *
+ *  The function removes a registered filesystem from the registration list.
+ *
+ */
+int vfs_unregister_filesystem(const char *type)
+{
+  enum vfs_types_e fs_type = get_fs_type_from_name(type);
+  if (fs_type == VFS_FILESYSTEM_UNSUPPORTED) {
+    return -EINVAL;
+  }
+
+  sem_wait(&g_known_fs_sema);
+
+  struct list_head *it, *temp;
+  list_for_each_safe(it, temp, &g_known_filesystems) {
+    struct vfs_registration_s *fs = container_of(it, struct vfs_registration_s,
+                                                 known_filesystems);
+    if (fs_type == fs->fs_type) {
+
+      list_del(it);
+      free(fs);
+
+      /* Already registered filesystem type */
+      sem_post(&g_known_fs_sema);
+      return OK;
+    }
+  }
+
+  sem_post(&g_known_fs_sema);
+
+  return -EINVAL;
 }
 
 /*
@@ -310,28 +423,109 @@ int vfs_register_filesystem(const char *type, struct vfs_ops_s *file_ops);
  */
 struct vfs_registration_s *vfs_get_registered_filesystem(const char *type)
 {
+  enum vfs_types_e fs_type = get_fs_type_from_name(type);
+  if (fs_type == VFS_FILESYSTEM_UNSUPPORTED) {
+    return NULL;
+  }
+
+  sem_wait(&g_known_fs_sema);
+
+  struct list_head *it, *temp;
+  list_for_each_safe(it, temp, &g_known_filesystems) {
+    struct vfs_registration_s *fs = container_of(it, struct vfs_registration_s,
+                                                 known_filesystems);
+    if (fs_type == fs->fs_type) {
+
+      /* Already registered filesystem type */
+      sem_post(&g_known_fs_sema);
+      return fs;
+    }
+  }
+
+  sem_post(&g_known_fs_sema);
+  return NULL;
 }
 
 /*
  * vfs_mount_filesystem - mount a new file system in the specified path
  *
- * @file_ops - the file operation structure
- * @mtd_ops  - the MTD operation structure
+ * @fs          - the registered file system structure that contains file ops
+ * @mtd_ops     - the MTD operation structure
  * @mount_path  - the path were we mount the filesystem
  *
  *  The function mounts a file system in the speicifed mount path.
  *
  */
-struct vfs_mount_filesystem_s *
-vfs_mount_filesystem(struct vfs_registration_s *file_ops,
-                     struct mtd_ops_s *mtd_ops,
-                     const char *mount_path)
+int vfs_mount_filesystem(struct vfs_registration_s *fs,
+                         struct mtd_ops_s *mtd_ops,
+                         const char *mount_path)
 {
+  struct vfs_mount_filesystem_s *fs_mount =
+    calloc(1, sizeof(struct vfs_mount_filesystem_s));
+  if (fs_mount == NULL) {
+    return -ENOMEM;
+  }
+
+  size_t mnt_path_len = strlen(mount_path);
+  char *mount_path_copy = calloc(mnt_path_len + 1, sizeof(char));
+  if (mount_path_copy == NULL) {
+    free(fs_mount);
+    return -ENOMEM;
+  }
+
+  strncpy(mount_path_copy, mount_path, mnt_path_len);
+
+  fs_mount->mtd_ops     = mtd_ops;
+  fs_mount->mount_path  = mount_path_copy;
+  fs_mount->registered_fs = fs;
+
   /* Call the file system mount function */
 
-  int ret = file_ops->mount(mount);
+  int ret = fs->mount_cb(mount);
   if (ret != OK) {
-    vfs_umount_filesystem(mount);
+    free(mount_path_copy);
+    free(fs_mount);
     return ret;
   }
+
+  /* Add the mount structure to the list */
+
+  sem_wait(&g_mounted_fs_sema);
+  list_add(&fs_mount->mounted_filesystems, &g_mounted_filesystems);
+  sem_post(&g_mounted_fs_sema);
+}
+
+/*
+ * vfs_umount_filesystem - unmount a file systemh
+ *
+ * @mount_path  - the path were we mount the filesystem
+ *
+ *  The function unmounts a file system from the mounte path.
+ *
+ */
+int vfs_umount_filesystem(const char *mount_path)
+{
+  sem_wait(&g_mounted_fs_sema);
+
+  struct vfs_mount_filesystem_s *fs;
+  struct list_head *it, *temp;
+
+  list_for_each_safe(it, temp, &g_mounted_filesystems) {
+    fs = container_of(it, struct vfs_mount_filesystem_s, mounted_filesystems);
+    if (!strcmp(fs->mount_path, mount_path)) {
+
+      fs->registered_fs->umount_cb(mount_path);
+
+      list_del(it);
+      free(fs->mount_path);
+      free(fs);
+
+      sem_post(&g_mounted_fs_sema);
+      return OK;
+    }
+  }
+
+  sem_post(&g_mounted_fs_sema);
+
+  return -EINVAL;
 }

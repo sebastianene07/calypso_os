@@ -140,7 +140,7 @@ cancel_ioctl:
 int mount(const char *type, const char *dir, int flags, void *data)
 {
   const char *mtd_dev_path = (const char *)data;
-  
+
   /* Check if we have a registered file system that supports 'type' */
 
   struct vfs_registration_s *fs = vfs_get_registered_filesystem(type);
@@ -150,16 +150,23 @@ int mount(const char *type, const char *dir, int flags, void *data)
 
   /* Get the MTD ops from the device */
 
- 
+  int fd = open(mtd_dev_path, 0);
+  if (fd < 0) {
+    return -ENODEV;
+  }
+
+  struct mtd_ops_s *mtd_ops = NULL;
+  int ret = ioctl(fd, MTD_GET_OPS, (unsigned long)&mtd_ops);
+  if (ret < 0) {
+    close(fd);
+    return -EINVAL;
+  }
+
+  close(fd);
 
   /* Create a new mount structure and store it in the VFS */
 
-  struct vfs_mount_filesystem_s *mount = vfs_mount_filesystem(fs, mtd, dir);
-  if (mount == NULL) {
-    return -ENOMEM;
-  }
-
-  return ret;
+  return vfs_mount_filesystem(fs, mtd_ops, dir);
 }
 
 /*
@@ -173,6 +180,7 @@ int mount(const char *type, const char *dir, int flags, void *data)
  * Mount a filesystem in the VFS at the specified path.
  *
  */
-int unmount(const char *dir, int flags)
+int umount(const char *dir, int flags)
 {
+  return vfs_umount_filesystem(dir);
 }
