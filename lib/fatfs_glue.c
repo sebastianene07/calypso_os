@@ -191,7 +191,12 @@ static int open_fs_node(struct opened_resource_s *file, const char *pathname,
 
   /* Extract only the file path without the mount path */
 
-//  for (char *begin = pathname; begin  
+  int mnt_path_len = strlen(g_mounted_fs->mount_path);
+  if (mnt_path_len > strlen(pathname)) {
+    return -EINVAL;
+  }
+
+  pathname += mnt_path_len;
 
   if (flags & O_APPEND)
     fatfs_mode = FA_OPEN_APPEND | FA_WRITE;
@@ -200,15 +205,13 @@ static int open_fs_node(struct opened_resource_s *file, const char *pathname,
   else if (flags & O_WRONLY)
     fatfs_mode = FA_WRITE;
 
-  fr = f_open(fatfs_file, file->vfs_node->name, fatfs_mode);
+  fr = f_open(fatfs_file, pathname, fatfs_mode);
   if (fr) {
     ret = -EINVAL;
     goto clean_mem;
   }
 
   file->vfs_node->priv = fatfs_file;
-  //free(path);
-
   return ret;
 
 clean_mem:
