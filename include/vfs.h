@@ -67,8 +67,9 @@ enum vfs_types_e {
 /* This represents the node structure for the virtual file system tree */
 
 struct vfs_node_s {
+  struct list_head child;      /* Children nodes for this leaf */
+  struct list_head node_child; /* Parent's child list */
   struct vfs_node_s *parent;  /* The parent node */
-  struct vfs_node_s *child;   /* Children nodes  */
   unsigned int num_children;  /* Number of children */
   const char *name;           /* The node name is the same with the filename */
   enum vfs_node_type node_type;   /* The type of the node      */
@@ -161,11 +162,6 @@ int vfs_register_node(const char *name,
  * @name - path name
  * @name_len  - the name length
  *
- *  The function creates a new node entry in the virtual file system.
- *  Returns OK if we managed to unregister the node from the VFS, -EINVAL if
- *  the supplied arguments are wrong or -ENOENT if there is no registered node
- *  with "name".
- *
  */
 int vfs_unregister_node(const char *name, size_t name_len);
 
@@ -187,18 +183,6 @@ struct vfs_node_s *vfs_get_matching_node(const char *name, size_t name_len);
  *
  */
 struct vfs_init_mountpoint_s *vfs_get_default(void);
-
-/*
- * vfs_get_aboslute_path_from_node - get the complete path for a specified node"
- *
- * @node - the virtual file system node
- *
- *  The function returns the path by looking at the parent nodes. This function
- *  allocates HEAP memory that should be freed by the user once we are done
- *  manipulating the path buffer.
- *
- */
-const char *vfs_get_aboslute_path_from_node(struct vfs_node_s *node);
 
 /*
  * vfs_register_filesystem - register a new filesystem

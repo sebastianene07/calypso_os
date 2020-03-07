@@ -28,7 +28,7 @@ int console_mount(int argc, const char *argv[])
     return -EINVAL;
   }
 
-  int ret = mount(argv[1], argv[2], 0, argv[3]);
+  int ret = mount(argv[1], argv[2], 0, (void *)argv[3]);
   if (ret < 0) {
     printf("Can't mount %s in path %s with MTD %s\n", argv[1], argv[2], argv[3]);
   }
@@ -41,5 +41,5 @@ int console_umount(int argc, const char *argv[]) {
     return -ENOSYS;
   }
 
-  return umount(argv[1]);
+  return umount(argv[1], 0);
 }

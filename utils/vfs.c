@@ -103,13 +103,16 @@ int vfs_init(const char *node_name[], size_t num_nodes)
     return -ENOMEM;
   }
 
-  g_root_vfs.child         = new_node;
+  INIT_LIST_HEAD(&g_root_vfs.child);
   g_root_vfs.num_children  = num_nodes;
 
   for (int i = 0; i < num_nodes; ++i) {
     new_node[i].parent      = &g_root_vfs;
     new_node[i].name        = node_name[i];
     new_node[i].node_type   = VFS_TYPE_DIR;
+    
+    list_add(&new_node[i].node_child, &g_root_vfs.child);
+    INIT_LIST_HEAD(&new_node[i].child);
   }
 
 #ifdef CONFIG_LIBRARY_FATFS
@@ -159,7 +162,7 @@ struct vfs_node_s *vfs_get_matching_node(const char *name, size_t name_len)
   struct vfs_node_s *current_node = NULL;
   struct vfs_node_s *parent = &g_root_vfs;
   char *node_name = NULL;
-  bool not_found;
+  bool is_found;
 
   if (name_len == 1 && strcmp(name, VFS_PATH_DELIM) == 0) {
     current_node = parent;
@@ -180,17 +183,18 @@ struct vfs_node_s *vfs_get_matching_node(const char *name, size_t name_len)
      * 'node_name'.
      */
 
-    not_found = true;
-    for (int i = 0; i < parent->num_children; ++i) {
-      current_node = &parent->child[i];
+    struct vfs_node_s *node = NULL;
+    is_found = false;
 
-      if (node_name && !strcmp(current_node->name, node_name)) {
-        not_found = false;
+    list_for_each_entry(node, &parent->child, node_child) {
+      if (!strcmp(node->name, node_name)) {
+        is_found = true;
+        current_node = node;
         break;
       }
     }
 
-    if (not_found) {
+    if (!is_found) {
       current_node = NULL;
       goto free_with_sem;
     }
@@ -271,7 +275,7 @@ int vfs_register_node(const char *name,
   sem_wait(&g_vfs_sema);
 
   char *ptr_copy = name_copy;
-  bool not_found = false;
+  bool is_found = false;
   struct vfs_node_s *parent = &g_root_vfs;
   char *olds;
 
@@ -284,17 +288,18 @@ int vfs_register_node(const char *name,
     else if (node_name == NULL)
       break;
 
-    not_found = true;
-    for (int i = 0; i < parent->num_children; ++i) {
-      current_node = &parent->child[i];
-
-      if (node_name && !strcmp(current_node->name, node_name)) {
-        not_found = false;
+    struct vfs_node_s *node = NULL;
+    is_found = false;
+    
+    list_for_each_entry(node, &parent->child, node_child) {
+      if (!strcmp(node->name, node_name)) {
+        is_found = true;
+        current_node = node;
         break;
       }
     }
 
-    if (not_found) {
+    if (!is_found) {
       current_node = NULL;
       goto free_with_sem;
     }
@@ -309,13 +314,11 @@ free_with_sem:
   if (!current_node) {
     return -ENOENT;
   }
-  struct vfs_node_s *new_child = realloc(current_node->child,
-    (current_node->num_children + 1) * sizeof(struct vfs_node_s));
-  if (new_child == NULL) {
+
+  struct vfs_node_s *new_node = calloc(1, sizeof(struct vfs_node_s));
+  if (new_node == NULL) {
     return -ENOMEM;
   }
-
-  struct vfs_node_s *new_node = &new_child[current_node->num_children];
 
   /* Create and populate the new node */
 
@@ -325,28 +328,50 @@ free_with_sem:
   new_node->node_type    = node_type;
   new_node->priv         = priv;
   new_node->name         = node_name_copy;
-  new_node->child        = NULL;
 
-  current_node->child = new_child;
+  INIT_LIST_HEAD(&new_node->child);
+
+  list_add(&new_node->node_child, &current_node->child);
   current_node->num_children++;
 
   return OK;
 }
 
 /*
- * vfs_get_aboslute_path_from_node - get the complete path for a specified node"
+ * vfs_unregister_node - remove a node from the virtual file system and his
+ *                       children.
  *
- * @node - the virtual file system node
- *
- *  The function returns the path by looking at the parent nodes. This function
- *  allocates HEAP memory that should be freed by the user once we are done
- *  manipulating the path buffer.
+ * @name - path name
+ * @name_len  - the name length
  *
  */
-const char *vfs_get_aboslute_path_from_node(struct vfs_node_s *node)
+int vfs_unregister_node(const char *name, size_t name_len)
 {
-  /* TODO : */
-  return "/mnt/B";
+  /* Find the parent node */
+
+  struct vfs_node_s *current_node = vfs_get_matching_node(name, name_len);
+  if (current_node == NULL) {
+    return -EINVAL;
+  }
+
+  if (current_node->num_children > 0) {
+    return -ENOTEMPTY;
+  }
+
+  struct vfs_node_s *parent = current_node->parent;
+  if (parent == NULL) {
+    return -EINVAL;
+  }
+
+  /* Remove the node from the parent */
+
+  list_del(&current_node->node_child);
+  parent->num_children--;
+
+  free((void *)current_node->name);
+  free(current_node);
+
+  return OK;
 }
 
 /*
@@ -543,6 +568,7 @@ int vfs_umount_filesystem(const char *mount_path)
     if (!strcmp(fs->mount_path, mount_path)) {
 
       fs->registered_fs->umount_cb(mount_path);
+      vfs_unregister_node(mount_path, strlen(mount_path));
 
       list_del(it);
       free((void *)fs->mount_path);

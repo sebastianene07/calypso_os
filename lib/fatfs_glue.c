@@ -287,7 +287,7 @@ static int mount_fs(struct vfs_mount_filesystem_s *mount)
     goto free_with_mem;
   }
 
-  char *mnt_path = mount->mount_path;
+  char *mnt_path = (char *)mount->mount_path;
   struct vfs_node_s *node = vfs_get_matching_node(mnt_path, strlen(mnt_path));
   if (node == NULL) {
     ret = -ENOSYS;
@@ -330,7 +330,7 @@ static int umount_fs(const char *mount_path)
   g_fatfs      = NULL;
   g_mounted_fs = NULL;
 
-  /* Remove FATFS nodes from the VFS - TODO maybe it should not be done here */
+  return OK;
 }
 
 /****************************************************************************
