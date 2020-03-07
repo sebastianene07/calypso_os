@@ -37,8 +37,8 @@ int console_ls(int argc, const char *argv[])
     return -EINVAL;
   }
 
-  const char *fmt_1 = "%s%s\n";
-  const char *fmt_2 = "%s/%s\n";
+  const char *fmt_1 = "%s%s           %c \n";
+  const char *fmt_2 = "%s/%s          %c \n";
   const char *fmt;
   int len = strlen(pathname);
   if (pathname[len - 1] == '/') {
@@ -52,7 +52,8 @@ int console_ls(int argc, const char *argv[])
   }
 
   for (i = 0; i < dirent->num_children; i++) {
-    printf(fmt, pathname, dirent->child[i].name);
+    printf(fmt, pathname, dirent->child[i].name,
+           dirent->child[i].node_type == VFS_TYPE_DIR ? 'd' : 'f');
   }
 
   return closedir(dirent);
