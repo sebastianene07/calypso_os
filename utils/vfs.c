@@ -227,7 +227,7 @@ int vfs_register_node(const char *name,
 
   bool is_delim_found = false;
   int i;
-  for (i = name_len; i > 0; i--) {
+  for (i = name_len; i >= 0; i--) {
     if (*(name + i) == '/') {
       is_delim_found = true;
       break;
@@ -246,14 +246,32 @@ int vfs_register_node(const char *name,
 
   /* Find the place where we should insert the node */
 
-  char *name_copy = calloc(1, i);
+  struct vfs_node_s *current_node = NULL;
+  char *name_copy = NULL;
+  
+  if (i == 0) {
+    
+    /* We insert the node at the root path "/" */
+
+    sem_wait(&g_vfs_sema);
+    current_node = &g_root_vfs;
+    goto free_with_sem;
+  }
+
+  name_copy = calloc(1, i);
+  if (name_copy == NULL) {
+    return -ENOMEM;
+  }
+
+  /* Copy the name so that we can tokenize it by following '/'
+   */
+
   memcpy(name_copy, name, i);
 
   sem_wait(&g_vfs_sema);
 
   char *ptr_copy = name_copy;
   bool not_found = false;
-  struct vfs_node_s *current_node = NULL;
   struct vfs_node_s *parent = &g_root_vfs;
   char *olds;
 
