@@ -114,7 +114,7 @@ static void spi_configure_pins(spi_master_config_t *cfg, uint32_t base_spi_ptr)
 
   /* Select SPI MODE */
 
-  SPI_REG_SET(base_spi_ptr, CONFIG)    = cfg->mode;
+    SPI_REG_SET(base_spi_ptr, CONFIG)    = cfg->mode;
 
   uint32_t freq_cfg = 0x00;
   switch (cfg->freq)

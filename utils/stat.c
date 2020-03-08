@@ -125,3 +125,62 @@ cancel_ioctl:
   enable_int();
   return ret;
 }
+
+/*
+ * mount - mounts a file system in the specified patht
+ *
+ * @type  - the path to a file/device
+ * @dir    - open flags
+ * @flags  - ignored
+ * @data   - The MTD device path
+ *
+ * Mount a filesystem in the VFS at the specified path.
+ *
+ */
+int mount(const char *type, const char *dir, int flags, void *data)
+{
+  const char *mtd_dev_path = (const char *)data;
+
+  /* Check if we have a registered file system that supports 'type' */
+
+  struct vfs_registration_s *fs = vfs_get_registered_filesystem(type);
+  if (fs == NULL) {
+    return -EOPNOTSUPP;
+  }
+
+  /* Get the MTD ops from the device */
+
+  int fd = open(mtd_dev_path, 0);
+  if (fd < 0) {
+    return -ENODEV;
+  }
+
+  struct mtd_ops_s *mtd_ops = NULL;
+  int ret = ioctl(fd, MTD_GET_OPS, (unsigned long)&mtd_ops);
+  if (ret < 0) {
+    close(fd);
+    return -EINVAL;
+  }
+
+  close(fd);
+
+  /* Create a new mount structure and store it in the VFS */
+
+  return vfs_mount_filesystem(fs, mtd_ops, dir);
+}
+
+/*
+ * umount - mounts a file system in the specified path
+ *
+ * @type  - the path to a file/device
+ * @dir    - open flags
+ * @flags  - ignored
+ * @data   - The MTD device path
+ *
+ * Mount a filesystem in the VFS at the specified path.
+ *
+ */
+int umount(const char *dir, int flags)
+{
+  return vfs_umount_filesystem(dir);
+}

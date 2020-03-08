@@ -7,6 +7,10 @@ int open(const char *, int, ...);
 
 int ioctl(int fd, unsigned long request, unsigned long arg);
 
+int mount(const char *type, const char *dir, int flags, void *data);
+
+int umount(const char *dir, int flags);
+
 int sprintf(char *out, const char *format, ...);
 
 int sscanf(const char *str, const char *format, ...);

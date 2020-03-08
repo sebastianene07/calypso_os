@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <semaphore.h>
 #include <dirent.h>
+#include <list.h>
 
 /****************************************************************************
  * Public Functions
@@ -37,8 +38,8 @@ int console_ls(int argc, const char *argv[])
     return -EINVAL;
   }
 
-  const char *fmt_1 = "%s%s\n";
-  const char *fmt_2 = "%s/%s\n";
+  const char *fmt_1 = "%s%s";
+  const char *fmt_2 = "%s/%s";
   const char *fmt;
   int len = strlen(pathname);
   if (pathname[len - 1] == '/') {
@@ -51,8 +52,18 @@ int console_ls(int argc, const char *argv[])
     printf("%s is empty\n", pathname);
   }
 
-  for (i = 0; i < dirent->num_children; i++) {
-    printf(fmt, pathname, dirent->child[i].name);
+  printf("\r\n");
+  struct vfs_node_s *node = NULL;
+  list_for_each_entry(node, &dirent->child, node_child) {
+
+    char print_line[80] = {0};
+    snprintf(print_line, 80, fmt, pathname, node->name);
+    int line_len = strlen(print_line);
+    for (line_len; line_len < 30; line_len++)
+      print_line[line_len] = ' ';
+
+    printf("%s %c\r\n", print_line,
+           node->node_type == VFS_TYPE_DIR ? 'd' : 'f');
   }
 
   return closedir(dirent);
