@@ -98,21 +98,23 @@ int vfs_init(const char *node_name[], size_t num_nodes)
   /* Create the VFS child nodes */
 
   struct vfs_node_s *new_node;
-  new_node = calloc(num_nodes, sizeof(struct vfs_node_s));
-  if (new_node == NULL) {
-    return -ENOMEM;
-  }
-
   INIT_LIST_HEAD(&g_root_vfs.child);
   g_root_vfs.num_children  = num_nodes;
 
   for (int i = 0; i < num_nodes; ++i) {
-    new_node[i].parent      = &g_root_vfs;
-    new_node[i].name        = node_name[i];
-    new_node[i].node_type   = VFS_TYPE_DIR;
+    new_node = calloc(1, sizeof(struct vfs_node_s));
+    if (new_node == NULL) {
+      return -ENOMEM;
+    }
+
+    new_node->parent      = &g_root_vfs;
+    size_t node_len = strlen(node_name[i]);
+    new_node->name        = calloc(node_len + 1, sizeof(char));  
+    strncpy((char *)new_node->name, node_name[i], node_len);
+    new_node->node_type   = VFS_TYPE_DIR;
     
-    list_add(&new_node[i].node_child, &g_root_vfs.child);
-    INIT_LIST_HEAD(&new_node[i].child);
+    list_add(&new_node->node_child, &g_root_vfs.child);
+    INIT_LIST_HEAD(&new_node->child);
   }
 
 #ifdef CONFIG_LIBRARY_FATFS
@@ -246,7 +248,13 @@ int vfs_register_node(const char *name,
   /* We found the deimiter now we can extract the name */
 
   char *node_name = (char *)(name + i + 1);
-  char *node_name_copy = node_name;
+  int copy_name_len = strlen(node_name); 
+  char *node_name_copy = calloc(copy_name_len + 1, sizeof(char));
+  if (!node_name_copy) {
+    return -ENOMEM;
+  }
+  
+  strncpy(node_name_copy, node_name, copy_name_len);
 
   /* Find the place where we should insert the node */
 
@@ -337,6 +345,28 @@ free_with_sem:
   return OK;
 }
 
+static void vfs_remove_node(struct vfs_node_s *node)
+{
+  printf("remove node %s\n", node->name);
+  if (node->num_children > 0) {
+    struct list_head *it, *temp;
+    list_for_each_safe(it, temp, &node->child) {
+      struct vfs_node_s *current_node = container_of(it, struct vfs_node_s,
+                                                     node_child);
+      vfs_remove_node(current_node);
+    }
+  } 
+
+  /* Remove the node from the parent */
+  struct vfs_node_s *parent = node->parent;
+  parent->num_children--;
+
+  list_del(&node->node_child);
+
+  free((void *)node->name);
+  free(node); 
+}
+
 /*
  * vfs_unregister_node - remove a node from the virtual file system and his
  *                       children.
@@ -355,7 +385,8 @@ int vfs_unregister_node(const char *name, size_t name_len)
   }
 
   if (current_node->num_children > 0) {
-    return -ENOTEMPTY;
+    vfs_remove_node(current_node);
+    return OK;
   }
 
   struct vfs_node_s *parent = current_node->parent;
