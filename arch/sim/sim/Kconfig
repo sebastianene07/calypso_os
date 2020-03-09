@@ -3,12 +3,24 @@ config MACHINE_TYPE
     default "sim"
 
 config MACHINE_CPU
-		string "The cpu family"
-		default "x86_64"
+    string "The cpu family"
+    default "x86_64"
+
+config HOST_OS
+    string "The host OS"
+    default "Darwin"
 
 config PREFIX_TOOLCHAIN
     string "The prefix used by the toolchain"
     default ""
+
+config TWO_PASS_BUILD
+    bool "Build a partial linked file first and then link all together"
+    default y
+    ---help---
+      Set this option to true to allow building a partially linked file that
+      contains the OS symbols and a separate file that links to the host
+      symbols. Link them both at the end.
 
 config COMMAND_LOAD
     string "The command used to load the binnary on the board"

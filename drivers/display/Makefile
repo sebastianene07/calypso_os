@@ -14,6 +14,10 @@ CONSOLE_FLAGS := ${CFLAGS}																					\
 SRC_ASM:=$(wildcard *.s)
 OBJS_ASM:=$(patsubst %.s,%.o,$(SRC_ASM))
 
+ifeq ($(SRC),)
+all:
+	@echo "No display specified"
+else
 all: $(OBJS) $(OBJS_ASM)
 	${PREFIX}ar -rc $(TOPDIR)/$(TMP_LIB) $(OBJS) $(OBJS_ASM)
 
@@ -22,6 +26,7 @@ all: $(OBJS) $(OBJS_ASM)
 
 %.o : %.s
 	${PREFIX}as $(CONSOLE_FLAGS) -c $< -o $@
+endif
 
 clean:
 	find . -iname "*.o" -exec rm -f {} \;

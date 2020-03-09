@@ -8,10 +8,12 @@
 #
 CONFIG_MACHINE_TYPE="sim"
 CONFIG_MACHINE_CPU="X86_64"
+CONFIG_HOST_OS="Darwin"
 CONFIG_PREFIX_TOOLCHAIN=""
+CONFIG_TWO_PASS_BUILD=y
 CONFIG_COMMAND_LOAD=""
-CONFIG_CFLAGS=""
-CONFIG_LDFLAGS="  -mthumb -lc -lm -lgcc ${CFLAGS} -nostartfiles -Wl,-T${TOPDIR}/config/nrf5x/scripts/nrf52840_linker.ld "
+CONFIG_CFLAGS="-fno-builtin"
+CONFIG_LDFLAGS="-ltmp -arch x86_64 -macos_version_min 10.6 -no_implicit_dylibs -o build/build.rel"
 # CONFIG_SPI_0 is not set
 # CONFIG_SPI_1 is not set
 CONFIG_SPI_BUFFER_LEN=32
