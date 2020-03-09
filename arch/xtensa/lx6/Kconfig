@@ -1,13 +1,13 @@
 config MACHINE_TYPE
     string "The machine name"
-    default "nrf52840"
+    default "xtensa"
 
 config MACHINE_CPU
-		string "The ARM cpu family"
-		default "Cortex_M4"
+		string "The cpu family"
+		default "lx6"
 
 config PREFIX_TOOLCHAIN
-    string "The prefix used by th toolchain"
+    string "The prefix used by the toolchain"
     default "xtensa-esp32-elf-"
 
 config COMMAND_LOAD
@@ -204,17 +204,3 @@ config RAM_LENGTH
 config HARDWARE_FP
     bool "Hardware floating point instructions"
     default n
-
-config NRF5X_RTC
-  bool "Support for nordic real time clock"
-  select RTC_DRIVER
-  default n
-
-config NRF5X_TIMER
-  bool "Support for nordic timers"
-  select TIMER_DRIVER
-  default n
-
-config NRF5X_CLOCK
-  bool "Configure the nordic clock source"
-  default n
