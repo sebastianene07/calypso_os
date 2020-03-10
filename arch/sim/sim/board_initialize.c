@@ -16,5 +16,5 @@
  */
 void board_init(void)
 {
-  printf("\r\nQEMU versatilepb initializing\r\n.");
+  printf("\r\nSimulator initializing\r\n.");
 }

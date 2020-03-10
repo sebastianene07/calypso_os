@@ -12,6 +12,12 @@ static struct uart_lower_s g_uart_low_0;
 static sem_t g_console_sema;
 
 /****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
+
+void host_console_putc(int c);
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -22,6 +28,7 @@ int uart_low_init(void)
 
 int putchar(int c)
 {
+  host_console_putc(c);
   return 0;
 }
 
