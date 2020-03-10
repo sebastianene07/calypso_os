@@ -12,8 +12,8 @@ CONFIG_HOST_OS="Darwin"
 CONFIG_PREFIX_TOOLCHAIN=""
 CONFIG_TWO_PASS_BUILD=y
 CONFIG_COMMAND_LOAD=""
-CONFIG_CFLAGS="-fno-builtin"
-CONFIG_LDFLAGS="-ltmp -arch x86_64 -macos_version_min 10.6 -no_implicit_dylibs -o build/build.rel"
+CONFIG_CFLAGS="-Wall -Wstrict-prototypes -Wshadow -Wundef -g -fno-builtin -fno-common "
+CONFIG_LDFLAGS=" -o build.rel ../arch/sim/sim/board_memory.o"
 # CONFIG_SPI_0 is not set
 # CONFIG_SPI_1 is not set
 CONFIG_SPI_BUFFER_LEN=32
@@ -29,6 +29,7 @@ CONFIG_RTC_PATH="/dev/rtc0"
 CONFIG_RAM_BASE=0x20000000
 CONFIG_RAM_LENGTH=0x38000
 # CONFIG_HARDWARE_FP is not set
+CONFIG_RUN_FROM_RAM=y
 
 #
 # OS Features
