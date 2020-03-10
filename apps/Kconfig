@@ -13,6 +13,10 @@ config CONSOLE_APP
 
 if CONSOLE_APP
 
+config CONSOLE_STACK_SIZE
+	int "The stack size"
+	default 2048
+
 config CONSOLE_PROMPT_STR
 	string "The default console prompt"
 	default "root:#>"

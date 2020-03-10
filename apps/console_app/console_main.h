@@ -3,10 +3,6 @@
 
 #include <stdbool.h>
 
-/* Console app stack size */
-
-#define CONFIG_CONSOLE_STACK_SIZE       (2048)
-
 /* Buffer size for commands */
 
 #define CONFIG_CMD_BUFER_LEN            (80)

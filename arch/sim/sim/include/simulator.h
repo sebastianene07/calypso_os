@@ -23,7 +23,6 @@ static inline void __enable_irq(void)
 {
 }
 
-
 /**
   \brief   Disable IRQ Interrupts
   \details Disables IRQ interrupts by setting the I-bit in the CPSR.
@@ -38,9 +37,6 @@ static inline void NVIC_TriggerSysTick(void)
 	/* TODO */
 }
 
-static inline void sched_context_switch(void)
-{
-  /* TODO */
-}
+void sched_context_switch(void);
 
 #endif /* __SIMULATOR_H */

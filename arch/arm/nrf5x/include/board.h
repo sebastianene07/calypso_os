@@ -5,6 +5,8 @@
 #include <board_cfg.h>
 #include <nrf52840.h>
 
+#include <scheduler.h>
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -20,5 +22,7 @@
 void board_init(void);
 
 int up_get_irq_number(void);
+
+int up_initial_task_context(struct tcb_s *tcb);
 
 #endif /* __CORE_CM4 */

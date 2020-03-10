@@ -9,17 +9,18 @@
 #ifndef SCHEDULER_H_
 #define SCHEDULER_H_
 
+#include <board.h>
 #include <stdint.h>
 #include <list.h>
 #include <semaphore.h>
 
+#ifdef CONFIG_SIM_BUILD
+  #include <ucontext.h>
+#endif
+
 /* Fill the stack with 0xDEADBEEF */
 
 #define CONFIG_SCHEDULER_TASK_COLORATION      (1)
-
-/* The idle task stack size */
-
-#define CONFIG_SCHEDULER_IDLE_TASK_STACK_SIZE (1024)
 
 /* Used when we start a task */
 
@@ -53,12 +54,16 @@ struct tcb_s {
   void *stack_ptr_base;
   void *stack_ptr_top;
   void *sp;
+#ifdef CONFIG_SIM_BUILD
+  ucontext_t mcu_context;
+#else
   void *mcu_context[MCU_CONTEXT_SIZE];
+#endif
   struct list_head next_tcb;
   sem_t *waiting_tcb_sema;
   struct list_head opened_resource;
   uint32_t curr_resource_opened;
-} __attribute__((aligned(4)));
+} __attribute__((aligned(8)));
 
 
 int sched_init(void);

@@ -189,31 +189,14 @@ int sched_create_task(int (*task_entry_point)(int argc, char **argv),
   }
 #endif
 
-  /* Initial MCU context */
-
-  task_tcb->mcu_context[0] = (void *)argc;
-  task_tcb->mcu_context[1] = (void *)argv;
-  task_tcb->mcu_context[5] = (uint32_t *)sched_default_task_exit_point;
-  task_tcb->mcu_context[6] = task_entry_point;
-  task_tcb->mcu_context[7] = (uint32_t *)0x1000000;
+  int ret = up_initial_task_context(task_tcb);
+  if (ret < 0) {
+    free(task_tcb);
+    return ret;
+  }
 
   /* Init resource list */
   INIT_LIST_HEAD(&task_tcb->opened_resource);
-
-  /* Stack context in interrupt */
-  const int unstacked_regs = 8;   /* R4-R11 */
-  int i = 0;
-  void *ptr_after_int = task_tcb->stack_ptr_top -
-    sizeof(void *) * MCU_CONTEXT_SIZE;
-
-  for (uint8_t *ptr = ptr_after_int;
-     ptr < (uint8_t *)task_tcb->stack_ptr_top;
-     ptr += sizeof(uint32_t))
-  {
-    *((uint32_t *)ptr) = (uint32_t)task_tcb->mcu_context[i++];
-  }
-
-  task_tcb->sp = ptr_after_int - unstacked_regs * sizeof(void *);
 
   /* Insert the task in the list */
 
@@ -237,6 +220,7 @@ int sched_create_task(int (*task_entry_point)(int argc, char **argv),
 *  The TCB of the next task or NULL if the scheduler is not initialized.
 *
 *************************************************************************/
+
 struct tcb_s *sched_get_next_task(void)
 {
   g_current_tcb = g_current_tcb->next;

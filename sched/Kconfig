@@ -13,3 +13,7 @@ config SYSTEM_CLOCK_FREQUENCY
 config SYSTEM_SCHEDULER_SLICE_FREQUENCY
   int "The pre-emption interrupt frequency in Hz"
   default 2000
+
+config SCHEDULER_IDLE_TASK_STACK_SIZE
+  int "The stack size for idle task"
+  default 1024

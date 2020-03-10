@@ -10,6 +10,10 @@ config HOST_OS
     string "The host OS"
     default "Darwin"
 
+config SIM_BUILD
+    bool "Simulator build"
+    default y
+
 config PREFIX_TOOLCHAIN
     string "The prefix used by the toolchain"
     default ""
