@@ -2,6 +2,8 @@
 board_cfg.h
 /include/chip/*
 /include/Kconfig
+/build/*
+*.swo
 .config
 .config.old
 *.o

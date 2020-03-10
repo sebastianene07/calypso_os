@@ -216,3 +216,7 @@ config RAM_LENGTH
 config HARDWARE_FP
     bool "Hardware floating point instructions"
     default n
+
+config RUN_FROM_RAM
+    bool "Select this if you don't want to copy the data segment into RAM"
+    default y

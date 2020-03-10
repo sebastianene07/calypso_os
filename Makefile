@@ -28,7 +28,7 @@ SRC_DIRS += sched s_alloc utils apps lib drivers
 
 TMP_LIB=libtmp.a
 ifeq ($(CONFIG_HOST_OS),"Darwin")
-LDUNEXPORTSYMBOLS ?= -unexported_symbols_list $(CONFIG_HOST_OS)-names.dat
+LDUNEXPORTSYMBOLS ?= -unexported_symbols_list ../$(CONFIG_HOST_OS)-names.dat
 else
 LDUNEXPORTSYMBOLS ?=
 endif
@@ -45,7 +45,9 @@ all: create_board_file create_object_files
 	mkdir -p build
 ifeq ($(CONFIG_TWO_PASS_BUILD),y)
 	@echo "Two pass build"
-	ld -r -L${TOPDIR}/ $(LDFLAGS) $(LDUNEXPORTSYMBOLS)
+	cd build && ${PREFIX}ar xv ${TOPDIR}/${TMP_LIB} && \
+	${PREFIX}ld -r -L${TOPDIR}/ $(LDFLAGS) *.o $(LDUNEXPORTSYMBOLS)
+	${PREFIX}gcc build/build.rel arch/sim/sim/host_board_up.o
 else
 	 && \
 	${PREFIX}ar xv ${TOPDIR}/${TMP_LIB} && \
