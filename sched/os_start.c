@@ -49,15 +49,15 @@ void _start(void)
 #ifndef CONFIG_RUN_FROM_RAM
   /* Copy initialized variable data from flash to ram */
 
-  src = &_etext;
-  dst = &_sdata;
+  src = _etext;
+  dst = _sdata;
   while(dst < &_edata)
       *(dst++) = *(src++);
 #endif /* CONFIG_RUN_FROM_RAM */
 
   /* Zero out bss segment */
 
-  src = &_sbss;
+  src = _sbss;
   while(src < &_ebss)
       *(src++) = 0;
 
@@ -69,8 +69,8 @@ void _start(void)
   /* Initialize the HEAP memory */
 
   s_init(&g_my_heap,
-         &_sheap,
-         &_eheap,
+         _sheap,
+         _eheap,
          HEAP_BLOCK_SIZE);
 
   sem_init(&g_heap_sema, 0, 1);

@@ -12,7 +12,7 @@
 #define RAM_BASE              (void *)(0x10000)
 #define STACK_TOP             (void *)(0x11000)
 
-#define HEAP_BLOCK_SIZE       (16)
+#define HEAP_BLOCK_SIZE       (32)
 
 void board_init(void);
 

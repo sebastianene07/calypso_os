@@ -127,7 +127,7 @@ static int printi(char **out, int i, int b, int sg, int width, int pad, int letb
 	return pc + prints (out, s, width, pad);
 }
 
-static int print(char **out, int *varg)
+static int print(char **out, unsigned long *varg)
 {
 	register int width, pad;
 	register int pc = 0;
@@ -207,7 +207,7 @@ int printf(const char *format, ...)
 
 int puts(const char *format)
 {
-	register int *varg = (int *)(&format);
+	register unsigned long *varg = (int *)(&format);
 	return print(0, varg);
 }
 
