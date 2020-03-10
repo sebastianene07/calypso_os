@@ -9,10 +9,22 @@ config MACHINE_CPU
 config HOST_OS
     string "The host OS"
     default "Darwin"
+    ---help---
+      This configuration identifies the host platform that we are building on
+      and is used in the Makefiles to use the correct compilation options.
+      It can be Darwin | Linux, currently we don't support Windows.
 
 config SIM_BUILD
     bool "Simulator build"
     default y
+
+config SIM_HEAP_SIZE
+    int "Simulation heap size in bytes"
+    default 1048576
+    ---help---
+      The heap memory region size in bytes. From this heap we allocate all
+      the system's resources such as task stack, open files, virtual file
+      system and so on.
 
 config PREFIX_TOOLCHAIN
     string "The prefix used by the toolchain"
@@ -37,104 +49,6 @@ config CFLAGS
 config LDFLAGS
     string "The linker flags"
     default ' ${CFLAGS} -nostartfiles -nodefaultlibs -Wl -T${TOPDIR}/linker.ld'
-
-config SPI_0
-    bool "SPI master 0 peripheral support"
-    default n
-
-if SPI_0
-
-config SPI_0_MISO_PIN
-    int "SPI 0 MISO pin"
-    default 0
-
-config SPI_0_MISO_PORT
-    int "SPI 0 MISO port"
-    default 0
-
-config SPI_0_MOSI_PIN
-    int "SPI 0 MOSI pin"
-    default 0
-
-config SPI_0_MOSI_PORT
-    int "SPI 0 MOSI port"
-    default 0
-
-config SPI_0_SCK_PIN
-    int "SPI 0 SCK pin"
-    default 0
-
-config SPI_0_SCK_PORT
-    int "SPI 0 SCK port"
-    default 0
-
-config SPI_0_CS_PIN
-    int "SPI 0 CS pin"
-    default 0
-
-config SPI_0_CS_PORT
-    int "SPI 0 CS port"
-    default 0
-
-config SPI_0_FREQUENCY
-    int "SPI 0 Master clock frequency [0 .. 6]"
-    default 0
-    ---help---
-    The SPI master clock frequency { 0 = 125 KBPS, 1 = 250 KBSP, 2 = 500 KBPS,
-    3 = 1 MBPS, 4 = 2 MBPS, 5 = 4 MBSP, 6 = 8 MBPS }
-
-endif # SPI_0
-
-config SPI_1
-    bool "SPI master 1 peripheral support"
-    default n
-
-if SPI_1
-
-config SPI_1_MISO_PIN
-    int "SPI 1 MISO pin"
-    default 0
-
-config SPI_1_MISO_PORT
-    int "SPI 1 MISO port"
-    default 0
-
-config SPI_1_MOSI_PIN
-    int "SPI 1 MOSI pin"
-    default 0
-
-config SPI_1_MOSI_PORT
-    int "SPI 1 MOSI port"
-    default 0
-
-config SPI_1_SCK_PIN
-    int "SPI 1 SCK pin"
-    default 0
-
-config SPI_1_SCK_PORT
-    int "SPI 1 SCK port"
-    default 0
-
-config SPI_1_CS_PIN
-    int "SPI 1 CS pin"
-    default 0
-
-config SPI_1_CS_PORT
-    int "SPI 1 CS port"
-    default 0
-
-config SPI_1_FREQUENCY
-    int "SPI 1 Master clock frequency [0 .. 6]"
-    default 0
-    ---help---
-    The SPI master clock frequency { 0 = 125 KBPS, 1 = 250 KBSP, 2 = 500 KBPS,
-    3 = 1 MBPS, 4 = 2 MBPS, 5 = 4 MBSP, 6 = 8 MBPS }
-
-endif # SPI_1
-
-config SPI_BUFFER_LEN
-    int "SPI Buffer len in bytes"
-    default 32
 
 config UART_PERIPHERAL_0
   bool "Support for uart peripheral 0"
@@ -208,18 +122,6 @@ endif
 config RTC_PATH
     string "The path where we mount the rtc driver node"
     default "/dev/rtc0"
-
-config RAM_BASE
-    hex "The start of the SRAM"
-    default 0x2000000
-
-config RAM_LENGTH
-    hex "The length of the SRAM memory in bytes"
-    default 0x10000
-
-config HARDWARE_FP
-    bool "Hardware floating point instructions"
-    default n
 
 config RUN_FROM_RAM
     bool "Select this if you don't want to copy the data segment into RAM"

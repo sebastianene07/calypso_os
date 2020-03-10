@@ -23,6 +23,6 @@ void board_init(void);
 
 int up_get_irq_number(void);
 
-int up_initial_task_context(struct tcb_s *tcb);
+int up_initial_task_context(struct tcb_s *tcb, int argc, char **argv);
 
 #endif /* __CORE_CM4 */

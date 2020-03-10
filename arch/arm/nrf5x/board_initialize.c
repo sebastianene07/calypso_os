@@ -196,7 +196,7 @@ void board_init(void)
  * up_initial_task_context - creates the initial state for a task
  *
  */
-int up_initial_task_context(struct tcb_s *tcb)
+int up_initial_task_context(struct tcb_s *tcb, int argc, char **argv)
 {
   /* Initial MCU context */
 

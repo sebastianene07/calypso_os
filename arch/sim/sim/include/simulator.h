@@ -5,37 +5,28 @@
  * Public Types
  ****************************************************************************/
 
+/* We need this type to prevent compilation errors but we don't have interrupts
+ * on this build.
+ */
+
 typedef enum {
   DEFAULT = 0,
-  NUM_IRQS = 90
+  NUM_IRQS = 1
 } IRQn_Type;
 
 /****************************************************************************
- * Public Functions
+ * Public Functions Definitions
  ****************************************************************************/
 
-/**
-  \brief   Enable IRQ Interrupts
-  \details Enables IRQ interrupts by clearing the I-bit in the CPSR.
-           Can only be executed in Privileged modes.
- */
-static inline void __enable_irq(void)
-{
-}
+/* These functions enable/disable the SysTick simulated interrupts */
 
-/**
-  \brief   Disable IRQ Interrupts
-  \details Disables IRQ interrupts by setting the I-bit in the CPSR.
-           Can only be executed in Privileged modes.
- */
-static inline void __disable_irq(void)
-{
-}
+void __enable_irq(void);
 
-static inline void NVIC_TriggerSysTick(void)
-{
-	/* TODO */
-}
+void __disable_irq(void);
+
+/* This function handles the context switching mechanism and it's symbol is
+ * exported in the partially linked executable.
+ */
 
 void sched_context_switch(void);
 

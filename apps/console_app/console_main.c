@@ -254,9 +254,12 @@ static int parse_arguments(char *buffer, size_t newline)
 int console_main(int argc, char **argv)
 {
   char cmd_buffer[CONFIG_CMD_BUFER_LEN]={0};
+
+  printf("\n[console_main] Entry point\n");
   int uart_fd = open(CONFIG_CONSOLE_UART_PATH, 0);
   if (uart_fd < 0)
   {
+    printf("[console_main] Cannot open UART exit console\n");
     return -EINVAL;
   }
 

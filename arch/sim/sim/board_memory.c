@@ -1,13 +1,33 @@
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
 #include <board.h>
 
-#define HEAP_SIZE           (1024 * 1024)
+/****************************************************************************
+ * Private Variables
+ ****************************************************************************/
 
-static uint8_t g_heap_memory[HEAP_SIZE];
+/* The heap memory definition */
 
-unsigned long _sbss = &g_heap_memory[0];
-unsigned long _ebss = &g_heap_memory[HEAP_SIZE];
+static uint8_t g_heap_memory[CONFIG_SIM_HEAP_SIZE];
 
-unsigned long _sheap = &g_heap_memory[0];
-unsigned long _eheap = &g_heap_memory[HEAP_SIZE];
+/****************************************************************************
+ * Public Variabless
+ ****************************************************************************/
+
+/* Normally these definitions are exported from the linker script but in this
+ * target we are not using a linker script.
+ */
+
+unsigned long _sbss = (unsigned long)&g_heap_memory[0];
+unsigned long _ebss = (unsigned long)&g_heap_memory[CONFIG_SIM_HEAP_SIZE];
+
+unsigned long _sheap = (unsigned long)&g_heap_memory[0];
+unsigned long _eheap = (unsigned long)&g_heap_memory[CONFIG_SIM_HEAP_SIZE];
+
+/* In the simulation build the g_ram_vectors is not used as we don't have
+ * interrupts but it should be defined to avoid compilation errors.
+ */
 
 void (*g_ram_vectors[NUM_IRQS])(void);
