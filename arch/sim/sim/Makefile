@@ -1,5 +1,7 @@
 SRC := board_initialize.c
 SRC += board_uart.c
+SRC += board_rtc.c
+
 OBJS := $(patsubst %.c,%.o,$(SRC))
 ARCH_FLAGS:=${CFLAGS} -I$(TOPDIR)/include -I$(TOPDIR)/s_alloc -I./include/ -I$(TOPDIR)/sched/include
 SRC_REL := board_memory.c

@@ -2,16 +2,20 @@
 #define __SIMULATOR_H
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define CONFIG_SIM_LPUART_FIFO_SIZE   (1)
+
+/****************************************************************************
  * Public Types
  ****************************************************************************/
 
-/* We need this type to prevent compilation errors but we don't have interrupts
- * on this build.
- */
+/* The simulated interrupts values */
 
 typedef enum {
-  DEFAULT = 0,
-  NUM_IRQS = 1
+  UART_0_IRQ   = 0,
+  NUM_IRQS
 } IRQn_Type;
 
 /****************************************************************************

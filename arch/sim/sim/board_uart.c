@@ -25,6 +25,12 @@ static int sim_lpuart_config(struct uart_lower_s *lower);
 static void sim_lpuart_int(void);
 
 /****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+uint8_t g_lpuart_fifo[CONFIG_SIM_LPUART_FIFO_SIZE];
+
+/****************************************************************************
  * Private Data
  ****************************************************************************/
 
@@ -87,6 +93,7 @@ void host_console_putc(int c);
 
 static int sim_lpuart_open(const struct uart_lower_s *lower)
 {
+  attach_int(UART_0_IRQ, sim_lpuart_int);
   return OK;
 }
 
@@ -110,6 +117,8 @@ static int sim_lpuart_write(const struct uart_lower_s *lower,
                             const void *ptr_data,
                             unsigned int sz)
 {
+  for (int i = 0; i < sz; i++)
+   host_console_putc((int)*((uint8_t *)ptr_data + i)); 
   return OK;
 }
 
@@ -162,6 +171,14 @@ static int sim_lpuart_config(struct uart_lower_s *lower)
 
 static void sim_lpuart_int(void)
 {
+  struct uart_lower_s *lower = &g_uart_lowerhalfs[0];
+
+  lower->rx_buffer[lower->index_write_rx_buffer] = g_lpuart_fifo[0];
+  lower->index_write_rx_buffer = (lower->index_write_rx_buffer + 1) % UART_RX_BUFFER;
+
+  /* Notify incomming RX characters */
+
+  sem_post(&lower->rx_notify);
 }
 
 /****************************************************************************

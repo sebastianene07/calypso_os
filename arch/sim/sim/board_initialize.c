@@ -9,6 +9,7 @@
 #include <scheduler.h>
 #include <os_start.h>
 #include <ucontext.h>
+#include <rtc.h>
 
 /****************************************************************************
  * Pre-processor Defintions
@@ -51,6 +52,10 @@ void board_init(void)
 
   size_t num_uart = 0;
   uart_init(&num_uart);
+
+  /* Initialize the RTC simulated driver */
+
+  rtc_init();
 
   /* Start the SysTick simulation using the host timer */ 
 

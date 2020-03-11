@@ -113,7 +113,9 @@ static void rtc_interrupt(void)
  *
  * Initialize the RTC module from LF clock
  */
-static int rtc_open(struct opened_resource_s *res, const char *pathname, int flags, mode_t mode)
+static int rtc_open(struct opened_resource_s *res, const char *pathname,
+                    int flags,
+                    mode_t mode)
 {
   /* fRTC [Hz] = 32768 / (PRESCALER + 1)
    * The PRESCALER should be 4095 for 8Hz tick - 125 ms counter period */
@@ -200,7 +202,7 @@ static int rtc_ioctl(struct opened_resource_s *priv, unsigned long request, unsi
 static int rtc_register(const char *name)
 {
   return vfs_register_node(name, strlen(name), &g_rtc_ops, VFS_TYPE_CHAR_DEVICE,
-    NULL);
+                           NULL);
 }
 
 /****************************************************************************
