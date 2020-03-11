@@ -47,6 +47,11 @@ void board_init(void)
 
   printf("\r\n[board_init] Simulation init\r\n");
 
+  /* Initialize the UART simulated driver */
+
+  size_t num_uart = 0;
+  uart_init(&num_uart);
+
   /* Start the SysTick simulation using the host timer */ 
 
   host_simulated_systick();
