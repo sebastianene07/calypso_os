@@ -15,7 +15,27 @@ typedef enum integer_type_e
   ARG_HEXADEC,
 } integer_type_t;
 
-static void print_number(unsigned long arg, integer_type_t type)
+static void print_character(char **buffer, unsigned int *len, int c)
+{
+  if (buffer == NULL) {
+    putchar(c);
+  } else {
+
+    if (len != NULL) {
+      if (*len > 0) {
+        *len = *len - 1;
+      } else {
+        return;
+      }
+    }
+
+    **buffer = (char)c;
+    *buffer = (char *)*buffer + 1;
+  }
+}
+
+static void print_number(char **buffer, unsigned int *len, unsigned long arg,
+                         integer_type_t type)
 {
   char arg_buffer[20];
   int index = 0;
@@ -56,22 +76,22 @@ static void print_number(unsigned long arg, integer_type_t type)
   }
 
   if (is_negative)
-    putchar('-');
+    print_character(buffer, len, '-');
 
-  for (index; index >= 0; index--) {
-    putchar(arg_buffer[index]);
+  for (index = index - 1; index >= 0; index--) {
+    print_character(buffer, len, arg_buffer[index]);
   }
 } 
 
-static void print_string(char *arg)
+static void print_string(char **buffer, unsigned int *len, char *arg)
 {
   for (char *c = arg; *c != '\0'; c++)
-    putchar((int)*c); 
+    print_character(buffer, len, (int)*c); 
 }
 
-void printf(const char *fmt, ...)
+static void vprint(char **buffer, unsigned int *len, const char *fmt,
+                   va_list arg_list)
 {
-  va_list arg_list;
   char c;
   int val_1;
   unsigned int val_2;
@@ -80,15 +100,10 @@ void printf(const char *fmt, ...)
   char *val_5;
   char val_6;
 
-  sem_t *console_sema = get_console_sema();
-
-  sem_wait(console_sema);
-  va_start(arg_list, fmt);
-
   for (c = *fmt; c != '\0'; c = *(++fmt)) {
 
     if (c != '%') {
-      putchar(c);
+      print_character(buffer, len, c);
     } else {
 
       /* Check if the format is a known one */
@@ -99,53 +114,67 @@ void printf(const char *fmt, ...)
         break;
       else if (c == 'd') {
         val_1 = va_arg(arg_list, int);
-        print_number(val_1, ARG_INT32);
+        print_number(buffer, len, val_1, ARG_INT32);
       } else if (c == 'l' && *(fmt + 1) == 'd') {
         val_3 = va_arg(arg_list, long);
         fmt++;
-        print_number(val_3, ARG_INT64);
+        print_number(buffer, len, val_3, ARG_INT64);
       } else if (c == 'u') {
         val_2 = va_arg(arg_list, unsigned int);
-        print_number(val_3, ARG_UINT32);
+        print_number(buffer, len, val_3, ARG_UINT32);
       } else if (c == 'l' && *(fmt + 1) == 'u') {
         val_4 = va_arg(arg_list, unsigned long);
-        print_number(val_3, ARG_UINT64);
+        print_number(buffer, len, val_3, ARG_UINT64);
       } else if (c == 's') {
         val_5 = va_arg(arg_list, char *); 
-        print_string(val_5);
+        print_string(buffer, len, val_5);
       } else if (c == 'c') {
         val_6 = va_arg(arg_list, char);
-        putchar(val_6); 
+        print_character(buffer, len, val_6); 
       } else if (c == 'x') {
         val_2 = va_arg(arg_list, unsigned int);
-        print_number(val_2, ARG_HEXADEC); 
+        print_number(buffer, len, val_2, ARG_HEXADEC); 
       } else if (c == 'l' && *(fmt + 1) == 'x') {
         val_4 = va_arg(arg_list, unsigned long);
-        print_number(val_4, ARG_HEXADEC); 
+        print_number(buffer, len, val_4, ARG_HEXADEC); 
       } else {
-        putchar('?');
+        print_character(buffer, len, '?');
       }
     }
   }
-
- va_end(arg_list); 
- sem_post(console_sema);
 }
 
-int sprintf(char *out, const char *format, ...)
+void printf(const char *fmt, ...)
 {
-#if 0
-  register int *varg = (int *)(&format);
-	return print(&out, varg);
-#endif
+  va_list arg_list;
+  sem_t *console_sema = get_console_sema();
+
+  sem_wait(console_sema);
+
+  va_start(arg_list, fmt);
+  vprint(NULL, NULL, fmt, arg_list);
+  va_end(arg_list); 
+
+  sem_post(console_sema);
+}
+
+int sprintf(char *out, const char *fmt, ...)
+{
+  va_list arg_list;
+
+  va_start(arg_list, fmt);
+  vprint(&out, NULL, fmt, arg_list);
+  va_end(arg_list);
   return 0;
 }
 
-int snprintf(char *out, unsigned int len, const char *format, ...)
+int snprintf(char *out, unsigned int len, const char *fmt, ...)
 {
-#if 0
-	register int *varg = (int *)(&format);
-	return print(&out, varg);
-#endif
+  va_list arg_list;
+  unsigned int len_copy = len;
+
+  va_start(arg_list, fmt);
+  vprint(&out, &len_copy, fmt, arg_list);
+  va_end(arg_list);
   return 0;
 }
