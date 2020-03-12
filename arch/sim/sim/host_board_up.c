@@ -89,7 +89,7 @@ static void host_signal_handler(int sig, siginfo_t *si, void *old_ucontext)
 {
   if (sig == SIGALRM) {
     sched_context_switch();
-  } else if (sig == SIGUSR1) {
+  } else if (sig == SIGUSR2) {
 
     /* Send the UART simulated event */
 
@@ -121,7 +121,7 @@ static void host_simulated_intterupts(void *arg)
     if (ret < 0) {
       _err("%d read from stdin\n", ret);
     } else {
-      kill(g_host_pid, SIGUSR1);
+      kill(g_host_pid, SIGUSR2);
     }
   }
 }
@@ -145,7 +145,7 @@ static void host_create_interrupt_thread(void)
   sigemptyset(&act.sa_mask);
   act.sa_flags = SA_SIGINFO;
 
-  if ((ret = sigaction(SIGUSR1, &act, NULL)) != 0) {
+  if ((ret = sigaction(SIGUSR2, &act, NULL)) != 0) {
       _err("%d signal handler", ret);
   }
 
@@ -167,9 +167,8 @@ static void host_init_termios(int echo)
 {
   tcgetattr(0, &current);
   current.c_lflag &= ~ICANON;
-//  current.c_lflag |= IEXTEN;
   current.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
-                           | INLCR | IGNCR | ICRNL | IXON);
+                        | INLCR | IGNCR | ICRNL | IXON);
   if (echo) {
       current.c_lflag |= ECHO;
   } else {
