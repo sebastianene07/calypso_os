@@ -52,8 +52,8 @@ void _start(void)
   volatile unsigned long heap_start, heap_end;
 
 #ifndef CONFIG_SIM_BUILD
-  heap_start =  &_sheap;
-  heap_end   =  &_eheap;
+  heap_start =  (unsigned long)&_sheap;
+  heap_end   =  (unsigned long)&_eheap;
 #else
   heap_start = _sheap;
   heap_end   = _eheap;
