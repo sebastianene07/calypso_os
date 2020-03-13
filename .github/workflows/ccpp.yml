@@ -13,6 +13,8 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
+    - name: submodules-init
+      uses: snickerbockers/submodules-init@v4
     - name: configure
       run: make config MACHINE_TYPE=sim
     - name: make
