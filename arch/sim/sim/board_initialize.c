@@ -81,6 +81,7 @@ void board_init(void)
 int up_initial_task_context(struct tcb_s *tcb, int argc, char **argv)
 {
   ucontext_t *task_context = &tcb->mcu_context;
+
   int ret = getcontext(task_context);
   if (ret < 0) {
     return ret;
@@ -94,11 +95,10 @@ int up_initial_task_context(struct tcb_s *tcb, int argc, char **argv)
   sp = (uint64_t)sp + (STACK_ALIGNMENT - ((uint64_t)sp % STACK_ALIGNMENT));
 
   struct tcb_s *current = sched_get_current_task();
-
   task_context->uc_stack.ss_sp    = sp;
   task_context->uc_stack.ss_size  = stack_size - (uint64_t)sp % STACK_ALIGNMENT;
   task_context->uc_stack.ss_flags = 0;
-  task_context->uc_link           = &current->mcu_context;
+  task_context->uc_link           = current == NULL ? NULL : &current->mcu_context;
 
   makecontext(task_context, (void *)tcb->entry_point, argc, argv);
   return 0;

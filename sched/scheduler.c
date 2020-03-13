@@ -49,6 +49,8 @@ extern void (*g_ram_vectors[NUM_IRQS])(void);
 
 static int sched_idle_task(int argc, char **argv)
 {
+  printf("[idle_task] entry point\n");
+
   while (1)
   {
     /* Check if we need to free any HALTED tasks */
@@ -181,7 +183,7 @@ int sched_create_task(int (*task_entry_point)(int argc, char **argv),
 
   task_tcb->entry_point    = task_entry_point;
   task_tcb->stack_ptr_base = (void *)task_tcb + sizeof(struct tcb_s);
-  task_tcb->stack_ptr_top  = (void *)task_tcb + stack_size;
+  task_tcb->stack_ptr_top  = (void *)task_tcb + stack_size + sizeof(struct tcb_s);
   task_tcb->t_state        = READY;
 
 #ifdef CONFIG_SCHEDULER_TASK_COLORATION
