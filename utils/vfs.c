@@ -577,6 +577,8 @@ int vfs_mount_filesystem(struct vfs_registration_s *fs,
   sem_wait(&g_mounted_fs_sema);
   list_add(&fs_mount->mounted_filesystems, &g_mounted_filesystems);
   sem_post(&g_mounted_fs_sema);
+
+  return OK;
 }
 
 /*

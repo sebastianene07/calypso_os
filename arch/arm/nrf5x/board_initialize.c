@@ -191,3 +191,35 @@ void board_init(void)
 
   SysTick_Config(g_system_core_clock_freq / CONFIG_SYSTEM_SCHEDULER_SLICE_FREQUENCY);
 }
+
+/*
+ * up_initial_task_context - creates the initial state for a task
+ *
+ */
+int up_initial_task_context(struct tcb_s *task_tcb, int argc, char **argv)
+{
+  /* Initial MCU context */
+
+  task_tcb->mcu_context[0] = (void *)argc;
+  task_tcb->mcu_context[1] = (void *)argv;
+  task_tcb->mcu_context[5] = (uint32_t *)sched_default_task_exit_point;
+  task_tcb->mcu_context[6] = task_tcb->entry_point;
+  task_tcb->mcu_context[7] = (uint32_t *)0x1000000;
+
+  /* Stack context in interrupt */
+  const int unstacked_regs = 8;   /* R4-R11 */
+  int i = 0;
+  void *ptr_after_int = task_tcb->stack_ptr_top -
+    sizeof(void *) * MCU_CONTEXT_SIZE;
+
+  for (uint8_t *ptr = ptr_after_int;
+     ptr < (uint8_t *)task_tcb->stack_ptr_top;
+     ptr += sizeof(uint32_t))
+  {
+    *((uint32_t *)ptr) = (uint32_t)task_tcb->mcu_context[i++];
+  }
+
+  task_tcb->sp = ptr_after_int - unstacked_regs * sizeof(void *);
+
+  return 0;
+}

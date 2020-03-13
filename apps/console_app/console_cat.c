@@ -29,7 +29,6 @@ int console_cat(int argc, const char *argv[])
   int nread = 0;
   int ret;
 
-  int do_read;
   do {
 
     memset(buffer, 0, sizeof(buffer));

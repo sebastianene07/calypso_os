@@ -15,5 +15,6 @@ void os_appstart(void)
 
   while(1)
   {
+    sched_run();
   }
 }

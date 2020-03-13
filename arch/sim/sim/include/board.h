@@ -1,9 +1,9 @@
-#ifndef __CORE_CM4
-#define __CORE_CM4
+#ifndef __BOARD_H
+#define __BOARD_H
 
 #include <stdint.h>
 #include <board_cfg.h>
-#include <nrf52840.h>
+#include <simulator.h>
 
 #include <scheduler.h>
 
@@ -11,18 +11,10 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define RAM_BASE              (void *)(CONFIG_RAM_BASE)
-#define RAM_LENGTH            (CONFIG_RAM_LENGTH)
-
-#define STACK_TOP             (void *)(CONFIG_RAM_BASE + CONFIG_RAM_LENGTH)
-
-#define HEAP_BLOCK_SIZE       (16)
-
+#define HEAP_BLOCK_SIZE       (32)
 
 void board_init(void);
 
-int up_get_irq_number(void);
-
 int up_initial_task_context(struct tcb_s *tcb, int argc, char **argv);
 
-#endif /* __CORE_CM4 */
+#endif /* __BOARD_H */

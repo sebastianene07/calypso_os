@@ -21,3 +21,20 @@ void board_init(void)
 {
   printf("\r\nXTENSA lx6 initializing\r\n.");
 }
+
+/*
+ * up_initial_task_context - creates the initial state for a task
+ *
+ */
+int up_initial_task_context(struct tcb_s *task_tcb, int argc, char **argv)
+{
+  /* Initial MCU context */
+
+  task_tcb->mcu_context[0] = (void *)argc;
+  task_tcb->mcu_context[1] = (void *)argv;
+  task_tcb->mcu_context[5] = (uint32_t *)sched_default_task_exit_point;
+  task_tcb->mcu_context[6] = task_tcb->entry_point;
+  task_tcb->mcu_context[7] = (uint32_t *)0x1000000;
+
+  return 0;
+}

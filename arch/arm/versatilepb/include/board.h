@@ -5,6 +5,8 @@
 #include <board_cfg.h>
 #include <versatilepb.h>
 
+#include <scheduler.h>
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -15,5 +17,7 @@
 #define HEAP_BLOCK_SIZE       (16)
 
 void board_init(void);
+
+int up_initial_task_context(struct tcb_s *tcb, int argc, char **argv);
 
 #endif /* __BOARD_H */

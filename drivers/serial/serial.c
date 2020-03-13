@@ -71,7 +71,6 @@ static int uart_write(struct opened_resource_s *res, const void *buf, size_t cou
 static int uart_read(struct opened_resource_s *res, void *buf, size_t count)
 {
   struct uart_upper_s *uart_up = (struct uart_upper_s *)res->vfs_node->priv;
-  int ret = 0;
 
   /* Blocking read. Return up to 'count' bytes if they are available from
    * this device

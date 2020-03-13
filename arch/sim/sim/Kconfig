@@ -1,0 +1,128 @@
+config MACHINE_TYPE
+    string "The machine name"
+    default "sim"
+
+config MACHINE_CPU
+    string "The cpu family"
+    default "x86_64"
+
+config HOST_OS
+    string "The host OS"
+    default "Darwin"
+    ---help---
+      This configuration identifies the host platform that we are building on
+      and is used in the Makefiles to use the correct compilation options.
+      It can be Darwin | Linux, currently we don't support Windows.
+
+config SIM_BUILD
+    bool "Simulator build"
+    default y
+
+config SIM_HEAP_SIZE
+    int "Simulation heap size in bytes"
+    default 1048576
+    ---help---
+      The heap memory region size in bytes. From this heap we allocate all
+      the system's resources such as task stack, open files, virtual file
+      system and so on.
+
+config PREFIX_TOOLCHAIN
+    string "The prefix used by the toolchain"
+    default ""
+
+config TWO_PASS_BUILD
+    bool "Build a partial linked file first and then link all together"
+    default y
+    ---help---
+      Set this option to true to allow building a partially linked file that
+      contains the OS symbols and a separate file that links to the host
+      symbols. Link them both at the end.
+
+config COMMAND_LOAD
+    string "The command used to load the binnary on the board"
+    default ""
+
+config CFLAGS
+    string "The compilation flags"
+    default '  -mcpu=cortex-m4 -mthumb -mabi=aapcs -O -ggdb -std=gnu99 '
+
+config LDFLAGS
+    string "The linker flags"
+    default ' ${CFLAGS} -nostartfiles -nodefaultlibs -Wl -T${TOPDIR}/linker.ld'
+
+config UART_PERIPHERAL_0
+  bool "Support for uart peripheral 0"
+  default y
+
+if UART_PERIPHERAL_0
+config SERIAL_CONSOLE_BAUDRATE
+    hex "The baudrate for the serial console peripheral"
+    default 0x01D60000
+    ---help---
+    Other possible values can be: 0x0004F000 - baud1200
+    0x0009D000 - baud 2400, 0x0013B000 - baud 4800
+    0x00275000 - baud 9600.
+
+config CONSOLE_UART_PATH
+    string "The path where we mount the serial console node"
+    default "/dev/ttyUSB0"
+
+config SERIAL_CONSOLE_TX_PIN
+    int "The TX serial console pin"
+    default 6
+
+config SERIAL_CONSOLE_TX_PORT
+    int "The TX serial console port"
+    default 0
+
+config SERIAL_CONSOLE_RX_PIN
+    int "The RX serial console pin"
+    default 8
+
+config SERIAL_CONSOLE_RX_PORT
+    int "The RX serial console port"
+    default 0
+endif
+
+config UART_PERIPHERAL_1
+  bool "Support for uart peripheral 1"
+  default n
+
+if UART_PERIPHERAL_1
+
+config UART_PERIPHERAL_1_PATH
+  string "The path where we mount the second UART peripheral"
+  default "/dev/ttyUSB1"
+
+config UART_PERIPHERAL_1_BAUDRATE
+    hex "The baudrate for the serial console peripheral"
+    default 0x01D60000
+    ---help---
+    Other possible values can be: 0x0004F000 - baud1200
+    0x0009D000 - baud 2400, 0x0013B000 - baud 4800
+    0x00275000 - baud 9600.
+
+config UART_PERIPHERAL_1_TX_PIN
+    int "The TX serial console pin"
+    default 9
+
+config UART_PERIPHERAL_1_TX_PORT
+    int "The TX serial console port"
+    default 0
+
+config UART_PERIPHERAL_1_RX_PIN
+    int "The RX serial console pin"
+    default 10
+
+config UART_PERIPHERAL_1_RX_PORT
+    int "The RX serial console port"
+    default 0
+endif
+
+config RTC_PATH
+    string "The path where we mount the rtc driver node"
+    default "/dev/rtc0"
+
+config RUN_FROM_RAM
+    bool "Select this if you don't want to copy the data segment into RAM"
+    default y

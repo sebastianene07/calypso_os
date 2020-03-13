@@ -7,6 +7,10 @@
 #include <os_start.h>
 #include <semaphore.h>
 
+#ifndef UNUSED
+  #define UNUSED(X)  ((void)(X))
+#endif
+
 /****************************************************************************
  * Public Data
  ****************************************************************************/
@@ -45,6 +49,15 @@ extern unsigned long _eheap;
 void _start(void)
 {
   volatile unsigned long *src, *dst;
+  volatile unsigned long heap_start, heap_end;
+
+#ifndef CONFIG_SIM_BUILD
+  heap_start =  (unsigned long)&_sheap;
+  heap_end   =  (unsigned long)&_eheap;
+#else
+  heap_start = _sheap;
+  heap_end   = _eheap;
+#endif
 
 #ifndef CONFIG_RUN_FROM_RAM
   /* Copy initialized variable data from flash to ram */
@@ -53,6 +66,8 @@ void _start(void)
   dst = &_sdata;
   while(dst < &_edata)
       *(dst++) = *(src++);
+#else
+  UNUSED(dst);
 #endif /* CONFIG_RUN_FROM_RAM */
 
   /* Zero out bss segment */
@@ -61,17 +76,17 @@ void _start(void)
   while(src < &_ebss)
       *(src++) = 0;
 
+  /* Initialize the HEAP memory */
+
+  s_init(&g_my_heap,
+         (void *)heap_start,
+         (void *)heap_end,
+         HEAP_BLOCK_SIZE);
+
   /* Init dummy serial console */
 
   uart_low_init();
   printf(CONFIG_POWERON_MESSAGE);
-
-  /* Initialize the HEAP memory */
-
-  s_init(&g_my_heap,
-         &_sheap,
-         &_eheap,
-         HEAP_BLOCK_SIZE);
 
   sem_init(&g_heap_sema, 0, 1);
 

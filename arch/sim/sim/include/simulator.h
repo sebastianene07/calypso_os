@@ -1,41 +1,37 @@
-#ifndef __STDLIB_H
-#define __STDLIB_H
+#ifndef __SIMULATOR_H
+#define __SIMULATOR_H
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
-#ifndef NULL
-#define NULL (0)
-#endif
-
-#ifndef ARRAY_LEN
-#define ARRAY_LEN(X)           (sizeof(X)/sizeof(X[0]))
-#endif
+#define CONFIG_SIM_LPUART_FIFO_SIZE   (1)
 
 /****************************************************************************
  * Public Types
  ****************************************************************************/
 
-#ifndef _SIZE_T
-#define _SIZE_T
-typedef unsigned int size_t;
-#endif
+/* The simulated interrupts values */
+
+typedef enum {
+  UART_0_IRQ   = 0,
+  NUM_IRQS
+} IRQn_Type;
 
 /****************************************************************************
- * Public Function Prototypes
+ * Public Functions Definitions
  ****************************************************************************/
 
-void *malloc(size_t size);
+/* These functions enable/disable the SysTick simulated interrupts */
 
-void free(void *ptr);
+void __enable_irq(void);
 
-void *calloc(size_t nmemb, size_t size);
+void __disable_irq(void);
 
-void *realloc(void *ptr, size_t size);
+/* This function handles the context switching mechanism and it's symbol is
+ * exported in the partially linked executable.
+ */
 
-void *reallocarray(void *ptr, size_t nmemb, size_t size);
+void sched_context_switch(void);
 
-int atoi(const char *nptr);
-
-#endif /* __STDLIB_H */
+#endif /* __SIMULATOR_H */

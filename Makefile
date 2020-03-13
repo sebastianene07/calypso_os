@@ -26,7 +26,12 @@ SRC_DIRS += sched s_alloc utils apps lib drivers
 
 # This is the archive where we will bundle the object files
 
-TMP_LIB=tmp_lib.a
+TMP_LIB=libtmp.a
+ifeq ($(CONFIG_HOST_OS),"Darwin")
+LDUNEXPORTSYMBOLS ?= -unexported_symbols_list ../$(CONFIG_HOST_OS)-names.dat
+else
+LDUNEXPORTSYMBOLS ?=
+endif
 
 # Export varios variables that will be used across Makefiles
 
@@ -36,24 +41,32 @@ export TOPDIR
 export TMP_LIB
 export TARGET
 
-all: create_board_file
+all: create_board_file create_object_files
+	mkdir -p build
+ifeq ($(CONFIG_TWO_PASS_BUILD),y)
+	@echo "Two pass build"
+	cd build && ${PREFIX}ar xv ${TOPDIR}/${TMP_LIB} && \
+	${PREFIX}ld -r -L${TOPDIR}/ $(LDFLAGS) *.o $(LDUNEXPORTSYMBOLS)
+	${PREFIX}gcc build/build.rel arch/sim/sim/host_board_up.o -o build.elf
+else
+	cd build && ${PREFIX}ar xv ${TOPDIR}/${TMP_LIB} && \
+	${PREFIX}gcc *.o -o build.elf ${LDFLAGS} && \
+	${PREFIX}objcopy -O ihex build.elf build.hex && \
+	${PREFIX}objcopy -O binary build.elf build.bin
+endif
+	@echo "Build finished successfully."
+
+create_object_files:
 	for src_dir in $(SRC_DIRS) ; do \
   	$(MAKE) -C $$src_dir	all;\
 	done ;
 
-	mkdir -p build && cd build && \
-	${PREFIX}ar xv ${TOPDIR}/${TMP_LIB} && \
-	${PREFIX}gcc *.o -o build.elf ${LDFLAGS} && \
-	${PREFIX}objcopy -O ihex build.elf build.hex && \
-	${PREFIX}objcopy -O binary build.elf build.bin && \
-	echo "Build finished successfully."
-
 create_board_file:
 	mkdir -p include/chip/ && cp arch/*/$(MACHINE_TYPE)/include/*.h include/chip/.
 	echo "#ifndef __BOARD_CFG_H\n#define __BOARD_CFG_H" > include/board_cfg.h
-	cat .config | grep -v "^#" | grep -v "^$$" | tail -n +4 | sed 's/^/#define /' | sed 's/=/ /' >> include/board_cfg.h
+	cat .config | grep -v "^#" | grep -v "^$$" | tail -n +3 | sed 's/^/#define /' | sed 's/=/ /' >> include/board_cfg.h
 	echo "#endif /* __BOARD_CFG_H */" >> include/board_cfg.h
-	cat .config | grep -v "^#" | grep -v "^$$" | tail -n +4 | sed 's/^/export /' | sed 's/=/ /' > Make.defs
+	cat .config | grep -v "^#" | grep -v "^$$" | tail -n +3 | sed 's/^/export /' | sed 's/=/ /' > Make.defs
 
 load:
 	eval $(CONFIG_COMMAND_LOAD)
@@ -78,7 +91,7 @@ clean:
 	for src_dir in $(SRC_DIRS) ; do \
 		$(MAKE) -C $$src_dir	clean;	\
 	done ;
-	rm -rf build/ && rm -f tmp_lib*
+	rm -rf build/ && rm -f $(TMP_LIB)
 	rm -f include/Kconfig 2> /dev/null
 	rm -f include/chip/* 2> /dev/null
 

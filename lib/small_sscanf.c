@@ -55,9 +55,10 @@ static void copy_arg(const char *start, const char *end, char *arg_buffer, size_
     strncpy(arg_buffer, start, len);
   }
 
-  for (start; start != end && *start != '\0' && len > 0; start++)
+  const char *start_it;
+  for (start_it = start; start_it != end && *start_it != '\0' && len > 0; start_it++)
   {
-    *arg_buffer = *start;
+    *arg_buffer = *start_it;
     ++arg_buffer;
     --len;
   }
@@ -119,15 +120,3 @@ int sscanf(const char *str, const char *format, ...)
 
   return changed_elements;
 }
-#if 0
-int main(int argc, const char **argv)
-{
-  int a, c;
-  unsigned int b;
-  a = b = c = 0;
-  sscanf("-10 , -20, 30", "%d, %u, %d", &a, &b, &c);
-
-  printf("%d, %d, %d\n", a, b, c);
-  return 0;
-}
-#endif

@@ -1,9 +1,9 @@
 SRC:=$(wildcard *.c)
 OBJS:=$(patsubst %.c,%.o,$(SRC))
 UTILS_FLAGS := ${CFLAGS} -I$(TOPDIR)/include \
-												 -I$(TOPDIR)/s_alloc \
-												 -I$(TOPDIR)/sched/include \
-												 -I$(TOPDIR)/include/chip
+	-I$(TOPDIR)/s_alloc \
+	-I$(TOPDIR)/sched/include \
+	-I$(TOPDIR)/include/chip
 
 all: $(OBJS)
 	${PREFIX}ar -rc $(TOPDIR)/$(TMP_LIB) $(OBJS)

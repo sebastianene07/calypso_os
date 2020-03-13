@@ -10,7 +10,7 @@ CONFIG_MACHINE_TYPE="nrf5x"
 CONFIG_MACHINE_CPU="Cortex_M4"
 CONFIG_PREFIX_TOOLCHAIN="arm-none-eabi-"
 CONFIG_COMMAND_LOAD="nrfjprog -f nrf52 --program build/build.hex --sectorerase"
-CONFIG_CFLAGS=" -mcpu=cortex-m4 -mthumb -mabi=aapcs -O -ggdb -std=gnu99 -mfloat-abi=hard -mfpu=fpv4-sp-d16 "
+CONFIG_CFLAGS=" -mcpu=cortex-m4 -mthumb -mabi=aapcs -O -ggdb -std=gnu99 -mfloat-abi=hard -mfpu=fpv4-sp-d16  -fno-builtin"
 CONFIG_LDFLAGS="  -mthumb -lc -lm -lgcc ${CFLAGS} -nostartfiles -Wl,-T${TOPDIR}/config/nrf5x/scripts/nrf52832_softdevice.ld -mfloat-abi=hard -mfpu=fpv4-sp-d16 "
 CONFIG_SPI_0=y
 CONFIG_SPI_0_MISO_PIN=1
@@ -81,12 +81,14 @@ CONFIG_SENSOR_BME680_SPI_ID=1
 # CONFIG_WFI_ENABLE is not set
 CONFIG_SYSTEM_CLOCK_FREQUENCY=64
 CONFIG_SYSTEM_SCHEDULER_SLICE_FREQUENCY=100
+CONFIG_SCHEDULER_IDLE_TASK_STACK_SIZE=1024
 
 #
 # Application Configuration
 #
 CONFIG_RUN_APPS_IN_OWN_THREAD=y
 CONFIG_CONSOLE_APP=y
+CONFIG_CONSOLE_STACK_SIZE=2048
 CONFIG_CONSOLE_PROMPT_STR="root:#/>"
 CONFIG_CONSOLE_ECHO_ON=y
 CONFIG_CONSOLE_DATE_ON=y

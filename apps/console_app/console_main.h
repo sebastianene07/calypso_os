@@ -3,10 +3,6 @@
 
 #include <stdbool.h>
 
-/* Console app stack size */
-
-#define CONFIG_CONSOLE_STACK_SIZE       (2048)
-
 /* Buffer size for commands */
 
 #define CONFIG_CMD_BUFER_LEN            (80)
@@ -18,7 +14,7 @@ typedef struct console_command_entry_s
   const char *cmd_name;
   console_command cmd_function;
   const char *cmd_help;
-  uint16_t stack_size;
+  int stack_size;
 #ifdef CONFIG_RUN_APPS_IN_OWN_THREAD
   bool run_in_main_console;
 #endif

@@ -46,11 +46,13 @@ extern void (*g_ram_vectors[NUM_IRQS])(void);
  *  This task should never exit.
  *
  *************************************************************************/
+
 static int sched_idle_task(int argc, char **argv)
 {
+  printf("[idle_task] entry point\n");
+
   while (1)
   {
-
     /* Check if we need to free any HALTED tasks */
 
     disable_int();
@@ -65,7 +67,7 @@ static int sched_idle_task(int argc, char **argv)
         if (current != NULL && current->t_state == HALTED)
         {
           list_del(&current->next_tcb);
-
+      
           /* Does this task have opened resources ? */
 
           for (int fd = 0; fd < current->curr_resource_opened; fd++) {
@@ -97,6 +99,7 @@ static int sched_idle_task(int argc, char **argv)
  *  OK in case of success otherwise a negate value.
  *
  *************************************************************************/
+
 int sched_init(void)
 {
   /* Create idle task */
@@ -128,6 +131,7 @@ int sched_init(void)
  *  This function does not exit.
  *
  *************************************************************************/
+
 void sched_default_task_exit_point(void)
 {
   __disable_irq();
@@ -136,13 +140,14 @@ void sched_default_task_exit_point(void)
    * it's memory.
    */
 
-  struct tcb_s *this_tcb = sched_get_current_task();
+  struct tcb_s *this_tcb      = sched_get_current_task();
   this_tcb->t_state           = HALTED;
   this_tcb->waiting_tcb_sema  = NULL;
 
+  __enable_irq();
+
   /* Switch context to the next running task */
 
-  NVIC_TriggerSysTick();
   sched_context_switch();
 }
 
@@ -164,8 +169,11 @@ void sched_default_task_exit_point(void)
  *  OK in case of success otherwise a negate value.
  *
  *************************************************************************/
+
 int sched_create_task(int (*task_entry_point)(int argc, char **argv),
-  uint32_t stack_size, int argc, char **argv)
+                      uint32_t stack_size,
+                      int argc,
+                      char **argv)
 {
   struct tcb_s *task_tcb = calloc(1, sizeof(struct tcb_s) + stack_size);
   if (task_tcb == NULL)
@@ -175,7 +183,7 @@ int sched_create_task(int (*task_entry_point)(int argc, char **argv),
 
   task_tcb->entry_point    = task_entry_point;
   task_tcb->stack_ptr_base = (void *)task_tcb + sizeof(struct tcb_s);
-  task_tcb->stack_ptr_top  = (void *)task_tcb + stack_size;
+  task_tcb->stack_ptr_top  = (void *)task_tcb + stack_size + sizeof(struct tcb_s);
   task_tcb->t_state        = READY;
 
 #ifdef CONFIG_SCHEDULER_TASK_COLORATION
@@ -189,31 +197,15 @@ int sched_create_task(int (*task_entry_point)(int argc, char **argv),
   }
 #endif
 
-  /* Initial MCU context */
-
-  task_tcb->mcu_context[0] = (void *)argc;
-  task_tcb->mcu_context[1] = (void *)argv;
-  task_tcb->mcu_context[5] = (uint32_t *)sched_default_task_exit_point;
-  task_tcb->mcu_context[6] = task_entry_point;
-  task_tcb->mcu_context[7] = (uint32_t *)0x1000000;
-
-  /* Init resource list */
-  INIT_LIST_HEAD(&task_tcb->opened_resource);
-
-  /* Stack context in interrupt */
-  const int unstacked_regs = 8;   /* R4-R11 */
-  int i = 0;
-  void *ptr_after_int = task_tcb->stack_ptr_top -
-    sizeof(void *) * MCU_CONTEXT_SIZE;
-
-  for (uint8_t *ptr = ptr_after_int;
-     ptr < (uint8_t *)task_tcb->stack_ptr_top;
-     ptr += sizeof(uint32_t))
-  {
-    *((uint32_t *)ptr) = (uint32_t)task_tcb->mcu_context[i++];
+  int ret = up_initial_task_context(task_tcb, argc, argv);
+  if (ret < 0) {
+    free(task_tcb);
+    return ret;
   }
 
-  task_tcb->sp = ptr_after_int - unstacked_regs * sizeof(void *);
+  /* Init resource list */
+
+  INIT_LIST_HEAD(&task_tcb->opened_resource);
 
   /* Insert the task in the list */
 
@@ -237,6 +229,7 @@ int sched_create_task(int (*task_entry_point)(int argc, char **argv),
 *  The TCB of the next task or NULL if the scheduler is not initialized.
 *
 *************************************************************************/
+
 struct tcb_s *sched_get_next_task(void)
 {
   g_current_tcb = g_current_tcb->next;
@@ -263,6 +256,7 @@ struct tcb_s *sched_get_next_task(void)
 *  The opened container resource or NULL in case we are running out of memory.
 *
 *************************************************************************/
+
 struct opened_resource_s *sched_allocate_resource(const struct vfs_node_s *vfs_node,
                                                   int open_mode)
 {
@@ -304,6 +298,7 @@ struct opened_resource_s *sched_allocate_resource(const struct vfs_node_s *vfs_n
  *  OK or a negative value on failure.
  *
  *************************************************************************/
+
 int sched_free_resource(int fd)
 {
   disable_int();
@@ -341,6 +336,7 @@ int sched_free_resource(int fd)
  *  The opened container resource or NULL in case we are running out of memory.
  *
  *************************************************************************/
+
 struct opened_resource_s *sched_find_opened_resource(int fd)
 {
   struct tcb_s *curr_tcb = sched_get_current_task();
@@ -357,7 +353,7 @@ struct opened_resource_s *sched_find_opened_resource(int fd)
   return NULL;
 }
 
- /**************************************************************************
+/**************************************************************************
 * Name:
 * sched_run
 *
@@ -368,6 +364,7 @@ struct opened_resource_s *sched_find_opened_resource(int fd)
 *  The TCB of the next task or NULL if the scheduler is not initialized.
 *
 *************************************************************************/
+
 void sched_run(void)
 {
   sched_idle_task(0, NULL);
@@ -384,6 +381,7 @@ void sched_run(void)
 *  The TCB of the next task or NULL if the scheduler is not initialized.
 *
 *************************************************************************/
+
 struct tcb_s *sched_get_current_task(void)
 {
   if (g_current_tcb == NULL)
@@ -405,6 +403,7 @@ struct tcb_s *sched_get_current_task(void)
  *  OK in case of success otherwise a negate value.
  *
  *************************************************************************/
+
 int sched_desroy(void)
 {
   return 0;
@@ -421,6 +420,7 @@ int sched_desroy(void)
  *  The task that was moved from running to ready.
  *
  *************************************************************************/
+
 struct tcb_s *sched_preempt_task(void)
 {
   struct tcb_s *tcb = sched_get_current_task();
@@ -441,8 +441,11 @@ struct tcb_s *sched_preempt_task(void)
  *  Disable all interrupts.
  *
  *************************************************************************/
+
 void disable_int(void)
 {
+  /* This function should be implemented by each target/platform */
+    
   __disable_irq();
 }
 
@@ -454,8 +457,11 @@ void disable_int(void)
  *  Enable all interrupts.
  *
  *************************************************************************/
+
 void enable_int(void)
 {
+  /* This function should be implemented by each target/platform */
+
   __enable_irq();
 }
 
@@ -468,7 +474,11 @@ void enable_int(void)
  *  interrupt handler should be installed and the function should
  *  act as detach.
  *
+ * Assumption/Limitations:
+ *  Call this function with interrupts disabled.
+ *
  *************************************************************************/
+
 void attach_int(IRQn_Type irq_num, irq_cb handler)
 {
   g_ram_vectors[irq_num] = handler;

@@ -196,6 +196,7 @@ static struct nrf52840_uart_priv_s g_uart_low_1_priv =
  * because we notify the incmming data through rx_notify semaphore and we
  * copy it in the rx_buffer from interrupt.
  */
+
 static struct uart_lower_s g_uart_lowerhalfs[] =
 {
   {
@@ -535,6 +536,15 @@ static int nrf52840_lpuart_read(const struct uart_lower_s *lower_half, void *buf
  * Public Functions
  ****************************************************************************/
 
+/****************************************************************************
+ * Name: uart_low_init
+ *
+ * Description:
+ *   The lower level UART initialization should allow printing characters on
+ *   the console. 
+ *    
+ ****************************************************************************/
+
 int uart_low_init(void)
 {
   if (!g_uart_low_0_priv.is_initialized) {
@@ -544,6 +554,18 @@ int uart_low_init(void)
 
   return 0;
 }
+
+/****************************************************************************
+ * Name: putchar
+ *
+ * Description:
+ *   This function is used by the 'printf' to show an individual charcter to
+ *   the console.
+ *
+ * Return Value:
+ *   It always returns 0.
+ *
+ ****************************************************************************/
 
 int putchar(int c)
 {
@@ -560,6 +582,21 @@ int putchar(int c)
   }
   return 0;
 }
+
+/****************************************************************************
+ * Name: uart_init
+ *
+ * Description:
+ *   This function initializes the NRF UART peripheral and creates entries in 
+ *   /dev/uartX.
+ *
+ * Input Parameters:
+ *   uart_num - (out) buffer where we save the number of peripherals registered
+ *
+ * Returned Value:
+ *   On success returns the registered lowerhalfs otherwise it returns NULL.
+ *
+ ****************************************************************************/
 
 struct uart_lower_s *uart_init(size_t *uart_num)
 {
@@ -585,6 +622,14 @@ struct uart_lower_s *uart_init(size_t *uart_num)
 
   return g_uart_lowerhalfs;
 }
+
+/****************************************************************************
+ * Name: get_console_sema
+ *
+ * Description:
+ *   This function returns the address of the console semaphore.
+ *
+ ****************************************************************************/
 
 sem_t *get_console_sema(void)
 {
