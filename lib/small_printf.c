@@ -13,21 +13,22 @@ typedef enum integer_type_e
   ARG_INT64,
   ARG_UINT64,
   ARG_HEXADEC,
+  ARG_INVALID,
 } integer_type_t;
 
 static void print_character(char **buffer, unsigned int *len, int c)
 {
+  if (len != NULL) {
+    if (*len > 0) {
+      *len = *len - 1;
+    } else {
+      return;
+    }
+  }
+
   if (buffer == NULL) {
     putchar(c);
   } else {
-
-    if (len != NULL) {
-      if (*len > 0) {
-        *len = *len - 1;
-      } else {
-        return;
-      }
-    }
 
     **buffer = (char)c;
     *buffer = (char *)*buffer + 1;
@@ -58,13 +59,13 @@ static void print_number(char **buffer, unsigned int *len, unsigned long arg,
   memset(arg_buffer, 0, sizeof(arg_buffer));
 
   if (type != ARG_HEXADEC) {
-    while (arg > 0) { 
+    do { 
       int digit = (arg % 10);
       arg_buffer[index++] = (char)(digit + 48);
       arg = arg / 10; 
-    }
+    } while (arg > 0);
   } else {
-    while (arg > 0) {
+    do {
       int digit = (arg % 16);
 
       if (digit < 10)
@@ -72,7 +73,7 @@ static void print_number(char **buffer, unsigned int *len, unsigned long arg,
       else
          arg_buffer[index++] = (char)(digit + 55);
       arg = arg >> 4;
-    }
+    } while (arg > 0);
   }
 
   if (is_negative)
@@ -87,6 +88,29 @@ static void print_string(char **buffer, unsigned int *len, char *arg)
 {
   for (char *c = arg; *c != '\0'; c++)
     print_character(buffer, len, (int)*c); 
+}
+
+static integer_type_t get_arg_type(char type_name)
+{
+  if (type_name == 'd')
+    return ARG_INT32;
+  else if (type_name == 'u')
+    return ARG_UINT32;
+  else if (type_name == 'x')
+    return ARG_HEXADEC;
+  else
+    return ARG_INVALID;
+}
+
+static unsigned long get_pow_10(int num_digits)
+{
+  unsigned long reg = 10;
+
+  for (num_digits = num_digits - 1; num_digits >= 0; num_digits--) {
+    reg *= 10;
+  }
+
+  return reg;
 }
 
 static void vprint(char **buffer, unsigned int *len, const char *fmt,
@@ -137,6 +161,25 @@ static void vprint(char **buffer, unsigned int *len, const char *fmt,
       } else if (c == 'l' && *(fmt + 1) == 'x') {
         val_4 = va_arg(arg_list, unsigned long);
         print_number(buffer, len, val_4, ARG_HEXADEC); 
+      } else if (c == '0' && ((48 < *(fmt + 1)) && (*(fmt + 1) <= 57))) { 
+        unsigned int num_digits = *(fmt + 1) - 48;
+        unsigned long val_max = get_pow_10(num_digits);
+
+        integer_type_t arg_type = get_arg_type(*(fmt + 2));
+        if (arg_type == ARG_INVALID) {
+          continue;
+        } else if (arg_type == ARG_INT32) {
+          val_1 = va_arg(arg_list, int);
+          print_number(buffer, &num_digits, val_1, ARG_INT32); 
+        } else if (arg_type == ARG_UINT32) {
+          val_2 = va_arg(arg_list, unsigned int);
+          print_number(buffer, &num_digits, val_2, ARG_UINT32);
+        } else if (arg_type == ARG_HEXADEC) {
+          val_2 = va_arg(arg_list, unsigned int);
+          print_number(buffer, &num_digits, val_2, ARG_HEXADEC);
+        } 
+
+        fmt += 2;
       } else {
         print_character(buffer, len, '?');
       }
