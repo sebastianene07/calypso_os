@@ -47,10 +47,9 @@ ifeq ($(CONFIG_TWO_PASS_BUILD),y)
 	@echo "Two pass build"
 	cd build && ${PREFIX}ar xv ${TOPDIR}/${TMP_LIB} && \
 	${PREFIX}ld -r -L${TOPDIR}/ $(LDFLAGS) *.o $(LDUNEXPORTSYMBOLS)
-	${PREFIX}gcc build/build.rel arch/sim/sim/host_board_up.o
+	${PREFIX}gcc build/build.rel arch/sim/sim/host_board_up.o -o build.elf
 else
-	 && \
-	${PREFIX}ar xv ${TOPDIR}/${TMP_LIB} && \
+	cd build && ${PREFIX}ar xv ${TOPDIR}/${TMP_LIB} && \
 	${PREFIX}gcc *.o -o build.elf ${LDFLAGS} && \
 	${PREFIX}objcopy -O ihex build.elf build.hex && \
 	${PREFIX}objcopy -O binary build.elf build.bin

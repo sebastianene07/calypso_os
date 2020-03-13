@@ -86,6 +86,8 @@ void attach_int(IRQn_Type irq_num, irq_cb handler);
 
 void sched_context_switch(void);
 
+void sched_default_task_exit_point(void);
+
 struct opened_resource_s *sched_allocate_resource(const struct vfs_node_s *node,
                                                   int open_mode);
 int sched_free_resource(int fd);

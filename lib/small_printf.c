@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <semaphore.h>
 #include <stdarg.h>
+#include <string.h>
 
 typedef enum integer_type_e
 {
@@ -102,17 +103,6 @@ static integer_type_t get_arg_type(char type_name)
     return ARG_INVALID;
 }
 
-static unsigned long get_pow_10(int num_digits)
-{
-  unsigned long reg = 10;
-
-  for (num_digits = num_digits - 1; num_digits >= 0; num_digits--) {
-    reg *= 10;
-  }
-
-  return reg;
-}
-
 static void vprint(char **buffer, unsigned int *len, const char *fmt,
                    va_list arg_list)
 {
@@ -153,7 +143,7 @@ static void vprint(char **buffer, unsigned int *len, const char *fmt,
         val_5 = va_arg(arg_list, char *); 
         print_string(buffer, len, val_5);
       } else if (c == 'c') {
-        val_6 = va_arg(arg_list, char);
+        val_6 = va_arg(arg_list, int);
         print_character(buffer, len, val_6); 
       } else if (c == 'x') {
         val_2 = va_arg(arg_list, unsigned int);
@@ -163,7 +153,6 @@ static void vprint(char **buffer, unsigned int *len, const char *fmt,
         print_number(buffer, len, val_4, ARG_HEXADEC); 
       } else if (c == '0' && ((48 < *(fmt + 1)) && (*(fmt + 1) <= 57))) { 
         unsigned int num_digits = *(fmt + 1) - 48;
-        unsigned long val_max = get_pow_10(num_digits);
 
         integer_type_t arg_type = get_arg_type(*(fmt + 2));
         if (arg_type == ARG_INVALID) {

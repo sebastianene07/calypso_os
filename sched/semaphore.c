@@ -9,8 +9,6 @@ extern struct list_head g_tcb_list;
 extern struct list_head g_tcb_waiting_list;
 extern struct list_head *g_current_tcb;
 
-static volatile uint32_t g_lost_cycles = 0;
-
 /* Extern function implemented by the context switch mechanism. This method
  * suspends the execution for the current process saves it's context on the
  * stack and triggers an interrupt to begin the context switch.

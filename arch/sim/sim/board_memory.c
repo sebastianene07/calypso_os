@@ -20,8 +20,8 @@ static uint8_t g_heap_memory[CONFIG_SIM_HEAP_SIZE];
  * target we are not using a linker script.
  */
 
-unsigned long _sbss = (unsigned long)&g_heap_memory[0];
-unsigned long _ebss = (unsigned long)&g_heap_memory[CONFIG_SIM_HEAP_SIZE];
+unsigned long _sbss;
+unsigned long _ebss;
 
 unsigned long _sheap = (unsigned long)&g_heap_memory[0];
 unsigned long _eheap = (unsigned long)&g_heap_memory[CONFIG_SIM_HEAP_SIZE];

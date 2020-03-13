@@ -59,11 +59,10 @@ int console_ls(int argc, const char *argv[])
     char print_line[80] = {0};
     snprintf(print_line, 80, fmt, pathname, node->name);
     int line_len = strlen(print_line);
-    for (line_len; line_len < 30; line_len++)
-      print_line[line_len] = ' ';
+    for (i = line_len; i < 30; i++)
+      print_line[i] = ' ';
 
-    printf("%s %c\r\n", print_line,
-           node->node_type == VFS_TYPE_DIR ? 'd' : 'f');
+    printf("%s %c\n", print_line, node->node_type == VFS_TYPE_DIR ? 'd' : 'f');
   }
 
   return closedir(dirent);

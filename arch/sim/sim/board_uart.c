@@ -7,6 +7,7 @@
 #include <board.h>
 #include <semaphore.h>
 #include <serial.h>
+#include <errno.h>
 
 /****************************************************************************
  * Private Function Prototypes

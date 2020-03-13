@@ -14,7 +14,7 @@ typedef struct console_command_entry_s
   const char *cmd_name;
   console_command cmd_function;
   const char *cmd_help;
-  uint16_t stack_size;
+  int stack_size;
 #ifdef CONFIG_RUN_APPS_IN_OWN_THREAD
   bool run_in_main_console;
 #endif

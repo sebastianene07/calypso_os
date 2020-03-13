@@ -92,7 +92,8 @@ int up_initial_task_context(struct tcb_s *tcb, int argc, char **argv)
 
   /* Align the stack to 8 bytes */
 
-  sp = (uint64_t)sp + (STACK_ALIGNMENT - ((uint64_t)sp % STACK_ALIGNMENT));
+  sp = (uint8_t *)((uint64_t)sp +
+      (STACK_ALIGNMENT - ((uint64_t)sp % STACK_ALIGNMENT)));
 
   struct tcb_s *current = sched_get_current_task();
   task_context->uc_stack.ss_sp    = sp;
