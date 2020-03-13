@@ -13,6 +13,8 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
+    - name: get_submodule
+      run: git submodule update --init --recusive 
     - name: configure
       run: make config MACHINE_TYPE=sim
     - name: make
