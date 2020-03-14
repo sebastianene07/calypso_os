@@ -14,6 +14,7 @@
 #include <pthread.h>
 #include <signal.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/wait.h>

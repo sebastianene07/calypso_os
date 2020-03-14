@@ -29,8 +29,10 @@ SRC_DIRS += sched s_alloc utils apps lib drivers
 TMP_LIB=libtmp.a
 ifeq ($(CONFIG_HOST_OS),"Darwin")
 LDUNEXPORTSYMBOLS ?= -unexported_symbols_list ../$(CONFIG_HOST_OS)-names.dat
+EXTRALINK ?=
 else
 LDUNEXPORTSYMBOLS ?=
+EXTRALINK ?= -lpthread -nostartfiles
 endif
 
 # Export varios variables that will be used across Makefiles
@@ -47,7 +49,10 @@ ifeq ($(CONFIG_TWO_PASS_BUILD),y)
 	@echo "Two pass build"
 	cd build && ${PREFIX}ar xv ${TOPDIR}/${TMP_LIB} && \
 	${PREFIX}ld -r -L${TOPDIR}/ $(LDFLAGS) *.o $(LDUNEXPORTSYMBOLS)
-	${PREFIX}gcc build/build.rel arch/sim/sim/host_board_up.o -o build.elf
+ifneq ($(CONFIG_HOST_OS),"Darwin")
+	${PREFIX}objcopy --redefine-syms=Linux-names.dat build/build.rel
+endif
+	${PREFIX}gcc build/build.rel arch/sim/sim/host_board_up.o -o build.elf $(EXTRALINK)
 else
 	cd build && ${PREFIX}ar xv ${TOPDIR}/${TMP_LIB} && \
 	${PREFIX}gcc *.o -o build.elf ${LDFLAGS} && \
