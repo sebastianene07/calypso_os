@@ -11,7 +11,7 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define HEAP_BLOCK_SIZE       (32)
+#define HEAP_BLOCK_SIZE       (CONFIG_HEAP_BLOCK_SIZE)
 
 void board_init(void);
 

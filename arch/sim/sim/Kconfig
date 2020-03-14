@@ -14,6 +14,12 @@ config HOST_OS
       and is used in the Makefiles to use the correct compilation options.
       It can be Darwin | Linux, currently we don't support Windows.
 
+config HEAP_BLOCK_SIZE
+    int "The heap block size"
+    default 16
+    ---help---
+      On the 32bit systems this should be set to 16 on 64 bit builds we set it to 32.
+
 config SIM_BUILD
     bool "Simulator build"
     default y
