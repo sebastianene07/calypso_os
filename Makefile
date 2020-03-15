@@ -27,6 +27,7 @@ SRC_DIRS += sched s_alloc utils apps lib drivers
 # This is the archive where we will bundle the object files
 
 TMP_LIB=libtmp.a
+CONFIG_HOST_OS="$(shell uname)"
 ifeq ($(CONFIG_HOST_OS),"Darwin")
 LDUNEXPORTSYMBOLS ?= -unexported_symbols_list ../$(CONFIG_HOST_OS)-names.dat
 EXTRALINK ?=
