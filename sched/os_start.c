@@ -80,8 +80,7 @@ void _start(void)
 
   s_init(&g_my_heap,
          (void *)heap_start,
-         (void *)heap_end,
-         HEAP_BLOCK_SIZE);
+         (void *)heap_end);
 
   /* Init dummy serial console */
 

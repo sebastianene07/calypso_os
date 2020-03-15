@@ -11,8 +11,6 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define HEAP_BLOCK_SIZE       (CONFIG_HEAP_BLOCK_SIZE)
-
 void board_init(void);
 
 int up_initial_task_context(struct tcb_s *tcb, int argc, char **argv);
