@@ -39,5 +39,6 @@ small_print: $(OBJS)
 
 clean:
 	find . -iname "*.o" -exec rm -f {} \;
+	find $(PATH_FATFS) -iname "*.o" -exec rm -f {} \;
 
 .PHONY: fatfs clean all bsec small_print
