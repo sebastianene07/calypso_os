@@ -12,7 +12,10 @@
  * Public Definitionse
  ****************************************************************************/
 
+/* These functions are linked with the host symbols */
+
 int host_sim_flash_read_mtd(uint8_t *buffer, uint32_t sector, size_t count);
+int host_sim_flash_write_mtd(uint8_t *buffer, uint32_t sector, size_t count);
 
 /****************************************************************************
  * Private Data Types
@@ -165,7 +168,7 @@ static int sim_flash_mtd_read_block(uint8_t *buffer, uint32_t sector,
 static int sim_flash_mtd_write_block(const uint8_t *buffer, uint32_t sector,
                                      size_t count)
 {
-  return -ENOSYS;
+  return host_sim_flash_write_mtd(buffer, sector, count);
 }
 
 /****************************************************************************
