@@ -136,7 +136,7 @@ static int emit_vfs_node(const char *mount_path, const char *name,
 static FRESULT scan_files(char *path)
 {
     FRESULT res;
-    FILINFO fno;
+    static FILINFO fno;
     DIR dir;
     int i;
     char *fn;

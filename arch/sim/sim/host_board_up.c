@@ -44,7 +44,7 @@
 
 /* The block size in bytes */
 
-#define CONFIG_SIM_FLASH_BLOCK_SIZE   (1) 
+#define CONFIG_SIM_FLASH_BLOCK_SIZE   (512)
 
 /****************************************************************************
  * Public Data
