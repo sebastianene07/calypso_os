@@ -9,8 +9,10 @@
 #include "simulated_flash.h"
 
 /****************************************************************************
- * Preprocessor Definitions
+ * Public Definitionse
  ****************************************************************************/
+
+int host_sim_flash_read_mtd(uint8_t *buffer, uint32_t sector, size_t count);
 
 /****************************************************************************
  * Private Data Types
@@ -149,6 +151,7 @@ static int sim_flash_ioctl(struct opened_resource_s *priv,
 static int sim_flash_mtd_read_block(uint8_t *buffer, uint32_t sector,
                                     size_t count)
 {
+  return host_sim_flash_read_mtd(buffer, sector, count);
 }
 
 /*
@@ -162,6 +165,7 @@ static int sim_flash_mtd_read_block(uint8_t *buffer, uint32_t sector,
 static int sim_flash_mtd_write_block(const uint8_t *buffer, uint32_t sector,
                                      size_t count)
 {
+  return -ENOSYS;
 }
 
 /****************************************************************************
