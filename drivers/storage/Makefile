@@ -4,6 +4,10 @@ ifeq ($(CONFIG_SPI_SDCARD), y)
 SRC+= spi_sdcard.c
 endif
 
+ifeq ($(CONFIG_SIMULATED_FLASH), y)
+SRC+= simulated_flash.c
+endif
+
 OBJS:=$(patsubst %.c,%.o,$(SRC))
 CONSOLE_FLAGS := ${CFLAGS}																				\
 							-I$(TOPDIR)/include																	\

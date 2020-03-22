@@ -2,6 +2,8 @@
  * Included Files
  ****************************************************************************/
 
+#include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -18,6 +20,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/uio.h>
 #include <termios.h>
 #include <unistd.h>
 
@@ -34,6 +37,14 @@
 /* The timer interval that generates sys tick events */
 
 #define SCHEDULING_TIME_SLICE_MS  (1)
+
+/* Simulated flash file path */
+
+#define CONFIG_SIM_FLASH_FILENAME "config/sim/sim_flash.dat"
+
+/* The block size in bytes */
+
+#define CONFIG_SIM_FLASH_BLOCK_SIZE   (512)
 
 /****************************************************************************
  * Public Data
@@ -60,6 +71,10 @@ static pid_t g_host_pid;
 /* The console settings */
 
 static struct termios current;
+
+/* The simulated flash file descriptor */
+
+static int g_sim_flash_fd = -1;
 
 /****************************************************************************
  * Public Function Prototypes
@@ -181,6 +196,23 @@ static void host_init_termios(int echo)
 }
 
 /****************************************************************************
+ * Name: host_sim_flash_opens
+ *
+ * Description:
+ *   Open the simulated flash file.
+ *
+ ****************************************************************************/
+
+static void host_sim_flash_open(void)
+{
+  int ret = open(CONFIG_SIM_FLASH_FILENAME, O_RDWR);
+  if (ret < 0)
+    return;
+
+  g_sim_flash_fd = ret; 
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -299,6 +331,114 @@ void __disable_irq(void)
 }
 
 /****************************************************************************
+ * Name: host_sim_flash_read_mtd
+ *
+ * Description:
+ *   Read data from the simulated flash file and fill the provided buffer.
+ *
+ * Input Arguments:
+ *   buffer - the place where we store the data
+ *   sector - the sector number
+ *   count  - the number of bytes that we would like to read
+ *
+ * Returned Value:
+ *   The number of bytes read otherwise a negative error code.
+ *
+ ****************************************************************************/
+
+int host_sim_flash_read_mtd(uint8_t *buffer, uint32_t sector, size_t count)
+{
+  int ret = 0;
+  size_t n_read_bytes = 0;
+  off_t n_seek_offset, n_seeked_offset;
+
+  if (g_sim_flash_fd < 0) {
+    _err("[SimFlash] no SIM flash file found fd=%d\n", g_sim_flash_fd);
+    return -ENOSYS;
+  }
+
+  /* Seek to the specified sector */
+
+  n_seek_offset = sector * CONFIG_SIM_FLASH_BLOCK_SIZE; 
+  n_seeked_offset = lseek(g_sim_flash_fd, n_seek_offset, SEEK_SET); 
+  if (n_seek_offset != n_seeked_offset) {
+    _err("[SimFlash] seek to n_seek_offset=%d failed, current:%d\n",
+         (int)n_seek_offset,
+         (int)n_seeked_offset); 
+    return -EINVAL;
+  }
+
+  /* Read the data in the buffer */
+
+  do {
+    ret = read(g_sim_flash_fd, buffer, count);
+    if (ret < 0) {
+      return n_read_bytes;
+    }
+
+    count  -= ret;
+    buffer += ret;
+    n_read_bytes += ret;
+  } while (count > 0);
+
+  return n_read_bytes;
+} 
+
+/****************************************************************************
+ * Name: host_sim_flash_write_mtd
+ *
+ * Description:
+ *   Write data from to the simulated flash file from the received buffer.
+ *
+ * Input Arguments:
+ *   buffer - the buffer to write
+ *   sector - the sector number
+ *   count  - the number of bytes that we would like to write
+ *
+ * Returned Value:
+ *   The number of bytes written otherwise a negative error code.
+ *
+ ****************************************************************************/
+
+int host_sim_flash_write_mtd(uint8_t *buffer, uint32_t sector, size_t count)
+{
+  int ret = 0;
+  size_t n_written_bytes = 0;
+  off_t n_seek_offset, n_seeked_offset;
+
+  if (g_sim_flash_fd < 0) {
+    _err("[SimFlash] no SIM flash file found fd=%d\n", g_sim_flash_fd);
+    return -ENOSYS;
+  }
+
+  /* Seek to the specified sector */
+
+  n_seek_offset = sector * CONFIG_SIM_FLASH_BLOCK_SIZE; 
+  n_seeked_offset = lseek(g_sim_flash_fd, n_seek_offset, SEEK_SET); 
+  if (n_seek_offset != n_seeked_offset) {
+    _err("[SimFlash] seek to n_seek_offset=%d failed, current:%d\n",
+         (int)n_seek_offset,
+         (int)n_seeked_offset); 
+    return -EINVAL;
+  }
+
+  /* Read the data in the buffer */
+
+  do {
+    ret = write(g_sim_flash_fd, buffer, count);
+    if (ret < 0) {
+      return n_written_bytes;
+    }
+
+    count  -= ret;
+    buffer += ret;
+    n_written_bytes += ret;
+  } while (count > 0);
+
+  return n_written_bytes;
+}
+
+/****************************************************************************
  * Name: main
  *
  * Description:
@@ -323,6 +463,10 @@ int main(int argc, char **argv)
    */
 
   host_init_termios(0);
+
+  /* Open the simulated flash file */
+
+  host_sim_flash_open();
 
   /* Create interrupts thread for this simulation */
 

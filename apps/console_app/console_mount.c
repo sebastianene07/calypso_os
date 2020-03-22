@@ -30,7 +30,8 @@ int console_mount(int argc, const char *argv[])
 
   int ret = mount(argv[1], argv[2], 0, (void *)argv[3]);
   if (ret < 0) {
-    printf("Can't mount %s in path %s with MTD %s\n", argv[1], argv[2], argv[3]);
+    printf("error %d mount %s in path %s with MTD %s\n", ret, argv[1], argv[2],
+           argv[3]);
   }
   return ret;
 }

@@ -4,7 +4,6 @@
 #include <filesystems.h>
 #include <stdio.h>
 #include <string.h>
-#include <storage/spi_sdcard.h>
 #include <vfs.h>
 #include <unistd.h>
 
@@ -25,7 +24,8 @@
 
 /* Friendly name for file system */
 
-#define FILESYSTEM_TYPE                  "FAT"
+#define FILESYSTEM_TYPE_FAT              "FAT"
+#define FILESYSTEM_TYPE_EXFAT            "EXFAT"
 
 /****************************************************************************
  * Private Method Prototypes
@@ -136,7 +136,7 @@ static int emit_vfs_node(const char *mount_path, const char *name,
 static FRESULT scan_files(char *path)
 {
     FRESULT res;
-    FILINFO fno;
+    static FILINFO fno;
     DIR dir;
     int i;
     char *fn;
@@ -281,6 +281,7 @@ static int mount_fs(struct vfs_mount_filesystem_s *mount)
     return -ENOMEM;
   }
 
+  g_mtd_ops = mount->mtd_ops;
   FRESULT retfs = f_mount(g_fatfs, "", 1);
   if (retfs != FR_OK) {
     ret = -ENOSYS;
@@ -299,7 +300,7 @@ static int mount_fs(struct vfs_mount_filesystem_s *mount)
     ret = -ENOMEM;
     goto free_with_mem;
   }
-
+  
   strncpy(scan_path, VFS_PATH_DELIM, 1);
   g_mounted_fs = mount;
   scan_files(scan_path);
@@ -346,24 +347,6 @@ DWORD get_fattime(void)
 
 DSTATUS MMC_disk_initialize(void)
 {
-  /* Open the MMC device. This function will be called from the initialization
-   * context so the file descriptor should be available only in the context
-   * of that task. The later operations like : read, write, ioctl ops should
-   * schedule their requests on the same thread that called this function.
-   */
-
-  int mmc_fd = open(CONFIG_SD_SPI_NAME, 0);
-  if (mmc_fd < 0) {
-    printf("Error: %d cannot open MMC device\n", mmc_fd);
-    return mmc_fd;
-  }
-
-  int ret = ioctl(mmc_fd, MTD_GET_OPS, (unsigned long)&g_mtd_ops);
-  if (ret < 0) {
-    printf("Error: %d cannot get SD SPI ops\n", ret);
-  }
-
-  close(mmc_fd);
   return 0;
 }
 
@@ -420,8 +403,14 @@ DRESULT MMC_disk_ioctl(BYTE ctrl, void *buff)
  */
 int fatfs_filesystem_register(void)
 {
-  return vfs_register_filesystem(FILESYSTEM_TYPE,
-                                 &g_fs_ops,
-                                 mount_fs,
-                                 umount_fs);
+  vfs_register_filesystem(FILESYSTEM_TYPE_FAT,
+                          &g_fs_ops,
+                          mount_fs,
+                          umount_fs);
+
+  vfs_register_filesystem(FILESYSTEM_TYPE_EXFAT,
+                          &g_fs_ops,
+                          mount_fs,
+                          umount_fs);
+  return OK;
 }

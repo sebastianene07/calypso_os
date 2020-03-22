@@ -284,6 +284,10 @@ int console_main(int argc, char **argv)
   bool is_prompt_printed = true;
   g_is_shutdown_set = true;
 
+  const char *argvv[] = {"mount", "FAT", "/mnt/", "/dev/sim_flash"};
+
+  console_mount(4, argvv);
+
   do {
 
     if (is_prompt_printed)

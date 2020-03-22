@@ -6,6 +6,10 @@
 #include <vfs.h>
 #include <mtd.h>
 
+/****************************************************************************
+ * Macro Definitions
+ ****************************************************************************/
+
 #define LOG_ERR(msg, ...)  printf("[sd_spi] Error:"msg"\r\n", ##__VA_ARGS__)
 
 #ifdef CONFIG_DEBUG_SD_CARD
@@ -13,10 +17,6 @@
 #else
 #define LOG_INFO
 #endif
-
-/****************************************************************************
- * Macro Definitions
- ****************************************************************************/
 
 #define SPI_INIT_CLOCK_CYCLES                 (80)
 #define SPI_INIT_NUM_BYTES                    (SPI_INIT_CLOCK_CYCLES / 8)
@@ -128,14 +128,14 @@ static struct vfs_ops_s g_sd_spi_ops = {
   .ioctl  = sd_spi_ioctl,
 };
 
-/* The SPI SD card is a MTD block device with and supports this functions */
+/* The SPI SD card is a MTD block device which supports these functions */
 
 static struct mtd_ops_s g_spi_mtd_ops = {
   .mtd_read_sec  = sd_read_spi_card,
   .mtd_write_sec = sd_write_spi_card,
 };
 
- /****************************************************************************
+/****************************************************************************
  * Private Functions
  ****************************************************************************/
 
