@@ -38,6 +38,16 @@ config TWO_PASS_BUILD
       contains the OS symbols and a separate file that links to the host
       symbols. Link them both at the end.
 
+config SIMULATED_FLASH
+    bool "Support for the simulated flash device"
+    default y
+
+config SIM_FLASH_NAME
+    string "The path of the mounted simulated flash in the VFS"
+    default "/dev/sim_flash"
+    ---help---
+      This is the path of the simulated mounted flash device.
+
 config COMMAND_LOAD
     string "The command used to load the binnary on the board"
     default ""

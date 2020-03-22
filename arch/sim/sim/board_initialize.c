@@ -4,6 +4,10 @@
 
 #include <board.h>
 
+#ifdef CONFIG_SIMULATED_FLASH
+  #include <storage/simulated_flash.h>
+#endif
+
 #include <serial.h>
 #include <stdint.h>
 #include <scheduler.h>
@@ -56,6 +60,12 @@ void board_init(void)
   /* Initialize the RTC simulated driver */
 
   rtc_init();
+
+#ifdef CONFIG_SIMULATED_FLASH
+  /* Initialize the simulated flash */
+
+  sim_flash_init();
+#endif
 
   /* Start the SysTick simulation using the host timer */ 
 
