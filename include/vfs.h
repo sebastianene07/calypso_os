@@ -31,6 +31,7 @@ typedef int (*write_cb)(struct opened_resource_s *priv, const void *buf,
 typedef int (*read_cb)(struct opened_resource_s *priv, void *buf, size_t count);
 typedef int (*ioctl_cb)(struct opened_resource_s *priv, unsigned long request,
                         unsigned long arg);
+typedef int (*unlink_cb)(struct opened_resource_s *priv);
 
 /* Generic open/read/write/ioctl/close opeartion structure for a node in the
  * Virtual file system.
@@ -42,6 +43,7 @@ struct vfs_ops_s {
   write_cb write;
   read_cb read;
   ioctl_cb ioctl;
+  unlink_cb unlink;
 };
 
 /* Type of the nodes */
@@ -74,6 +76,8 @@ struct vfs_node_s {
   const char *name;           /* The node name is the same with the filename */
   enum vfs_node_type node_type;   /* The type of the node      */
   struct vfs_ops_s *ops;          /* Supported node operations */
+  uint8_t open_count;             /* Number of opened structures */
+  sem_t lock;                     /* Node lock */
 
   void *priv;                 /* Private data stored in the node */
 };

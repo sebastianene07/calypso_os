@@ -83,6 +83,8 @@ int open(const char *pathname, int flags, ...)
     goto free_with_path;
   }
 
+  sem_wait(&node->lock);
+
   /* Call the vfs open method */
 
   if (node->ops != NULL && node->ops->open != NULL) {
@@ -91,10 +93,14 @@ int open(const char *pathname, int flags, ...)
 
   if (ret < 0) {
     sched_free_resource(res->fd);
+    sem_post(&node->lock);
     goto free_with_path;
   }
 
   ret = res->fd;
+  node->open_count += 1;
+
+  sem_post(&node->lock);
 
 free_with_path:
   free(path_without_name);

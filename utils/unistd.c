@@ -92,8 +92,14 @@ int close(int fd)
     return -ENOSYS;
   }
 
+  sem_wait(&res->vfs_node->lock);
+
   int ret = res->vfs_node->ops->close(res);
   sched_free_resource(fd);
+  res->vfs_node->open_count += 1;
+
+  sem_post(&res->vfs_node->lock);
+
   return ret;
 }
 
@@ -122,4 +128,43 @@ int usleep(useconds_t microseconds)
     wait_usec();
 
   return OK;
+}
+
+/**************************************************************************
+ * Name:
+ *  unlink
+ *
+ * Description:
+ *  Remove the file from the filesystem. 
+ *
+ * Input Parameters:
+ *  path - the path of the file that we want to remove
+ *
+ * Return Value:
+ *  Zero on success otherwise a negative value.
+ *
+ *************************************************************************/
+int unlink(const char *path)
+{
+  disable_int();
+  struct vfs_node_s *node = vfs_get_matching_node(path, strlen(path));
+  enable_int();
+
+  if (node == NULL) {
+    return -EINVAL;
+  }
+
+  if (!node->ops || !node->ops->unlink) {
+    return -ENOSYS;
+  }
+
+  sem_wait(&node->lock);
+  if (node->open_count > 0) {
+    sem_post(&node->lock);
+    return -ENFILE;
+  }
+
+  int ret = node->ops->unlink(node);
+  sem_post(&node->lock);
+  return ret;
 }

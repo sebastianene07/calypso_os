@@ -71,4 +71,20 @@ int close(int fd);
  *************************************************************************/
 int usleep(useconds_t microseconds);
 
+/**************************************************************************
+ * Name:
+ *  unlink
+ *
+ * Description:
+ *  Remove the file from the filesystem. 
+ *
+ * Input Parameters:
+ *  path - the path of the file that we want to remove
+ *
+ * Return Value:
+ *  Zero on success otherwise a negative value.
+ *
+ *************************************************************************/
+int unlink(const char *path);
+
 #endif /* __UNISTD_H */
