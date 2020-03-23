@@ -73,6 +73,10 @@ config CONSOLE_ECHO
   bool "Echo a message to the console"
   default n
 
+config CONSOLE_RM
+  bool "Remove file console tool"
+  default n
+
 if !TIMER_DRIVER && !RTC_DRIVER
 config CONSOLE_NRF_INIT_SOFTDEVICE_APP
   bool "Start nordic soft device application"
