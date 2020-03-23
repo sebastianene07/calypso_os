@@ -41,7 +41,11 @@ SRC+= console_echo.c
 endif
 
 ifeq ($(CONFIG_CONSOLE_NRF_INIT_SOFTDEVICE_APP),y)
-SRC+=console_nrf_init.c
+SRC += console_nrf_init.c
+endif
+
+ifeq ($(CONFIG_CONSOLE_RM),y)
+SRC += console_rm.c
 endif
 
 OBJS:=$(patsubst %.c,%.o,$(SRC))

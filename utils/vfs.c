@@ -112,7 +112,9 @@ int vfs_init(const char *node_name[], size_t num_nodes)
     new_node->name        = calloc(node_len + 1, sizeof(char));  
     strncpy((char *)new_node->name, node_name[i], node_len);
     new_node->node_type   = VFS_TYPE_DIR;
-    
+    new_node->open_count  = 1;  /* We don't allow the default nodes removal */
+    sem_init(&new_node->lock, 0, 0);    
+
     list_add(&new_node->node_child, &g_root_vfs.child);
     INIT_LIST_HEAD(&new_node->child);
   }
@@ -336,6 +338,9 @@ free_with_sem:
   new_node->node_type    = node_type;
   new_node->priv         = priv;
   new_node->name         = node_name_copy;
+  new_node->open_count   = 0;
+
+  sem_init(&new_node->lock, 0, 0);
 
   INIT_LIST_HEAD(&new_node->child);
 
@@ -347,7 +352,6 @@ free_with_sem:
 
 static void vfs_remove_node(struct vfs_node_s *node)
 {
-  printf("remove node %s\n", node->name);
   if (node->num_children > 0) {
     struct list_head *it, *temp;
     list_for_each_safe(it, temp, &node->child) {
@@ -357,7 +361,15 @@ static void vfs_remove_node(struct vfs_node_s *node)
     }
   } 
 
+  if (node->open_count > 0) {
+    printf("cannot remove node %s is opened !\n", node->name);
+    return;
+  }
+
+  printf("remove node %s\n", node->name);
+
   /* Remove the node from the parent */
+
   struct vfs_node_s *parent = node->parent;
   parent->num_children--;
 
@@ -384,15 +396,20 @@ int vfs_unregister_node(const char *name, size_t name_len)
     return -EINVAL;
   }
 
+  sem_wait(&current_node->lock);
   if (current_node->num_children > 0) {
     vfs_remove_node(current_node);
+    sem_post(&current_node->lock);
     return OK;
-  }
+  } 
+  sem_post(&current_node->lock);
 
   struct vfs_node_s *parent = current_node->parent;
   if (parent == NULL) {
     return -EINVAL;
   }
+
+  sem_wait(&parent->lock);
 
   /* Remove the node from the parent */
 
@@ -400,6 +417,8 @@ int vfs_unregister_node(const char *name, size_t name_len)
   parent->num_children--;
 
   free((void *)current_node->name);
+  sem_post(&parent->lock);
+
   free(current_node);
 
   return OK;
