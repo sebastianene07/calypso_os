@@ -31,7 +31,7 @@ typedef int (*write_cb)(struct opened_resource_s *priv, const void *buf,
 typedef int (*read_cb)(struct opened_resource_s *priv, void *buf, size_t count);
 typedef int (*ioctl_cb)(struct opened_resource_s *priv, unsigned long request,
                         unsigned long arg);
-typedef int (*unlink_cb)(struct opened_resource_s *priv);
+typedef int (*unlink_cb)(const char *pathname);
 
 /* Generic open/read/write/ioctl/close opeartion structure for a node in the
  * Virtual file system.

@@ -369,6 +369,7 @@ static void vfs_remove_node(struct vfs_node_s *node)
   printf("remove node %s\n", node->name);
 
   /* Remove the node from the parent */
+
   struct vfs_node_s *parent = node->parent;
   parent->num_children--;
 
@@ -409,10 +410,6 @@ int vfs_unregister_node(const char *name, size_t name_len)
   }
 
   sem_wait(&parent->lock);
-  if (parent->open_count > 0) {
-    sem_post(&parent->lock);
-    return -ENFILE;
-  }
 
   /* Remove the node from the parent */
 
