@@ -6,6 +6,37 @@
 #include <scheduler.h>
 
 /*
+ * create_vfs_node - create a new entry in the virtual file system with the
+ *                   specified path
+ *
+ * @path_without_name - the path without the filename
+ * @path              - the complete path with the filenamee
+ * @path_len          - the length of the full path
+ **
+ */
+static struct vfs_node_s *create_vfs_node(const char *path_without_name,
+                                          const char *path,
+                                          size_t path_len)
+{
+  struct vfs_node_s *node;
+  struct vfs_ops_s *ops;
+  int ret;
+
+  ops = vfs_get_supported_operations(path_without_name);
+  ret = vfs_register_node(path,
+                          path_len,
+                          ops,
+                          VFS_TYPE_FILE,
+                          NULL);
+  if (ret != OK) {
+    return NULL;
+  }
+
+  node = vfs_get_matching_node(path, path_len);
+  return node;
+}
+
+/*
  * open - search for an entry specified by pathname and open it
  *
  * @pathname - the path to a file/device
@@ -18,55 +49,47 @@ int open(const char *pathname, int flags, ...)
 {
   struct vfs_node_s *node = NULL;
 
-  /* 1. Look through VFS and find the node identified by pathname */
-
   size_t name_len = strlen(pathname);
   if (name_len == 0)
     return -EINVAL;
 
-  int ret;
+  int ret = OK;
   char *path_without_name;
   int i = name_len - 1;
 
+  /* If the name of the open path ends in '/' ex : /mnt/my_file/
+   * move the index i to:                      --------|
+   * to extract the parent.
+   */
+
   if (pathname[name_len - 1] == '/') {
-    while (pathname[i] == '/') { i--; }
+    while (i > 0 && pathname[i] == '/') { i--; }
   }
 
-  while (pathname[i] != '/') { i--; }
-  path_without_name = calloc(1, i + 1);
+  while (i > 0 && pathname[i] != '/') { i--; }
+
+  /* Allocate memory for the path without the filename */
+
+  path_without_name = calloc(1, i + 2);
   if (path_without_name == NULL)
     return -ENOMEM;
 
-  strncpy(path_without_name, pathname, i);
+  strncpy(path_without_name, pathname, i + 1);
+
+  /* Look through VFS and find the node identified by pathname */
 
   if (flags & O_CREATE) {
-
-    struct vfs_node_s *parent_node = vfs_get_matching_node(path_without_name,
-      strlen(path_without_name));
-
-    ret = vfs_register_node(pathname,
-                            name_len,
-                            parent_node->ops,
-                            VFS_TYPE_FILE,
-                            NULL);
-    node = vfs_get_matching_node(pathname, name_len);
-  } else if (flags & O_APPEND) {
-    node = vfs_get_matching_node(pathname, name_len);
-    if (node == NULL) {
-      /* Create a new one */
-
-      struct vfs_node_s *parent_node = vfs_get_matching_node(path_without_name,
-        strlen(path_without_name));
-
-      ret = vfs_register_node(pathname,
-                              name_len,
-                              parent_node->ops,
-                              VFS_TYPE_FILE,
-                              NULL);
-      node = vfs_get_matching_node(pathname, name_len);
-    }
+    node = create_vfs_node(path_without_name, pathname, name_len);
   } else {
+
+    /* If the user process requested O_APPEND bu there is no file
+     * we should create a new file.
+     */
+
     node = vfs_get_matching_node(pathname, name_len);
+    if (node == NULL && (flags & O_APPEND)) {
+      node = create_vfs_node(path_without_name, pathname, name_len);
+    }
   }
 
   if (node == NULL) {
@@ -178,7 +201,7 @@ int mount(const char *type, const char *dir, int flags, void *data)
 /*
  * umount - mounts a file system in the specified path
  *
- * @type  - the path to a file/device
+ * @type   - the path to a file/device
  * @dir    - open flags
  * @flags  - ignored
  * @data   - The MTD device path

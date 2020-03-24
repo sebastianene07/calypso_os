@@ -32,6 +32,7 @@ typedef int (*read_cb)(struct opened_resource_s *priv, void *buf, size_t count);
 typedef int (*ioctl_cb)(struct opened_resource_s *priv, unsigned long request,
                         unsigned long arg);
 typedef int (*unlink_cb)(const char *pathname);
+typedef int (*mkdir_cb)(const char *path, mode_t mode);
 
 /* Generic open/read/write/ioctl/close opeartion structure for a node in the
  * Virtual file system.
@@ -44,6 +45,7 @@ struct vfs_ops_s {
   read_cb read;
   ioctl_cb ioctl;
   unlink_cb unlink;
+  mkdir_cb mkdir;
 };
 
 /* Type of the nodes */
@@ -247,5 +249,14 @@ int vfs_mount_filesystem(struct vfs_registration_s *file_ops,
  *
  */
 int vfs_umount_filesystem(const char *mount_path);
+
+/*
+ * vfs_get_supported_operations - get supported operations for a path
+ *
+ * @path - the path of the mounted filesystem
+ *
+ *  The function retrieves the ops for a mounted filesystem.
+ */
+struct vfs_ops_s *vfs_get_supported_operations(const char *path);
 
 #endif /* __VFS_H */

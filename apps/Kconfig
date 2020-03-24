@@ -77,6 +77,14 @@ config CONSOLE_RM
   bool "Remove file console tool"
   default n
 
+config CONSOLE_TOUCH
+  bool "Add a new file tool"
+  default n
+
+config CONSOLE_MKDIR
+  bool "Make a new directory tool"
+  default n
+
 if !TIMER_DRIVER && !RTC_DRIVER
 config CONSOLE_NRF_INIT_SOFTDEVICE_APP
   bool "Start nordic soft device application"

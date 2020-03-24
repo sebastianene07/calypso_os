@@ -235,7 +235,13 @@ int vfs_register_node(const char *name,
 
   bool is_delim_found = false;
   int i;
-  for (i = name_len; i >= 0; i--) {
+  int sub = 0;
+
+  if (name[name_len - 1] == '/') {
+    sub = 2;
+  }
+
+  for (i = name_len - sub; i >= 0; i--) {
     if (*(name + i) == '/') {
       is_delim_found = true;
       break;
@@ -250,7 +256,7 @@ int vfs_register_node(const char *name,
   /* We found the deimiter now we can extract the name */
 
   char *node_name = (char *)(name + i + 1);
-  int copy_name_len = strlen(node_name); 
+  int copy_name_len = sub == 0 ? strlen(node_name) : strlen(node_name) - 1; 
   char *node_name_copy = calloc(copy_name_len + 1, sizeof(char));
   if (!node_name_copy) {
     return -ENOMEM;
@@ -272,7 +278,7 @@ int vfs_register_node(const char *name,
     goto free_with_sem;
   }
 
-  name_copy = calloc(1, i);
+  name_copy = calloc(1, i + 1);
   if (name_copy == NULL) {
     return -ENOMEM;
   }
@@ -598,6 +604,53 @@ int vfs_mount_filesystem(struct vfs_registration_s *fs,
   sem_post(&g_mounted_fs_sema);
 
   return OK;
+}
+
+/*
+ * vfs_get_supported_operations - get supported operations for a path
+ *
+ * @path - the path of the mounted filesystem
+ *
+ *  The function retrieves the ops for a mounted filesystem. If no mounted
+ *  filesystem is found, return the default VFS operations.
+ */
+struct vfs_ops_s *vfs_get_supported_operations(const char *path)
+{
+  sem_wait(&g_mounted_fs_sema);
+
+  struct vfs_mount_filesystem_s *fs;
+  struct list_head *it, *temp;
+
+  struct vfs_ops_s *mounted_fs_ops = NULL;
+  int max_num_matches = 0;
+  int path_len = strlen(path);
+  int i;
+
+  list_for_each_safe(it, temp, &g_mounted_filesystems) {
+    fs = container_of(it, struct vfs_mount_filesystem_s, mounted_filesystems);
+    int mnt_fs_path_len = strlen(fs->mount_path);
+
+    mnt_fs_path_len = mnt_fs_path_len > path_len ?
+                      path_len :
+                      mnt_fs_path_len;
+
+    /* Verify which mount path corresponds to the requested path */
+
+    for (i = 0; i < mnt_fs_path_len; i++)
+      if (path[i] != fs->mount_path[i])
+        break;
+
+    if (i > max_num_matches) {
+      max_num_matches = i;
+      mounted_fs_ops  = fs->registered_fs->file_ops;
+    }
+  }
+  sem_post(&g_mounted_fs_sema);
+
+  /* There is no mounted filesystem in the requested path.
+   * We should return the default VFS ops here. TODO
+  */
+  return mounted_fs_ops;
 }
 
 /*

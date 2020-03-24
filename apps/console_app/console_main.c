@@ -58,6 +58,14 @@ int console_nrf_init(int argc, const char *argv[]);
 int console_rm(int argc, const char *argv[]);
 #endif
 
+#ifdef CONFIG_CONSOLE_TOUCH
+int console_touch(int argc, const char *argv[]);
+#endif
+
+#ifdef CONFIG_CONSOLE_MKDIR
+int console_mkdir(int argc, const char *argv[]);
+#endif
+
 static int console_help(int argc, const char *argv[]);
 
 
@@ -162,7 +170,7 @@ static console_command_entry_t g_cmd_table[] =
 #ifdef CONFIG_CONSOLE_NRF_INIT_SOFTDEVICE_APP
   { .cmd_name            = "nrf_init",
     .cmd_function        = console_nrf_init,
-    .stack_size          = CONFIG_CONSOLE_NRF_INIT_SOFTDEVICE_APP_STACK_SIZE, 
+    .stack_size          = CONFIG_CONSOLE_NRF_INIT_SOFTDEVICE_APP_STACK_SIZE,
     .cmd_help            = "Nordic soft device application",
   },
 #endif
@@ -170,8 +178,24 @@ static console_command_entry_t g_cmd_table[] =
 #ifdef CONFIG_CONSOLE_RM
   { .cmd_name            = "rm",
     .cmd_function        = console_rm,
-    .stack_size          = CONFIG_CONSOLE_STACK_SIZE, 
+    .stack_size          = CONFIG_CONSOLE_STACK_SIZE,
     .cmd_help            = "Remove a file",
+  },
+#endif
+
+#ifdef CONFIG_CONSOLE_TOUCH
+  { .cmd_name            = "touch",
+    .cmd_function        = console_touch,
+    .stack_size          = CONFIG_CONSOLE_STACK_SIZE,
+    .cmd_help            = "Craete a new file",
+  },
+#endif
+
+#ifdef CONFIG_CONSOLE_MKDIR
+  { .cmd_name            = "mkdir",
+    .cmd_function        = console_mkdir,
+    .stack_size          = CONFIG_CONSOLE_STACK_SIZE,
+    .cmd_help            = "Craete a new directory",
   },
 #endif
 
@@ -297,8 +321,17 @@ int console_main(int argc, char **argv)
   g_is_shutdown_set = true;
 
   const char *argvv[] = {"mount", "FAT", "/mnt/", "/dev/sim_flash"};
+  const char *argvv_1[] = {"touch", "/mnt/test1"};
+  const char *argvv_2[] = {"mkdir", "/mnt/dir/"};
+  const char *argvv_3[] = {"touch", "/mnt/dir/1/"};
 
   console_mount(4, argvv);
+//  console_rm(2, argvv_1);
+//  console_touch(2, argvv_1); 
+
+//  console_mkdir(2, argvv_2);
+//  console_touch(2, argvv_3); 
+//  console_rm(2, argvv_3);
 
   do {
 
