@@ -601,6 +601,49 @@ int vfs_mount_filesystem(struct vfs_registration_s *fs,
 }
 
 /*
+ * vfs_get_supported_operations - get supported operations for a path
+ *
+ * @path - the path of the mounted filesystem
+ *
+ *  The function retrieves the ops for a mounted filesystem.
+ */
+struct vfs_ops_s *vfs_get_supported_operations(const char *path)
+{
+  sem_wait(&g_mounted_fs_sema);
+
+  struct vfs_mount_filesystem_s *fs;
+  struct list_head *it, *temp;
+
+  struct vfs_ops_s *mounted_fs_ops = NULL;
+  int max_num_matches = 0;
+  int path_len = strlen(path);
+  int i;
+
+  list_for_each_safe(it, temp, &g_mounted_filesystems) {
+    fs = container_of(it, struct vfs_mount_filesystem_s, mounted_filesystems);
+    int mnt_fs_path_len = strlen(fs->mount_path);
+
+    mnt_fs_path_len = mnt_fs_path_len > path_len ?
+                      path_len :
+                      mnt_fs_path_len;
+
+    /* Verify which mount path corresponds to the requested path */
+
+    for (i = 0; i < mnt_fs_path_len; i++)
+      if (path[i] != fs->mount_path[i])
+        break;
+
+    if (i > max_num_matches) {
+      max_num_matches = i;
+      mounted_fs_ops  = fs->registered_fs->file_ops;
+    }
+  }
+
+ sem_post(&g_mounted_fs_sema);
+ return mounted_fs_ops;
+}
+
+/*
  * vfs_umount_filesystem - unmount a file systemh
  *
  * @mount_path  - the path were we mount the filesystem

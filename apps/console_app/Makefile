@@ -48,6 +48,10 @@ ifeq ($(CONFIG_CONSOLE_RM),y)
 SRC += console_rm.c
 endif
 
+ifeq ($(CONFIG_CONSOLE_TOUCH),y)
+SRC += console_touch.c
+endif
+
 OBJS:=$(patsubst %.c,%.o,$(SRC))
 CONSOLE_FLAGS := ${CFLAGS}  \
 	-I$(TOPDIR)/include \

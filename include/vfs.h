@@ -248,4 +248,13 @@ int vfs_mount_filesystem(struct vfs_registration_s *file_ops,
  */
 int vfs_umount_filesystem(const char *mount_path);
 
+/*
+ * vfs_get_supported_operations - get supported operations for a path
+ *
+ * @path - the path of the mounted filesystem
+ *
+ *  The function retrieves the ops for a mounted filesystem.
+ */
+struct vfs_ops_s *vfs_get_supported_operations(const char *path);
+
 #endif /* __VFS_H */

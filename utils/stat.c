@@ -27,6 +27,8 @@ int open(const char *pathname, int flags, ...)
   int ret;
   char *path_without_name;
   int i = name_len - 1;
+  struct vfs_ops_s *ops;
+  struct vfs_node_s *parent_node;
 
   if (pathname[name_len - 1] == '/') {
     while (pathname[i] == '/') { i--; }
@@ -41,12 +43,13 @@ int open(const char *pathname, int flags, ...)
 
   if (flags & O_CREATE) {
 
-    struct vfs_node_s *parent_node = vfs_get_matching_node(path_without_name,
+    parent_node = vfs_get_matching_node(path_without_name,
       strlen(path_without_name));
 
+    ops = vfs_get_supported_operations(path_without_name);
     ret = vfs_register_node(pathname,
                             name_len,
-                            parent_node->ops,
+                            ops,
                             VFS_TYPE_FILE,
                             NULL);
     node = vfs_get_matching_node(pathname, name_len);
@@ -55,12 +58,13 @@ int open(const char *pathname, int flags, ...)
     if (node == NULL) {
       /* Create a new one */
 
-      struct vfs_node_s *parent_node = vfs_get_matching_node(path_without_name,
-        strlen(path_without_name));
+      parent_node = vfs_get_matching_node(path_without_name,
+                                          strlen(path_without_name));
 
+      ops = vfs_get_supported_operations(path_without_name);
       ret = vfs_register_node(pathname,
                               name_len,
-                              parent_node->ops,
+                              ops,
                               VFS_TYPE_FILE,
                               NULL);
       node = vfs_get_matching_node(pathname, name_len);
