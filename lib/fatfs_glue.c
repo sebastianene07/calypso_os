@@ -64,6 +64,7 @@ static struct vfs_ops_s g_fs_ops = {
   .read   = read_fs_node,
   .write  = write_fs_node,
   .unlink = unlink_fs_node,
+  .mkdir  = mkdir_fs_node,
 };
 
 /****************************************************************************
