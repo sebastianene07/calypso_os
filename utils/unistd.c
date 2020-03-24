@@ -1,9 +1,10 @@
 #include <board.h>
 
+#include <errno.h>
 #include <scheduler.h>
+#include <string.h>
 #include <vfs.h>
 #include <unistd.h>
-#include <errno.h>
 
 /****************************************************************************
  * Private Inline Functions
@@ -130,7 +131,7 @@ int close(int fd)
 
   int ret = res->vfs_node->ops->close(res);
   sched_free_resource(fd);
-  res->vfs_node->open_count += 1;
+  res->vfs_node->open_count -= 1;
 
   sem_post(&res->vfs_node->lock);
 
@@ -218,4 +219,23 @@ int unlink(const char *path)
   }
 
   return ret;
+}
+
+/**************************************************************************
+ * Name:
+ *  mkdir
+ *
+ * Description:
+ *  Create a new directory entry in the file system.
+ *
+ * Input Parameters:
+ *  path - the path of the new directory
+ *  mode - the creation modeh
+ *
+ * Return Value:
+ *  Zero on success otherwise a negative value.
+ *
+ *************************************************************************/
+int mkdir(const char *path, mode_t mode)
+{
 }

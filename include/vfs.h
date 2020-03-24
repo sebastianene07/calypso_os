@@ -32,6 +32,7 @@ typedef int (*read_cb)(struct opened_resource_s *priv, void *buf, size_t count);
 typedef int (*ioctl_cb)(struct opened_resource_s *priv, unsigned long request,
                         unsigned long arg);
 typedef int (*unlink_cb)(const char *pathname);
+typedef int (*mkdir_cb)(const char *path, mode_t mode);
 
 /* Generic open/read/write/ioctl/close opeartion structure for a node in the
  * Virtual file system.
@@ -44,6 +45,7 @@ struct vfs_ops_s {
   read_cb read;
   ioctl_cb ioctl;
   unlink_cb unlink;
+  mkdir_cb mkdir;
 };
 
 /* Type of the nodes */

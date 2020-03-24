@@ -76,7 +76,7 @@ int usleep(useconds_t microseconds);
  *  unlink
  *
  * Description:
- *  Remove the file from the filesystem. 
+ *  Remove the file from the filesystem.
  *
  * Input Parameters:
  *  path - the path of the file that we want to remove
@@ -86,5 +86,22 @@ int usleep(useconds_t microseconds);
  *
  *************************************************************************/
 int unlink(const char *path);
+
+/**************************************************************************
+ * Name:
+ *  mkdir
+ *
+ * Description:
+ *  Create a new directory entry in the file system.
+ *
+ * Input Parameters:
+ *  path - the path of the new directory
+ *  mode - the creation mode
+ *
+ * Return Value:
+ *  Zero on success otherwise a negative value.
+ *
+ *************************************************************************/
+int mkdir(const char *path, mode_t mode);
 
 #endif /* __UNISTD_H */

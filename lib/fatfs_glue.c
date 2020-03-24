@@ -38,6 +38,7 @@ static int write_fs_node(struct opened_resource_s *priv, const void *buf,
                          size_t count);
 static int close_fs_node(struct opened_resource_s *priv);
 static int unlink_fs_node(const char *pathname);
+static int mkdir_fs_node(const char *path, mode_t mode);
 
 /****************************************************************************
  * Private Data
@@ -260,7 +261,7 @@ static int close_fs_node(struct opened_resource_s *file)
 }
 
 /*
- * unlink_fs_node - Remove the node from the filesystem. 
+ * unlink_fs_node - Remove the node from the filesystem.
  *
  * @pathname  - the full absolute path (that contains the mount path)
  *
@@ -278,6 +279,31 @@ static int unlink_fs_node(const char *pathname)
   pathname += mnt_path_len;
 
   FRESULT ret = f_unlink(pathname);
+  if (ret == FR_OK) {
+    return 0;
+  }
+
+  return -ENOSYS;
+}
+
+/*
+ * mkdir_fs_node - Remove the node from the filesystem.
+ *
+ * @path - the full absolute path (that contains the mount path)
+ * @mode - the creation mode
+ *
+ * This function creates a new directory in the mounted FAT file system.
+ */
+static int mkdir_fs_node(const char *path, mode_t mode)
+{
+  int mnt_path_len = strlen(g_mounted_fs->mount_path);
+  if (mnt_path_len > strlen(path)) {
+    return -EINVAL;
+  }
+
+  path += mnt_path_len;
+
+  FRESULT ret = f_mkdir(path);
   if (ret == FR_OK) {
     return 0;
   }
