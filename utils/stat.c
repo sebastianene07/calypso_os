@@ -5,6 +5,15 @@
 #include <vfs.h>
 #include <scheduler.h>
 
+/*
+ * create_vfs_node - create a new entry in the virtual file system with the
+ *                   specified path
+ *
+ * @path_without_name - the path without the filename
+ * @path              - the complete path with the filenamee
+ * @path_len          - the length of the full path
+ **
+ */
 static struct vfs_node_s *create_vfs_node(const char *path_without_name,
                                           const char *path,
                                           size_t path_len)
@@ -14,14 +23,6 @@ static struct vfs_node_s *create_vfs_node(const char *path_without_name,
   int ret;
 
   ops = vfs_get_supported_operations(path_without_name);
-  if (ops == NULL) {
-
-    /* There is no mounted filesystem in the requested path.
-     * We should return the default VFS ops here. TODO
-     */
-
-  }
-
   ret = vfs_register_node(path,
                           path_len,
                           ops,
@@ -34,7 +35,6 @@ static struct vfs_node_s *create_vfs_node(const char *path_without_name,
   node = vfs_get_matching_node(path, path_len);
   return node;
 }
-
 
 /*
  * open - search for an entry specified by pathname and open it
@@ -201,7 +201,7 @@ int mount(const char *type, const char *dir, int flags, void *data)
 /*
  * umount - mounts a file system in the specified path
  *
- * @type  - the path to a file/device
+ * @type   - the path to a file/device
  * @dir    - open flags
  * @flags  - ignored
  * @data   - The MTD device path

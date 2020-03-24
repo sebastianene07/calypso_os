@@ -236,6 +236,66 @@ int unlink(const char *path)
  *  Zero on success otherwise a negative value.
  *
  *************************************************************************/
-int mkdir(const char *path, mode_t mode)
+int mkdir(const char *pathname, mode_t mode)
 {
+  struct vfs_node_s *node = NULL;
+
+  size_t name_len = strlen(pathname);
+  if (name_len == 0)
+    return -EINVAL;
+
+  int ret = OK;
+  char *path_without_name;
+  int i = name_len - 1;
+
+  /* If the name of the open path ends in '/' ex : /mnt/my_file/
+   * move the index i to:                      --------|
+   * to extract the parent.
+   */
+
+  if (pathname[name_len - 1] == '/') {
+    while (i > 0 && pathname[i] == '/') { i--; }
+  }
+
+  while (i > 0 && pathname[i] != '/') { i--; }
+
+  /* Allocate memory for the path without the filename */
+
+  path_without_name = calloc(1, i + 2);
+  if (path_without_name == NULL)
+    return -ENOMEM;
+
+  strncpy(path_without_name, pathname, i + 1);
+
+  /* Look through VFS and find the node identified by pathname */
+
+  struct vfs_ops_s *ops;
+
+  node = vfs_get_matching_node(pathname, name_len);
+  if (node != NULL) {
+    free(path_without_name);
+    return -EEXIST;
+  }
+
+  ops = vfs_get_supported_operations(path_without_name);
+  if (ops && ops->mkdir) {
+    ret = ops->mkdir(pathname, 0);
+    if (ret != 0) {
+      free(path_without_name);
+      return -ENOENT; 
+    }
+  }
+
+  ret = vfs_register_node(pathname,
+                          name_len,
+                          ops,
+                          VFS_TYPE_DIR,
+                          NULL);
+  if (ret != OK) {
+    free(path_without_name);
+    return ret;
+  }
+
+  free(path_without_name);
+  return ret; 
 }

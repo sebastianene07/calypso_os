@@ -605,7 +605,8 @@ int vfs_mount_filesystem(struct vfs_registration_s *fs,
  *
  * @path - the path of the mounted filesystem
  *
- *  The function retrieves the ops for a mounted filesystem.
+ *  The function retrieves the ops for a mounted filesystem. If no mounted
+ *  filesystem is found, return the default VFS operations.
  */
 struct vfs_ops_s *vfs_get_supported_operations(const char *path)
 {
@@ -638,9 +639,12 @@ struct vfs_ops_s *vfs_get_supported_operations(const char *path)
       mounted_fs_ops  = fs->registered_fs->file_ops;
     }
   }
+  sem_post(&g_mounted_fs_sema);
 
- sem_post(&g_mounted_fs_sema);
- return mounted_fs_ops;
+  /* There is no mounted filesystem in the requested path.
+   * We should return the default VFS ops here. TODO
+  */
+  return mounted_fs_ops;
 }
 
 /*

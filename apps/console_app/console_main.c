@@ -62,6 +62,10 @@ int console_rm(int argc, const char *argv[]);
 int console_touch(int argc, const char *argv[]);
 #endif
 
+#ifdef CONFIG_CONSOLE_MKDIR
+int console_mkdir(int argc, const char *argv[]);
+#endif
+
 static int console_help(int argc, const char *argv[]);
 
 
@@ -184,6 +188,14 @@ static console_command_entry_t g_cmd_table[] =
     .cmd_function        = console_touch,
     .stack_size          = CONFIG_CONSOLE_STACK_SIZE,
     .cmd_help            = "Craete a new file",
+  },
+#endif
+
+#ifdef CONFIG_CONSOLE_MKDIR
+  { .cmd_name            = "mkdir",
+    .cmd_function        = console_mkdir,
+    .stack_size          = CONFIG_CONSOLE_STACK_SIZE,
+    .cmd_help            = "Craete a new directory",
   },
 #endif
 
