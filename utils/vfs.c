@@ -235,7 +235,13 @@ int vfs_register_node(const char *name,
 
   bool is_delim_found = false;
   int i;
-  for (i = name_len; i >= 0; i--) {
+  int sub = 0;
+
+  if (name[name_len - 1] == '/') {
+    sub = 2;
+  }
+
+  for (i = name_len - sub; i >= 0; i--) {
     if (*(name + i) == '/') {
       is_delim_found = true;
       break;
@@ -250,7 +256,7 @@ int vfs_register_node(const char *name,
   /* We found the deimiter now we can extract the name */
 
   char *node_name = (char *)(name + i + 1);
-  int copy_name_len = strlen(node_name); 
+  int copy_name_len = sub == 0 ? strlen(node_name) : strlen(node_name) - 1; 
   char *node_name_copy = calloc(copy_name_len + 1, sizeof(char));
   if (!node_name_copy) {
     return -ENOMEM;
@@ -272,7 +278,7 @@ int vfs_register_node(const char *name,
     goto free_with_sem;
   }
 
-  name_copy = calloc(1, i);
+  name_copy = calloc(1, i + 1);
   if (name_copy == NULL) {
     return -ENOMEM;
   }
