@@ -15,4 +15,6 @@ void board_init(void);
 
 int up_initial_task_context(struct tcb_s *tcb, int argc, char **argv);
 
+int up_destroy_task_context(struct tcb_s *tcb);
+
 #endif /* __BOARD_H */

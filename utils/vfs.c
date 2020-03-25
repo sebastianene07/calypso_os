@@ -113,7 +113,7 @@ int vfs_init(const char *node_name[], size_t num_nodes)
     strncpy((char *)new_node->name, node_name[i], node_len);
     new_node->node_type   = VFS_TYPE_DIR;
     new_node->open_count  = 1;  /* We don't allow the default nodes removal */
-    sem_init(&new_node->lock, 0, 0);    
+    sem_init(&new_node->lock, 0, 1);    
 
     list_add(&new_node->node_child, &g_root_vfs.child);
     INIT_LIST_HEAD(&new_node->child);
@@ -346,7 +346,7 @@ free_with_sem:
   new_node->name         = node_name_copy;
   new_node->open_count   = 0;
 
-  sem_init(&new_node->lock, 0, 0);
+  sem_init(&new_node->lock, 0, 1);
 
   INIT_LIST_HEAD(&new_node->child);
 

@@ -50,7 +50,7 @@ int sem_init(sem_t *sem, int pshared, unsigned int value)
  */
 int sem_wait(sem_t *sem)
 {
-  /* Disable context switch */
+  /* Disable context switch by disabling interrupts */
 
   disable_int();
 
@@ -86,11 +86,16 @@ int sem_wait(sem_t *sem)
 
     /* Switch context to the next running task */
 
-    sched_context_switch();
     enable_int();
+
+    sched_context_switch();
 
     return 0;
   }
+
+  /* Re-enable interrupts */
+
+  enable_int();
 
   return 0;
 }
