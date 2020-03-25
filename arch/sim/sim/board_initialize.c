@@ -26,7 +26,7 @@
 
 /* The default stack size for the xist point */
 
-#define STACK_DEFAULT_EXIT_POINT      (8192)
+#define STACK_DEFAULT_EXIT_POINT      (128000)
 
 /****************************************************************************
  * Private Types
@@ -174,7 +174,7 @@ int up_initial_task_context(struct tcb_s *tcb, int argc, char **argv)
   task_context->uc_stack.ss_flags = 0;
   task_context->uc_link           = mcu_context->exit_mcu_context;
 
-  makecontext(task_context, (void *)tcb->entry_point, argc, argv);
+  makecontext(task_context, (void *)tcb->entry_point, argc, argc, argv);
 
   return 0;
 }
