@@ -320,21 +320,6 @@ int console_main(int argc, char **argv)
   bool is_prompt_printed = true;
   g_is_shutdown_set = true;
 
-  const char *argvv[] = {"mount", "FAT", "/mnt/", "/dev/sim_flash"};
-  const char *argvv_1[] = {"ls", "/"};
-  const char *argvv_2[] = {"mkdir", "/mnt/dir/"};
-  const char *argvv_3[] = {"touch", "/mnt/dir/1/"};
-
-  console_mount(4, argvv);
-  sched_create_task(console_ls, 128000, 2, argvv_1);
-
-//  console_rm(2, argvv_1);
-//  console_touch(2, argvv_1); 
-
-//  console_mkdir(2, argvv_2);
-//  console_touch(2, argvv_3); 
-//  console_rm(2, argvv_3);
-
   do {
 
     if (is_prompt_printed)
