@@ -55,7 +55,7 @@ struct tcb_s {
   void *stack_ptr_top;
   void *sp;
 #ifdef CONFIG_SIM_BUILD
-  ucontext_t mcu_context;
+  void *mcu_context;
 #else
   void *mcu_context[MCU_CONTEXT_SIZE];
 #endif

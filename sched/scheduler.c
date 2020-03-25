@@ -67,12 +67,14 @@ static int sched_idle_task(int argc, char **argv)
         if (current != NULL && current->t_state == HALTED)
         {
           list_del(&current->next_tcb);
-      
+
           /* Does this task have opened resources ? */
 
           for (int fd = 0; fd < current->curr_resource_opened; fd++) {
             sched_free_resource(fd);
           }
+
+          up_destroy_task_context(current);
 
           free(current);
           is_halt_task = true;
@@ -175,9 +177,11 @@ int sched_create_task(int (*task_entry_point)(int argc, char **argv),
                       int argc,
                       char **argv)
 {
+  __disable_irq();
   struct tcb_s *task_tcb = calloc(1, sizeof(struct tcb_s) + stack_size);
   if (task_tcb == NULL)
   {
+    __enable_irq();
     return -ENOMEM;
   }
 
@@ -193,13 +197,14 @@ int sched_create_task(int (*task_entry_point)(int argc, char **argv),
      ptr < (uint8_t*)task_tcb->stack_ptr_top;
      ptr = ptr + sizeof(uint32_t))
   {
-    *((uint32_t *)ptr) = 0xDEADBEEF;
+    *ptr = 0xDEADBEEF;
   }
 #endif
 
   int ret = up_initial_task_context(task_tcb, argc, argv);
   if (ret < 0) {
     free(task_tcb);
+    __enable_irq();
     return ret;
   }
 
@@ -208,8 +213,6 @@ int sched_create_task(int (*task_entry_point)(int argc, char **argv),
   INIT_LIST_HEAD(&task_tcb->opened_resource);
 
   /* Insert the task in the list */
-
-  __disable_irq();
 
   list_add(&task_tcb->next_tcb, &g_tcb_list);
 

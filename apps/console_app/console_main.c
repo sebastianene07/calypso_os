@@ -321,11 +321,13 @@ int console_main(int argc, char **argv)
   g_is_shutdown_set = true;
 
   const char *argvv[] = {"mount", "FAT", "/mnt/", "/dev/sim_flash"};
-  const char *argvv_1[] = {"touch", "/mnt/test1"};
+  const char *argvv_1[] = {"ls", "/"};
   const char *argvv_2[] = {"mkdir", "/mnt/dir/"};
   const char *argvv_3[] = {"touch", "/mnt/dir/1/"};
 
   console_mount(4, argvv);
+  sched_create_task(console_ls, 128000, 2, argvv_1);
+
 //  console_rm(2, argvv_1);
 //  console_touch(2, argvv_1); 
 
