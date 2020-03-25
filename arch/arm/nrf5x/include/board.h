@@ -18,6 +18,7 @@
 
 #define HEAP_BLOCK_SIZE       (16)
 
+#define up_destroy_task_context(x)       {}
 
 void board_init(void);
 
