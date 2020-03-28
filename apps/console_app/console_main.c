@@ -66,6 +66,10 @@ int console_touch(int argc, const char *argv[]);
 int console_mkdir(int argc, const char *argv[]);
 #endif
 
+#ifdef CONFIG_CONSOLE_AUDIO_PLAYER
+int console_audio_player(int argc, const char *argv[]);
+#endif
+
 static int console_help(int argc, const char *argv[]);
 
 
@@ -196,6 +200,14 @@ static console_command_entry_t g_cmd_table[] =
     .cmd_function        = console_mkdir,
     .stack_size          = CONFIG_CONSOLE_STACK_SIZE,
     .cmd_help            = "Craete a new directory",
+  },
+#endif
+
+#ifdef CONFIG_CONSOLE_AUDIO_PLAYER
+  { .cmd_name            = "aplayer",
+    .cmd_function        = console_audio_player,
+    .stack_size          = CONFIG_CONSOLE_STACK_SIZE,
+    .cmd_help            = "Simple audio player",
   },
 #endif
 

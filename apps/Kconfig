@@ -102,4 +102,9 @@ config CONSOLE_NRF_INIT_SOFTDEVICE_APP_STACK_SIZE
 endif
 
 endif
+
+config CONSOLE_AUDIO_PLAYER
+  bool "Audio player support"
+  default n
+
 endif # CONSOLE_APP

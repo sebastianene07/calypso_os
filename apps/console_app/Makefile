@@ -56,6 +56,10 @@ ifeq ($(CONFIG_CONSOLE_MKDIR),y)
 SRC += console_mkdir.c
 endif
 
+ifeq ($(CONFIG_CONSOLE_AUDIO_PLAYER),y)
+SRC += console_audio_player.c
+endif
+
 OBJS:=$(patsubst %.c,%.o,$(SRC))
 CONSOLE_FLAGS := ${CFLAGS}  \
 	-I$(TOPDIR)/include \
