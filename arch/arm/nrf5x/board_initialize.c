@@ -29,7 +29,10 @@
 /* Configuration offsets for registers */
 
 #define LFCLKSRC_OFFSET       (0x518)
+#define TASKS_HFCLKSTART      (0x000)
 #define LFCLKSTART_OFFSET     (0x008)
+
+#define EVENTS_HFCLKSTARTED   (0x100)
 #define EVENTS_LFCLKSTARTED   (0x104)
 
 /* Config registers */
@@ -73,6 +76,11 @@ static void clock_init(void)
   /* Wait for the started event */
 
   while (EVENTS_LFCLKSTARTED == 0x01);
+
+
+  CLOCK_CONFIG(TASKS_HFCLKSTART) = 0x01;
+  while (CLOCK_CONFIG(EVENTS_LFCLKSTARTED) == 0);
+  CLOCK_CONFIG(EVENTS_LFCLKSTARTED) = 0;
 }
 
 /****************************************************************************

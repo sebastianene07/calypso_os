@@ -1,6 +1,7 @@
 #include <board.h>
 #include <console_main.h>
 
+#include <gpio.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -18,12 +19,12 @@
 
 /* To be efficient read a block size at a time */
 
-#define AUDIO_BUFFER_SIZE                 (512)
+#define AUDIO_BUFFER_SIZE                 (128)
 
 /* Audio driver macros */
 
-#define AUDIO_GPIO_PIN                    (10)
-#define AUDIO_GPIO_PORT                   (0)
+#define AUDIO_GPIO_PIN                    (1)
+#define AUDIO_GPIO_PORT                   (1)
 
 #define AUDIO_CONFIG(base_peripheral, offset_r)     \
                 ((*((volatile uint32_t *)((base_peripheral) + (offset_r)))))
@@ -44,6 +45,7 @@
 #define NRF52840_MODE                     (0x504)
 #define NRF52840_COUNTERTOP               (0x508)
 #define NRF52840_DECODER                  (0x510)
+#define NRF52840_LOOP                     (0x514)
 
 #define NRF52840_SEQ_0_PTR                (0x520)
 #define NRF52840_SEQ_0_CNT                (0x524)
@@ -106,32 +108,60 @@ enum nrf52840_prescaler_e {
  * Private Functions
  ****************************************************************************/
 
-static int audio_driver_init(void)
+static void audio_driver_stop(void)
 {
+  if (AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_EVENTS_SEQ_0_STARTED)) {
+    AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_TASKS_STOP) = 1;
+
+    while (AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_EVENTS_STOPPED) == 0);
+    AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_EVENTS_STOPPED) = 0;
+    AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_EVENTS_SEQ_0_STARTED) = 0;
+  }
+}
+
+static int audio_driver_init(uint16_t frequency, uint16_t duty_cycle)
+{
+  audio_driver_stop();
+
+  gpio_configure(AUDIO_GPIO_PIN, AUDIO_GPIO_PORT,
+                 GPIO_DIRECTION_OUT, GPIO_PIN_INPUT_DISCONNECT,
+                 GPIO_NO_PULL, GPIO_PIN_S0S1, GPIO_PIN_NO_SENS);
+
   AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_PSEL_OUT_0) = AUDIO_GPIO_PIN |
     (AUDIO_GPIO_PORT << 5);
   AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_ENABLE) = 1;
 
-  /* Let's set the clock frequency to 125kHZ (it should be enough) */
+  /* Let's set the clock prescaler freq to 1MhZ (it should be enough) */
 
-  AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_PRESCALER) = DIV_128;
+  AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_PRESCALER) = DIV_16;
 
-  /* We want a frequency of 500Hz with 50 % duty cycle */
+  uint32_t counter = 1000000 / frequency;
 
-  AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_COUNTERTOP) = 250;
+  printf("Counter : %d\n", counter);
+  AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_COUNTERTOP) = counter;
 
   /* Count up to counter */
 
   AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_MODE)    = 0;
   AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_DECODER) = 0;
-  
-  uint16_t pwm_seq[1] = {125};
+  AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_LOOP)    = 0;
 
-  AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_SEQ_0_PTR) = pwm_seq; 
-  AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_SEQ_1_CNT) =
+  static uint16_t pwm_seq[1];
+  pwm_seq[0] = duty_cycle * counter / 100;
+  printf("Seq counter: %d\n", pwm_seq[0]);
+
+  pwm_seq[0] |= (1 << 15);
+
+  AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_SEQ_0_PTR) = &pwm_seq[0]; 
+  AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_SEQ_0_CNT) =
     sizeof(pwm_seq) / sizeof(pwm_seq[0]);
-
+  AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_SEQ_0_REFRESH)     = 0;
+  AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_SEQ_0_ENDDELAY)    = 0;
   AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_TASKS_SEQ_0_START) = 1;
+
+  printf("Request SEQ0 start task\n");
+  while(AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_EVENTS_SEQ_0_STARTED) == 0);
+  printf("Started SEQ0 task\n");
 
   return OK;
 }
@@ -147,13 +177,21 @@ static int audio_driver_play_sample()
 
 int console_audio_player(int argc, const char *argv[])
 {
-  if (argc < 2) {
-    printf("No input file specified\r\n");
+  if (argc != 4) {
+    printf("aplayer <freq Hz> <duty cycle [0..100]> <duration ms>\r\n");
     return -EINVAL;
   }
 
-  audio_driver_init();
+  uint16_t frequency = atoi(argv[1]);
+  uint16_t duty_cycle = atoi(argv[2]);
+  uint16_t duration_ms = atoi(argv[3]);
 
+  audio_driver_init(frequency, duty_cycle);
+
+  usleep(duration_ms * 100);
+
+  audio_driver_stop();
+  printf("aplayer will close now\n");
 #if 0
   int fd = open(argv[1], 0);
   if (fd < 0) {
