@@ -82,6 +82,8 @@
 #define NRF52840_EVENTS_PWMPERIOD         (0x118)
 #define NRF52840_EVENTS_LOOP_DONE         (0x11C)
 
+#define NRF52840_NUM_BUFFERS              (3)
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -101,18 +103,26 @@ enum nrf52840_prescaler_e {
  * Private Functions Definition
  ****************************************************************************/
 
+static void pwm_handler(void);
+
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
 /* The PWM counter top value used here to re-sample the received data */
 
-static uint32_t g_pwm_counter;
+static volatile uint32_t g_pwm_counter;
 
 /* The sequence buffer */
 
-static uint16_t *g_seq_0_buffer;
-static uint16_t g_seq_0_buffer_index;
+static uint16_t *g_seq_buffers[NRF52840_NUM_BUFFERS];
+static volatile int g_audio_producer_seq_index;
+static volatile int g_audio_consumer_seq_index;
+static volatile size_t g_seq_buffer_lens[NRF52840_NUM_BUFFERS];
+
+static volatile int is_audio_running = 1;
+static sem_t g_audio_producer_sema;
+static sem_t g_audio_consumer_sema;
 
 /****************************************************************************
  * Private Functions
@@ -126,19 +136,60 @@ static void audio_driver_stop(void)
     while (AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_EVENTS_STOPPED) == 0);
     AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_EVENTS_STOPPED) = 0;
     AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_EVENTS_SEQ_0_STARTED) = 0;
+
+    printf("[AUDIO] Stop audio driver\n");
   }
 
-  free(g_seq_0_buffer);
-  g_seq_0_buffer = NULL;
+  is_audio_running = 0;
+}
+
+static int sched_audio_task(int argc, char **argv)
+{
+  printf("[AUDIO] Start audio task\n");
+
+  while (is_audio_running) {
+
+    sem_wait(&g_audio_consumer_sema);
+
+    AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_SEQ_0_PTR) =
+      g_seq_buffers[g_audio_consumer_seq_index];
+    AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_SEQ_0_CNT) =
+      g_seq_buffer_lens[g_audio_consumer_seq_index]; 
+
+    /* Start the PWM SEQ 0 on all channels */
+
+    AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_TASKS_SEQ_0_START) = 1;
+
+    while (AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_EVENTS_SEQ_0_STARTED) == 0);
+    AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_EVENTS_SEQ_0_STARTED) = 0;
+
+    while (AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_EVENTS_SEQ_0_END) == 0);
+    AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_EVENTS_SEQ_0_END) = 0;
+
+    g_audio_consumer_seq_index = (g_audio_consumer_seq_index + 1) % NRF52840_NUM_BUFFERS;
+
+    sem_post(&g_audio_producer_sema);
+  }
+
+  printf("[AUDIO] Stopped audio task\n");
+  return OK;  
 }
 
 static int audio_driver_init(uint16_t frequency)
 {
   audio_driver_stop();
 
-  g_seq_0_buffer = calloc(sizeof(uint16_t), AUDIO_BUFFER_SIZE);
-  if (!g_seq_0_buffer)
-    return -ENOMEM;
+  for (int i = 0; i < NRF52840_NUM_BUFFERS; i++) {
+    g_seq_buffers[i] = calloc(sizeof(uint16_t), AUDIO_BUFFER_SIZE);
+    g_seq_buffer_lens[i] = 0;
+  }
+
+  g_audio_producer_seq_index = 0;
+  g_audio_consumer_seq_index = 0;
+  is_audio_running     = 1;
+
+  sem_init(&g_audio_producer_sema, 0, NRF52840_NUM_BUFFERS);
+  sem_init(&g_audio_consumer_sema, 0, 0);
 
   gpio_configure(AUDIO_GPIO_PIN, AUDIO_GPIO_PORT,
                  GPIO_DIRECTION_OUT, GPIO_PIN_INPUT_DISCONNECT,
@@ -148,13 +199,14 @@ static int audio_driver_init(uint16_t frequency)
     (AUDIO_GPIO_PORT << 5);
   AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_ENABLE) = 1;
 
-  /* Let's set the clock prescaler freq to 1MhZ (it should be enough) */
+  g_pwm_counter = 16 * 1000000 / frequency;
+
+  /* Let's set the clock prescaler freq to 16MhZ (it should be enough) */
 
   AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_PRESCALER) = DIV_1;
 
-  g_pwm_counter = 16 * 1000000 / frequency;
-
-  printf("Counter : %d\n", g_pwm_counter);
+  printf("prescaler for 16MhZ clock:%d Counter : %d\n", 
+          AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_PRESCALER), g_pwm_counter);
   AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_COUNTERTOP) = g_pwm_counter;
 
   /* Count up to counter */
@@ -162,15 +214,16 @@ static int audio_driver_init(uint16_t frequency)
   AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_MODE)    = 0;
   AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_DECODER) = 0;
   AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_LOOP)    = 0;
-  AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_SEQ_0_PTR) = g_seq_0_buffer; 
-  AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_SEQ_0_CNT) = AUDIO_BUFFER_SIZE;
   AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_SEQ_0_REFRESH)     = 0;
   AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_SEQ_0_ENDDELAY)    = 0;
-  AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_TASKS_SEQ_0_START) = 1;
 
-  printf("Request SEQ0 start task\n");
-  while(AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_EVENTS_SEQ_0_STARTED) == 0);
-  printf("Started SEQ0 task\n");
+  /* Start a new task for the audio playback */
+
+  int ret = sched_create_task(sched_audio_task,
+                              2048,
+                              0,
+                              NULL);
+
 
   return OK;
 }
@@ -211,6 +264,7 @@ static void audio_show_file_info(wav_header *file)
 
 static int audio_file_is_valid(wav_header *file)
 {
+  // TODO
   return 0;
 }
 
@@ -218,24 +272,29 @@ static void audio_convert_pcm_to_seq(uint8_t *pcm_buffer,
                                      size_t buffer_len,
                                      uint16_t bit_depth)
 {
-  AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_SEQ_0_PTR) = g_seq_0_buffer; 
-  AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_SEQ_0_CNT) = buffer_len;
+  uint16_t *seq_buffer = g_seq_buffers[g_audio_producer_seq_index]; 
+
+  sem_wait(&g_audio_producer_sema);
 
   /* Assuming each sample take 1 byte */
 
   for (int i = 0; i < buffer_len; i++) {
-    g_seq_0_buffer[i] = g_pwm_counter * 2 * ((int16_t)pcm_buffer[i] + 128) / 0xFF;
+    int16_t sample =  100 * (pcm_buffer[i] + 128) / 255;
 
-    if (g_seq_0_buffer[i] > g_pwm_counter)
-      g_seq_0_buffer[i] = g_pwm_counter;
+    seq_buffer[i] = (uint16_t)(g_pwm_counter * sample / 100);
   }
 
-  AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_TASKS_SEQ_0_START) = 1;
+  /* Save the number of converted samples */
 
-  while(AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_EVENTS_SEQ_0_STARTED) == 0);
+  g_seq_buffer_lens[g_audio_producer_seq_index] = buffer_len;
 
-  while(AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_EVENTS_SEQ_0_END) == 0);
-  AUDIO_CONFIG(NRF52840_PWM0_BASE, NRF52840_EVENTS_SEQ_0_END) = 0;
+  /* Increment the buffer index */
+
+  g_audio_producer_seq_index = (g_audio_producer_seq_index + 1) % NRF52840_NUM_BUFFERS;
+
+  /* Notify the audio consumer that we have one buffer available */
+
+  sem_post(&g_audio_consumer_sema);
 }
 
 /****************************************************************************
@@ -249,14 +308,12 @@ int console_audio_player(int argc, const char *argv[])
     return -EINVAL;
   }
 
-  g_seq_0_buffer_index = 0;
   int fd = open(argv[1], 0);
   if (fd < 0) {
     printf("Error %d open %s\n", fd, argv[1]);
     return fd;
   }
 
-  disable_int();
   char buffer[AUDIO_BUFFER_SIZE];
   int nread = 0, total_read = 0;
   int ret;
@@ -264,7 +321,6 @@ int console_audio_player(int argc, const char *argv[])
 
   do {
 
-    memset(buffer, 0, sizeof(buffer));
     ret = 0;
     nread = 0;
 
@@ -304,9 +360,18 @@ int console_audio_player(int argc, const char *argv[])
   } while (ret != 0);
 
   close(fd);
-  enable_int();
 
   printf("aplayer will close now total read: %d bytes\n", total_read);
+
+  /* stop the audio driver */
+
   audio_driver_stop();
+
+  /* release seq buffer memory */
+
+  for (int i = 0; i < NRF52840_NUM_BUFFERS; i++) {
+    free(g_seq_buffers[i]);
+  }
+
   return 0;
 }
