@@ -2,8 +2,10 @@
 #define __WORKER_H
 
 #include <board.h>
+#include <errno.h>
 #include <list.h>
 #include <semaphore.h>
+#include <stdbool.h>
 
 /* The work callback */
 
@@ -25,10 +27,12 @@ typedef struct worker_s {
   struct list_head worker_cb;   /* Ordered list of workers */
   int worker_priority;          /* The priority of the worker task */
   const char *worker_name;      /* Worker friendly name */
-  int workqueue_id;             /* The handle of the work queue */
+  uint32_t workqueue_id;        /* The handle of the work queue */
   sem_t g_lock_worker_list;     /* Lock the worker list */
+  bool is_running_enabled;      /* Flag that indicates the running status */      
 } worker_t;
 
+int worker_init(void);
 int worker_create(int priority, const char *name);
 int worker_enqueue(int worker_id, worker_cb_t *work);
 int worker_cancel_work(int worker_id, int job_uid);

@@ -13,6 +13,10 @@ config POWERON_MESSAGE
 config FATFS_SUPPORT
 	bool "Build the FatFS library"
 	default n
+
+config WORKER_STACK_SIZE
+	int "Default stack size for the worker thread"
+	default 2048
 endmenu
 
 menu "Device Drivers"
