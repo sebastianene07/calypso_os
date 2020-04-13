@@ -6,7 +6,7 @@ MEMORY
   /* Use values from the ESP-IDF 'bootloader' component.
   /* TODO: Use human-readable lengths */
   /* TODO: Use the full memory map - this is just a test */
-  iram_seg ( RX )       : ORIGIN = 0x40080400, len = 0xFC00
+  iram_seg ( RX )       : ORIGIN = 0x40080680, len = 0xFC00
   dram_seg ( RW )       : ORIGIN = 0x3FFF0000, len = 0xFFFF
 }
 
@@ -15,8 +15,8 @@ SECTIONS {
   /* The program code and other data goes into Instruction RAM */
   .iram.text :
   {
-    . = ALIGN(16);
-    KEEP(*(.entry.text))
+    KEEP (*(.boot_entry))
+    *(.entry.text)
     *(.text)
     *(.text*)
     KEEP (*(.init))
