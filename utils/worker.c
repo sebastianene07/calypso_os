@@ -62,9 +62,24 @@ static int worker_main(int argc, char **argv)
   {
     sem_wait(&worker->g_lock_worker_list);
 
-    worker_cb_t *work_callback = NULL;
-    list_for_each_entry(work_callback, &work_callback->work_list, work_list) {
-      // TODO
+    struct list_head *pos, *temp;
+    list_for_each_safe(pos, temp, &worker->worker_cb) {
+      worker_cb_t *work_callback = container_of(pos, worker_cb_t, work_list);
+
+      sem_post(&worker->g_lock_worker_list);
+
+      if (work_callback->callback) {
+        work_callback->callback(work_callback->priv_arg);
+      }
+
+      list_del(&work_callback->work_list);
+
+      if (work_callback->cleanup_cb) {
+        work_callback->cleanup_cb(work_callback->priv_arg);
+      }
+
+      free(work_callback);
+      sem_wait(&worker->g_lock_worker_list);
     }
 
     sem_post(&worker->g_lock_worker_list);
