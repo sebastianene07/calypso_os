@@ -358,7 +358,8 @@ static void nrf52840_lpuart_int(void)
       UART_EVENTS_RXSTARTED_CFG(uart_priv->base_peripheral_ptr) = 0;
 
       uint8_t next_index = (lower->index_write_rx_buffer + 1) % UART_RX_BUFFER;
-      UART_RXD_PTR_CONFIG(uart_priv->base_peripheral_ptr) = lower->rx_buffer + next_index;
+      UART_RXD_PTR_CONFIG(uart_priv->base_peripheral_ptr) =
+        (unsigned int)(lower->rx_buffer + next_index);
       UART_RX_MAXCNT_CONFIG(uart_priv->base_peripheral_ptr) = 1;
   }
 
@@ -397,9 +398,9 @@ static void nrf52840_lpuart_int(void)
   }
 
   if ((uart_priv->is_error_event ||
-      uart_priv->is_timeout_event) &&
-      UART_ERROR_EVENT(uart_priv->base_peripheral_ptr) ||
-      UART_RXTIMEOUT_EVENT(uart_priv->base_peripheral_ptr)) {
+      uart_priv->is_timeout_event) && 
+      (UART_ERROR_EVENT(uart_priv->base_peripheral_ptr) ||
+      UART_RXTIMEOUT_EVENT(uart_priv->base_peripheral_ptr))) {
 
     UART_ERROR_EVENT(uart_priv->base_peripheral_ptr)     = 0;
     UART_RXTIMEOUT_EVENT(uart_priv->base_peripheral_ptr) = 0;
@@ -435,10 +436,12 @@ static void nrf52840_lpuart_dma_write(const struct uart_lower_s *lower,
   uint8_t tx_buffer[128];
   bool is_copied = false;
 
-  if (ptr_data < 0x20000000) {
+  if ((unsigned int)ptr_data < 0x20000000) {
+
     /* Data is in flash and can't be sent through DMA.
      * make a copy of it
      */
+
     memcpy(tx_buffer, ptr_data, sz);
     is_copied = true;
   }
@@ -447,7 +450,7 @@ static void nrf52840_lpuart_dma_write(const struct uart_lower_s *lower,
   UART_EVENTS_TXSTOPPED(uart_priv->base_peripheral_ptr)   = 0;
   UART_ENDTX_EVENT(uart_priv->base_peripheral_ptr)        = 0;
 
-  UART_TXD_PTR_CONFIG(uart_priv->base_peripheral_ptr)    = is_copied ? tx_buffer :
+  UART_TXD_PTR_CONFIG(uart_priv->base_peripheral_ptr)    = is_copied ? (uint32_t)tx_buffer :
     (uint32_t) ptr_data;
   UART_TXD_MAXCNT_CONFIG(uart_priv->base_peripheral_ptr) = sz;
 
@@ -485,12 +488,9 @@ static int nrf52840_lpuart_write(const struct uart_lower_s *lower,
 static int nrf52840_lpuart_read(const struct uart_lower_s *lower_half, void *buf,
                                 unsigned int count)
 {
-  int ret = OK;
-  uint32_t min_copy = 0;
   int total_copy = 0;
 
   struct uart_lower_s *lower = (struct uart_lower_s *)lower_half;
-  struct nrf52840_uart_priv_s *uart_priv = lower->priv;
 
   do {
     uint8_t available_rx_bytes = 0;

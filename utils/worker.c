@@ -53,7 +53,7 @@ static volatile int g_uid_counter;
  *
  * Returns 0 (OK) on successful completion otherwise a negative error code.
  */
-static int worker_main(int argc, char **argv)
+static int worker_main(int argc, const char **argv)
 {
   int ret = 0;
   worker_t *worker = (worker_t *)argv;
@@ -149,7 +149,7 @@ int worker_create(int priority, const char *name)
   int ret = sched_create_task(worker_main,
                               CONFIG_WORKER_STACK_SIZE,
                               1,
-                              (char **)new_worker);
+                              (const char **)new_worker);
   if (ret != 0) {
     ret = -EINVAL;
     goto free_with_worker;

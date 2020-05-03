@@ -15,7 +15,7 @@
 #ifdef CONFIG_DEBUG_SD_CARD
 #define LOG_INFO(msg, ...) printf("[sd_spi] Info:"msg"\r\n", ##__VA_ARGS__)
 #else
-#define LOG_INFO
+#define LOG_INFO(msg, ...)
 #endif
 
 #define SPI_INIT_CLOCK_CYCLES                 (80)
@@ -206,7 +206,6 @@ static void sd_spi_send_cmd(uint8_t cmd, uint32_t arguments)
 {
   uint8_t sd_card_cmd[SPI_CMD_LEN];
   uint8_t crc7 = 0;
-  uint8_t res = 0;
 
   g_rsp_index = 0;
   sd_spi_set_cs(0);
@@ -287,11 +286,12 @@ static void sd_spi_read(uint8_t *buffer, size_t expected_len)
  */
 static uint8_t sd_read_byte_ignore_char(uint8_t ignore)
 {
-  for (g_rsp_index; g_rsp_index < sizeof(g_sd_resp); g_rsp_index++)
+  while (g_rsp_index < sizeof(g_sd_resp)) {
     if (g_sd_resp[g_rsp_index] != ignore) {
       g_rsp_index++;
       return g_sd_resp[g_rsp_index - 1];
     }
+  }
 
   return 0xFF;
 }
@@ -353,8 +353,6 @@ static int sd_spi_ioctl(struct opened_resource_s *prov, unsigned long request,
 int sd_spi_init(spi_master_dev_t *spi)
 {
   uint8_t spi_rsp;
-  int retry_counter = 0;
-
   g_sd_spi = spi;
   sd_generate_crc_table();
 
@@ -481,8 +479,8 @@ int sd_spi_init(spi_master_dev_t *spi)
     g_sd_card.size = (((uint16_t)(sd_capacity_info[6] & 0x03) << 10) |
       ((uint16_t)(sd_capacity_info[7] << 2)) |
       ((uint16_t)(sd_capacity_info[8] & 0xC0) >> 6)) + 1;
-    g_sd_card.size = g_sd_card.size << (((sd_capacity_info[9] & 0x03) << 1) |
-      ((sd_capacity_info[10] & 0x80) >> 7) + 2);
+    g_sd_card.size = g_sd_card.size << ((((sd_capacity_info[9] & 0x03) << 1) |
+      ((sd_capacity_info[10] & 0x80) >> 7)) + 2);
     g_sd_card.size = g_sd_card.size << (sd_capacity_info[5] & 0x0F);
 
     g_sd_card.num_blocks = g_sd_card.size / 524288;
@@ -619,7 +617,6 @@ static int sd_spi_write_logical_block(spi_master_dev_t *spi,
                                       uint8_t offset_in_lba,
                                       size_t requested_write_size)
 {
-  int timer = 100, trailing_bytes;
   uint8_t spi_rsp;
 
   /* Some mandatory checks */

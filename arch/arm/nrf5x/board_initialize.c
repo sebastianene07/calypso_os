@@ -46,7 +46,6 @@
  ****************************************************************************/
 
 static unsigned int LED = 13;
-static unsigned int BUTTON_1 = 11;
 
 /* System Core Clock Frequency */
 static uint32_t g_system_core_clock_freq = CONFIG_SYSTEM_CLOCK_FREQUENCY * 1000000;
@@ -196,7 +195,7 @@ void board_init(void)
  * up_initial_task_context - creates the initial state for a task
  *
  */
-int up_initial_task_context(struct tcb_s *task_tcb, int argc, char **argv)
+int up_initial_task_context(struct tcb_s *task_tcb, int argc, const char **argv)
 {
   /* Initial MCU context */
 

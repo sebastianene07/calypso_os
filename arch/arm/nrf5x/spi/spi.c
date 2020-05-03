@@ -193,6 +193,7 @@ spi_master_dev_t *spi_init(struct spi_master_config_s *cfg, size_t num_cfg)
   return spi;
 }
 
+#ifdef CONFIG_SPI_NO_DMA
 static uint8_t spi_send_byte_receive(uint32_t base_spi_reg, uint8_t tx)
 {
   volatile uint32_t rx = 0;
@@ -202,6 +203,7 @@ static uint8_t spi_send_byte_receive(uint32_t base_spi_reg, uint8_t tx)
   rx = SPI_REG_SET(base_spi_reg, RXD);
   return (uint8_t)rx;
 }
+#endif
 
 /*
  * spi_send_recv - sends data on the SPI bus

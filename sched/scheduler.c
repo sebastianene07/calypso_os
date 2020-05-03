@@ -47,7 +47,7 @@ extern void (*g_ram_vectors[NUM_IRQS])(void);
  *
  *************************************************************************/
 
-static int sched_idle_task(int argc, char **argv)
+static int sched_idle_task(int argc, const char **argv)
 {
   printf("[idle_task] entry point\n");
 
@@ -88,6 +88,8 @@ static int sched_idle_task(int argc, char **argv)
     __WFI();
 #endif
   }
+
+  return OK;
 }
 
 /**************************************************************************
@@ -172,10 +174,10 @@ void sched_default_task_exit_point(void)
  *
  *************************************************************************/
 
-int sched_create_task(int (*task_entry_point)(int argc, char **argv),
+int sched_create_task(int (*task_entry_point)(int argc, const char **argv),
                       uint32_t stack_size,
                       int argc,
-                      char **argv)
+                      const char **argv)
 {
   __disable_irq();
   struct tcb_s *task_tcb = calloc(1, sizeof(struct tcb_s) + stack_size);
@@ -197,7 +199,7 @@ int sched_create_task(int (*task_entry_point)(int argc, char **argv),
      ptr < (uint8_t*)task_tcb->stack_ptr_top;
      ptr = ptr + sizeof(uint32_t))
   {
-    *ptr = 0xDEADBEEF;
+    *((unsigned int *)ptr) = 0xDEADBEEF;
   }
 #endif
 

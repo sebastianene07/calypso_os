@@ -224,7 +224,7 @@ static int execute_command(int argc, const char *argv[])
           return g_cmd_table[j].cmd_function(argc, argv);
         else
           return sched_create_task((
-            int (*)(int, char **))g_cmd_table[j].cmd_function,
+            int (*)(int, const char **))g_cmd_table[j].cmd_function,
             g_cmd_table[j].stack_size, argc, argv);
 #else
         return g_cmd_table[j].cmd_function(argc, argv);
@@ -287,7 +287,7 @@ static int parse_arguments(char *buffer, size_t newline)
  * console_main - console application entry point
  *
  */
-int console_main(int argc, char **argv)
+int console_main(int argc, const char **argv)
 {
   char cmd_buffer[CONFIG_CMD_BUFER_LEN]={0};
 

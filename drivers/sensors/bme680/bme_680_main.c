@@ -189,14 +189,14 @@ static int bme680_sensor_read(struct opened_resource_s *res, void *buf,
   bme680_get_profile_dur(&meas_period, dev);
   bme680_sensor_delay_ms(meas_period);
 
-  int rslt      = bme680_get_sensor_data(&data, dev);
+  bme680_get_sensor_data(&data, dev);
   int data_size = sizeof(struct bme680_field_data) > count ? count :
     sizeof(struct bme680_field_data);
 
   memcpy(buf, &data, data_size);
 
   if (dev->power_mode == BME680_FORCED_MODE) {
-    rslt = bme680_set_sensor_mode(dev);
+    bme680_set_sensor_mode(dev);
   }
 
   sem_post(&gas_sensor->lock_sensor);

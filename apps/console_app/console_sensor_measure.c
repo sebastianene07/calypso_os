@@ -257,8 +257,6 @@ static int sensor_measure_pmsa003(void)
 
 int console_sensor_measure(int argc, const char *argv[])
 {
-  int ret;
-
   if (argc != 2) {
     sensor_measure_print_usage();
     return -1;

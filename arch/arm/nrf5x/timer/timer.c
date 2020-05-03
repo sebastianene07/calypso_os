@@ -17,4 +17,6 @@ int timer_init(void)
   /* Start timer */
 
   TIMER_FUNCTION_REGISTER(TIMER_TASK_START) = 0x01;
+
+  return 0;
 }

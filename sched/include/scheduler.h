@@ -49,7 +49,7 @@ enum task_state_e {
 /* Task container that holds the entry point and other resources */
 
 struct tcb_s {
-  int (*entry_point)(int, char **);
+  int (*entry_point)(int, const char **);
   enum task_state_e t_state;
   void *stack_ptr_base;
   void *stack_ptr_top;
@@ -68,7 +68,8 @@ struct tcb_s {
 
 int sched_init(void);
 
-int sched_create_task(int (*task_entry_point)(int argc, char **argv), uint32_t stack_size, int argc, char **argv);
+int sched_create_task(int (*task_entry_point)(int argc, const char **argv),
+                      uint32_t stack_size, int argc, const char **argv);
 
 void sched_run(void);
 
