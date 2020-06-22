@@ -133,13 +133,17 @@ static void host_simulated_intterupts(void *arg)
   int ret;
   char c;
 
-  while (1) {
-    ret = read(0, &g_lpuart_fifo[0], sizeof(c));
-    if (ret < 0) {
-      _err("%d read from stdin\n", ret);
+  while (read(STDIN_FILENO, &c, 1) == 1) {
+#if 0 /* Enable this section for debug */
+    if (iscntrl(c)) {
+      printf("%d", c);
     } else {
-      kill(g_host_pid, SIGUSR2);
+      printf("%d ('%c')", c, c);
     }
+#endif
+
+    g_lpuart_fifo[0] = c;
+    kill(g_host_pid, SIGUSR2);
   }
 }
 
