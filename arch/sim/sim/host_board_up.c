@@ -46,6 +46,10 @@
 
 #define CONFIG_SIM_FLASH_BLOCK_SIZE   (512)
 
+/* The array length macro */
+
+#define ARRAY_LEN(x) (sizeof(x) / sizeof(x[0]))
+
 /****************************************************************************
  * Public Data
  ****************************************************************************/
@@ -54,7 +58,7 @@
 
 extern void (*g_ram_vectors[NUM_IRQS])(void);
 
-extern uint8_t g_lpuart_fifo[CONFIG_SIM_LPUART_FIFO_SIZE];
+extern sim_uart_peripheral_t g_uart_peripheral;
 
 /****************************************************************************
  * Private Data
@@ -132,18 +136,32 @@ static void host_simulated_intterupts(void *arg)
 {
   int ret;
   char c;
+  int available_bytes;
 
-  while (read(STDIN_FILENO, &c, 1) == 1) {
-#if 0 /* Enable this section for debug */
-    if (iscntrl(c)) {
-      printf("%d", c);
+  while (1) {
+    if (g_uart_peripheral.uart_reg_write_index >= g_uart_peripheral.uart_reg_read_index) {
+      available_bytes = ARRAY_LEN(g_uart_peripheral.sim_uart_data_fifo) - (g_uart_peripheral.uart_reg_write_index - g_uart_peripheral.uart_reg_read_index);
     } else {
-      printf("%d ('%c')", c, c);
+      available_bytes = g_uart_peripheral.uart_reg_read_index - g_uart_peripheral.uart_reg_write_index - 1;
     }
+
+    if (available_bytes > 0) {
+      c = getchar();
+
+#if 0 /* Enable this section for debug */
+      if (iscntrl(c)) {
+        printf("%d\n", c);
+      } else {
+        printf("%d ('%c')\n", c, c);
+      }
 #endif
 
-    g_lpuart_fifo[0] = c;
-    kill(g_host_pid, SIGUSR2);
+      g_uart_peripheral.sim_uart_data_fifo[g_uart_peripheral.uart_reg_write_index] = c;
+      g_uart_peripheral.uart_reg_write_index = (g_uart_peripheral.uart_reg_write_index + 1) %
+        ARRAY_LEN(g_uart_peripheral.sim_uart_data_fifo);
+
+      kill(g_host_pid, SIGUSR2);
+    }
   }
 }
 

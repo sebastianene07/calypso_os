@@ -29,7 +29,7 @@ static void sim_lpuart_int(void);
  * Public Data
  ****************************************************************************/
 
-uint8_t g_lpuart_fifo[CONFIG_SIM_LPUART_FIFO_SIZE];
+sim_uart_peripheral_t g_uart_peripheral;
 
 /****************************************************************************
  * Private Data
@@ -174,12 +174,17 @@ static void sim_lpuart_int(void)
 {
   struct uart_lower_s *lower = &g_uart_lowerhalfs[0];
 
-  lower->rx_buffer[lower->index_write_rx_buffer] = g_lpuart_fifo[0];
-  lower->index_write_rx_buffer = (lower->index_write_rx_buffer + 1) % UART_RX_BUFFER;
+  if (g_uart_peripheral.uart_reg_read_index != g_uart_peripheral.uart_reg_write_index) {
 
-  /* Notify incomming RX characters */
+    lower->rx_buffer[lower->index_write_rx_buffer] = g_uart_peripheral.sim_uart_data_fifo[g_uart_peripheral.uart_reg_read_index];
+    g_uart_peripheral.uart_reg_read_index = (g_uart_peripheral.uart_reg_read_index + 1) % CONFIG_SIM_LPUART_FIFO_SIZE;
 
-  sem_post(&lower->rx_notify);
+    lower->index_write_rx_buffer = (lower->index_write_rx_buffer + 1) % UART_RX_BUFFER;
+
+    /* Notify incomming RX characters */
+
+    sem_post(&lower->rx_notify);
+  }
 }
 
 /****************************************************************************
