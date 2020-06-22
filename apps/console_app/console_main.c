@@ -354,7 +354,7 @@ int console_main(int argc, char **argv)
       }
       len = 0;
     }
-    else if (*(cmd_buffer + len - 1) == '\b')
+    else if (*(cmd_buffer + len - 1) == '\b' || *(cmd_buffer + len - 1) == 127)
     {
       if (len > 1) {
         len-=2;
