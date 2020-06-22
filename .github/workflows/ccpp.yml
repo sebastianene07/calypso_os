@@ -9,15 +9,22 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
-    
+    runs-on: ubuntu-latest      
     steps:
+    - name: arm-none-eabi-gcc
+      uses: fiam/arm-none-eabi-gcc@v1.0.2
     - uses: actions/checkout@v2
     - name: submodules-init
       uses: snickerbockers/submodules-init@v4
-    - name: configure
+    - name: configure_sim
       run: make config MACHINE_TYPE=sim
     - name: make
       run: make
     - name: make distcheck
-      run: make clean
+      run: make distclean
+    - name: configure_nrf
+      run: make config MACHINE_TYPE=nrf5x/nrf52840
+    - name: make
+      run: make
+    - name: make distcheck
+      run: make distclean
