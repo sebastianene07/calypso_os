@@ -24,6 +24,7 @@ typedef struct {
   uint8_t sim_uart_data_fifo[CONFIG_SIM_LPUART_FIFO_SIZE];
   uint8_t uart_reg_read_index;  /* The read index is incremented when we read data from the FIFO */
   uint8_t uart_reg_write_index; /* The write index is incremented when we put data in the FIFO */
+  uint8_t is_peripheral_ready;
 } sim_uart_peripheral_t;
 
 /****************************************************************************

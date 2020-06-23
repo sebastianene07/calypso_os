@@ -95,6 +95,7 @@ void host_console_putc(int c);
 static int sim_lpuart_open(const struct uart_lower_s *lower)
 {
   attach_int(UART_0_IRQ, sim_lpuart_int);
+  g_uart_peripheral.is_peripheral_ready = 1;
   return OK;
 }
 

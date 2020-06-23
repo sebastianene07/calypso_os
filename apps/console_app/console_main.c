@@ -344,7 +344,7 @@ int console_main(int argc, char **argv)
 #ifdef CONFIG_CONSOLE_ECHO_ON
     /* Is echo on ? */
 
-    if (*(cmd_buffer + len - 1) == '\r')
+    if (*(cmd_buffer + len - 1) == '\r' || *(cmd_buffer + len - 1) == 10)
     {
       write(uart_fd, "\r\n\n", 2);
       is_prompt_printed = true;
