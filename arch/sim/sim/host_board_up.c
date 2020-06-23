@@ -145,8 +145,11 @@ static void host_simulated_intterupts(void *arg)
       available_bytes = g_uart_peripheral.uart_reg_read_index - g_uart_peripheral.uart_reg_write_index - 1;
     }
 
-    if (available_bytes > 0) {
+    if (g_uart_peripheral.is_peripheral_ready && available_bytes > 0) {
       c = getchar();
+      if (c == -1) {
+        continue;
+      }
 
 #if 0 /* Enable this section for debug */
       if (iscntrl(c)) {
@@ -231,7 +234,7 @@ static void host_sim_flash_open(void)
   if (ret < 0)
     return;
 
-  g_sim_flash_fd = ret; 
+  g_sim_flash_fd = ret;
 }
 
 /****************************************************************************
@@ -381,12 +384,12 @@ int host_sim_flash_read_mtd(uint8_t *buffer, uint32_t sector, size_t count)
 
   /* Seek to the specified sector */
 
-  n_seek_offset = sector * CONFIG_SIM_FLASH_BLOCK_SIZE; 
-  n_seeked_offset = lseek(g_sim_flash_fd, n_seek_offset, SEEK_SET); 
+  n_seek_offset = sector * CONFIG_SIM_FLASH_BLOCK_SIZE;
+  n_seeked_offset = lseek(g_sim_flash_fd, n_seek_offset, SEEK_SET);
   if (n_seek_offset != n_seeked_offset) {
     _err("[SimFlash] seek to n_seek_offset=%d failed, current:%d\n",
          (int)n_seek_offset,
-         (int)n_seeked_offset); 
+         (int)n_seeked_offset);
     return -EINVAL;
   }
 
@@ -404,7 +407,7 @@ int host_sim_flash_read_mtd(uint8_t *buffer, uint32_t sector, size_t count)
   } while (count > 0);
 
   return n_read_bytes;
-} 
+}
 
 /****************************************************************************
  * Name: host_sim_flash_write_mtd
@@ -435,12 +438,12 @@ int host_sim_flash_write_mtd(uint8_t *buffer, uint32_t sector, size_t count)
 
   /* Seek to the specified sector */
 
-  n_seek_offset = sector * CONFIG_SIM_FLASH_BLOCK_SIZE; 
-  n_seeked_offset = lseek(g_sim_flash_fd, n_seek_offset, SEEK_SET); 
+  n_seek_offset = sector * CONFIG_SIM_FLASH_BLOCK_SIZE;
+  n_seeked_offset = lseek(g_sim_flash_fd, n_seek_offset, SEEK_SET);
   if (n_seek_offset != n_seeked_offset) {
     _err("[SimFlash] seek to n_seek_offset=%d failed, current:%d\n",
          (int)n_seek_offset,
-         (int)n_seeked_offset); 
+         (int)n_seeked_offset);
     return -EINVAL;
   }
 

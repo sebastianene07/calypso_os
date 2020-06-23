@@ -1,0 +1,24 @@
+{
+  "commands": [
+    {
+      "cmd": "\n",
+      "expected": "root:#/>\r"
+    },
+    {
+      "cmd": "\n",
+      "expected": "root:#/>\r"
+    },
+    {
+      "cmd": "ls\n",
+      "expected": "'/home                          d', '/otp                           d', '/bin                           d', '/mnt                           d', '/dev                           d'"
+    },
+    {
+      "cmd": "ls /dev\n",
+      "expected": "'/dev/sim_flash                 f', '/dev/rtc0                      f', '/dev/ttyUSB0                   f'"
+    },
+    {
+      "cmd": "free\n",
+      "expected": "272928 bytes | 774304 bytes | 272864 bytes | 1048544 bytes"
+    }
+  ]
+}
