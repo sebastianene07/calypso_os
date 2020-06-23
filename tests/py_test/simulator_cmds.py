@@ -29,6 +29,7 @@ def run_json_cmd_check(proc, nbsr, json_test):
 
         times = 0
         isTestPassed = False
+        output = None
         while times < maxAmountTestCmdTimes:
             output = send_cmd_wait_response(proc, distro['cmd'], nbsr)
             #print 'Got stdout:', output
@@ -39,7 +40,7 @@ def run_json_cmd_check(proc, nbsr, json_test):
 
             #print "Result matches: " + str(diffRatio)
 
-            if diffRatio < 0.5:
+            if diffRatio < 0.8:
                 times = times + 1
             else:
                 isTestPassed = True
@@ -47,6 +48,7 @@ def run_json_cmd_check(proc, nbsr, json_test):
 
         if not isTestPassed:
             print "[Test_" + str(testNum) + "] FAILED"
+            print "Differs:" + output + " expected:" + distro['expected']
         else:
             print "[Test_" + str(testNum) + "] PASSED"
 
