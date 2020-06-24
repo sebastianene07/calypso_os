@@ -2,13 +2,15 @@ import subprocess
 from nbstreamreader import NonBlockingStreamReader as NBSR
 import json
 from difflib import SequenceMatcher
+from fuzzywuzzy import fuzz
+from fuzzywuzzy import process
 
 def send_cmd_wait_response(proc, cmd, nbsr):
     proc.stdin.write(cmd)
     lines = ""
 
     while True:
-        output = nbsr.readline(0.1)
+        output = nbsr.readline(1.0)
         if output is None:
             break
         lines += output
@@ -23,9 +25,8 @@ def run_json_cmd_check(proc, nbsr, json_test):
     with open(json_test, 'r') as f:
         distros_dict = json.load(f)
 
-    for distro in distros_dict["commands"]:
-        print("#### Testing command ####")
-        print(">>>" + distro['cmd'])
+    for distro in distros_dict["commands"]:        
+        print("[Test_" + str(testNum) + "] Send command: " + distro['cmd'])
 
         times = 0
         isTestPassed = False
@@ -35,12 +36,12 @@ def run_json_cmd_check(proc, nbsr, json_test):
             #print 'Got stdout:', output
             #print 'Expected:', distro['expected']
 
-            m = SequenceMatcher(None, output, distro['expected'])
-            diffRatio = m.ratio()
+            #m = SequenceMatcher(None, distro['expected'], output)
+            diffRatio = fuzz.partial_ratio(str(distro['expected']), output)
 
             #print "Result matches: " + str(diffRatio)
 
-            if diffRatio < 0.8:
+            if diffRatio < 60:
                 times = times + 1
             else:
                 isTestPassed = True
@@ -55,12 +56,12 @@ def run_json_cmd_check(proc, nbsr, json_test):
         testNum = testNum + 1
 
 
-run_cmd = ['../.././build.elf']
+run_cmd = ['./build.elf']
 proc = subprocess.Popen(run_cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
 
 try:
     nbsr = NBSR(proc.stdout)
-    run_json_cmd_check(proc, nbsr, 'test_cmds/test_console_cmds.txt')
+    run_json_cmd_check(proc, nbsr, 'tests/py_test/test_cmds/test_console_cmds.txt')
 except Exception, e:
     print("Something went wrong: " + str(e))
 finally:
