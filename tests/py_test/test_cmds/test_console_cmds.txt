@@ -5,8 +5,8 @@
       "expected": "root:#/>\r"
     },
     {
-      "cmd": "\n",
-      "expected": "root:#/>\r"
+      "cmd": "?\n",
+      "expected": "?\nroot:#/>Help menu\navailable commands:\n"
     },
     {
       "cmd": "ls\n",
@@ -18,7 +18,27 @@
     },
     {
       "cmd": "free\n",
-      "expected": "272928 bytes | 774304 bytes | 272864 bytes | 1048544 bytes"
+      "expected": "root:#/>Free size | Used size | Largest Free Chunk | Total"
+    },
+    {
+      "cmd": "touch /mnt/a\n",
+      "expected": "root:#/>"
+    },
+    {
+      "cmd": "mkdir /mnt/b\n",
+      "expected": "root:#/>"
+    },
+    {
+      "cmd": "ls /mnt/\n",
+      "expected": "root:#/> /mnt/b                         d /mnt/a                         f"
+    },
+    {
+      "cmd": "mount EXFAT /mnt /dev/sim_flash\n",
+      "expected": "root:#/>Creating "
+    },
+    {
+      "cmd": "umount /mnt\n",
+      "expected": "root:#/"
     }
   ]
 }
