@@ -20,7 +20,7 @@ jobs:
     - name: configure_sim
       run: make config MACHINE_TYPE=sim
     - name: make
-      run: make && cd tests/py_test && python simulator_cmds.py && cd -
+      run: make && pip install -r requirements.txt && python simulator_cmds.py
     - name: make distcheck
       run: make distclean
     - name: configure_nrf

@@ -21,4 +21,5 @@ tests/original_test
 tests/string_test
 tags
 *.bin
+*.pyc
 build/build.bin
