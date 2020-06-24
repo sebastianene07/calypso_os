@@ -175,16 +175,28 @@ static void sim_lpuart_int(void)
 {
   struct uart_lower_s *lower = &g_uart_lowerhalfs[0];
 
-  if (g_uart_peripheral.uart_reg_read_index != g_uart_peripheral.uart_reg_write_index) {
+  int available_bytes;
 
+  if (g_uart_peripheral.uart_reg_read_index < g_uart_peripheral.uart_reg_write_index) {
+    available_bytes = g_uart_peripheral.uart_reg_write_index - g_uart_peripheral.uart_reg_read_index;
+  } else {
+    available_bytes = CONFIG_SIM_LPUART_FIFO_SIZE - (g_uart_peripheral.uart_reg_read_index - g_uart_peripheral.uart_reg_write_index);
+  }
+
+  while (true) {  
     lower->rx_buffer[lower->index_write_rx_buffer] = g_uart_peripheral.sim_uart_data_fifo[g_uart_peripheral.uart_reg_read_index];
+    lower->index_write_rx_buffer = (lower->index_write_rx_buffer + 1) % UART_RX_BUFFER;
     g_uart_peripheral.uart_reg_read_index = (g_uart_peripheral.uart_reg_read_index + 1) % CONFIG_SIM_LPUART_FIFO_SIZE;
 
-    lower->index_write_rx_buffer = (lower->index_write_rx_buffer + 1) % UART_RX_BUFFER;
+    available_bytes--;
 
-    /* Notify incomming RX characters */
+    if (available_bytes == 0) {
+  
+      /* Notify incomming RX characters */
 
-    sem_post(&lower->rx_notify);
+      sem_post(&lower->rx_notify);
+      break;
+    }
   }
 }
 
