@@ -2,8 +2,8 @@ import subprocess
 from nbstreamreader import NonBlockingStreamReader as NBSR
 import json
 from difflib import SequenceMatcher
-from fuzzywuzzy import fuzz
-from fuzzywuzzy import process
+from rapidfuzz import fuzz
+from rapidfuzz import process
 
 def send_cmd_wait_response(proc, cmd, nbsr):
     proc.stdin.write(cmd)
@@ -37,7 +37,7 @@ def run_json_cmd_check(proc, nbsr, json_test):
             #print 'Expected:', distro['expected']
 
             #m = SequenceMatcher(None, distro['expected'], output)
-            diffRatio = fuzz.partial_ratio(str(distro['expected']), output)
+            diffRatio = fuzz.partial_ratio(str(distro['expected']), output, score_cutoff=60)
 
             #print "Result matches: " + str(diffRatio)
 
