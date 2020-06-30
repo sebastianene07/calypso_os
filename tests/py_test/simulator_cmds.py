@@ -48,10 +48,10 @@ def run_json_cmd_check(proc, nbsr, json_test):
                 break
 
         if not isTestPassed:
-            print "[Test_" + str(testNum) + "] FAILED"
-            print "Differs:" + output + " expected:" + distro['expected']
+            print("[Test_" + str(testNum) + "] FAILED")
+            print("Differs:" + output + " expected:" + distro['expected'])
         else:
-            print "[Test_" + str(testNum) + "] PASSED"
+            print("[Test_" + str(testNum) + "] PASSED")
 
         testNum = testNum + 1
 
@@ -62,7 +62,7 @@ proc = subprocess.Popen(run_cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
 try:
     nbsr = NBSR(proc.stdout)
     run_json_cmd_check(proc, nbsr, 'tests/py_test/test_cmds/test_console_cmds.txt')
-except Exception, e:
+except Exception as e:
     print("Something went wrong: " + str(e))
 finally:
     proc.kill()
