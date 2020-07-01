@@ -6,14 +6,14 @@ from rapidfuzz import fuzz
 from rapidfuzz import process
 
 def send_cmd_wait_response(proc, cmd, nbsr):
-    proc.stdin.write(cmd)
+    proc.stdin.write(bytes(cmd, 'ascii'))
     lines = ""
 
     while True:
         output = nbsr.readline(1.0)
         if output is None:
             break
-        lines += output
+        lines += str(output)
 
     return lines
 
@@ -33,8 +33,8 @@ def run_json_cmd_check(proc, nbsr, json_test):
         output = None
         while times < maxAmountTestCmdTimes:
             output = send_cmd_wait_response(proc, distro['cmd'], nbsr)
-            #print 'Got stdout:', output
-            #print 'Expected:', distro['expected']
+            print('Got stdout:', output)
+            #print('Expected:', distro['expected'])
 
             #m = SequenceMatcher(None, distro['expected'], output)
             diffRatio = fuzz.partial_ratio(str(distro['expected']), output, score_cutoff=60)
