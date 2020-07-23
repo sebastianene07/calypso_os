@@ -187,7 +187,7 @@ static console_command_entry_t g_cmd_table[] =
   { .cmd_name            = "touch",
     .cmd_function        = console_touch,
     .stack_size          = CONFIG_CONSOLE_STACK_SIZE,
-    .cmd_help            = "Craete a new file",
+    .cmd_help            = "Create a new file",
   },
 #endif
 
@@ -195,7 +195,7 @@ static console_command_entry_t g_cmd_table[] =
   { .cmd_name            = "mkdir",
     .cmd_function        = console_mkdir,
     .stack_size          = CONFIG_CONSOLE_STACK_SIZE,
-    .cmd_help            = "Craete a new directory",
+    .cmd_help            = "Create a new directory",
   },
 #endif
 
