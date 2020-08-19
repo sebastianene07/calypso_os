@@ -3,10 +3,7 @@ ENTRY( _start );
 /* Specify main memory areas */
 MEMORY
 {
-  /* Use values from the ESP-IDF 'bootloader' component.
-  /* TODO: Use human-readable lengths */
-  /* TODO: Use the full memory map - this is just a test */
-  iram_seg ( RX )       : ORIGIN = 0x40080680, len = 0xFC00
+  iram_seg ( RX )       : ORIGIN = 0x40098000, len = 0xFC00
   dram_seg ( RW )       : ORIGIN = 0x3FFF0000, len = 0xFFFF
 }
 
