@@ -10,6 +10,7 @@
 
 #include <serial.h>
 #include <stdint.h>
+#include <string.h>
 #include <scheduler.h>
 #include <os_start.h>
 #include <ucontext.h>

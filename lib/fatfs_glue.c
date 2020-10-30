@@ -7,8 +7,7 @@
 #include <vfs.h>
 #include <unistd.h>
 
-#include "fatfs/source/ff.h"
-#include "fatfs/source/diskio.h"
+#include "fatfs/fatfs.h"
 
 /****************************************************************************
  * Preprocessor Definitions
@@ -47,10 +46,6 @@ static int mkdir_fs_node(const char *path, mode_t mode);
 /* The MTD operations structure */
 
 static struct mtd_ops_s *g_mtd_ops;
-
-/* Fat file system instance */
-
-static FATFS *g_fatfs;
 
 /* Mounted file system */
 
@@ -129,6 +124,7 @@ static int emit_vfs_node(const char *mount_path, const char *name,
   return ret;
 }
 
+#if 0
 /*
  * scan_files - this method lists the internal file system contents
  *
@@ -180,13 +176,15 @@ static FRESULT scan_files(char *path)
 
     return res;
 }
+#endif
 
 static int open_fs_node(struct opened_resource_s *file, const char *pathname,
-  int flags, mode_t mode)
+                        int flags, mode_t mode)
 {
+  int ret = OK;
+#if 0
   FRESULT fr;
   FIL *fatfs_file;
-  int ret = OK;
   volatile BYTE fatfs_mode = FA_READ;
   fatfs_file = malloc(sizeof(FIL));
   if (fatfs_file == NULL) {
@@ -220,11 +218,13 @@ static int open_fs_node(struct opened_resource_s *file, const char *pathname,
 
 clean_mem:
   free(fatfs_file);
+#endif
   return ret;
 }
 
 static int read_fs_node(struct opened_resource_s *file, void *buf, size_t count)
 {
+#if 0
   FRESULT fr;
   UINT br;
 
@@ -232,13 +232,14 @@ static int read_fs_node(struct opened_resource_s *file, void *buf, size_t count)
   if (fr == OK) {
     return br;
   }
-
+#endif
   return -EINVAL;
 }
 
 static int write_fs_node(struct opened_resource_s *file, const void *buf,
   size_t count)
 {
+#if 0
   FRESULT fr;
   UINT br;
 
@@ -246,17 +247,19 @@ static int write_fs_node(struct opened_resource_s *file, const void *buf,
   if (fr == OK) {
     return br;
   }
-
+#endif
   return -EINVAL;
 }
 
 static int close_fs_node(struct opened_resource_s *file)
 {
+#if 0
   if (file->vfs_node->priv) {
     f_close(file->vfs_node->priv);
     free(file->vfs_node->priv);
     file->vfs_node->priv = NULL;
   }
+#endif
 
   return OK;
 }
@@ -272,6 +275,7 @@ static int close_fs_node(struct opened_resource_s *file)
  */
 static int unlink_fs_node(const char *pathname)
 {
+#if 0
   int mnt_path_len = strlen(g_mounted_fs->mount_path);
   if (mnt_path_len > strlen(pathname)) {
     return -EINVAL;
@@ -283,7 +287,7 @@ static int unlink_fs_node(const char *pathname)
   if (ret == FR_OK) {
     return 0;
   }
-
+#endif
   return -ENOSYS;
 }
 
@@ -297,18 +301,19 @@ static int unlink_fs_node(const char *pathname)
  */
 static int mkdir_fs_node(const char *path, mode_t mode)
 {
+#if 0
   int mnt_path_len = strlen(g_mounted_fs->mount_path);
   if (mnt_path_len > strlen(path)) {
     return -EINVAL;
   }
 
   path += mnt_path_len;
-
+struct mtd_ops_s *mtd_ops;
   FRESULT ret = f_mkdir(path);
   if (ret == FR_OK) {
     return 0;
   }
-
+#endif
   return -ENOSYS;
 }
 
@@ -324,125 +329,25 @@ static int mkdir_fs_node(const char *path, mode_t mode)
 static int mount_fs(struct vfs_mount_filesystem_s *mount)
 {
   int ret = OK;
+//  struct mtd_ops_s *mtd_ops = mount->mtd_ops;
 
-  /* Check for already in use */
+  /* Read the MBR */
 
-  if (g_fatfs != NULL) {
-    return -EINVAL;
-  }
 
-  g_fatfs = malloc(sizeof(FATFS));
-  if (g_fatfs == NULL) {
-    return -ENOMEM;
-  }
-
-  g_mtd_ops = mount->mtd_ops;
-  FRESULT retfs = f_mount(g_fatfs, "", 1);
-  if (retfs != FR_OK) {
-    ret = -ENOSYS;
-    goto free_with_mem;
-  }
-
-  char *mnt_path = (char *)mount->mount_path;
-  struct vfs_node_s *node = vfs_get_matching_node(mnt_path, strlen(mnt_path));
-  if (node == NULL) {
-    ret = -ENOSYS;
-    goto free_with_mem;
-  }
-
-  char *scan_path = calloc(FATFS_MAX_PATH, sizeof(char));
-  if (scan_path == NULL) {
-    ret = -ENOMEM;
-    goto free_with_mem;
-  }
-  
-  strncpy(scan_path, VFS_PATH_DELIM, 1);
-  g_mounted_fs = mount;
-  scan_files(scan_path);
-
-  free(scan_path);
-
-  return OK;
-
-free_with_mem:
-  free(g_fatfs);
-  g_mounted_fs = NULL;
-  g_fatfs = NULL;
   return ret;
 }
 
 /*
  * umount_fs - unmounts the FATFS structure and remove the files & folders
  *
- * @mount - the mount structure
+ * @mount_path - the path where the filesystem is mounted
  *
  *  This function removes the entries from VFS for the specified mount path
  *  and it de-allocates memory used by the FAT fs
  */
 static int umount_fs(const char *mount_path)
 {
-  f_mount(NULL, "", 0);
-  free(g_fatfs);
-  g_fatfs      = NULL;
-  g_mounted_fs = NULL;
-
   return OK;
-}
-
-/****************************************************************************
- * Public GLUE Methods that FatFS links to
- ****************************************************************************/
-
-#if !FF_FS_READONLY && !FF_FS_NORTC
-DWORD get_fattime(void)
-{
-  return 0;
-}
-#endif
-
-DSTATUS MMC_disk_initialize(void)
-{
-  return 0;
-}
-
-DSTATUS MMC_disk_status(void)
-{
-  /* Schedule the following operation on the initialization thread */
-
-  /* Verify if the file descriptor is opened if it's opened send an ioctl
-   * to the device to verify if the disk is write protected.
-   */
-
-  return 0;
-}
-
-DRESULT MMC_disk_read(BYTE *buff, DWORD sector, BYTE count)
-{
-  /* Schedule the following operation on the initialization thread */
-
-  int ret = g_mtd_ops->mtd_read_sec(buff, sector, count * SECTOR_SIZE_BYTES);
-  if (ret < 0) {
-    return RES_PARERR;
-  }
-
-  return RES_OK;
-}
-
-DRESULT MMC_disk_write(const BYTE *buff, DWORD sector, BYTE count)
-{
-  /* Schedule the following operation on the initialization thread */
-
-  int ret = g_mtd_ops->mtd_write_sec(buff, sector, count * SECTOR_SIZE_BYTES);
-  if (ret < 0) {
-    return RES_PARERR;
-  }
-
-  return 0;
-}
-
-DRESULT MMC_disk_ioctl(BYTE ctrl, void *buff)
-{
-  return 0;
 }
 
 /****************************************************************************

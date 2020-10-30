@@ -1,4 +1,4 @@
-PATH_FATFS = ./fatfs/source
+PATH_FATFS = ./fatfs/
 
 SRCS:= small_printf.c small_sscanf.c
 
@@ -9,12 +9,13 @@ endif
 OBJS_FATFS := $(patsubst %.c, %.o, $(SRCS_FATFS))
 OBJS := $(patsubst %.c, %.o, $(SRCS))
 
-LIB_FLAGS := $(CFLAGS)																						\
-							-I$(TOPDIR)/include																	\
-							-I$(TOPDIR)/include/chip														\
-							-I$(TOPDIR)/s_alloc																	\
-							-I$(TOPDIR)/sched/include														\
-							-I$(TOPDIR)/drivers/
+LIB_FLAGS := $(CFLAGS)						\
+				-I$(TOPDIR)/include		\
+				-I$(TOPDIR)/include/chip	\
+				-I$(TOPDIR)/s_alloc		\
+				-I$(TOPDIR)/sched/include	\
+				-I$(TOPDIR)/drivers/		\
+				-I$(TOPDIR)/lib/fatfs		\
 
 all: fatfs bsec small_print
 

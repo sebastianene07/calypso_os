@@ -8,7 +8,6 @@
 #include <errno.h>
 #include <string.h>
 
-#include <source/ff.h>
 #include <vfs.h>
 #include <stdio.h>
 

@@ -28,8 +28,8 @@ typedef int (* mtd_write_sector)(const uint8_t *buffer, uint32_t sector,
 /* This structure contains the function pointers to access the MTD device */
 
 struct mtd_ops_s {
-  mtd_read_sector mtd_read_sec;
-  mtd_write_sector mtd_write_sec;
+  mtd_read_sector mtd_read_sector_cb;
+  mtd_write_sector mtd_write_sectori_cb;
 };
 
 #endif /* __MTD_H */
