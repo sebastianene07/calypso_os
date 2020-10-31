@@ -69,4 +69,5 @@ SECTIONS {
 
 
       _eheap = ORIGIN(RAM) + LENGTH(RAM) - 1024;
+      end = _eheap;
 }
