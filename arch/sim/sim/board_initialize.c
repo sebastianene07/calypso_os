@@ -4,17 +4,17 @@
 
 #include <board.h>
 
+#include <errno.h>
 #ifdef CONFIG_SIMULATED_FLASH
   #include <storage/simulated_flash.h>
 #endif
-
+#include <scheduler.h>
 #include <serial.h>
 #include <stdint.h>
-#include <scheduler.h>
+#include <string.h>
 #include <os_start.h>
 #include <ucontext.h>
 #include <rtc.h>
-#include <errno.h>
 
 /****************************************************************************
  * Pre-processor Defintions
@@ -144,6 +144,7 @@ int up_initial_task_context(struct tcb_s *tcb, int argc, char **argv)
 {
   size_t stack_size = tcb->stack_ptr_top - tcb->stack_ptr_base;
   uint8_t *sp = tcb->stack_ptr_base;
+  ucontext_t *task_exit_context;
 
   sim_mcu_context_t *mcu_context = calloc(1, sizeof(sim_mcu_context_t));
   if (mcu_context == NULL) {
@@ -170,19 +171,29 @@ int up_initial_task_context(struct tcb_s *tcb, int argc, char **argv)
     return -ENOMEM;
   }
 
+  /* When the task has done running it should be chainned to jump to a new
+   * ucontext structure.
+   */
+
   struct tcb_s *current = sched_get_current_task();
+  if (current->mcu_context == NULL) {
+    task_exit_context = mcu_context->exit_mcu_context;
+  } else {
+    task_exit_context = current->mcu_context;
+  }
+
   task_context->uc_stack.ss_sp    = sp;
   task_context->uc_stack.ss_size  = stack_size;
   task_context->uc_stack.ss_flags = 0;
-  task_context->uc_link           = mcu_context->exit_mcu_context;
+  task_context->uc_link           = task_exit_context;
 
   mcu_context->argv = 0;
 
   if (argc != 0) {
     mcu_context->argv = calloc(argc, sizeof(char *));
-    if (mcu_context->argv == NULL)
+    if (mcu_context->argv == NULL) {
       argc = 0;
-    else {
+    } else {
 
       /* Copy the arguments */
 
@@ -197,7 +208,12 @@ int up_initial_task_context(struct tcb_s *tcb, int argc, char **argv)
     } 
   }
 
-  makecontext(task_context, (void *)tcb->entry_point, 2, mcu_context->argc,
+  /* Create the ucontext structure */
+
+  makecontext(task_context,
+              (void *)tcb->entry_point,
+              2,
+              mcu_context->argc,
               mcu_context->argv);
 
   return 0;

@@ -21,8 +21,6 @@ static int sim_lpuart_write(const struct uart_lower_s *lower,
 static int sim_lpuart_read(const struct uart_lower_s *lower, void *data,
                            unsigned int max_buf_sz);
 
-static int sim_lpuart_config(struct uart_lower_s *lower);
-
 static void sim_lpuart_int(void);
 
 /****************************************************************************
@@ -142,22 +140,6 @@ static int sim_lpuart_write(const struct uart_lower_s *lower,
 
 static int sim_lpuart_read(const struct uart_lower_s *lower, void *data,
                            unsigned int max_buf_sz)
-{
-  return OK;
-}
-
-/****************************************************************************
- * Name: sim_lpuart_config
- *
- * Description:
- *   NOT USED.
- *
- * Return Value:
- *   OK in case of success otherwise a negative error code.
- *
- ****************************************************************************/
-
-static int sim_lpuart_config(struct uart_lower_s *lower)
 {
   return OK;
 }
