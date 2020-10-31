@@ -225,7 +225,7 @@ static int execute_command(int argc, const char *argv[])
         else
           return sched_create_task((
             int (*)(int, char **))g_cmd_table[j].cmd_function,
-            g_cmd_table[j].stack_size, argc, argv);
+            g_cmd_table[j].stack_size, argc, (char **)argv);
 #else
         return g_cmd_table[j].cmd_function(argc, argv);
 #endif /* CONFIG_RUN_APPS_IN_OWN_THREAD */

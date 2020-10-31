@@ -10,8 +10,8 @@ CONFIG_MACHINE_TYPE="nrf5x"
 CONFIG_MACHINE_CPU="Cortex_M4"
 CONFIG_PREFIX_TOOLCHAIN="arm-none-eabi-"
 CONFIG_COMMAND_LOAD="nrfjprog -f nrf52 --program build/build.hex --sectorerase"
-CONFIG_CFLAGS=" -mcpu=cortex-m4 -mthumb -mabi=aapcs -O -ggdb -std=gnu99  -fno-builtin"
-CONFIG_LDFLAGS="  -mthumb -lc -lm -lgcc ${CFLAGS} -nostartfiles -Wl,-T${TOPDIR}/config/nrf5x/scripts/nrf52832_linker.ld "
+CONFIG_CFLAGS=" -mcpu=cortex-m4 -mthumb -mabi=aapcs -O -ggdb -std=gnu99  -fno-builtin --specs=nosys.specs"
+CONFIG_LDFLAGS="  -mthumb -lc -lm -lgcc ${CFLAGS} -nostartfiles -Wl,-T${TOPDIR}/config/nrf5x/scripts/nrf52832_linker.ld"
 CONFIG_SPI_0=y
 CONFIG_SPI_0_MISO_PIN=1
 CONFIG_SPI_0_MISO_PORT=1

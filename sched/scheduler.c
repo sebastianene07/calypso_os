@@ -88,6 +88,10 @@ static int sched_idle_task(int argc, char **argv)
     __WFI();
 #endif
   }
+
+  /* It should not end up here */
+
+  return 0;
 }
 
 /**************************************************************************
@@ -197,7 +201,7 @@ int sched_create_task(int (*task_entry_point)(int argc, char **argv),
      ptr < (uint8_t*)task_tcb->stack_ptr_top;
      ptr = ptr + sizeof(uint32_t))
   {
-    *ptr = 0xDEADBEEF;
+    *((uint32_t *)ptr) = 0xDEADBEEF;
   }
 #endif
 

@@ -132,9 +132,8 @@ static void host_signal_handler(int sig, siginfo_t *si, void *old_ucontext)
  *
  ****************************************************************************/
 
-static void host_simulated_intterupts(void *arg)
+static void *host_simulated_intterupts(void *arg)
 {
-  int ret;
   char c;
   int available_bytes;
 
@@ -166,6 +165,8 @@ static void host_simulated_intterupts(void *arg)
       kill(g_host_pid, SIGUSR2);
     }
   }
+
+  return NULL;
 }
 
 /****************************************************************************

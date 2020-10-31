@@ -168,7 +168,7 @@ static int sim_flash_mtd_read_block(uint8_t *buffer, uint32_t sector,
 static int sim_flash_mtd_write_block(const uint8_t *buffer, uint32_t sector,
                                      size_t count)
 {
-  return host_sim_flash_write_mtd(buffer, sector, count);
+  return host_sim_flash_write_mtd((uint8_t *)buffer, sector, count);
 }
 
 /****************************************************************************
