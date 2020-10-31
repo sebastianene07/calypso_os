@@ -132,7 +132,7 @@ static void host_signal_handler(int sig, siginfo_t *si, void *old_ucontext)
  *
  ****************************************************************************/
 
-static void host_simulated_intterupts(void *arg)
+static void *host_simulated_intterupts(void *arg)
 {
   int ret;
   char c;
@@ -166,6 +166,8 @@ static void host_simulated_intterupts(void *arg)
       kill(g_host_pid, SIGUSR2);
     }
   }
+
+  return NULL;
 }
 
 /****************************************************************************
@@ -207,7 +209,6 @@ static void host_create_interrupt_thread(void)
 
 static void host_init_termios(int echo)
 {
-  tcgetattr(0, &current);
   current.c_lflag &= ~ICANON;
   current.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
                         | INLCR | IGNCR | ICRNL | IXON);

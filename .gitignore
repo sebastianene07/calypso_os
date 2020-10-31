@@ -22,4 +22,5 @@ tests/string_test
 tags
 *.bin
 *.pyc
-build/build.bin
+build/calypso.bin
+calypso

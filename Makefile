@@ -1,4 +1,5 @@
 PREFIX :=
+OS_NAME:=calypso
 TOPDIR=$(shell pwd)
 DEBUG_PORT=2331
 
@@ -33,7 +34,7 @@ LDUNEXPORTSYMBOLS ?= -unexported_symbols_list ../$(CONFIG_HOST_OS)-names.dat
 EXTRALINK ?=
 else
 LDUNEXPORTSYMBOLS ?=
-EXTRALINK ?= -lpthread -nostartfiles -Wl,-emain
+EXTRALINK ?= -pthread -nostartfiles -Wl,-emain
 endif
 
 # Export varios variables that will be used across Makefiles
@@ -51,14 +52,14 @@ ifeq ($(CONFIG_TWO_PASS_BUILD),y)
 	cd build && ${PREFIX}ar xv ${TOPDIR}/${TMP_LIB} && \
 	${PREFIX}ld -r -L${TOPDIR}/ $(LDFLAGS) *.o $(LDUNEXPORTSYMBOLS)
 ifneq ($(CONFIG_HOST_OS),"Darwin")
-	${PREFIX}objcopy --redefine-syms=Linux-names.dat build/build.rel
+	${PREFIX}objcopy --redefine-syms=Linux-names.dat build/$(OS_NAME).rel
 endif
-	${PREFIX}gcc build/build.rel arch/sim/sim/host_board_up.o -o build.elf $(EXTRALINK)
+	${PREFIX}gcc build/$(OS_NAME).rel arch/sim/sim/host_board_up.o -o $(OS_NAME) $(EXTRALINK)
 else
 	cd build && ${PREFIX}ar xv ${TOPDIR}/${TMP_LIB} && \
-	${PREFIX}gcc *.o -o build.elf ${LDFLAGS} && \
-	${PREFIX}objcopy -O ihex build.elf build.hex && \
-	${PREFIX}objcopy -O binary build.elf build.bin
+	${PREFIX}gcc *.o -o $(OS_NAME) ${LDFLAGS} && \
+	${PREFIX}objcopy -O ihex $(OS_NAME) $(OS_NAME).hex && \
+	${PREFIX}objcopy -O binary $(OS_NAME) $(OS_NAME).bin
 endif
 	@echo "Build finished successfully."
 
@@ -100,6 +101,7 @@ clean:
 	rm -rf build/ && rm -f $(TMP_LIB)
 	rm -f include/Kconfig 2> /dev/null
 	rm -f include/chip/* 2> /dev/null
+	rm -f $(OS_NAME)
 
 distclean: clean
 	rm -f .config

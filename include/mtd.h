@@ -29,7 +29,7 @@ typedef int (* mtd_write_sector)(const uint8_t *buffer, uint32_t sector,
 
 struct mtd_ops_s {
   mtd_read_sector mtd_read_sector_cb;
-  mtd_write_sector mtd_write_sectori_cb;
+  mtd_write_sector mtd_write_sector_cb;
 };
 
 #endif /* __MTD_H */

@@ -57,8 +57,8 @@ static int sim_flash_ioctl(struct opened_resource_s *prov, unsigned long request
 /* The simulated flash is an MTD block device and supports these functions */
 
 static struct mtd_ops_s g_sim_flash_mtd_ops = {
-  .mtd_read_sec  = sim_flash_mtd_read_block,
-  .mtd_write_sec = sim_flash_mtd_write_block,
+  .mtd_read_sector_cb  = sim_flash_mtd_read_block,
+  .mtd_write_sector_cb = sim_flash_mtd_write_block,
 };
 
 /* The virtual file system ops */
