@@ -176,7 +176,7 @@ int up_initial_task_context(struct tcb_s *tcb, int argc, char **argv)
    */
 
   struct tcb_s *current = sched_get_current_task();
-  if (current->mcu_context == NULL) {
+  if (current == NULL || current->mcu_context == NULL) {
     task_exit_context = mcu_context->exit_mcu_context;
   } else {
     task_exit_context = current->mcu_context;

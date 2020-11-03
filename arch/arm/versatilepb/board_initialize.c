@@ -36,7 +36,7 @@ void SysTick_Handler(void)
 __attribute__((section(".isr_vector")))
 void (*g_vectors[NUM_IRQS])(void) = {
         STACK_TOP,
-        _start,
+        __start,
         dummy_fn,
         HardFault_Handler,
         dummy_fn,

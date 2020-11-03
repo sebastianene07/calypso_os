@@ -86,7 +86,7 @@ static int g_sim_flash_fd = -1;
 
 /* This function is the entry point for the Calypso OS */
 
-void _start(void);
+void __start(void);
 
 /****************************************************************************
  * Private Functions
@@ -500,7 +500,7 @@ int main(int argc, char **argv)
 
   /* Start the Calypso OS simulation */
 
-  _start();
+  __start();
 
   return 0;
 }

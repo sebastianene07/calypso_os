@@ -14,7 +14,7 @@ void (*g_ram_vectors[NUM_IRQS])(void);
 
 __attribute__((section(".boot_entry"))) void bootloader_entry(void)
 {
-  _start();
+  __start();
 }
 
 /*

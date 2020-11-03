@@ -17,6 +17,6 @@ void os_appstart(void);
  *  HEAP memory was initialized and the SysTick was configured to allow
  *  context switching.
  */
-void _start(void);
+void __start(void);
 
 #endif /* __OS_START */

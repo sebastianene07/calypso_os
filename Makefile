@@ -33,7 +33,7 @@ LDUNEXPORTSYMBOLS ?= -unexported_symbols_list ../$(CONFIG_HOST_OS)-names.dat
 EXTRALINK ?=
 else
 LDUNEXPORTSYMBOLS ?=
-EXTRALINK ?= -lpthread -nostartfiles -Wl,-emain
+EXTRALINK ?= -lpthread
 endif
 
 # Export varios variables that will be used across Makefiles
