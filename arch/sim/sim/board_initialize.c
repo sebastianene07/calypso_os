@@ -39,6 +39,13 @@ typedef struct sim_mcu_context_s {
   int argc;
 } sim_mcu_context_t;
 
+/* Detect if makecontext is using the base address as the initial stack
+ * pointer position.
+ */
+
+static bool g_is_mcontext_baseaddr;
+static bool g_is_stack_direction_detected;
+
 /****************************************************************************
  * Public Function Prototype
  ****************************************************************************/
@@ -111,15 +118,32 @@ static ucontext_t *up_create_exit_point(void)
     free(exit_context);
     return NULL;
   }
-
+  
   getcontext(exit_context);
 
-  exit_context->uc_stack.ss_sp    = exit_stack;
+readjust_stack:
+
+  exit_context->uc_stack.ss_sp    = g_is_mcontext_baseaddr == false ? exit_stack : (exit_stack + STACK_DEFAULT_EXIT_POINT);
   exit_context->uc_stack.ss_size  = STACK_DEFAULT_EXIT_POINT;
   exit_context->uc_stack.ss_flags = 0;
   exit_context->uc_link           = NULL;
 
   makecontext(exit_context, sched_default_task_exit_point, 0);
+
+  if (g_is_stack_direction_detected == false)
+  {
+    if ((long)exit_stack - (long)exit_context->uc_mcontext.__gregs[0x09] < 0)
+    {
+      g_is_mcontext_baseaddr = true;
+    }
+    else
+    {
+      g_is_mcontext_baseaddr = false;
+    }
+
+    g_is_stack_direction_detected = true;
+    goto readjust_stack;
+  } 
 
   return exit_context;
 }
@@ -142,8 +166,7 @@ static ucontext_t *up_create_exit_point(void)
 
 int up_initial_task_context(struct tcb_s *tcb, int argc, char **argv)
 {
-  size_t stack_size = tcb->stack_ptr_top - tcb->stack_ptr_base;
-  uint8_t *sp = tcb->stack_ptr_base;
+  size_t stack_size = tcb->stack_ptr_top - tcb->stack_ptr_base - sizeof(struct tcb_s);
   ucontext_t *task_exit_context;
 
   sim_mcu_context_t *mcu_context = calloc(1, sizeof(sim_mcu_context_t));
@@ -182,7 +205,7 @@ int up_initial_task_context(struct tcb_s *tcb, int argc, char **argv)
     task_exit_context = current->mcu_context;
   }
 
-  task_context->uc_stack.ss_sp    = sp;
+  task_context->uc_stack.ss_sp    = g_is_mcontext_baseaddr == false ? tcb->stack_ptr_top : tcb->stack_ptr_top + stack_size;
   task_context->uc_stack.ss_size  = stack_size;
   task_context->uc_stack.ss_flags = 0;
   task_context->uc_link           = task_exit_context;
