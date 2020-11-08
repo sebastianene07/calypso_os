@@ -46,7 +46,7 @@ extern unsigned long _eheap;
  *  HEAP memory was initialized and the SysTick was configured to allow
  *  context switching.
  */
-void _start(void)
+void __start(void)
 {
   volatile unsigned long *src, *dst;
   volatile unsigned long heap_start, heap_end;

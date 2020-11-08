@@ -24,17 +24,16 @@
 
 #define STACK_ALIGNMENT               (8)
 
-/* The default stack size for the xist point */
-
-#define STACK_DEFAULT_EXIT_POINT      (128000)
-
 /****************************************************************************
  * Private Types
  ****************************************************************************/
 
+/* This is an arch specific container used to keep the task context and
+ * the arguments to the task.
+ */
+
 typedef struct sim_mcu_context_s {
-  ucontext_t *task_mcu_context;
-  ucontext_t *exit_mcu_context;
+  ucontext_t *task_ucontext;
   char **argv;
   int argc;
 } sim_mcu_context_t;
@@ -89,39 +88,31 @@ void board_init(void)
 }
 
 /****************************************************************************
- * Name: up_create_exit_point
+ * Name: task_default_entry_point
  *
  * Description:
- *   Create the exit point structure.
+ *   This is the default entry point for each new task. After this
+ *   function finishes it calls into the sched_context_switch
+ *   to switch the context to the next running task.
  *
- * Return Value:
- *   Return the address of the exit context.
+ * Input Parameters:
+ *   argc - the number of the arguments to the task
+ *   argv - the argument of the task
  *
  ****************************************************************************/
 
-static ucontext_t *up_create_exit_point(void)
+static void task_default_entry_point(int argc, char **argv)
 {
-  ucontext_t *exit_context = calloc(1, sizeof(ucontext_t));
-  if (exit_context == NULL) {
-    return NULL;
-  }
+  disable_int();
+  struct tcb_s *curr_tcb = sched_get_current_task();
+  sim_mcu_context_t *mcu_context = curr_tcb->mcu_context;
+  enable_int();
 
-  uint8_t *exit_stack = calloc(1, STACK_DEFAULT_EXIT_POINT);
-  if (exit_stack == NULL) {
-    free(exit_context);
-    return NULL;
-  }
-
-  getcontext(exit_context);
-
-  exit_context->uc_stack.ss_sp    = exit_stack;
-  exit_context->uc_stack.ss_size  = STACK_DEFAULT_EXIT_POINT;
-  exit_context->uc_stack.ss_flags = 0;
-  exit_context->uc_link           = NULL;
-
-  makecontext(exit_context, sched_default_task_exit_point, 0);
-
-  return exit_context;
+  curr_tcb->entry_point(mcu_context->argc, mcu_context->argv);
+  curr_tcb->t_state = HALTED;
+  curr_tcb->waiting_tcb_sema = NULL;
+   
+  sched_context_switch();
 }
 
 /****************************************************************************
@@ -142,9 +133,8 @@ static ucontext_t *up_create_exit_point(void)
 
 int up_initial_task_context(struct tcb_s *tcb, int argc, char **argv)
 {
-  size_t stack_size = tcb->stack_ptr_top - tcb->stack_ptr_base;
-  uint8_t *sp = tcb->stack_ptr_base;
-  ucontext_t *task_exit_context;
+  size_t stack_size = tcb->stack_ptr_top - tcb->stack_ptr_base -
+    sizeof(struct tcb_s);
 
   sim_mcu_context_t *mcu_context = calloc(1, sizeof(sim_mcu_context_t));
   if (mcu_context == NULL) {
@@ -152,40 +142,25 @@ int up_initial_task_context(struct tcb_s *tcb, int argc, char **argv)
   }
   tcb->mcu_context = mcu_context;
 
-  mcu_context->task_mcu_context = calloc(1, sizeof(ucontext_t));
-  if (mcu_context->task_mcu_context == NULL) {
+  mcu_context->task_ucontext = calloc(1, sizeof(ucontext_t));
+  if (mcu_context->task_ucontext == NULL) {
     free(mcu_context);
     return -ENOMEM;
   }
 
-  ucontext_t *task_context = mcu_context->task_mcu_context;
+  ucontext_t *task_context = mcu_context->task_ucontext;
   int ret = getcontext(task_context);
   if (ret < 0) {
     return ret;
-  }
-
-  mcu_context->exit_mcu_context = up_create_exit_point();
-  if (mcu_context->exit_mcu_context == NULL) {
-    free(mcu_context->task_mcu_context);
-    free(mcu_context);
-    return -ENOMEM;
   }
 
   /* When the task has done running it should be chainned to jump to a new
    * ucontext structure.
    */
 
-  struct tcb_s *current = sched_get_current_task();
-  if (current->mcu_context == NULL) {
-    task_exit_context = mcu_context->exit_mcu_context;
-  } else {
-    task_exit_context = current->mcu_context;
-  }
-
-  task_context->uc_stack.ss_sp    = sp;
+  task_context->uc_stack.ss_sp    = tcb->stack_ptr_top;// + stack_size;
   task_context->uc_stack.ss_size  = stack_size;
   task_context->uc_stack.ss_flags = 0;
-  task_context->uc_link           = task_exit_context;
 
   mcu_context->argv = 0;
 
@@ -211,7 +186,7 @@ int up_initial_task_context(struct tcb_s *tcb, int argc, char **argv)
   /* Create the ucontext structure */
 
   makecontext(task_context,
-              (void *)tcb->entry_point,
+              (void (*)(void))task_default_entry_point,
               2,
               mcu_context->argc,
               mcu_context->argv);
@@ -223,7 +198,9 @@ int up_initial_task_context(struct tcb_s *tcb, int argc, char **argv)
  * Name: up_destroy_task_context
  *
  * Description:
- *   This function destroys the task context and it's associated resource..
+ *   This function destroys the task context and it's associated resources.
+ *   It is called from the Idle task when the Idle task detects that we
+ *   have pending tasks that need to be destroyed.
  *
  * Input Parameters:
  *   tcb  - the task control block
@@ -248,10 +225,7 @@ int up_destroy_task_context(struct tcb_s *tcb)
 
   /* Free the ucontext stack */
 
-  free(mcu_context->exit_mcu_context->uc_stack.ss_sp);
-  free(mcu_context->exit_mcu_context);
-
-  free(mcu_context->task_mcu_context);
+  free(mcu_context->task_ucontext);
   free(mcu_context);
   return OK;
 }
@@ -295,9 +269,9 @@ void sched_context_switch(void)
   next_task->t_state = RUNNING;
 
   ucontext_t *old_mcu_ctxt =
-    ((sim_mcu_context_t *)current_task->mcu_context)->task_mcu_context;
+    ((sim_mcu_context_t *)current_task->mcu_context)->task_ucontext;
   ucontext_t *next_mcu_ctxt =
-    ((sim_mcu_context_t *)next_task->mcu_context)->task_mcu_context;
+    ((sim_mcu_context_t *)next_task->mcu_context)->task_ucontext;
 
   swapcontext(old_mcu_ctxt, next_mcu_ctxt);
 }
