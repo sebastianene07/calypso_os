@@ -149,6 +149,10 @@ typedef enum {
   SPIM3_IRQn                =  47               /*!< 47 SPIM3                                                                  */
 } IRQn_Type;
 
+/* The IRQ state */
+
+typedef uint64_t irq_state_t;
+
 typedef struct
 {
   uint32_t RESERVED0[1];
@@ -309,7 +313,7 @@ static inline uint32_t SysTick_Config(uint32_t ticks)
   \details Enables IRQ interrupts by clearing the I-bit in the CPSR.
            Can only be executed in Privileged modes.
  */
-static inline void __enable_irq(void)
+static inline void enable_int(irq_state_t irq_state)
 {
   __asm volatile ("cpsie i" : : : "memory");
 }
@@ -320,9 +324,10 @@ static inline void __enable_irq(void)
   \details Disables IRQ interrupts by setting the I-bit in the CPSR.
            Can only be executed in Privileged modes.
  */
-static inline void __disable_irq(void)
+static inline irq_state_t disable_int(void)
 {
   __asm volatile ("cpsid i" : : : "memory");
+  return 0;
 }
 
 /** \brief  Clear Pending Interrupt

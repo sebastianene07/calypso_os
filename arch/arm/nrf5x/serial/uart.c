@@ -306,11 +306,11 @@ static int nrf52840_lpuart_config(struct uart_lower_s *lower)
     enable = 0x08;
   }
 
-  disable_int();
+  irq_state_t irq_state = disable_int();
   attach_int(config->irq, nrf52840_lpuart_int);
   NVIC_EnableIRQ(config->irq);
   NVIC_SetPriority(config->irq, 0x07);
-  enable_int();
+  enable_int(irq_state);
 
   if (config->is_auto_rx_start) {
     UART_SHORTS_CONFIG(config->base_peripheral_ptr)  = (1 << 5);
@@ -435,7 +435,7 @@ static void nrf52840_lpuart_dma_write(const struct uart_lower_s *lower,
   uint8_t tx_buffer[128];
   bool is_copied = false;
 
-  if (ptr_data < 0x20000000) {
+  if ((int)ptr_data < 0x20000000) {
     /* Data is in flash and can't be sent through DMA.
      * make a copy of it
      */
