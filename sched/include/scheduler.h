@@ -49,7 +49,6 @@ enum task_state_e {
 /* Task container that holds the entry point and other resources */
 
 typedef struct tcb_s {
-  struct list_head next_tcb;
   int (*entry_point)(int, char **);
   enum task_state_e t_state;
   void *stack_ptr_base;
@@ -60,6 +59,7 @@ typedef struct tcb_s {
 #else
   void *mcu_context[MCU_CONTEXT_SIZE];
 #endif
+  struct list_head next_tcb;
   sem_t *waiting_tcb_sema;
   struct list_head opened_resource;
   uint32_t curr_resource_opened;
