@@ -122,7 +122,7 @@ static int rtc_open(struct opened_resource_s *res, const char *pathname,
 
   /* 1kHz -> perioada 1 ms -> 511875 */
 
-  disable_int();
+  irq_state_t irq_state = disable_int();
 
   if (g_opened_count == 0) {
     PRESCALER_CFG = PRESCALER_8_HZ;
@@ -134,14 +134,14 @@ static int rtc_open(struct opened_resource_s *res, const char *pathname,
   }
 
   ++g_opened_count;
-  enable_int();
+  enable_int(irq_state);
 
   return OK;
 }
 
 static int rtc_close(struct opened_resource_s *priv)
 {
-  disable_int();
+  irq_state_t irq_state = disable_int();
 
   --g_opened_count;
 
@@ -151,7 +151,7 @@ static int rtc_close(struct opened_resource_s *priv)
     attach_int(RTC0_IRQn, NULL);
   }
 
-  enable_int();
+  enable_int(irq_state);
   return 0;
 }
 
@@ -179,12 +179,12 @@ static int rtc_ioctl(struct opened_resource_s *priv, unsigned long request, unsi
       {
         current_time_t *new_rtc_time = (current_time_t *)arg;
 
-        disable_int();
+        irq_state_t irq_state = disable_int();
         g_seconds = new_rtc_time->g_second;
         g_minutes = new_rtc_time->g_minute;
         g_hours   = new_rtc_time->g_hours;
         g_rtc_ticks_ms = 0;
-        enable_int();
+        enable_int(irq_state);
         return OK;
       }
 

@@ -294,7 +294,8 @@ void host_simulated_systick(void)
 
   /* Enable all the signals */
 
-  __enable_irq();
+  sigfillset(&set);
+  pthread_sigmask(SIG_UNBLOCK, &set, NULL);
 
   act.sa_sigaction = host_signal_handler;
   sigemptyset(&act.sa_mask);
@@ -320,40 +321,40 @@ void host_simulated_systick(void)
   return;
 }
 
-/****************************************************************************
- * Name: __enable_irq
+/**************************************************************************
+ * Name:
+ *  disable_int
  *
  * Description:
- *   This function enables the SysTick simulated interrupts by changing
- *   the process signal mask.
+ *  Disable all interrupts.
  *
- ****************************************************************************/
+ *************************************************************************/
 
-void __enable_irq(void)
+irq_state_t disable_int(void)
 {
-  sigset_t newset;
-
-  sigfillset(&newset);
-  pthread_sigmask(SIG_UNBLOCK, &newset, NULL);
-}
-
-/****************************************************************************
- * Name: __disable_irq
- *
- * Description:
- *   This function disablesthe SysTick simulated interrupts by changing
- *   the process signal mask.
- *
- ****************************************************************************/
-
-void __disable_irq(void)
-{
-  sigset_t newset;
+  sigset_t newset, oldset;
 
   /* Disable signals */
 
   sigfillset(&newset);
-  pthread_sigmask(SIG_BLOCK, &newset, NULL);
+  pthread_sigmask(SIG_SETMASK, &newset, &oldset);
+
+  return (irq_state_t)oldset;
+}
+
+/**************************************************************************
+ * Name:
+ *  enable_int
+ *
+ * Description:
+ *  Enable all interrupts.
+ *
+ *************************************************************************/
+
+void enable_int(irq_state_t last_state)
+{
+  sigset_t newset = (sigset_t)last_state;
+  pthread_sigmask(SIG_SETMASK, &newset, NULL);
 }
 
 /****************************************************************************
@@ -483,7 +484,9 @@ int main(int argc, char **argv)
    * handler.
    */
 
-  __disable_irq();
+  sigset_t newset;
+  sigfillset(&newset);
+  pthread_sigmask(SIG_SETMASK, &newset, NULL);
 
   /* Set up the console so that we don't buffer characters and we disable echo
    */

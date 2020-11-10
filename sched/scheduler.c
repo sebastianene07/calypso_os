@@ -55,7 +55,7 @@ static int sched_idle_task(int argc, char **argv)
   {
     /* Check if we need to free any HALTED tasks */
 
-    disable_int();
+    irq_state_t irq_mask = disable_int();
 
     bool is_halt_task;
     do {
@@ -83,7 +83,7 @@ static int sched_idle_task(int argc, char **argv)
       }
     } while (is_halt_task);
 
-    enable_int();
+    enable_int(irq_mask);
 #ifdef CONFIG_WFI_ENABLE
     __WFI();
 #endif
@@ -140,7 +140,7 @@ int sched_init(void)
 
 void sched_default_task_exit_point(void)
 {
-  __disable_irq();
+  irq_state_t irq_state = disable_int();
 
   /* Move this task in the HALT state and wait for the idle task to clean up
    * it's memory.
@@ -150,7 +150,7 @@ void sched_default_task_exit_point(void)
   this_tcb->t_state           = HALTED;
   this_tcb->waiting_tcb_sema  = NULL;
 
-  __enable_irq();
+  enable_int(irq_state);
 
   /* Switch context to the next running task */
 
@@ -181,12 +181,14 @@ int sched_create_task(int (*task_entry_point)(int argc, char **argv),
                       int argc,
                       char **argv)
 {
-  __disable_irq();
+  irq_state_t irq_state = disable_int();
+  int ret;
+
   struct tcb_s *task_tcb = calloc(1, sizeof(struct tcb_s) + stack_size);
   if (task_tcb == NULL)
   {
-    __enable_irq();
-    return -ENOMEM;
+    ret = -ENOMEM;
+    goto failed_task_creation;
   }
 
   task_tcb->entry_point    = task_entry_point;
@@ -205,11 +207,10 @@ int sched_create_task(int (*task_entry_point)(int argc, char **argv),
   }
 #endif
 
-  int ret = up_initial_task_context(task_tcb, argc, argv);
+  ret = up_initial_task_context(task_tcb, argc, argv);
   if (ret < 0) {
     free(task_tcb);
-    __enable_irq();
-    return ret;
+    goto failed_task_creation;
   }
 
   /* Init resource list */
@@ -219,10 +220,12 @@ int sched_create_task(int (*task_entry_point)(int argc, char **argv),
   /* Insert the task in the list */
 
   list_add(&task_tcb->next_tcb, &g_tcb_list);
+  
+  ret = OK;
 
-  __enable_irq();
-
-  return 0;
+failed_task_creation:
+  enable_int(irq_state);
+  return ret;
 }
 
 /**************************************************************************
@@ -267,14 +270,14 @@ struct tcb_s *sched_get_next_task(void)
 struct opened_resource_s *sched_allocate_resource(const struct vfs_node_s *vfs_node,
                                                   int open_mode)
 {
-  disable_int();
+  irq_state_t irq_state = disable_int();
   struct tcb_s *curr_tcb = sched_get_current_task();
   assert(curr_tcb->curr_resource_opened >= 0);
 
-  struct opened_resource_s *new_res =
-    calloc(1, sizeof(struct opened_resource_s));
+  struct opened_resource_s *new_res = calloc(1,
+      sizeof(struct opened_resource_s));
   if (!new_res) {
-    enable_int();
+    enable_int(irq_state);
     return NULL;
   }
 
@@ -285,7 +288,7 @@ struct opened_resource_s *sched_allocate_resource(const struct vfs_node_s *vfs_n
   curr_tcb->curr_resource_opened++;
 
   list_add(&new_res->node, &curr_tcb->opened_resource);
-  enable_int();
+  enable_int(irq_state);
 
   return new_res;
 }
@@ -308,7 +311,7 @@ struct opened_resource_s *sched_allocate_resource(const struct vfs_node_s *vfs_n
 
 int sched_free_resource(int fd)
 {
-  disable_int();
+  irq_state_t irq_state = disable_int();
 
   struct tcb_s *curr_tcb = sched_get_current_task();
   assert(curr_tcb->curr_resource_opened >= 0);
@@ -321,11 +324,11 @@ int sched_free_resource(int fd)
     list_del(&resource->node);
 
     free(resource);
-    enable_int();
+    enable_int(irq_state);
     return OK;
   }
 
-  enable_int();
+  enable_int(irq_state);
   return -ENOENT;
 }
 
@@ -438,38 +441,6 @@ struct tcb_s *sched_preempt_task(void)
   list_add(&tcb->next_tcb, &g_tcb_waiting_list);
 
   return tcb;
-}
-
-/**************************************************************************
- * Name:
- *  disable_int
- *
- * Description:
- *  Disable all interrupts.
- *
- *************************************************************************/
-
-void disable_int(void)
-{
-  /* This function should be implemented by each target/platform */
-    
-  __disable_irq();
-}
-
-/**************************************************************************
- * Name:
- *  enable_int
- *
- * Description:
- *  Enable all interrupts.
- *
- *************************************************************************/
-
-void enable_int(void)
-{
-  /* This function should be implemented by each target/platform */
-
-  __enable_irq();
 }
 
 /**************************************************************************

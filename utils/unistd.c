@@ -58,9 +58,9 @@ static inline int unlink_node(const char *path, struct vfs_node_s *node)
  *************************************************************************/
 ssize_t read(int fd, void *buf, size_t count)
 {
-  disable_int();
+  irq_state_t irq_state = disable_int();
   struct opened_resource_s *res = sched_find_opened_resource(fd);
-  enable_int();
+  enable_int(irq_state);
 
   if (res == NULL) {
     return -EINVAL;
@@ -87,9 +87,9 @@ ssize_t read(int fd, void *buf, size_t count)
  *************************************************************************/
 ssize_t write(int fd, void *buf, size_t count)
 {
-  disable_int();
+  irq_state_t irq_state = disable_int();
   struct opened_resource_s *res = sched_find_opened_resource(fd);
-  enable_int();
+  enable_int(irq_state);
 
   if (res == NULL) {
     return -EINVAL;
@@ -115,9 +115,9 @@ ssize_t write(int fd, void *buf, size_t count)
  *************************************************************************/
 int close(int fd)
 {
-  disable_int();
+  irq_state_t irq_state = disable_int();
   struct opened_resource_s *res = sched_find_opened_resource(fd);
-  enable_int();
+  enable_int(irq_state);
 
   if (res == NULL) {
     return -EINVAL;
@@ -183,9 +183,9 @@ int unlink(const char *path)
 {
   int ret = 0;
 
-  disable_int();
+  irq_state_t irq_state = disable_int();
   struct vfs_node_s *node = vfs_get_matching_node(path, strlen(path));
-  enable_int();
+  enable_int(irq_state);
 
   if (node == NULL) {
     return -EINVAL;

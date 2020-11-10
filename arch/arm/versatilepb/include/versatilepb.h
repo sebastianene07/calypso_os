@@ -40,12 +40,17 @@ typedef enum {
 #define VIC_INTENABLE  0x4 /* 0x10 bytes */
 #define VIC_INTENCLEAR 0x5 /* 0x14 bytes */
 
+/* The IRQ state */
+
+typedef uint64_t irq_state_t;
+
+
 /**
   \brief   Enable IRQ Interrupts
   \details Enables IRQ interrupts by clearing the I-bit in the CPSR.
            Can only be executed in Privileged modes.
  */
-static inline void __enable_irq(void)
+static inline void enable_int(irq_state_t irq_state)
 {
 	*(PIC + VIC_INTENABLE) = 0xFF;
 }
@@ -56,9 +61,10 @@ static inline void __enable_irq(void)
   \details Disables IRQ interrupts by setting the I-bit in the CPSR.
            Can only be executed in Privileged modes.
  */
-static inline void __disable_irq(void)
+static inline irq_state_t disable_int(void)
 {
 	*(PIC + VIC_INTENCLEAR) = 0xFF;
+  return 0;
 }
 
 static inline void NVIC_TriggerSysTick(void)

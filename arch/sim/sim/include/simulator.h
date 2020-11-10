@@ -27,15 +27,18 @@ typedef struct {
   uint8_t is_peripheral_ready;
 } sim_uart_peripheral_t;
 
+/* The irq state type */
+
+typedef uint64_t irq_state_t;
+
 /****************************************************************************
  * Public Functions Definitions
  ****************************************************************************/
 
-/* These functions enable/disable the SysTick simulated interrupts */
+/* These functions enable/disable the simulated interrupts */
 
-void __enable_irq(void);
-
-void __disable_irq(void);
+irq_state_t disable_int(void);
+void enable_int(irq_state_t last_state);
 
 /* This function handles the context switching mechanism and it's symbol is
  * exported in the partially linked executable.

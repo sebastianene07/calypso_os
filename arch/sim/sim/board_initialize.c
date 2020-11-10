@@ -103,15 +103,22 @@ void board_init(void)
 
 static void task_default_entry_point(int argc, char **argv)
 {
-  disable_int();
+  irq_state_t irq_state = disable_int();
   struct tcb_s *curr_tcb = sched_get_current_task();
   sim_mcu_context_t *mcu_context = curr_tcb->mcu_context;
-  enable_int();
+  enable_int(irq_state);
+
+  /* Call the entry point of the function and pass the arguments */
 
   curr_tcb->entry_point(mcu_context->argc, mcu_context->argv);
-  curr_tcb->t_state = HALTED;
+
+  /* Mark the task as halted and switch the context */
+
+  irq_state = disable_int();
+  curr_tcb->t_state          = HALTED;
   curr_tcb->waiting_tcb_sema = NULL;
-   
+  enable_int(irq_state);
+
   sched_context_switch();
 }
 

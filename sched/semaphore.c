@@ -52,7 +52,7 @@ int sem_wait(sem_t *sem)
 {
   /* Disable context switch by disabling interrupts */
 
-  disable_int();
+  irq_state_t irq_state = disable_int();
 
   /* Verify the semaphore value and decrement it if it's > 0 */
 
@@ -77,7 +77,7 @@ int sem_wait(sem_t *sem)
 
     if ((tcb == NULL) ||
         (g_current_tcb->next == g_current_tcb->prev)) {
-      enable_int();
+      enable_int(irq_state);
       return -EAGAIN;
     }
 
@@ -86,7 +86,7 @@ int sem_wait(sem_t *sem)
 
     /* Switch context to the next running task */
 
-    enable_int();
+    enable_int(irq_state);
 
     sched_context_switch();
 
@@ -95,7 +95,7 @@ int sem_wait(sem_t *sem)
 
   /* Re-enable interrupts */
 
-  enable_int();
+  enable_int(irq_state);
 
   return 0;
 }
@@ -125,7 +125,7 @@ int sem_post(sem_t *sem)
 {
   /* Disable interrupts for this task */
 
-  disable_int();
+  irq_state_t irq_state = disable_int();
 
   sem->count += 1;
 
@@ -158,7 +158,7 @@ int sem_post(sem_t *sem)
 
   /* Re-enable interrupts for the current task */
 
-  enable_int();
+  enable_int(irq_state);
 
   return 0;
 }
