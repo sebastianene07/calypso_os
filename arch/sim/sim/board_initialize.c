@@ -157,8 +157,11 @@ int up_initial_task_context(struct tcb_s *tcb, int argc, char **argv)
   /* When the task has done running it should be chainned to jump to a new
    * ucontext structure.
    */
-
-  task_context->uc_stack.ss_sp    = tcb->stack_ptr_top;// + stack_size;
+#ifdef __APPLE__
+  task_context->uc_stack.ss_sp    = tcb->stack_ptr_base;
+#else
+  task_context->uc_stack.ss_sp    = tcb->stack_ptr_top;
+#endif
   task_context->uc_stack.ss_size  = stack_size;
   task_context->uc_stack.ss_flags = 0;
 
