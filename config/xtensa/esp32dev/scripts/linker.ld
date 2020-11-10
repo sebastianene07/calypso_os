@@ -1,4 +1,4 @@
-ENTRY( _start );
+ENTRY( __start );
 
 /* Specify main memory areas */
 MEMORY
