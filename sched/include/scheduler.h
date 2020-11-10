@@ -48,7 +48,7 @@ enum task_state_e {
 
 /* Task container that holds the entry point and other resources */
 
-struct tcb_s {
+typedef struct tcb_s {
   struct list_head next_tcb;
   int (*entry_point)(int, char **);
   enum task_state_e t_state;
@@ -63,8 +63,7 @@ struct tcb_s {
   sem_t *waiting_tcb_sema;
   struct list_head opened_resource;
   uint32_t curr_resource_opened;
-} __attribute__((aligned(8)));
-
+} tcb_t __attribute__((aligned(8)));
 
 int sched_init(void);
 
@@ -77,10 +76,6 @@ struct tcb_s *sched_get_current_task(void);
 struct tcb_s *sched_get_next_task(void);
 
 int sched_desroy(void);
-
-void disable_int(void);
-
-void enable_int(void);
 
 void attach_int(IRQn_Type irq_num, irq_cb handler);
 
