@@ -51,6 +51,16 @@
 #define ARRAY_LEN(x) (sizeof(x) / sizeof(x[0]))
 
 /****************************************************************************
+ * Private Types
+ ****************************************************************************/
+
+typedef union irq_data_u
+{
+  sigset_t signal_set;
+  irq_state_t irq_state;
+} irq_data_t;
+
+/****************************************************************************
  * Public Data
  ****************************************************************************/
 
@@ -332,14 +342,14 @@ void host_simulated_systick(void)
 
 irq_state_t disable_int(void)
 {
-  sigset_t newset, oldset;
+  irq_data_t irq_new_data, irq_old_data;
 
   /* Disable signals */
 
-  sigfillset(&newset);
-  pthread_sigmask(SIG_SETMASK, &newset, &oldset);
+  sigfillset(&irq_new_data.signal_set);
+  pthread_sigmask(SIG_SETMASK, &irq_new_data.signal_set, &irq_old_data.signal_set);
 
-  return (irq_state_t)oldset;
+  return irq_old_data.irq_state;
 }
 
 /**************************************************************************
@@ -353,8 +363,9 @@ irq_state_t disable_int(void)
 
 void enable_int(irq_state_t last_state)
 {
-  sigset_t newset = (sigset_t)last_state;
-  pthread_sigmask(SIG_SETMASK, &newset, NULL);
+  irq_data_t irq_old_data;
+  irq_old_data.irq_state = last_state;
+  pthread_sigmask(SIG_SETMASK, &irq_old_data.signal_set, NULL);
 }
 
 /****************************************************************************
