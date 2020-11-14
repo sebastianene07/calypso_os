@@ -2,7 +2,7 @@
   "commands": [
     {
       "cmd": "\n",
-      "expected": "root:#/>\r"
+      "expected": "Welcome to Calypso OS\r"
     },
     {
       "cmd": "?\n",
@@ -22,11 +22,11 @@
     },
     {
       "cmd": "touch /mnt/a\n",
-      "expected": "root:#/>"
+      "expected": "touch"
     },
     {
       "cmd": "mkdir /mnt/b\n",
-      "expected": "root:#/>"
+      "expected": "mkdir /mnt/b"
     },
     {
       "cmd": "ls /mnt/\n",

@@ -6,21 +6,21 @@ from rapidfuzz import fuzz
 from rapidfuzz import process
 
 def send_cmd_wait_response(proc, cmd, nbsr):
-    proc.stdin.write(bytes(cmd, 'ascii'))
     lines = ""
+    proc.stdin.write(bytes(cmd, 'ascii'))
+    proc.stdin.flush()
 
     while True:
-        output = nbsr.readline(1.0)
+        output = nbsr.readline(.1)
         if output is None:
             break
         lines += str(output)
-
     return lines
 
 
 def run_json_cmd_check(proc, nbsr, json_test):
     maxAmountTestCmdTimes = 3
-    testNum = 0
+    testNum               = 0
 
     with open(json_test, 'r') as f:
         distros_dict = json.load(f)
@@ -34,12 +34,12 @@ def run_json_cmd_check(proc, nbsr, json_test):
         while times < maxAmountTestCmdTimes:
             output = send_cmd_wait_response(proc, distro['cmd'], nbsr)
             print('Got stdout:', output)
-            #print('Expected:', distro['expected'])
+            print('Expected:', distro['expected'])
 
             #m = SequenceMatcher(None, distro['expected'], output)
-            diffRatio = fuzz.partial_ratio(str(distro['expected']), output, score_cutoff=60)
+            diffRatio = fuzz.partial_ratio(str(distro['expected']), output, score_cutoff=80)
 
-            #print "Result matches: " + str(diffRatio)
+            #print("Result matches: " + str(diffRatio))
 
             if diffRatio < 60:
                 times = times + 1
@@ -49,7 +49,7 @@ def run_json_cmd_check(proc, nbsr, json_test):
 
         if not isTestPassed:
             print("[Test_" + str(testNum) + "] FAILED")
-            print("Differs:" + output + " expected:" + distro['expected'])
+            #print("Differs:" + output + " expected:" + distro['expected'])
         else:
             print("[Test_" + str(testNum) + "] PASSED")
 
