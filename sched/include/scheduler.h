@@ -26,6 +26,10 @@
 
 #define MCU_CONTEXT_SIZE                      (8)
 
+/* Task name */
+
+#define CONFIG_TASK_NAME_LEN                  (32)
+
 /* The interrupt callback type */
 
 typedef void (* irq_cb)(void);
@@ -63,11 +67,16 @@ typedef struct tcb_s {
   sem_t *waiting_tcb_sema;
   struct list_head opened_resource;
   uint32_t curr_resource_opened;
+  const char task_name[CONFIG_TASK_NAME_LEN];
 } tcb_t __attribute__((aligned(8)));
 
 int sched_init(void);
 
-int sched_create_task(int (*task_entry_point)(int argc, char **argv), uint32_t stack_size, int argc, char **argv);
+int sched_create_task(int (*task_entry_point)(int argc, char **argv),
+                      uint32_t stack_size,
+                      int argc,
+                      char **argv,
+                      const char *task_name);
 
 void sched_run(void);
 
