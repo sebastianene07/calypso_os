@@ -14,6 +14,7 @@
 #include <stdbool.h>
 #include <vfs.h>
 #include <assert.h>
+#include <string.h>
 
 /* Running task list */
 
@@ -113,7 +114,8 @@ int sched_init(void)
   int ret = sched_create_task(sched_idle_task,
                               CONFIG_SCHEDULER_IDLE_TASK_STACK_SIZE,
                               0,
-                              NULL);
+                              NULL,
+                              "Idle");
   if (ret < 0)
   {
     return ret;
@@ -167,6 +169,9 @@ void sched_default_task_exit_point(void)
  * Input Parameters:
  *  task_entry_point - the entry point of a task
  *  stack_size       - the stack size of the new task
+ *  argc             - the number of arguments
+ *  argv             - the task arguments
+ *  task_name        - a NULL terminated string representing the task name
  *
  * Assumptions:
  *  Call this function with interrupts disabled.
@@ -179,7 +184,8 @@ void sched_default_task_exit_point(void)
 int sched_create_task(int (*task_entry_point)(int argc, char **argv),
                       uint32_t stack_size,
                       int argc,
-                      char **argv)
+                      char **argv,
+                      const char *task_name)
 {
   irq_state_t irq_state = disable_int();
   int ret;
@@ -195,6 +201,11 @@ int sched_create_task(int (*task_entry_point)(int argc, char **argv),
   task_tcb->stack_ptr_base = (void *)task_tcb + sizeof(struct tcb_s);
   task_tcb->stack_ptr_top  = (void *)task_tcb + stack_size + sizeof(struct tcb_s);
   task_tcb->t_state        = READY;
+
+  if (task_name != NULL)
+  {
+    strncpy((char *)task_tcb->task_name, task_name, strlen(task_name));
+  }
 
 #ifdef CONFIG_SCHEDULER_TASK_COLORATION
   /* The effective stack size is base - top */

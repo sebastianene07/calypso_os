@@ -149,7 +149,8 @@ int worker_create(int priority, const char *name)
   int ret = sched_create_task(worker_main,
                               CONFIG_WORKER_STACK_SIZE,
                               1,
-                              (char **)new_worker);
+                              (char **)new_worker,
+                              "Worker");
   if (ret != 0) {
     ret = -EINVAL;
     goto free_with_worker;
