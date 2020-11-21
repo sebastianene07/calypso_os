@@ -9,13 +9,6 @@ extern struct list_head g_tcb_list;
 extern struct list_head g_tcb_waiting_list;
 extern struct list_head *g_current_tcb;
 
-/* Extern function implemented by the context switch mechanism. This method
- * suspends the execution for the current process saves it's context on the
- * stack and triggers an interrupt to begin the context switch.
- */
-
-void sched_context_switch(void);
-
 /*
  * sem_init - initialize the semaphore
  *
@@ -52,7 +45,7 @@ int sem_wait(sem_t *sem)
 {
   /* Disable context switch by disabling interrupts */
 
-  irq_state_t irq_state = disable_int();
+  irq_state_t irq_state = cpu_disableint();
 
   /* Verify the semaphore value and decrement it if it's > 0 */
 
@@ -62,10 +55,6 @@ int sem_wait(sem_t *sem)
   }
   else
   {
-    /* Place the current task in the waiting list and remove the task from the
-     * running queue.
-     */
-
     struct tcb_s *tcb     = sched_get_current_task();
 
     /* There was an error or tasks were not initialized.
@@ -74,10 +63,9 @@ int sem_wait(sem_t *sem)
      * like EAGAIN.
      */
 
-
-    if ((tcb == NULL) ||
-        (g_current_tcb->next == g_current_tcb->prev)) {
-      enable_int(irq_state);
+    if ((tcb == NULL) || (g_current_tcb->next == g_current_tcb->prev))
+    {
+      cpu_enableint(irq_state);
       return -EAGAIN;
     }
 
@@ -86,16 +74,19 @@ int sem_wait(sem_t *sem)
 
     /* Switch context to the next running task */
 
-    enable_int(irq_state);
+    cpu_enableint(irq_state);
 
-    sched_context_switch();
+    /* Place the current task in the waiting list and remove the task from the
+     * running queue. Activate a new task that is prepared to be run.
+     */
 
+    sched_preempt_task(tcb);
     return 0;
   }
 
   /* Re-enable interrupts */
 
-  enable_int(irq_state);
+  cpu_enableint(irq_state);
 
   return 0;
 }
@@ -125,7 +116,7 @@ int sem_post(sem_t *sem)
 {
   /* Disable interrupts for this task */
 
-  irq_state_t irq_state = disable_int();
+  irq_state_t irq_state = cpu_disableint();
 
   sem->count += 1;
 
@@ -158,7 +149,7 @@ int sem_post(sem_t *sem)
 
   /* Re-enable interrupts for the current task */
 
-  enable_int(irq_state);
+  cpu_enableint(irq_state);
 
   return 0;
 }

@@ -1,9 +1,3 @@
-config WFI_ENABLE
-  bool "Enable wait for interrupt mode"
-  default n
-  ---help---
-  Allow the CPU to enter wait for interrupt state to sleep.
-
 config SYSTEM_CLOCK_FREQUENCY
   int "Clock tick frequency in MhZ"
   default 200
@@ -17,3 +11,9 @@ config SYSTEM_SCHEDULER_SLICE_FREQUENCY
 config SCHEDULER_IDLE_TASK_STACK_SIZE
   int "The stack size for idle task"
   default 1024
+
+config BOARD_SLEEP
+bool "Support for the board sleep"
+  default n
+  ---help---
+  This should be enabled if the board supports sleep functionality.

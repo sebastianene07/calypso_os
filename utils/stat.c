@@ -133,7 +133,7 @@ free_with_path:
 int ioctl(int fd, unsigned long request, unsigned long arg)
 {
   int ret = -EINVAL;
-  irq_state_t irq_state = disable_int();
+  irq_state_t irq_state = cpu_disableint();
 
   struct tcb_s *curr_tcb = sched_get_current_task();
   assert(curr_tcb->curr_resource_opened >= 0);
@@ -151,7 +151,7 @@ int ioctl(int fd, unsigned long request, unsigned long arg)
   }
 
 cancel_ioctl:
-  enable_int(irq_state);
+  cpu_enableint(irq_state);
   return ret;
 }
 
