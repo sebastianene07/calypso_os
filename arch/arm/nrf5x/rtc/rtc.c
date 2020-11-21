@@ -1,4 +1,5 @@
 #include <board.h>
+#include <irq_manager.h>
 #include <scheduler.h>
 #include <rtc.h>
 #include <vfs.h>
@@ -122,36 +123,36 @@ static int rtc_open(struct opened_resource_s *res, const char *pathname,
 
   /* 1kHz -> perioada 1 ms -> 511875 */
 
-  irq_state_t irq_state = disable_int();
+  irq_state_t irq_state = cpu_disableint();
 
   if (g_opened_count == 0) {
     PRESCALER_CFG = PRESCALER_8_HZ;
     INTENSET_CFG  = 0x01;
 
-    attach_int(RTC0_IRQn, rtc_interrupt);
+    irq_attach(RTC0_IRQn, rtc_interrupt);
     NVIC_EnableIRQ(RTC0_IRQn);
     TASKS_START_CFG = 1;
   }
 
   ++g_opened_count;
-  enable_int(irq_state);
+  cpu_enableint(irq_state);
 
   return OK;
 }
 
 static int rtc_close(struct opened_resource_s *priv)
 {
-  irq_state_t irq_state = disable_int();
+  irq_state_t irq_state = cpu_disableint();
 
   --g_opened_count;
 
   if (g_opened_count == 0) {
     TASKS_START_CFG = 0;
     NVIC_DisableIRQ(RTC0_IRQn);
-    attach_int(RTC0_IRQn, NULL);
+    irq_attach(RTC0_IRQn, NULL);
   }
 
-  enable_int(irq_state);
+  cpu_enableint(irq_state);
   return 0;
 }
 
@@ -179,12 +180,12 @@ static int rtc_ioctl(struct opened_resource_s *priv, unsigned long request, unsi
       {
         current_time_t *new_rtc_time = (current_time_t *)arg;
 
-        irq_state_t irq_state = disable_int();
+        irq_state_t irq_state = cpu_disableint();
         g_seconds = new_rtc_time->g_second;
         g_minutes = new_rtc_time->g_minute;
         g_hours   = new_rtc_time->g_hours;
         g_rtc_ticks_ms = 0;
-        enable_int(irq_state);
+        cpu_enableint(irq_state);
         return OK;
       }
 

@@ -1,12 +1,15 @@
 #include <board.h>
 
 #include <assert.h>
+#include <errno.h>
+#include <gpio.h>
+
 #include <spi.h>
 #include <serial.h>
-#include <gpio.h>
 #include <rtc.h>
 #include <timer.h>
 #include <scheduler.h>
+
 
 #ifdef CONFIG_DISPLAY_SSD1331
 #include <display/ssd_1331.h>
@@ -23,6 +26,16 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
+/* The number of stacked registers in an interrupt context */
+
+#define MCU_CONTEXT_SIZE        (8)
+
+/* The number of unstacked registers */
+
+#define MCU_UNSTACKED_REG_SIZE  (8)
+
+/* The base clock address */
 
 #define CLOCK_BASE            (0x40000000)
 
@@ -189,37 +202,114 @@ void board_init(void)
       &uart_peripheral[CONFIG_SENSOR_PSMA003_UART_ID]);
 #endif
 
-  SysTick_Config(g_system_core_clock_freq / CONFIG_SYSTEM_SCHEDULER_SLICE_FREQUENCY);
+  /* Enable system tick */
+
+//  SysTick_Config(g_system_core_clock_freq / CONFIG_SYSTEM_SCHEDULER_SLICE_FREQUENCY);
 }
 
 /*
- * up_initial_task_context - creates the initial state for a task
+ * board_entersleep - Place the board in sleep. It wakes up on interrupt.
  *
  */
-int up_initial_task_context(struct tcb_s *task_tcb, int argc, char **argv)
+void board_entersleep(void)
 {
+  __WFI();
+}
+
+/*
+ * cpu_inittask - creates the initial state for a task
+ *
+ */
+int cpu_inittask(tcb_t *task_tcb, int argc, char **argv)
+{
+  void **mcu_context = calloc(MCU_CONTEXT_SIZE, sizeof(void *));
+  if (mcu_context == NULL)
+  {
+    return -ENOMEM;
+  }
+
   /* Initial MCU context */
 
-  task_tcb->mcu_context[0] = (void *)argc;
-  task_tcb->mcu_context[1] = (void *)argv;
-  task_tcb->mcu_context[5] = (uint32_t *)sched_default_task_exit_point;
-  task_tcb->mcu_context[6] = task_tcb->entry_point;
-  task_tcb->mcu_context[7] = (uint32_t *)0x1000000;
+  mcu_context[0] = (void *)argc;
+  mcu_context[1] = (void *)argv;
+  mcu_context[5] = (void *)sched_default_task_exit_point;
+  mcu_context[6] = (void *)task_tcb->entry_point;
+  mcu_context[7] = (void *)0x1000000;
 
-  /* Stack context in interrupt */
-  const int unstacked_regs = 8;   /* R4-R11 */
+  /* Setup the initial stack context  */
+
   int i = 0;
   void *ptr_after_int = task_tcb->stack_ptr_top -
     sizeof(void *) * MCU_CONTEXT_SIZE;
 
   for (uint8_t *ptr = ptr_after_int;
-     ptr < (uint8_t *)task_tcb->stack_ptr_top;
-     ptr += sizeof(uint32_t))
+       ptr < (uint8_t *)task_tcb->stack_ptr_top;
+       ptr += sizeof(uint32_t))
   {
-    *((uint32_t *)ptr) = (uint32_t)task_tcb->mcu_context[i++];
+    *((uint32_t *)ptr) = (uint32_t)mcu_context[i++];
   }
 
-  task_tcb->sp = ptr_after_int - unstacked_regs * sizeof(void *);
-
+  task_tcb->sp          = ptr_after_int;
+  task_tcb->mcu_context = mcu_context;
   return 0;
+}
+
+/*
+ * cpu_destroytask - creates the initial state for a task
+ *
+ */
+void cpu_destroytask(tcb_t *tcb)
+{
+  free(tcb->mcu_context);
+  free(tcb);
+}
+
+/*
+ * cpu_disableint - Disable all the interrupts and return the primask register.
+ *
+ */
+irq_state_t cpu_disableint(void)
+{
+  unsigned short primask;
+
+  __asm volatile("mrs %0, primask\n"
+                 "cpsid i\n"
+                 : "=r" (primask)
+                 :
+                 : "memory");
+  return (irq_state_t)primask;
+}
+
+/*
+ * cpu_enableint - Enable the interrupts if the first bit of the irq_state is 1.
+ *
+ */
+void cpu_enableint(irq_state_t irq_state)
+{
+  __asm volatile("tst %0, #1\n"
+                 "bne.n 1f\n"
+                 "cpsie i\n"
+                 "1:\n"
+                 :
+                 : "r" (irq_state)
+                 : "memory");
+}
+
+/*
+ * cpu_getirqnum - Return the interrupt number.
+ *
+ * Assumptions: This should be called only from ISR handler.
+ *
+ */
+int cpu_getirqnum(void)
+{
+  int ipsr;
+
+  __asm volatile("mrs %0, ipsr\n"
+                 : "=r" (ipsr)
+                 :
+                 : "memory");
+
+  ipsr -= 16;
+  return ipsr;
 }
