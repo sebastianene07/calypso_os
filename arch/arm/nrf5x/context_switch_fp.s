@@ -12,60 +12,12 @@
 .global cpu_savecontext
 
 .section .text
-
-/* We are using floating point stacking so here is the order of the registers saved:
- *
- *      | FPCSR | <---- Stack grows downwards so here are big address - 
- *      | S15   |       before stacking
- *      | S14   |
- *      | S13   |
- *      | S12   |
- *      | S11   |
- *      | S10   |
- *      | S9    |
- *      | S8    |
- *      | S7    |
- *      | S6    |
- *      | S5    |
- *      | S4    |
- *      | S3    |
- *      | S2    |
- *      | S1    |
- *      | S0    |
- *      | xPSR  |
- *      |  PC   |
- *      |  LR   |
- *      | R12   |
- *      |  R3   |
- *      |  R2   |
- *      |  R1   |
- *      |  R0   |
- *                <---- Stack ptr after stacking
- *
- *  100 bytes stored by the interrupt controller to save context.
- */
-
-/* We also need to store :
- *
- * This will be placed below the R0 from the ISR stacking
- *
- * R4
- * R5
- * R6
- * R7
- * R8
- * R9
- * R10
- * R11
- */
-
-
 .align 4
 .thumb_func
 
 /**************************************************************************
  * Name:
- *  cpu_savecontextt
+ *  cpu_savecontext
  *
  * Description:
  *  Dump the registers on the stack and update the stack pointer from the TCB. 

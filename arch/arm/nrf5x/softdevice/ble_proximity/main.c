@@ -1079,11 +1079,8 @@ int nrf_softdevice_init(void)
 
     printf("[NRF] init softdevice - complete\n");
 
-    // Enter main loop.
-    for (;;)
-    {
-        power_manage();
-    }
+    // Let the scheduler run other tasks
+    return 0;
 }
 
 

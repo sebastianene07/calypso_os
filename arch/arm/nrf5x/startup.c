@@ -13,7 +13,7 @@
 /* This symbol is defined in the soft device assembly and is the entry point
  * from soft device application. It's usefull to call this because it 
  * calls some initialization functions that help the soft device library.
- * After this we resume the execution to the _start entry point from assembly.
+ * After this we resume the execution to the __start entry point from assembly.
  */
 void Reset_Handler(void);
 #endif
