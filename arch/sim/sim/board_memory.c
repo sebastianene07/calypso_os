@@ -25,9 +25,3 @@ unsigned long _ebss;
 
 unsigned long _sheap = (unsigned long)&g_heap_memory[0];
 unsigned long _eheap = (unsigned long)&g_heap_memory[CONFIG_SIM_HEAP_SIZE];
-
-/* In the simulation build the g_ram_vectors is not used as we don't have
- * interrupts but it should be defined to avoid compilation errors.
- */
-
-void (*g_ram_vectors[NUM_IRQS])(void);

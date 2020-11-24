@@ -505,33 +505,29 @@ sched_preempt_task(tcb_t *to_preempt_tcb)
   SCHED_DEBUG_INFO("%s saved context\n", to_preempt_tcb->task_name);
   list_for_each_entry(new_tcb, &g_tcb_list, next_tcb)
   {
-    if (new_tcb->t_state == READY)
-    {
-      /* Great, we found a task that it is the ready state.
-       * Move the task in the runing state and restore its context.
-       */
+    /* All the tasks from this list should be in the READY state */
+  
+    assert(new_tcb->t_state == READY);
 
-      new_tcb->t_state = RUNNING;
+    /* Great, we found a task that it is the ready state.
+     * Move the task in the runing state and restore its context.
+     */
 
-      /* Update the current running task */
+    new_tcb->t_state = RUNNING;
 
-      g_current_tcb = &new_tcb->next_tcb;
-      SCHED_DEBUG_INFO("%s now run\n", new_tcb->task_name);
+    g_current_tcb = &new_tcb->next_tcb;
+    SCHED_DEBUG_INFO("%s now run\n", new_tcb->task_name);
 
-      /* Re-enable the interrupts */
+    /* Update the current running task */
 
-      cpu_enableint(irq_state);                                                                         
+    g_current_tcb = &new_tcb->next_tcb;
 
-      /* Switch the context to the new task */
+    /* Re-enable the interrupts */
 
-      cpu_restorecontext(new_tcb->sp);
-    }
-    else
-    {
-      /* Something is messed up and the task should not be in this list */
+    cpu_enableint(irq_state);                                                                         
+    /* Switch the context to the new task */
 
-      assert(0);
-    } 
+    cpu_restorecontext(new_tcb->sp);
   }
 
   cpu_enableint(irq_state);                                                                         

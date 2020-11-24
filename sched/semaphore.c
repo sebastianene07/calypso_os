@@ -1,5 +1,6 @@
 #include <board.h>
 
+#include <assert.h>
 #include <errno.h>
 #include <semaphore.h>
 #include <scheduler.h>
@@ -63,6 +64,9 @@ int sem_wait(sem_t *sem)
      * like EAGAIN.
      */
 
+    assert(!((tcb->t_state == WAITING_FOR_SEM) ||
+           (tcb->t_state == HALTED)));
+
     if ((tcb == NULL) || (g_current_tcb->next == g_current_tcb->prev))
     {
       cpu_enableint(irq_state);
@@ -89,7 +93,6 @@ int sem_wait(sem_t *sem)
   /* Re-enable interrupts */
 
   cpu_enableint(irq_state);
-
   return 0;
 }
 
@@ -134,6 +137,14 @@ int sem_post(sem_t *sem)
     {
       if (current != NULL && current->waiting_tcb_sema == sem)
       {
+        /* If the task is not in the waiting state then somwthing went
+         * wrong.
+         */
+
+        assert(current->t_state == WAITING_FOR_SEM); 
+
+        /* Move the task state to ready and remove the semaphore from */
+
         current->waiting_tcb_sema = NULL;
         current->t_state          = READY;
 

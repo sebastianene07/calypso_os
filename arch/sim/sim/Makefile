@@ -3,7 +3,8 @@ SRC += board_uart.c
 SRC += board_rtc.c
 
 OBJS := $(patsubst %.c,%.o,$(SRC))
-ARCH_FLAGS:=${CFLAGS} -I$(TOPDIR)/include -I$(TOPDIR)/s_alloc -I./include/ -I$(TOPDIR)/sched/include -I$(TOPDIR)/drivers/
+INCLUDE_PATHS:=-I$(TOPDIR)/include -I$(TOPDIR)/s_alloc -I./include/ -I$(TOPDIR)/sched/include -I$(TOPDIR)/drivers/
+ARCH_FLAGS:=${CFLAGS} ${INCLUDE_PATHS}
 SRC_REL := board_memory.c
 OBJS_REL := $(patsubst %.c,%.o,$(SRC_REL))
 

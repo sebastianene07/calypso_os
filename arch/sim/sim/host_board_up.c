@@ -64,10 +64,6 @@ typedef union irq_data_u
  * Public Data
  ****************************************************************************/
 
-/* The simulated interrupt vector table */
-
-extern void (*g_ram_vectors[NUM_IRQS])(void);
-
 extern sim_uart_peripheral_t g_uart_peripheral;
 
 /****************************************************************************
@@ -98,6 +94,16 @@ static int g_sim_flash_fd = -1;
 
 void __start(void);
 
+/* Define the generic handler here to avoid the irq_manager.h header inclusion.
+ * which will resut in a conflict with the host types.
+ */
+
+void irq_generic_handler(void);
+
+/* Called from the host signal handler to set the interrupt number */
+
+void host_set_simualted_intnum(int int_num);
+
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
@@ -118,17 +124,20 @@ void __start(void);
 
 static void host_signal_handler(int sig, siginfo_t *si, void *old_ucontext)
 {
-  if (sig == SIGALRM) {
-    sched_context_switch();
-  } else if (sig == SIGUSR2) {
-
-    /* Send the UART simulated event */
-
-    if (g_ram_vectors[UART_0_IRQ] != NULL)
-      g_ram_vectors[UART_0_IRQ]();
+  if (sig == SIGALRM)
+  {
+    host_set_simualted_intnum(SYSTICK_IRQ);
+  }
+  else if (sig == SIGUSR2)
+  {
+    host_set_simualted_intnum(UART_0_IRQ);
+  }
+  else
+  {
+    return;
   }
 
-  /* Unsupported sig */
+  irq_generic_handler();
 }
 
 /****************************************************************************
@@ -252,6 +261,11 @@ static void host_sim_flash_open(void)
  * Public Functions
  ****************************************************************************/
 
+void board_entersleep(void)
+{
+  sleep(1);
+}
+
 /****************************************************************************
  * Name: host_console_putc
  *
@@ -271,13 +285,7 @@ static void host_sim_flash_open(void)
 
 void host_console_putc(int c)
 {
-  char buffer[12];
-  memset(buffer, 0, sizeof(buffer));
-
-  int ret = snprintf(buffer, sizeof(buffer), "%c", c);
-  if (ret > 0) {
-    write(1, buffer, ret);
-  }
+  write(1, &c, 1);
 }
 
 /****************************************************************************
@@ -314,6 +322,7 @@ void host_simulated_systick(void)
   sigemptyset(&set);
   sigaddset(&set, SIGALRM);
   sigaddset(&set, SIGSEGV);
+  sigaddset(&set, SIGUSR2);
   if ((ret = sigaction(SIGALRM, &act, NULL)) != 0) {
       _err("%d signal handler", ret);
   }
@@ -333,39 +342,39 @@ void host_simulated_systick(void)
 
 /**************************************************************************
  * Name:
- *  disable_int
+ *  cpu_disableint
  *
  * Description:
  *  Disable all interrupts.
  *
  *************************************************************************/
 
-irq_state_t disable_int(void)
+irq_state_t cpu_disableint(void)
 {
-  irq_data_t irq_new_data, irq_old_data;
-
-  /* Disable signals */
-
-  sigfillset(&irq_new_data.signal_set);
-  pthread_sigmask(SIG_SETMASK, &irq_new_data.signal_set, &irq_old_data.signal_set);
-
-  return irq_old_data.irq_state;
+//  irq_data_t irq_new_data, irq_old_data;
+//
+//  /* Disable signals */
+//
+//  sigfillset(&irq_new_data.signal_set);
+//  pthread_sigmask(SIG_SETMASK, &irq_new_data.signal_set, &irq_old_data.signal_set);
+//  return irq_old_data.irq_state;
+  return 0;
 }
 
 /**************************************************************************
  * Name:
- *  enable_int
+ *  cpu_enableint
  *
  * Description:
  *  Enable all interrupts.
  *
  *************************************************************************/
 
-void enable_int(irq_state_t last_state)
+void cpu_enableint(irq_state_t last_state)
 {
-  irq_data_t irq_old_data;
-  irq_old_data.irq_state = last_state;
-  pthread_sigmask(SIG_SETMASK, &irq_old_data.signal_set, NULL);
+//  irq_data_t irq_old_data;
+//  irq_old_data.irq_state = last_state;
+//  pthread_sigmask(SIG_SETMASK, &irq_old_data.signal_set, NULL);
 }
 
 /****************************************************************************
@@ -497,6 +506,7 @@ int main(int argc, char **argv)
 
   sigset_t newset;
   sigfillset(&newset);
+  sigdelset(&newset, SIGINT);
   pthread_sigmask(SIG_SETMASK, &newset, NULL);
 
   /* Set up the console so that we don't buffer characters and we disable echo
@@ -511,6 +521,10 @@ int main(int argc, char **argv)
   /* Create interrupts thread for this simulation */
 
   host_create_interrupt_thread();
+
+  /* Re-enable all the interrupts */
+
+  pthread_sigmask(SIG_UNBLOCK, &newset, NULL);
 
   /* Start the Calypso OS simulation */
 
