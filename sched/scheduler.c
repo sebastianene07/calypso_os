@@ -457,13 +457,20 @@ tcb_t *sched_get_current_task(void)
  *  The task that was moved from running to ready.
  *
  ************************************************************************/
-
-struct tcb_s *sched_preempt_task(tcb_t *to_preempt_tcb)
+struct tcb_s * __attribute__((optimize("O0")))
+sched_preempt_task(tcb_t *to_preempt_tcb)
 {
   tcb_t *new_tcb = NULL;
   irq_state_t irq_state = cpu_disableint();
 
-  /* Delete the task from the current g_tcb_list */
+  /* If the task to preempt is not in :
+   * READY, WAITING_FOR_SEM or HALTED
+   * something is wrong.
+   */
+
+  assert(to_preempt_tcb->t_state != RUNNING); 
+
+  /* Delete the task from the current list */
 
   list_del(&to_preempt_tcb->next_tcb);
 
@@ -473,6 +480,7 @@ struct tcb_s *sched_preempt_task(tcb_t *to_preempt_tcb)
      * Place the task at the end of the list.
      */
 
+    SCHED_DEBUG_INFO("%s preempted\n", to_preempt_tcb->task_name);
     list_add_tail(&to_preempt_tcb->next_tcb, &g_tcb_list);
   }
   else if (to_preempt_tcb->t_state == WAITING_FOR_SEM ||
@@ -489,10 +497,12 @@ struct tcb_s *sched_preempt_task(tcb_t *to_preempt_tcb)
 
   if (cpu_savecontext(&to_preempt_tcb->sp))
   {
+    SCHED_DEBUG_INFO("%s restored context\n", to_preempt_tcb->task_name);
     cpu_enableint(irq_state);
     return NULL;
   }
 
+  SCHED_DEBUG_INFO("%s saved context\n", to_preempt_tcb->task_name);
   list_for_each_entry(new_tcb, &g_tcb_list, next_tcb)
   {
     if (new_tcb->t_state == READY)
@@ -506,10 +516,12 @@ struct tcb_s *sched_preempt_task(tcb_t *to_preempt_tcb)
       /* Update the current running task */
 
       g_current_tcb = &new_tcb->next_tcb;
+      SCHED_DEBUG_INFO("%s now run\n", new_tcb->task_name);
 
       /* Re-enable the interrupts */
 
       cpu_enableint(irq_state);                                                                         
+
       /* Switch the context to the new task */
 
       cpu_restorecontext(new_tcb->sp);
@@ -517,6 +529,8 @@ struct tcb_s *sched_preempt_task(tcb_t *to_preempt_tcb)
     else
     {
       /* Something is messed up and the task should not be in this list */
+
+      assert(0);
     } 
   }
 

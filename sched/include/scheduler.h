@@ -14,18 +14,19 @@
 #include <list.h>
 #include <stdint.h>
 #include <semaphore.h>
+#include <stdio.h>
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
-/* Fill the stack with 0xDEADBEEF */
+/* Scheduler debug macro */
 
-#define CONFIG_SCHEDULER_TASK_COLORATION      (1)
-
-/* Task name */
-
-#define CONFIG_TASK_NAME_LEN                  (32)
+#ifndef CONFIG_SCHEDULER_DEBUG
+  #define SCHED_DEBUG_INFO(msg, ...)
+#else
+  #define SCHED_DEBUG_INFO(msg, ...)  printf("[SCHED] "msg, __VA_ARGS__)
+#endif
 
 /****************************************************************************
  * Public Types

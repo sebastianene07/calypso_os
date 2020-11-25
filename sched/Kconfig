@@ -12,6 +12,21 @@ config SCHEDULER_IDLE_TASK_STACK_SIZE
   int "The stack size for idle task"
   default 1024
 
+config SCHEDULER_DEBUG
+  bool "Show debug messages from the scheduler"
+  default n
+  ---help---
+    When this is enabled it will show the scheduled task name
+    and the task states.
+
+config SCHEDULER_TASK_COLORATION
+  bool "Fill the stack of the new created application with 0xDEADBEEF"
+  default y
+
+config TASK_NAME_LEN
+  int "The max size of the task name in bytes"
+  default 32
+
 config BOARD_SLEEP
 bool "Support for the board sleep"
   default n
