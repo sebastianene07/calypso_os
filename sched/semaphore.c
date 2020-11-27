@@ -150,12 +150,10 @@ int sem_post(sem_t *sem)
 
         SCHED_DEBUG_INFO("%s received POST sema\n", current->task_name);
 
-        /* Delete the task from the waiting list and add it to the
-         * ready to run list in front of other tasks.
+        /* Let the sched_preempt_task function Delete the task from the
+         * waiting list and add it to the ready to run list in front of other
+         * tasks.
          */
-
-        list_del(&current->next_tcb);
-        list_add(&current->next_tcb, &g_tcb_list);
         break;
       }
     }

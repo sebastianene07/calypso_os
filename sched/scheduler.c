@@ -457,11 +457,26 @@ tcb_t *sched_get_current_task(void)
  *  The task that was moved from running to ready.
  *
  ************************************************************************/
-struct tcb_s * __attribute__((optimize("O0")))
+struct tcb_s *
 sched_preempt_task(tcb_t *to_preempt_tcb)
 {
   tcb_t *new_tcb = NULL;
+  struct list_head *current, *temp;
   irq_state_t irq_state = cpu_disableint();
+
+  /* Is there any task in the waiting list that needs to be added back
+   * in the ready list ?
+   */
+
+  list_for_each_safe(current, temp, &g_tcb_waiting_list)
+  {
+    new_tcb = container_of(current, tcb_t, next_tcb); 
+    if (new_tcb && new_tcb->t_state == READY)
+    {
+      list_del(current);
+      list_add(current, &g_tcb_list);
+    }
+  }
 
   /* If the task to preempt is not in :
    * READY, WAITING_FOR_SEM or HALTED
@@ -525,6 +540,7 @@ sched_preempt_task(tcb_t *to_preempt_tcb)
     /* Re-enable the interrupts */
 
     cpu_enableint(irq_state);                                                                         
+
     /* Switch the context to the new task */
 
     cpu_restorecontext(new_tcb->sp);
