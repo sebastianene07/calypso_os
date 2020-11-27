@@ -1,5 +1,5 @@
 This operating system is designed to run on low power embedded devices. It has a 
-pre-emptive scheduling algorithm and offers a POSIX like interface to the userland.
+pre-emptive scheduling algorithm and offers a POSIX like interface to the apps.
 
 
 ## Building
@@ -12,7 +12,7 @@ git clone https://github.com/sebastianene07/calypso_os.git
 git submodule update --init --recursive
 ```
 
-Example for building Calypso OS for Norfic NrF5X board:
+Example for building Calypso OS for Norfic NRF5X board:
 
 ```
 make config MACHINE_TYPE=nrf5x/nrf52840
@@ -38,18 +38,25 @@ build machine.
 
 ### 1. Task scheduling and basic synchronization primitives
 
-The scheduler is preemptive and each task has a fixed allocated time slot.
-The scheduler keeps track of two lists g_tcb_waiting_list and g_tcb_list:  &nbsp;
+The OS defines two list :
 
-g_tcb_waiting_list - holds the tasks waiting for a semaphore &nbsp;
+g_tcb_waiting_list - is holding the tasks in one of the following states:&nbsp;
+                     [READY, WAITING_FOR_SEM, HALT] &nbsp;
 
-g_tcb_list         - holds the tasks in pending state        &nbsp;
+g_tcb_list         - is holding the tasks in the READY and RUNNING state &nbsp;
 
 The g_current_tcb pointer points to the current running task. &nbsp;
 A task transitions from running to waiting for semaphore &nbsp;
 when it tries to acquire a semaphore that has a value <= 0. &nbsp;
 The task is placed in the g_tcb_waiting_list and it's context &nbsp;
 is saved on the stack. &nbsp;
+
+To wakeup a task from the waiting for semaphore state &nbsp;
+someone has to call ```sem_post``` on the semaphore &nbsp;
+that keeps the task from running. Once this semaphore &nbsp;
+is posted, the task enters the READY state and when the &nbsp;
+Idle Task runs it moves the task from the g_tcb_waiting_list &nbsp;
+to g_tcb_list list. &nbsp;
 
 ### 2. Dynamic memory allocation
 
@@ -122,23 +129,25 @@ https://github.com/users/sebastianene07/projects/1#card-30262282
 1. Virtual file system support
   1.1 Add support for FatFS http://elm-chan.org/fsw/ff/00index_e.html (DONE)
   1.1.1 Implement SD/MMC driver                                       (DONE)
-  1.1.2 Add MTD layer 
+  1.1.2 Add MTD layer                                                 (DONE)
 
   1.2 Add functional tests for memory allocator                       (DONE)
-  1.4 The read/write device flow                                      (DONE)
-  1.5 Polling from devices
+  1.3 Add functional tests for the simulator which run in CI          (DONE)
 
 2. Refactorization & Driver lower half/upper half separation          (DONE)
-3. Tickless kernel
-4. Tasks prioritization option
+3. Tickless kernel                                                    (DONE)
+4. Application support and basic shell                                (DONE)
+5. BLE support (with nrf5x family and softdevice)                     (DONE)
 
 ```
 
 ## Porting Guide 
 
-Check out the versatilepb branch to view how the code was ported on the 
-qemu Armv6 emulator. I'm working to add full support on this machine to
-be able to run it inside qemu. 
+Adding a new board support has never been easier. Check out the board
+interface defined here: https://github.com/sebastianene07/calypso_os/tree/master/config
+
+To implement the minimum support, define and use the functions marked as
+```MANDATORY```.
 
 ## Contributions
 
