@@ -308,28 +308,6 @@ static inline uint32_t SysTick_Config(uint32_t ticks)
   return (0UL);                                                     /* Function successful */
 }
 
-/**
-  \brief   Enable IRQ Interrupts
-  \details Enables IRQ interrupts by clearing the I-bit in the CPSR.
-           Can only be executed in Privileged modes.
- */
-static inline void enable_int(irq_state_t irq_state)
-{
-  __asm volatile ("cpsie i" : : : "memory");
-}
-
-
-/**
-  \brief   Disable IRQ Interrupts
-  \details Disables IRQ interrupts by setting the I-bit in the CPSR.
-           Can only be executed in Privileged modes.
- */
-static inline irq_state_t disable_int(void)
-{
-  __asm volatile ("cpsid i" : : : "memory");
-  return 0;
-}
-
 /** \brief  Clear Pending Interrupt
 
     The function clears the pending bit of an external interrupt.

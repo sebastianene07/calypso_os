@@ -6,9 +6,8 @@
  */
 
 #include <board.h>
-
 #include <scheduler.h>
-#include <semaphore.h>
+
 #include <errno.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -16,31 +15,29 @@
 #include <assert.h>
 #include <string.h>
 
-/* Running task list */
+/****************************************************************************
+ * Public variables defintion
+ ****************************************************************************/
+
+/* This list holds the ready to run and the runing task */
 
 LIST_HEAD(g_tcb_list);
 
-/* Waiting for sem task list */
+/* The list holds the waiting for semaphore and the halted tasks */
 
 LIST_HEAD(g_tcb_waiting_list);
 
-/* Current running task */
+/* The current running task */
 
 struct list_head *g_current_tcb = NULL;
-
-/* The interrupt vector table */
-
-extern void (*g_vectors[NUM_IRQS])(void);
-extern void (*g_ram_vectors[NUM_IRQS])(void);
 
 /**************************************************************************
  * Name:
  *  sched_idle_task
  *
  * Description:
- *  This task is responsible for cleaning up resources used by the tasks. It
- *  can also be used to monitor the HEAP usage, scan for corruptions and
- *  asking the CPU to enter deep sleep mode if no other operation is pending
+ *  This task is responsible for cleaning up resources used by the tasks
+ *  and to put the board to sleep if CONFIG_BOARD_SLEEP is enabled.
  *  to be executed.
  *
  * Assumptions:
@@ -50,47 +47,59 @@ extern void (*g_ram_vectors[NUM_IRQS])(void);
 
 static int sched_idle_task(int argc, char **argv)
 {
+  tcb_t *current_tcb;
+  struct list_head *current, *temp;
+  int fd;
+
   printf("[idle_task] entry point\n");
 
   while (1)
   {
+    irq_state_t irq_mask = cpu_disableint();
+
     /* Check if we need to free any HALTED tasks */
 
-    irq_state_t irq_mask = disable_int();
+    list_for_each_safe(current, temp, &g_tcb_waiting_list)
+    {
+      if (current == NULL)
+        continue;
 
-    bool is_halt_task;
-    do {
-      is_halt_task = false;
-      struct tcb_s *current = NULL;
-
-      list_for_each_entry(current, &g_tcb_waiting_list, next_tcb)
+      current_tcb = container_of(current, tcb_t, next_tcb);
+      if (current_tcb == NULL ||
+          current_tcb->t_state != HALTED)
       {
-        if (current != NULL && current->t_state == HALTED)
-        {
-          list_del(&current->next_tcb);
-
-          /* Does this task have opened resources ? */
-
-          for (int fd = 0; fd < current->curr_resource_opened; fd++) {
-            sched_free_resource(fd);
-          }
-
-          up_destroy_task_context(current);
-
-          free(current);
-          is_halt_task = true;
-          break;
-        }
+        continue;
       }
-    } while (is_halt_task);
 
-    enable_int(irq_mask);
-#ifdef CONFIG_WFI_ENABLE
-    __WFI();
+      /* Remove the task from the waiting list if it's in HALTED state */
+
+      list_del(current);
+
+      /* Close the opened resources */
+
+      for (fd = 0; fd < current_tcb->curr_resource_opened; fd++)
+      {
+        sched_free_resource(fd);
+      }
+
+      /* Tear down the task context */
+
+      cpu_destroytask(current_tcb);
+    }
+
+    cpu_enableint(irq_mask);
+
+    /* Run the scheduler */
+
+    sched_run();
+
+#ifdef CONFIG_BOARD_SLEEP
+
+    /* Put the board in sleep */
+
+    board_entersleep();
 #endif
   }
-
-  /* It should not end up here */
 
   return 0;
 }
@@ -109,8 +118,6 @@ static int sched_idle_task(int argc, char **argv)
 
 int sched_init(void)
 {
-  /* Create idle task */
-
   int ret = sched_create_task(sched_idle_task,
                               CONFIG_SCHEDULER_IDLE_TASK_STACK_SIZE,
                               0,
@@ -121,8 +128,6 @@ int sched_init(void)
     return ret;
   }
 
-  g_current_tcb = g_tcb_list.next;
-
   return 0;
 }
 
@@ -131,9 +136,7 @@ int sched_init(void)
  *  sched_default_task_exit_point
  *
  * Description:
- *  Called when a task has finished executing the task entry point and it's
- *  about to tear down it's resources. This function should do the cleanup
- *  look for opened file descriptors and release the accessed resources.
+ *  Called when a task has finished executing the task entry point and returns
  *
  * Assumptions:
  *  This function does not exit.
@@ -142,21 +145,21 @@ int sched_init(void)
 
 void sched_default_task_exit_point(void)
 {
-  irq_state_t irq_state = disable_int();
+  irq_state_t irq_state = cpu_disableint();
 
   /* Move this task in the HALT state and wait for the idle task to clean up
    * it's memory.
    */
 
-  struct tcb_s *this_tcb      = sched_get_current_task();
+  tcb_t *this_tcb             = sched_get_current_task();
   this_tcb->t_state           = HALTED;
   this_tcb->waiting_tcb_sema  = NULL;
 
-  enable_int(irq_state);
+  cpu_enableint(irq_state);
 
   /* Switch context to the next running task */
 
-  sched_context_switch();
+  sched_preempt_task(this_tcb);
 }
 
 /**************************************************************************
@@ -187,7 +190,7 @@ int sched_create_task(int (*task_entry_point)(int argc, char **argv),
                       char **argv,
                       const char *task_name)
 {
-  irq_state_t irq_state = disable_int();
+  irq_state_t irq_state = cpu_disableint();
   int ret;
 
   struct tcb_s *task_tcb = calloc(1, sizeof(struct tcb_s) + stack_size);
@@ -218,7 +221,7 @@ int sched_create_task(int (*task_entry_point)(int argc, char **argv),
   }
 #endif
 
-  ret = up_initial_task_context(task_tcb, argc, argv);
+  ret = cpu_inittask(task_tcb, argc, argv);
   if (ret < 0) {
     free(task_tcb);
     goto failed_task_creation;
@@ -235,7 +238,7 @@ int sched_create_task(int (*task_entry_point)(int argc, char **argv),
   ret = OK;
 
 failed_task_creation:
-  enable_int(irq_state);
+  cpu_enableint(irq_state);
   return ret;
 }
 
@@ -281,14 +284,14 @@ struct tcb_s *sched_get_next_task(void)
 struct opened_resource_s *sched_allocate_resource(const struct vfs_node_s *vfs_node,
                                                   int open_mode)
 {
-  irq_state_t irq_state = disable_int();
+  irq_state_t irq_state = cpu_disableint();
   struct tcb_s *curr_tcb = sched_get_current_task();
   assert(curr_tcb->curr_resource_opened >= 0);
 
   struct opened_resource_s *new_res = calloc(1,
       sizeof(struct opened_resource_s));
   if (!new_res) {
-    enable_int(irq_state);
+    cpu_enableint(irq_state);
     return NULL;
   }
 
@@ -299,7 +302,7 @@ struct opened_resource_s *sched_allocate_resource(const struct vfs_node_s *vfs_n
   curr_tcb->curr_resource_opened++;
 
   list_add(&new_res->node, &curr_tcb->opened_resource);
-  enable_int(irq_state);
+  cpu_enableint(irq_state);
 
   return new_res;
 }
@@ -322,7 +325,7 @@ struct opened_resource_s *sched_allocate_resource(const struct vfs_node_s *vfs_n
 
 int sched_free_resource(int fd)
 {
-  irq_state_t irq_state = disable_int();
+  irq_state_t irq_state = cpu_disableint();
 
   struct tcb_s *curr_tcb = sched_get_current_task();
   assert(curr_tcb->curr_resource_opened >= 0);
@@ -335,11 +338,11 @@ int sched_free_resource(int fd)
     list_del(&resource->node);
 
     free(resource);
-    enable_int(irq_state);
+    cpu_enableint(irq_state);
     return OK;
   }
 
-  enable_int(irq_state);
+  cpu_enableint(irq_state);
   return -ENOENT;
 }
 
@@ -388,12 +391,44 @@ struct opened_resource_s *sched_find_opened_resource(int fd)
 
 void sched_run(void)
 {
-  sched_idle_task(0, NULL);
+  irq_state_t irq_mask = cpu_disableint();
+
+  tcb_t *current_task = sched_get_current_task();
+  if (g_current_tcb == NULL)
+  {
+  
+    /* In the initial phase there is no task, it is only the __start
+     * entry point which is called after reset.
+     */
+
+    g_current_tcb = g_tcb_list.next;
+    current_task = container_of(g_current_tcb, tcb_t, next_tcb);
+
+    /* Switch the task state to running */
+
+    current_task->t_state = RUNNING;
+
+    /* Re-enable the interrupts */
+
+    cpu_enableint(irq_mask);
+
+    /* Set the context to the new task */
+
+    cpu_restorecontext(current_task->sp);
+    return;
+  }
+
+  /* TODO: Verify if we need to do a context switch */
+
+  current_task->t_state = READY;
+
+  cpu_enableint(irq_mask);
+  sched_preempt_task(current_task);
 }
 
 /**************************************************************************
 * Name:
-* sched_get_current_task
+*  sched_get_current_task
 *
 * Description:
 *  Get current runing task.
@@ -403,31 +438,12 @@ void sched_run(void)
 *
 *************************************************************************/
 
-struct tcb_s *sched_get_current_task(void)
+tcb_t *sched_get_current_task(void)
 {
   if (g_current_tcb == NULL)
     return NULL;
 
-  struct tcb_s *current_tcb = (struct tcb_s *)container_of(g_current_tcb,
-    struct tcb_s, next_tcb);
-  return current_tcb;
-}
-
-/**************************************************************************
- * Name:
- *  sched_desroy
- *
- * Description:
- *  Init scheduler resources.
- *
- * Return Value:
- *  OK in case of success otherwise a negate value.
- *
- *************************************************************************/
-
-int sched_desroy(void)
-{
-  return 0;
+  return (tcb_t *)container_of(g_current_tcb, tcb_t, next_tcb);
 }
 
 /**************************************************************************
@@ -435,40 +451,101 @@ int sched_desroy(void)
  *  sched_preempt_task
  *
  * Description:
- *  Move the task from running to waiting list.
+ *  Move the task from running to waiting list and activate the next task.
  *
  * Return Value:
  *  The task that was moved from running to ready.
  *
- *************************************************************************/
-
-struct tcb_s *sched_preempt_task(void)
+ ************************************************************************/
+struct tcb_s *
+sched_preempt_task(tcb_t *to_preempt_tcb)
 {
-  struct tcb_s *tcb = sched_get_current_task();
+  tcb_t *new_tcb = NULL;
+  struct list_head *current, *temp;
+  irq_state_t irq_state = cpu_disableint();
 
-  g_current_tcb = &sched_get_next_task()->next_tcb;
+  /* Is there any task in the waiting list that needs to be added back
+   * in the ready list ?
+   */
 
-  list_del(&tcb->next_tcb);
-  list_add(&tcb->next_tcb, &g_tcb_waiting_list);
+  list_for_each_safe(current, temp, &g_tcb_waiting_list)
+  {
+    new_tcb = container_of(current, tcb_t, next_tcb); 
+    if (new_tcb && new_tcb->t_state == READY)
+    {
+      list_del(current);
+      list_add(current, &g_tcb_list);
+    }
+  }
 
-  return tcb;
-}
+  /* If the task to preempt is not in :
+   * READY, WAITING_FOR_SEM or HALTED
+   * something is wrong.
+   */
 
-/**************************************************************************
- * Name:
- *  attach_int
- *
- * Description:
- *  Attach an interrupt callback. If handler is NULL, the dummy
- *  interrupt handler should be installed and the function should
- *  act as detach.
- *
- * Assumption/Limitations:
- *  Call this function with interrupts disabled.
- *
- *************************************************************************/
+  assert(to_preempt_tcb->t_state != RUNNING); 
 
-void attach_int(IRQn_Type irq_num, irq_cb handler)
-{
-  g_ram_vectors[irq_num] = handler;
+  /* Delete the task from the current list */
+
+  list_del(&to_preempt_tcb->next_tcb);
+
+  if (to_preempt_tcb->t_state == READY)
+  {
+    /* The task slot expired we need to scheduler a new task.
+     * Place the task at the end of the list.
+     */
+
+    SCHED_DEBUG_INFO("%s preempted\n", to_preempt_tcb->task_name);
+    list_add_tail(&to_preempt_tcb->next_tcb, &g_tcb_list);
+  }
+  else if (to_preempt_tcb->t_state == WAITING_FOR_SEM ||
+           to_preempt_tcb->t_state == HALTED)
+  {
+     /* The task is preempted because it was blocked by a semaphore
+      * or it was done executing the entry point and it needs to be halted.
+      */
+
+    list_add(&to_preempt_tcb->next_tcb, &g_tcb_waiting_list);
+  }
+
+  /* Save the current context in the task that needs to be preempted */
+
+  if (cpu_savecontext(&to_preempt_tcb->sp))
+  {
+    SCHED_DEBUG_INFO("%s restored context\n", to_preempt_tcb->task_name);
+    cpu_enableint(irq_state);
+    return NULL;
+  }
+
+  SCHED_DEBUG_INFO("%s saved context\n", to_preempt_tcb->task_name);
+  list_for_each_entry(new_tcb, &g_tcb_list, next_tcb)
+  {
+    /* All the tasks from this list should be in the READY state */
+  
+    assert(new_tcb->t_state == READY);
+
+    /* Great, we found a task that it is the ready state.
+     * Move the task in the runing state and restore its context.
+     */
+
+    new_tcb->t_state = RUNNING;
+
+    g_current_tcb = &new_tcb->next_tcb;
+    SCHED_DEBUG_INFO("%s now run\n", new_tcb->task_name);
+
+    /* Update the current running task */
+
+    g_current_tcb = &new_tcb->next_tcb;
+
+    /* Re-enable the interrupts */
+
+    cpu_enableint(irq_state);                                                                         
+
+    /* Switch the context to the new task */
+
+    cpu_restorecontext(new_tcb->sp);
+  }
+
+  cpu_enableint(irq_state);                                                                         
+  return new_tcb;
 }

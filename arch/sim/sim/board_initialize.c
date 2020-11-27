@@ -4,16 +4,17 @@
 
 #include <board.h>
 
+#include <assert.h>
 #include <errno.h>
 #ifdef CONFIG_SIMULATED_FLASH
   #include <storage/simulated_flash.h>
 #endif
 #include <scheduler.h>
 #include <serial.h>
+#include <signal.h>
 #include <stdint.h>
 #include <string.h>
 #include <os_start.h>
-#include <ucontext.h>
 #include <rtc.h>
 
 /****************************************************************************
@@ -28,23 +29,36 @@
  * Private Types
  ****************************************************************************/
 
-/* This is an arch specific container used to keep the task context and
- * the arguments to the task.
- */
-
-typedef struct sim_mcu_context_s {
-  ucontext_t *task_ucontext;
-  char **argv;
-  int argc;
-} sim_mcu_context_t;
+typedef struct sim_mcu_arguments_s
+{
+  int argv;
+  char **argc;
+} sim_mcu_arguments_t;
 
 /****************************************************************************
- * Public Function Prototype
+ * Private Types
+ ****************************************************************************/
+
+/* Save the simulated interrupt number from the host signal handler */
+
+static volatile int g_simulated_int_num;
+
+/****************************************************************************
+ * Public Function Prototypes
  ****************************************************************************/
 
 /* This function starts to simulate systick events using a host timer */
 
 void host_simulated_systick(void);
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+static void systick_interrupt(void)
+{
+  sched_run();
+}
 
 /****************************************************************************
  * Public Functions
@@ -84,49 +98,44 @@ void board_init(void)
 
   /* Start the SysTick simulation using the host timer */
 
-  host_simulated_systick();
+  irq_attach(SYSTICK_IRQ, systick_interrupt);
+//  host_simulated_systick();
 }
 
 /****************************************************************************
- * Name: task_default_entry_point
+ * Name: host_set_simualted_intnum
  *
  * Description:
- *   This is the default entry point for each new task. After this
- *   function finishes it calls into the sched_context_switch
- *   to switch the context to the next running task.
- *
- * Input Parameters:
- *   argc - the number of the arguments to the task
- *   argv - the argument of the task
+ *   This sets the simulated interrupt number. On a real board we would
+ *   look at the CPU registers to get the interrupt number but here we need
+ *   this setter.
  *
  ****************************************************************************/
 
-static void task_default_entry_point(int argc, char **argv)
+void host_set_simualted_intnum(int int_num)
 {
-  irq_state_t irq_state = disable_int();
-  struct tcb_s *curr_tcb = sched_get_current_task();
-  sim_mcu_context_t *mcu_context = curr_tcb->mcu_context;
-  enable_int(irq_state);
+  g_simulated_int_num = int_num;
+}
 
-  /* Call the entry point of the function and pass the arguments */
+void task_entry_point(void)
+{
+  tcb_t *current_task = sched_get_current_task();
+  sim_mcu_arguments_t *args = current_task->mcu_context;
 
-  curr_tcb->entry_point(mcu_context->argc, mcu_context->argv);
+  current_task->entry_point(args->argv, args->argc);  
 
-  /* Mark the task as halted and switch the context */
-
-  irq_state = disable_int();
-  curr_tcb->t_state          = HALTED;
-  curr_tcb->waiting_tcb_sema = NULL;
-  enable_int(irq_state);
-
-  sched_context_switch();
+  sched_default_task_exit_point(); 
 }
 
 /****************************************************************************
- * Name: up_initial_task_context
+ * Task management functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: cpu_inittask
  *
  * Description:
- *   This function sets up the task initial context.
+ *   This function sets up the initial task context.
  *
  * Input Parameters:
  *   tcb  - the task control block
@@ -138,150 +147,79 @@ static void task_default_entry_point(int argc, char **argv)
  *
  ****************************************************************************/
 
-int up_initial_task_context(struct tcb_s *tcb, int argc, char **argv)
+int cpu_inittask(struct tcb_s *tcb, int argv, char **argc)
 {
-  size_t stack_size = tcb->stack_ptr_top - tcb->stack_ptr_base -
-    sizeof(struct tcb_s);
+  /* Make sure the address is aligned to 8 */
 
-  sim_mcu_context_t *mcu_context = calloc(1, sizeof(sim_mcu_context_t));
-  if (mcu_context == NULL) {
-    return -ENOMEM;
-  }
-  tcb->mcu_context = mcu_context;
+  tcb->sp = (void *)((unsigned long)tcb->stack_ptr_top & ~(7));
 
-  mcu_context->task_ucontext = calloc(1, sizeof(ucontext_t));
-  if (mcu_context->task_ucontext == NULL) {
-    free(mcu_context);
-    return -ENOMEM;
-  }
-
-  ucontext_t *task_context = mcu_context->task_ucontext;
-  int ret = getcontext(task_context);
-  if (ret < 0) {
-    return ret;
-  }
-
-  /* When the task has done running it should be chainned to jump to a new
-   * ucontext structure.
+  /* Let's create a frame on the stack in the similar way cpu_savecontext
+   * will do.
    */
-#ifdef __APPLE__
-  task_context->uc_stack.ss_sp    = tcb->stack_ptr_base;
-#else
-  task_context->uc_stack.ss_sp    = tcb->stack_ptr_top;
-#endif
-  task_context->uc_stack.ss_size  = stack_size;
-  task_context->uc_stack.ss_flags = 0;
 
-  mcu_context->argv = 0;
+  void *mcu_context[7] = {0};
 
-  if (argc != 0) {
-    mcu_context->argv = calloc(argc, sizeof(char *));
-    if (mcu_context->argv == NULL) {
-      argc = 0;
-    } else {
+  mcu_context[0] = task_entry_point;
+  mcu_context[5] = tcb->sp;
+  tcb->sp = tcb->sp - sizeof(mcu_context);
 
-      /* Copy the arguments */
+  memcpy(tcb->sp, mcu_context, sizeof(mcu_context));
 
-      for (int i = 0; i < argc; i++) {
-        mcu_context->argv[i] = calloc(1, strlen(argv[i]) + 1);
-        if (mcu_context->argv[i] == NULL)
-          break;
+  sim_mcu_arguments_t *args = calloc(1, sizeof(sim_mcu_arguments_t));
 
-        memcpy(mcu_context->argv[i], argv[i], strlen(argv[i]));
-        ++mcu_context->argc;
-      }
-    } 
+  /* Copy the arguments */
+
+  args->argv = argv;
+  args->argc = calloc(argv + 1, sizeof(char *));
+
+  for (int i = 0; i < argv; i++)
+  {
+    args->argc[i] = calloc(strlen(argc[i]) + 1, sizeof(char));
+    memcpy(args->argc[i], argc[i], strlen(argc[i]));
   }
 
-  /* Create the ucontext structure */
-
-  makecontext(task_context,
-              (void (*)(void))task_default_entry_point,
-              2,
-              mcu_context->argc,
-              mcu_context->argv);
+  tcb->mcu_context = args;
 
   return 0;
 }
 
 /****************************************************************************
- * Name: up_destroy_task_context
+ * Name: cpu_destroytask
  *
  * Description:
- *   This function destroys the task context and it's associated resources.
+ *   This function destroys the task context and its associated resources.
  *   It is called from the Idle task when the Idle task detects that we
  *   have pending tasks that need to be destroyed.
  *
  * Input Parameters:
  *   tcb  - the task control block
-*
+ *
  * Return Value:
  *   On success returns 0 otherwise a negative error code.
  *
  ****************************************************************************/
 
-int up_destroy_task_context(struct tcb_s *tcb)
+void cpu_destroytask(struct tcb_s *tcb)
 {
-  sim_mcu_context_t *mcu_context = tcb->mcu_context;
+  sim_mcu_arguments_t *args = tcb->mcu_context;
 
-  /* Free the arguments */
+  /* Release the memory allocated for the arguments */
 
-  for (int i = 0; i < mcu_context->argc; i++) {
-    free(mcu_context->argv[i]);
+  for (int i = 0; i < args->argv; i++)
+  {
+    free(args->argc[i]);
   }
 
-  if (mcu_context->argc > 0)
-    free(mcu_context->argv);
-
-  /* Free the ucontext stack */
-
-  free(mcu_context->task_ucontext);
-  free(mcu_context);
-  return OK;
+  free(args->argc);
+  free(args);
+  free(tcb);
 }
 
 /****************************************************************************
- * Name: sched_context_switch
- *
- * Description:
- *   This function switches the context to the next available & ready to run
- *   task. This function does not return.
- *
+ * CPU interrupt management functions
  ****************************************************************************/
 
-void sched_context_switch(void)
+int cpu_getirqnum(void)
 {
-  struct tcb_s *current_task = sched_get_current_task();
-  struct tcb_s *next_task = sched_get_next_task();
-  extern struct list_head g_tcb_waiting_list;
-
-  if (current_task == next_task)
-    return;
-
-  if (current_task->t_state == WAITING_FOR_SEM ||
-      current_task->t_state == HALTED) {
-
-    /* We should not change it's state */
-
-    if (current_task->t_state == HALTED) {
-      list_del(&current_task->next_tcb);
-      list_add(&current_task->next_tcb, &g_tcb_waiting_list);
-    }
-  } else {
-
-    /* Move the task to READY state */
-
-    current_task->t_state = READY;
-  }
-
-  /* Switch task state to running */
-
-  next_task->t_state = RUNNING;
-
-  ucontext_t *old_mcu_ctxt =
-    ((sim_mcu_context_t *)current_task->mcu_context)->task_ucontext;
-  ucontext_t *next_mcu_ctxt =
-    ((sim_mcu_context_t *)next_task->mcu_context)->task_ucontext;
-
-  swapcontext(old_mcu_ctxt, next_mcu_ctxt);
+  return g_simulated_int_num;
 }

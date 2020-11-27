@@ -6,33 +6,31 @@
  */
 
 
-#ifndef SCHEDULER_H_
-#define SCHEDULER_H_
+#ifndef __SCHEDULER_H
+#define __SCHEDULER_H
 
 #include <board.h>
-#include <stdint.h>
-#include <list.h>
-#include <semaphore.h>
 
-#ifdef CONFIG_SIM_BUILD
-  #include <ucontext.h>
+#include <list.h>
+#include <stdint.h>
+#include <semaphore.h>
+#include <stdio.h>
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+/* Scheduler debug macro */
+
+#ifndef CONFIG_SCHEDULER_DEBUG
+  #define SCHED_DEBUG_INFO(msg, ...)
+#else
+  #define SCHED_DEBUG_INFO(msg, ...)  printf("[SCHED] "msg, __VA_ARGS__)
 #endif
 
-/* Fill the stack with 0xDEADBEEF */
-
-#define CONFIG_SCHEDULER_TASK_COLORATION      (1)
-
-/* Used when we start a task */
-
-#define MCU_CONTEXT_SIZE                      (8)
-
-/* Task name */
-
-#define CONFIG_TASK_NAME_LEN                  (32)
-
-/* The interrupt callback type */
-
-typedef void (* irq_cb)(void);
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
 
 struct opened_resource_s {
   int open_mode;            /* Currently not used */
@@ -53,22 +51,22 @@ enum task_state_e {
 /* Task container that holds the entry point and other resources */
 
 typedef struct tcb_s {
-  int (*entry_point)(int, char **);
-  enum task_state_e t_state;
-  void *stack_ptr_base;
-  void *stack_ptr_top;
-  void *sp;
-#ifdef CONFIG_SIM_BUILD
-  void *mcu_context;
-#else
-  void *mcu_context[MCU_CONTEXT_SIZE];
-#endif
-  struct list_head next_tcb;
-  sem_t *waiting_tcb_sema;
-  struct list_head opened_resource;
-  uint32_t curr_resource_opened;
+  struct list_head next_tcb;        /* The task list          */
+  int (*entry_point)(int, char **); /* The task entry point   */
+  enum task_state_e t_state;        /* The task state         */
+  void *stack_ptr_base;             /* Bootom stack pointer      */
+  void *stack_ptr_top;              /* Top stack pointer         */
+  void *sp;                         /* Current stack pointer     */
+  void *mcu_context;                /* The CPU context           */
+  sem_t *waiting_tcb_sema;          /* The waiting semaphore     */
+  struct list_head opened_resource; /* Opened task resources     */
+  uint32_t curr_resource_opened;    /* Num of opened resources   */
   const char task_name[CONFIG_TASK_NAME_LEN];
 } tcb_t __attribute__((aligned(8)));
+
+/****************************************************************************
+ * Public Scheduler Functions 
+ ****************************************************************************/
 
 int sched_init(void);
 
@@ -84,9 +82,7 @@ struct tcb_s *sched_get_current_task(void);
 
 struct tcb_s *sched_get_next_task(void);
 
-int sched_desroy(void);
-
-void attach_int(IRQn_Type irq_num, irq_cb handler);
+struct tcb_s *sched_preempt_task(tcb_t *to_preempt_tcb);
 
 void sched_context_switch(void);
 
@@ -98,4 +94,4 @@ int sched_free_resource(int fd);
 
 struct opened_resource_s *sched_find_opened_resource(int fd);
 
-#endif /* SCHEDULER_H_ */
+#endif /* __SCHEDULER_H */

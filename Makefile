@@ -67,7 +67,7 @@ create_object_files:
   	$(MAKE) -C $$src_dir	all;\
 	done ;
 
-create_board_file:
+create_board_file: .config
 	mkdir -p include/chip/ && cp arch/*/$(MACHINE_TYPE)/include/*.h include/chip/.
 	echo "#ifndef __BOARD_CFG_H\n#define __BOARD_CFG_H" > include/board_cfg.h
 	cat .config | grep -v "^#" | grep -v "^$$" | tail -n +3 | sed 's/^/#define /' | sed 's/=/ /' >> include/board_cfg.h

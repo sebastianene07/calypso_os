@@ -1,5 +1,6 @@
 #include <board.h>
 
+#include <assert.h>
 #include <errno.h>
 #include <semaphore.h>
 #include <scheduler.h>
@@ -8,13 +9,6 @@
 extern struct list_head g_tcb_list;
 extern struct list_head g_tcb_waiting_list;
 extern struct list_head *g_current_tcb;
-
-/* Extern function implemented by the context switch mechanism. This method
- * suspends the execution for the current process saves it's context on the
- * stack and triggers an interrupt to begin the context switch.
- */
-
-void sched_context_switch(void);
 
 /*
  * sem_init - initialize the semaphore
@@ -52,7 +46,7 @@ int sem_wait(sem_t *sem)
 {
   /* Disable context switch by disabling interrupts */
 
-  irq_state_t irq_state = disable_int();
+  irq_state_t irq_state = cpu_disableint();
 
   /* Verify the semaphore value and decrement it if it's > 0 */
 
@@ -62,10 +56,6 @@ int sem_wait(sem_t *sem)
   }
   else
   {
-    /* Place the current task in the waiting list and remove the task from the
-     * running queue.
-     */
-
     struct tcb_s *tcb     = sched_get_current_task();
 
     /* There was an error or tasks were not initialized.
@@ -74,29 +64,35 @@ int sem_wait(sem_t *sem)
      * like EAGAIN.
      */
 
+    assert(!((tcb->t_state == WAITING_FOR_SEM) ||
+           (tcb->t_state == HALTED)));
 
-    if ((tcb == NULL) ||
-        (g_current_tcb->next == g_current_tcb->prev)) {
-      enable_int(irq_state);
+    if ((tcb == NULL) || (g_current_tcb->next == g_current_tcb->prev))
+    {
+      cpu_enableint(irq_state);
       return -EAGAIN;
     }
 
     tcb->t_state          = WAITING_FOR_SEM;
     tcb->waiting_tcb_sema = sem;
 
+    SCHED_DEBUG_INFO("%s WAIT for sema\n", tcb->task_name);
+
     /* Switch context to the next running task */
 
-    enable_int(irq_state);
+    cpu_enableint(irq_state);
 
-    sched_context_switch();
+    /* Place the current task in the waiting list and remove the task from the
+     * running queue. Activate a new task that is prepared to be run.
+     */
 
+    sched_preempt_task(tcb);
     return 0;
   }
 
   /* Re-enable interrupts */
 
-  enable_int(irq_state);
-
+  cpu_enableint(irq_state);
   return 0;
 }
 
@@ -125,7 +121,7 @@ int sem_post(sem_t *sem)
 {
   /* Disable interrupts for this task */
 
-  irq_state_t irq_state = disable_int();
+  irq_state_t irq_state = cpu_disableint();
 
   sem->count += 1;
 
@@ -134,31 +130,38 @@ int sem_post(sem_t *sem)
     /* Unblock task from waiting list that is blocked by this semaphore and
      * place it in the running list
      */
-    bool is_waiting_for_sem;
 
-    do {
-          is_waiting_for_sem = false;
-          struct tcb_s *current = NULL;
+    struct tcb_s *current = NULL;
 
-          list_for_each_entry(current, &g_tcb_waiting_list, next_tcb)
-          {
-            if (current != NULL && current->waiting_tcb_sema == sem)
-            {
-              current->waiting_tcb_sema = NULL;
-              current->t_state          = READY;
+    list_for_each_entry(current, &g_tcb_waiting_list, next_tcb)
+    {
+      if (current != NULL && current->waiting_tcb_sema == sem)
+      {
+        /* If the task is not in the waiting state then somwthing went
+         * wrong.
+         */
 
-              list_del(&current->next_tcb);
-              list_add(&current->next_tcb, &g_tcb_list);
-              is_waiting_for_sem = true;
-              break;
-            }
-          }
-      } while (is_waiting_for_sem);
+        assert(current->t_state == WAITING_FOR_SEM); 
+
+        /* Move the task state to ready and remove the semaphore from */
+
+        current->waiting_tcb_sema = NULL;
+        current->t_state          = READY;
+
+        SCHED_DEBUG_INFO("%s received POST sema\n", current->task_name);
+
+        /* Let the sched_preempt_task function Delete the task from the
+         * waiting list and add it to the ready to run list in front of other
+         * tasks.
+         */
+        break;
+      }
+    }
   }
 
   /* Re-enable interrupts for the current task */
 
-  enable_int(irq_state);
+  cpu_enableint(irq_state);
 
   return 0;
 }

@@ -1,6 +1,8 @@
 #ifndef __SIMULATOR_H
 #define __SIMULATOR_H
 
+#include <stdint.h>
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -15,6 +17,7 @@
 
 typedef enum {
   UART_0_IRQ   = 0,
+  SYSTICK_IRQ  = 1,
   NUM_IRQS
 } IRQn_Type;
 
@@ -29,21 +32,10 @@ typedef struct {
 
 /* The irq state type */
 
-typedef uint64_t irq_state_t;
+typedef uint32_t irq_state_t;
 
 /****************************************************************************
  * Public Functions Definitions
  ****************************************************************************/
-
-/* These functions enable/disable the simulated interrupts */
-
-irq_state_t disable_int(void);
-void enable_int(irq_state_t last_state);
-
-/* This function handles the context switching mechanism and it's symbol is
- * exported in the partially linked executable.
- */
-
-void sched_context_switch(void);
 
 #endif /* __SIMULATOR_H */

@@ -1,10 +1,11 @@
-#ifndef __CORE_CM4
-#define __CORE_CM4
+#ifndef __NRF5X_BOARD_H
+#define __NRF5X_BOARD_H
 
 #include <stdint.h>
 #include <board_cfg.h>
 #include <nrf52840.h>
 
+#include <irq_manager.h>
 #include <scheduler.h>
 
 /****************************************************************************
@@ -18,12 +19,42 @@
 
 #define HEAP_BLOCK_SIZE       (16)
 
-#define up_destroy_task_context(x)       {}
+/****************************************************************************
+ * Peripheral initialization function for the board
+ ****************************************************************************/
 
 void board_init(void);
 
-int up_get_irq_number(void);
+void board_entersleep(void);
 
-int up_initial_task_context(struct tcb_s *tcb, int argc, char **argv);
+/****************************************************************************
+ * Task management functions
+ ****************************************************************************/
 
-#endif /* __CORE_CM4 */
+int cpu_inittask(tcb_t *tcb, int argc, char **argv);
+
+void cpu_destroytask(tcb_t *tcb);
+
+/****************************************************************************
+ * CPU context management functions
+ ****************************************************************************/
+
+int cpu_savecontext(void **task_sp);
+
+void cpu_restorecontext(void *task_sp);
+
+/****************************************************************************
+ * CPU interrupt management functions
+ ****************************************************************************/
+
+void cpu_enableint(irq_state_t irq_state);
+
+irq_state_t cpu_disableint(void);
+
+int cpu_getirqnum(void);
+
+void cpu_attachint(int irq_num, irq_cb handler);
+
+int cpu_detachint(int irq_num);
+
+#endif /* __NRF5X_BOARD_H */

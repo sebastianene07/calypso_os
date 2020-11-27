@@ -58,9 +58,9 @@ static inline int unlink_node(const char *path, struct vfs_node_s *node)
  *************************************************************************/
 ssize_t read(int fd, void *buf, size_t count)
 {
-  irq_state_t irq_state = disable_int();
+  irq_state_t irq_state = cpu_disableint();
   struct opened_resource_s *res = sched_find_opened_resource(fd);
-  enable_int(irq_state);
+  cpu_enableint(irq_state);
 
   if (res == NULL) {
     return -EINVAL;
@@ -87,9 +87,9 @@ ssize_t read(int fd, void *buf, size_t count)
  *************************************************************************/
 ssize_t write(int fd, void *buf, size_t count)
 {
-  irq_state_t irq_state = disable_int();
+  irq_state_t irq_state = cpu_disableint();
   struct opened_resource_s *res = sched_find_opened_resource(fd);
-  enable_int(irq_state);
+  cpu_enableint(irq_state);
 
   if (res == NULL) {
     return -EINVAL;
@@ -115,9 +115,9 @@ ssize_t write(int fd, void *buf, size_t count)
  *************************************************************************/
 int close(int fd)
 {
-  irq_state_t irq_state = disable_int();
+  irq_state_t irq_state = cpu_disableint();
   struct opened_resource_s *res = sched_find_opened_resource(fd);
-  enable_int(irq_state);
+  cpu_enableint(irq_state);
 
   if (res == NULL) {
     return -EINVAL;
@@ -170,7 +170,7 @@ int usleep(useconds_t microseconds)
  *  unlink
  *
  * Description:
- *  Remove the file from the filesystem. 
+ *  Remove the file from the filesystem.
  *
  * Input Parameters:
  *  path - the path of the file that we want to remove
@@ -183,9 +183,9 @@ int unlink(const char *path)
 {
   int ret = 0;
 
-  irq_state_t irq_state = disable_int();
+  irq_state_t irq_state = cpu_disableint();
   struct vfs_node_s *node = vfs_get_matching_node(path, strlen(path));
-  enable_int(irq_state);
+  cpu_enableint(irq_state);
 
   if (node == NULL) {
     return -EINVAL;

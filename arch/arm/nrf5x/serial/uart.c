@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <irq_manager.h>
 #include <stdint.h>
 #include <semaphore.h>
 #include <serial.h>
@@ -306,11 +307,11 @@ static int nrf52840_lpuart_config(struct uart_lower_s *lower)
     enable = 0x08;
   }
 
-  irq_state_t irq_state = disable_int();
-  attach_int(config->irq, nrf52840_lpuart_int);
+  irq_state_t irq_state = cpu_disableint();
+  irq_attach(config->irq, nrf52840_lpuart_int);
   NVIC_EnableIRQ(config->irq);
   NVIC_SetPriority(config->irq, 0x07);
-  enable_int(irq_state);
+  cpu_enableint(irq_state);
 
   if (config->is_auto_rx_start) {
     UART_SHORTS_CONFIG(config->base_peripheral_ptr)  = (1 << 5);
@@ -337,8 +338,7 @@ static void nrf52840_lpuart_int(void)
 {
   struct uart_lower_s *lower = NULL;
 
-  int irq_number = up_get_irq_number();
-  irq_number -= 16;
+  int irq_number = cpu_getirqnum();
 
   if (irq_number == UARTE0_UART0_IRQn) {
     lower = &g_uart_lowerhalfs[0];
@@ -358,7 +358,7 @@ static void nrf52840_lpuart_int(void)
       UART_EVENTS_RXSTARTED_CFG(uart_priv->base_peripheral_ptr) = 0;
 
       uint8_t next_index = (lower->index_write_rx_buffer + 1) % UART_RX_BUFFER;
-      UART_RXD_PTR_CONFIG(uart_priv->base_peripheral_ptr) = lower->rx_buffer + next_index;
+      UART_RXD_PTR_CONFIG(uart_priv->base_peripheral_ptr) = (uint32_t)(lower->rx_buffer + next_index);
       UART_RX_MAXCNT_CONFIG(uart_priv->base_peripheral_ptr) = 1;
   }
 
@@ -447,8 +447,9 @@ static void nrf52840_lpuart_dma_write(const struct uart_lower_s *lower,
   UART_EVENTS_TXSTOPPED(uart_priv->base_peripheral_ptr)   = 0;
   UART_ENDTX_EVENT(uart_priv->base_peripheral_ptr)        = 0;
 
-  UART_TXD_PTR_CONFIG(uart_priv->base_peripheral_ptr)    = is_copied ? tx_buffer :
-    (uint32_t) ptr_data;
+  UART_TXD_PTR_CONFIG(uart_priv->base_peripheral_ptr)    = is_copied ?
+    (uint32_t)tx_buffer :
+    (uint32_t)ptr_data;
   UART_TXD_MAXCNT_CONFIG(uart_priv->base_peripheral_ptr) = sz;
 
   UART_TX_START_TASK(uart_priv->base_peripheral_ptr) = 1;
