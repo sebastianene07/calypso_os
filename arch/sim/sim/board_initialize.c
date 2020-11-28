@@ -23,7 +23,8 @@
 
 /* The stack alignment in bytes */
 
-#define STACK_ALIGNMENT               (8)
+#define STACK_ALIGNMENT               (16)
+#define ALIGN_STACK_DOWN(addr)((void *)((unsigned long)(addr) & ~(STACK_ALIGNMENT - 1)))
 
 /****************************************************************************
  * Private Types
@@ -117,6 +118,14 @@ void host_set_simualted_intnum(int int_num)
   g_simulated_int_num = int_num;
 }
 
+/****************************************************************************
+ * Name: task_entry_point
+ *
+ * Description:
+ *   The task entry point sets up the arguments..
+ *
+ ****************************************************************************/
+
 void task_entry_point(void)
 {
   tcb_t *current_task = sched_get_current_task();
@@ -149,19 +158,19 @@ void task_entry_point(void)
 
 int cpu_inittask(struct tcb_s *tcb, int argv, char **argc)
 {
-  /* Make sure the address is aligned to 8 */
-
-  tcb->sp = (void *)((unsigned long)tcb->stack_ptr_top & ~(7));
-
+   
   /* Let's create a frame on the stack in the similar way cpu_savecontext
    * will do.
    */
 
   void *mcu_context[7] = {0};
 
+  /* Make sure the address is aligned to 8 */
+
   mcu_context[0] = task_entry_point;
-  mcu_context[5] = tcb->sp;
-  tcb->sp = tcb->sp - sizeof(mcu_context);
+  mcu_context[5] = ALIGN_STACK_DOWN(tcb->stack_ptr_top);
+
+  tcb->sp = ALIGN_STACK_DOWN(tcb->stack_ptr_top - sizeof(mcu_context));
 
   memcpy(tcb->sp, mcu_context, sizeof(mcu_context));
 
