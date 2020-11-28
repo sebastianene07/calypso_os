@@ -21,9 +21,36 @@
  * Pre-processor Defintions
  ****************************************************************************/
 
+/* We save the following registers indexed from 0 in this order:
+ * RBX  ..... 0
+ * RBP  ..... 1 (the frame pointer)
+ * R12  ..... 2
+ * R13  ..... 3
+ * R14  ..... 4
+ * R15  ..... 5
+ * PC   ..... 6 (return address)
+ * RSP  ..... 7 (the stack pointer)
+ */
+
+#define REG_BP                        (1)
+#define REG_PC                        (6)
+#define REG_SP                        (7)
+
+#define NUM_REGS                      (8)
+
+/* The context size contains the registers and a pointer to the 
+ * sim_mcu_arguments_t where we keep the arguments.
+ */
+
+#define CONTEXT_SIZE                  (NUM_REGS + 1)
+
+/* The sim_mcu_arguments_t index in the mcu_context */
+
+#define CONTEXT_ARGS                  (NUM_REGS)
+
 /* The stack alignment in bytes */
 
-#define STACK_ALIGNMENT               (16)
+#define STACK_ALIGNMENT               (8)
 #define ALIGN_STACK_DOWN(addr)((void *)((unsigned long)(addr) & ~(STACK_ALIGNMENT - 1)))
 
 /****************************************************************************
@@ -129,7 +156,8 @@ void host_set_simualted_intnum(int int_num)
 void task_entry_point(void)
 {
   tcb_t *current_task = sched_get_current_task();
-  sim_mcu_arguments_t *args = current_task->mcu_context;
+  void **mcu_context = (void **)current_task->mcu_context;
+  sim_mcu_arguments_t *args = mcu_context[CONTEXT_ARGS];
 
   current_task->entry_point(args->argv, args->argc);  
 
@@ -157,22 +185,20 @@ void task_entry_point(void)
  ****************************************************************************/
 
 int cpu_inittask(struct tcb_s *tcb, int argv, char **argc)
-{
-   
+{ 
   /* Let's create a frame on the stack in the similar way cpu_savecontext
    * will do.
    */
 
-  void *mcu_context[7] = {0};
+  void **mcu_context = calloc(CONTEXT_SIZE, sizeof(void *));
 
   /* Make sure the address is aligned to 8 */
 
-  mcu_context[0] = task_entry_point;
-  mcu_context[5] = ALIGN_STACK_DOWN(tcb->stack_ptr_top);
+  mcu_context[REG_PC] = task_entry_point;
+  mcu_context[REG_BP] = ALIGN_STACK_DOWN(tcb->stack_ptr_top);
+  mcu_context[REG_SP] = ALIGN_STACK_DOWN(tcb->stack_ptr_top);
 
-  tcb->sp = ALIGN_STACK_DOWN(tcb->stack_ptr_top - sizeof(mcu_context));
-
-  memcpy(tcb->sp, mcu_context, sizeof(mcu_context));
+  /* Allocate memory to keep the arguments */
 
   sim_mcu_arguments_t *args = calloc(1, sizeof(sim_mcu_arguments_t));
 
@@ -187,8 +213,8 @@ int cpu_inittask(struct tcb_s *tcb, int argv, char **argc)
     memcpy(args->argc[i], argc[i], strlen(argc[i]));
   }
 
-  tcb->mcu_context = args;
-
+  mcu_context[CONTEXT_ARGS] = args;
+  tcb->mcu_context = (void *)mcu_context;
   return 0;
 }
 
@@ -210,7 +236,8 @@ int cpu_inittask(struct tcb_s *tcb, int argv, char **argc)
 
 void cpu_destroytask(struct tcb_s *tcb)
 {
-  sim_mcu_arguments_t *args = tcb->mcu_context;
+  void **mcu_context = tcb->mcu_context;
+  sim_mcu_arguments_t *args = mcu_context[CONTEXT_ARGS];
 
   /* Release the memory allocated for the arguments */
 
@@ -218,6 +245,8 @@ void cpu_destroytask(struct tcb_s *tcb)
   {
     free(args->argc[i]);
   }
+
+  free(tcb->mcu_context);
 
   free(args->argc);
   free(args);

@@ -414,7 +414,7 @@ void sched_run(void)
 
     /* Set the context to the new task */
 
-    cpu_restorecontext(current_task->sp);
+    cpu_restorecontext(current_task->mcu_context);
     return;
   }
 
@@ -510,7 +510,7 @@ sched_preempt_task(tcb_t *to_preempt_tcb)
 
   /* Save the current context in the task that needs to be preempted */
 
-  if (cpu_savecontext(&to_preempt_tcb->sp))
+  if (cpu_savecontext(to_preempt_tcb->mcu_context))
   {
     SCHED_DEBUG_INFO("%s restored context\n", to_preempt_tcb->task_name);
     cpu_enableint(irq_state);
@@ -543,7 +543,7 @@ sched_preempt_task(tcb_t *to_preempt_tcb)
 
     /* Switch the context to the new task */
 
-    cpu_restorecontext(new_tcb->sp);
+    cpu_restorecontext(new_tcb->mcu_context);
   }
 
   cpu_enableint(irq_state);                                                                         

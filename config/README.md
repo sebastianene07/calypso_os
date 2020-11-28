@@ -29,21 +29,20 @@ Description:
 
 ### CPU context management functions
 
-```int cpu_savecontext(void **tcb_sp)```
+```int cpu_savecontext(void *mcu_context)```
 
 Description:
 
-	Save the current context on the stack and return "0". Update the
-	task pointer from the TCB with the new value after register stacking.
+	Save the current context in the 'mcu_context' and return "0". 
 	When we return from this function because of a cpu_restorecontext(..)
 	call, the value "1" is returned.
 
-```void cpu_restorecontext(void *tcb_sp)```
+```void cpu_restorecontext(void *mcu_context)```
 
 Description:
 
-	Restore the task context from the stack and start executing from the last
-	stacked PC. This function does not return.
+	Restore the task context from 'mcu_context' and start executing from
+	the last saved PC. This function does not return.
 
 ### CPU interrupt management functions
 
