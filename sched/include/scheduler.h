@@ -62,7 +62,7 @@ typedef struct tcb_s {
   struct list_head opened_resource; /* Opened task resources     */
   uint32_t curr_resource_opened;    /* Num of opened resources   */
   const char task_name[CONFIG_TASK_NAME_LEN];
-} tcb_t __attribute__((aligned(8)));
+} tcb_t __attribute__((aligned(16)));
 
 /****************************************************************************
  * Public Scheduler Functions 
