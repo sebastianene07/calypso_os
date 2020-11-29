@@ -50,7 +50,7 @@
 
 /* The stack alignment in bytes */
 
-#define STACK_ALIGNMENT               (8)
+#define STACK_ALIGNMENT               (64)
 #define ALIGN_STACK_DOWN(addr)((void *)((unsigned long)(addr) & ~(STACK_ALIGNMENT - 1)))
 
 /****************************************************************************
