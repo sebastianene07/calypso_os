@@ -29,7 +29,6 @@ SRC_DIRS += sched s_alloc utils apps lib drivers
 TMP_LIB=libtmp.a
 CONFIG_HOST_OS="$(shell uname)"
 ifeq ($(CONFIG_HOST_OS),"Darwin")
-CFLAGS+= -mstack-alignment=16 -mno-sse -mstackrealign
 LDUNEXPORTSYMBOLS ?= -unexported_symbols_list ../$(CONFIG_HOST_OS)-names.dat
 EXTRALINK ?=
 else

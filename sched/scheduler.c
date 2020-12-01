@@ -396,7 +396,6 @@ void sched_run(void)
   tcb_t *current_task = sched_get_current_task();
   if (g_current_tcb == NULL)
   {
-  
     /* In the initial phase there is no task, it is only the __start
      * entry point which is called after reset.
      */
@@ -470,7 +469,7 @@ sched_preempt_task(tcb_t *to_preempt_tcb)
 
   list_for_each_safe(current, temp, &g_tcb_waiting_list)
   {
-    new_tcb = container_of(current, tcb_t, next_tcb); 
+    new_tcb = container_of(current, tcb_t, next_tcb);
     if (new_tcb && new_tcb->t_state == READY)
     {
       list_del(current);
@@ -483,7 +482,7 @@ sched_preempt_task(tcb_t *to_preempt_tcb)
    * something is wrong.
    */
 
-  assert(to_preempt_tcb->t_state != RUNNING); 
+  assert(to_preempt_tcb->t_state != RUNNING);
 
   /* Delete the task from the current list */
 
@@ -521,7 +520,7 @@ sched_preempt_task(tcb_t *to_preempt_tcb)
   list_for_each_entry(new_tcb, &g_tcb_list, next_tcb)
   {
     /* All the tasks from this list should be in the READY state */
-  
+
     assert(new_tcb->t_state == READY);
 
     /* Great, we found a task that it is the ready state.
@@ -533,19 +532,14 @@ sched_preempt_task(tcb_t *to_preempt_tcb)
     g_current_tcb = &new_tcb->next_tcb;
     SCHED_DEBUG_INFO("%s now run\n", new_tcb->task_name);
 
-    /* Update the current running task */
-
-    g_current_tcb = &new_tcb->next_tcb;
-
     /* Re-enable the interrupts */
 
-    cpu_enableint(irq_state);                                                                         
-
+    cpu_enableint(irq_state);
     /* Switch the context to the new task */
 
     cpu_restorecontext(new_tcb->mcu_context);
   }
 
-  cpu_enableint(irq_state);                                                                         
+  cpu_enableint(irq_state);
   return new_tcb;
 }

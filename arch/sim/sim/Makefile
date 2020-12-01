@@ -2,6 +2,10 @@ SRC := board_initialize.c
 SRC += board_uart.c
 SRC += board_rtc.c
 
+ifeq ($(CONFIG_HOST_OS),"Darwin")
+CFLAGS+= -mstack-alignment=16 -mno-sse -mstackrealign
+endif
+
 OBJS := $(patsubst %.c,%.o,$(SRC))
 INCLUDE_PATHS:=-I$(TOPDIR)/include -I$(TOPDIR)/s_alloc -I./include/ -I$(TOPDIR)/sched/include -I$(TOPDIR)/drivers/
 ARCH_FLAGS:=${CFLAGS} ${INCLUDE_PATHS}
