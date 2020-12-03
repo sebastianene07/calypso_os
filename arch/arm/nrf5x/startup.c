@@ -31,7 +31,7 @@ typedef struct __attribute__((packed)) ContextStateFrame {
 
 __attribute__((optimize("O0")))
 void prvGetRegistersFromStack(sContextStateFrame *frame)
-{ 
+{
   printf("***** Hardware exception *****\n");
   printf("R0:%x "
          "R1:%x "
@@ -54,9 +54,9 @@ void prvGetRegistersFromStack(sContextStateFrame *frame)
   struct tcb_s *tcb = sched_get_current_task();
 
   printf("Task name: %s\n"
-         "addr:%x "
+         "tcb addr:%x "
          "SP:%x "
-         " TOP:%x BASE:%x\n",
+         "TOP:%x BASE:%x\n",
          tcb->task_name == NULL ? "[Noname]" : tcb->task_name,
          tcb,
          tcb->sp,
@@ -71,11 +71,12 @@ prvGetRegistersFromStack(). */
 __attribute__((optimize("O0")))
 static void HardFault_Handler(void)
 { 
+ 
   __asm volatile("tst lr, #4 \n"
-                  "ite eq \n"
-                  "mrseq r0, msp \n"
-                  "mrsne r0, psp \n"
-                  "b prvGetRegistersFromStack \n");
+                 "ite eq \n"
+                 "mrseq r0, msp \n"
+                 "mrsne r0, psp \n"
+                 "b prvGetRegistersFromStack \n");
 }
 
 /* Flash based ISR vector */

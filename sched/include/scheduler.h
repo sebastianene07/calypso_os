@@ -82,7 +82,7 @@ struct tcb_s *sched_get_current_task(void);
 
 struct tcb_s *sched_get_next_task(void);
 
-struct tcb_s *sched_preempt_task(tcb_t *to_preempt_tcb);
+void sched_preempt_task(tcb_t *to_preempt_tcb);
 
 void sched_context_switch(void);
 

@@ -39,9 +39,9 @@ void cpu_destroytask(tcb_t *tcb);
  * CPU context management functions
  ****************************************************************************/
 
-int cpu_savecontext(void **task_sp);
+int cpu_savecontext(void *mcu_context);
 
-void cpu_restorecontext(void *task_sp);
+void cpu_restorecontext(void *mcu_context);
 
 /****************************************************************************
  * CPU interrupt management functions
