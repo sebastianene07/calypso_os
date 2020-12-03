@@ -7,7 +7,7 @@ board_cfg.h
 .config
 .config.old
 *.o
-*.hex
+build.hex
 *.elf
 /*.a
 /linker.ld
