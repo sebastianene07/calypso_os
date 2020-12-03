@@ -31,7 +31,7 @@ typedef struct __attribute__((packed)) ContextStateFrame {
 
 __attribute__((optimize("O0")))
 void prvGetRegistersFromStack(sContextStateFrame *frame)
-{ 
+{
   printf("***** Hardware exception *****\n");
   printf("R0:%x "
          "R1:%x "
@@ -71,6 +71,7 @@ prvGetRegistersFromStack(). */
 __attribute__((optimize("O0")))
 static void HardFault_Handler(void)
 { 
+ 
   __asm volatile("tst lr, #4 \n"
                  "ite eq \n"
                  "mrseq r0, msp \n"

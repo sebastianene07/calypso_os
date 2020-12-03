@@ -69,6 +69,18 @@
 
 #define REG_NUMS              (17)
 
+typedef struct cpu_stacking_s
+{
+  void *r0;
+  void *r1;
+  void *r2;
+  void *r3;
+  void *r12;
+  void *lr;
+  void *pc;
+  void *xpsr;
+} cpu_stacking_s;
+
 /****************************************************************************
  * Private Data
  ****************************************************************************/
@@ -250,6 +262,8 @@ int cpu_inittask(tcb_t *task_tcb, int argc, char **argv)
     return -ENOMEM;
   }
 
+  void *bottom_sp = (unsigned int)task_tcb->stack_ptr_top - 8 * sizeof(void *);
+
   /* Initial MCU context */
 
   mcu_context[REG_R0]   = (void *)argc;
@@ -257,7 +271,16 @@ int cpu_inittask(tcb_t *task_tcb, int argc, char **argv)
   mcu_context[REG_LR]   = (void *)sched_default_task_exit_point;
   mcu_context[REG_PC]   = (void *)task_entry_point;
   mcu_context[REG_XPSR] = (void *)0x1000000;
-  mcu_context[REG_SP]   = (void *)((unsigned int)task_tcb->stack_ptr_top & ~(7));
+  mcu_context[REG_SP]   = bottom_sp;
+
+  /* Setup the initial stack */
+
+  cpu_stacking_s *initial_stack = (cpu_stacking_s *)bottom_sp;
+  initial_stack->r0 = (void *)argc;
+  initial_stack->r1 = (void *)argv;
+  initial_stack->lr = (void *)sched_default_task_exit_point;
+  initial_stack->pc = (void *)task_entry_point;
+  initial_stack->xpsr = (void *)0x1000000;
 
   /* Setup the initial stack context  */
 

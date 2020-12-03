@@ -452,12 +452,9 @@ tcb_t *sched_get_current_task(void)
  * Description:
  *  Move the task from running to waiting list and activate the next task.
  *
- * Return Value:
- *  The task that was moved from running to ready.
- *
  ************************************************************************/
-struct tcb_s *
-sched_preempt_task(tcb_t *to_preempt_tcb)
+
+void sched_preempt_task(tcb_t *to_preempt_tcb)
 {
   tcb_t *new_tcb = NULL;
   struct list_head *current, *temp;
@@ -509,11 +506,11 @@ sched_preempt_task(tcb_t *to_preempt_tcb)
 
   /* Save the current context in the task that needs to be preempted */
 
-  if (cpu_savecontext(to_preempt_tcb->mcu_context))
+  volatile int is_context_restored = cpu_savecontext(to_preempt_tcb->mcu_context);
+  if (is_context_restored)
   {
     SCHED_DEBUG_INFO("%s restored context\n", to_preempt_tcb->task_name);
-    cpu_enableint(irq_state);
-    return NULL;
+    return;
   }
 
   SCHED_DEBUG_INFO("%s saved context\n", to_preempt_tcb->task_name);
@@ -535,11 +532,11 @@ sched_preempt_task(tcb_t *to_preempt_tcb)
     /* Re-enable the interrupts */
 
     cpu_enableint(irq_state);
+
     /* Switch the context to the new task */
 
     cpu_restorecontext(new_tcb->mcu_context);
   }
 
   cpu_enableint(irq_state);
-  return new_tcb;
 }
