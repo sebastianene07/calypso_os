@@ -44,7 +44,6 @@ typedef enum {
 
 typedef uint64_t irq_state_t;
 
-
 /**
   \brief   Enable IRQ Interrupts
   \details Enables IRQ interrupts by clearing the I-bit in the CPSR.
@@ -65,16 +64,6 @@ static inline irq_state_t disable_int(void)
 {
 	*(PIC + VIC_INTENCLEAR) = 0xFF;
   return 0;
-}
-
-static inline void NVIC_TriggerSysTick(void)
-{
-	/* TODO */
-}
-
-static inline void sched_context_switch(void)
-{
-  /* TODO */
 }
 
 #endif /* __VERSATILEPB_H */
