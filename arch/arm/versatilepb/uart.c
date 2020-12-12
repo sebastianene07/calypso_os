@@ -8,8 +8,6 @@
  ****************************************************************************/
 
 static volatile unsigned int * const UART0DR = (unsigned int *)0x101f1000;
-
-static struct uart_lower_s g_uart_low_0;
 static sem_t g_console_sema;
 
 /****************************************************************************

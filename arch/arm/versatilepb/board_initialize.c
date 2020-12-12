@@ -1,121 +1,10 @@
 #include <board.h>
 
+#include <errno.h>
 #include <serial.h>
 #include <stdint.h>
 #include <scheduler.h>
 #include <os_start.h>
-
-/* Ram based ISR vector */
-void (*g_ram_vectors[NUM_IRQS])(void);
-
-/****************************************************************************
- * Public Function Prototypes
- ****************************************************************************/
-
-void dummy_fn(void);
-
-void Pend_SV_Handler(void);
-void SysTick_Handler(void);
-static void generic_isr_handler(void);
-
-/* The fault handler implementation calls a function called
-prvGetRegistersFromStack(). */
-static void HardFault_Handler(void)
-{
-}
-
-void Pend_SV_Handler(void)
-{
-}
-
-void SysTick_Handler(void)
-{
-}
-
-//* Flash based ISR vector */
-__attribute__((section(".isr_vector")))
-void (*g_vectors[NUM_IRQS])(void) = {
-        STACK_TOP,
-        __start,
-        dummy_fn,
-        HardFault_Handler,
-        dummy_fn,
-        dummy_fn,
-        dummy_fn,
-        dummy_fn,
-        dummy_fn,
-        dummy_fn,
-        dummy_fn,
-        dummy_fn,
-        dummy_fn,
-        dummy_fn,
-        Pend_SV_Handler,
-        SysTick_Handler,
-
-        /* External interrupts */
-
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-        generic_isr_handler,
-};
-
-static void generic_isr_handler(void)
-{
-  /* get the exception number */
-}
-
-void dummy_fn(void)
-{
-        while(1)
-        {
-
-        }
-}
 
 /****************************************************************************
  * Public Functions
@@ -133,33 +22,63 @@ void board_init(void)
 }
 
 /*
- * up_initial_task_context - creates the initial state for a task
+ * cpu_inittask - creates the initial state for a task
  *
  */
-int up_initial_task_context(struct tcb_s *task_tcb, int argc, char **argv)
+int cpu_inittask(struct tcb_s *tcb, int argc, char **argv)
 {
-  /* Initial MCU context */
+  return -ENOSYS;
+}
 
-  task_tcb->mcu_context[0] = (void *)argc;
-  task_tcb->mcu_context[1] = (void *)argv;
-  task_tcb->mcu_context[5] = (uint32_t *)sched_default_task_exit_point;
-  task_tcb->mcu_context[6] = task_tcb->entry_point;
-  task_tcb->mcu_context[7] = (uint32_t *)0x1000000;
+/*
+ * cpu_destroytask - creates the initial state for a task
+ *
+ */
+void cpu_destroytask(tcb_t *tcb)
+{
+}
 
-  /* Stack context in interrupt */
-  const int unstacked_regs = 8;   /* R4-R11 */
-  int i = 0;
-  void *ptr_after_int = task_tcb->stack_ptr_top -
-    sizeof(void *) * MCU_CONTEXT_SIZE;
-
-  for (uint8_t *ptr = ptr_after_int;
-     ptr < (uint8_t *)task_tcb->stack_ptr_top;
-     ptr += sizeof(uint32_t))
-  {
-    *((uint32_t *)ptr) = (uint32_t)task_tcb->mcu_context[i++];
-  }
-
-  task_tcb->sp = ptr_after_int - unstacked_regs * sizeof(void *);
-
+/*
+ * cpu_savecontext - save the task context
+ *
+ */
+int cpu_savecontext(void *mcu_context)
+{
   return 0;
+}
+
+/*
+ * cpu_restorecontext - save the task context
+ *
+ */
+void cpu_restorecontext(void *mcu_context)
+{
+}
+
+/*
+ * cpu_disableint - Disable all the interrupts and return the primask register.
+ *
+ */
+irq_state_t cpu_disableint(void)
+{
+  return 0;
+}
+
+/*
+ * cpu_enableint - Enable the interrupts if the first bit of the irq_state is 1.
+ *
+ */
+void cpu_enableint(irq_state_t irq_state)
+{
+}
+
+/*
+ * cpu_getirqnum - Return the interrupt number.
+ *
+ * Assumptions: This should be called only from ISR handler.
+ *
+ */
+int cpu_getirqnum(void)
+{
+  return -ENOSYS;
 }
