@@ -14,7 +14,7 @@ build.hex
 tags
 *.out
 *.swp
-Make.defs
+/Make.defs
 tests/my_output
 tests/original_output
 tests/original_test
