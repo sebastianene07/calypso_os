@@ -7,8 +7,9 @@ ifeq ($(MACHINE_TYPE),)
 include .config
 MACHINE_TYPE=$(subst $\",,$(CONFIG_MACHINE_TYPE))
 -include Make.defs
-CFLAGS=$(subst $\",,$(CONFIG_CFLAGS))
-LDFLAGS=$(subst $\",,$(CONFIG_LDFLAGS))
+-include arch/*/$(MACHINE_TYPE)/Make.defs
+CFLAGS+=$(subst $\",,$(CONFIG_CFLAGS))
+LDFLAGS+=$(subst $\",,$(CONFIG_LDFLAGS))
 
 ifneq ($(CONFIG_PREFIX_TOOLCHAIN),)
 PREFIX := $(CONFIG_PREFIX_TOOLCHAIN)
@@ -27,15 +28,6 @@ SRC_DIRS += sched s_alloc utils apps lib drivers
 # This is the archive where we will bundle the object files
 
 TMP_LIB=libtmp.a
-CONFIG_HOST_OS="$(shell uname)"
-ifeq ($(CONFIG_HOST_OS),"Darwin")
-CFLAGS += -mstack-alignment=16 -mno-sse -mstackrealign
-LDUNEXPORTSYMBOLS ?= -unexported_symbols_list ../$(CONFIG_HOST_OS)-names.dat
-EXTRALINK ?=
-else
-LDUNEXPORTSYMBOLS ?=
-EXTRALINK ?= -lpthread
-endif
 
 # Export varios variables that will be used across Makefiles
 
