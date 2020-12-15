@@ -417,7 +417,7 @@ void sched_run(void)
     return;
   }
 
-  /* TODO: Verify if we need to do a context switch */
+  /* Place the current task in the ready state and let others run  */
 
   current_task->t_state = READY;
 
@@ -435,6 +435,9 @@ void sched_run(void)
 * Return Value:
 *  The TCB of the next task or NULL if the scheduler is not initialized.
 *
+* Assumptions:
+*  This function is safe to be called when we have context switching off.
+*
 *************************************************************************/
 
 tcb_t *sched_get_current_task(void)
@@ -451,6 +454,12 @@ tcb_t *sched_get_current_task(void)
  *
  * Description:
  *  Move the task from running to waiting list and activate the next task.
+ *
+ * Input Arguments:
+ *  to_preempt_tcb - the task to be preempted
+ *
+ * Assumptions:
+ *  The task received as argument should not be in the RUNNING state.
  *
  ************************************************************************/
 
