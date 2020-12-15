@@ -20,13 +20,21 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+/* Tcb without an assigned name */
+
+#define UNNAMED_TASK                  "(noname)"
+
 /* Scheduler debug macro */
 
 #ifndef CONFIG_SCHEDULER_DEBUG
   #define SCHED_DEBUG_INFO(msg, ...)
 #else
-  #define SCHED_DEBUG_INFO(msg, ...)  printf("[SCHED] "msg, __VA_ARGS__)
+  #define SCHED_DEBUG_INFO(msg, ...)  printf("[INFO][SCHED] "msg, __VA_ARGS__)
 #endif
+
+/* Scheduler error macro */
+
+#define SCHED_ERROR(msg, ...)   printf("[ERROR][SCHED] "msg, __VA_ARGS__)
 
 /****************************************************************************
  * Public Types

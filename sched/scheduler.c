@@ -51,7 +51,8 @@ static int sched_idle_task(int argc, char **argv)
   struct list_head *current, *temp;
   int fd;
 
-  printf("[idle_task] entry point\n");
+  current_tcb = sched_get_current_task();
+  SCHED_DEBUG_INFO("[%s] entry point\n", current_tcb->task_name);
 
   while (1)
   {
@@ -70,6 +71,8 @@ static int sched_idle_task(int argc, char **argv)
       {
         continue;
       }
+
+      SCHED_DEBUG_INFO("[idle_task] tear down task %s\n", current_tcb->task_name);
 
       /* Remove the task from the waiting list if it's in HALTED state */
 
@@ -125,6 +128,7 @@ int sched_init(void)
                               "Idle");
   if (ret < 0)
   {
+    SCHED_ERROR("failed to create Idle task %d\n", ret);
     return ret;
   }
 
@@ -193,6 +197,8 @@ int sched_create_task(int (*task_entry_point)(int argc, char **argv),
   irq_state_t irq_state = cpu_disableint();
   int ret;
 
+  SCHED_DEBUG_INFO("try create task %s\n", task_name);
+
   struct tcb_s *task_tcb = calloc(1, sizeof(struct tcb_s) + stack_size);
   if (task_tcb == NULL)
   {
@@ -236,6 +242,8 @@ int sched_create_task(int (*task_entry_point)(int argc, char **argv),
   list_add(&task_tcb->next_tcb, &g_tcb_list);
   
   ret = OK;
+
+  SCHED_DEBUG_INFO("created task %s\n", task_name);
 
 failed_task_creation:
   cpu_enableint(irq_state);
@@ -383,9 +391,6 @@ struct opened_resource_s *sched_find_opened_resource(int fd)
 *
 * Description:
 *  Pick the next task to be run.
-*
-* Return Value:
-*  The TCB of the next task or NULL if the scheduler is not initialized.
 *
 *************************************************************************/
 

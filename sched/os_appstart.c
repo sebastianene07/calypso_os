@@ -1,5 +1,7 @@
 #include <board.h>
+#include <assert.h>
 #include <scheduler.h>
+#include <stdbool.h>
 #include <builtin_apps.h>
 
 /*
@@ -22,4 +24,13 @@ void os_appstart(void)
    */
 
   sched_run();
+
+  /* This function should not return, raise an error.
+   * Possible error cases:
+   *  - failed to initialize IdleTask
+   *  - platform didn't implement cpu_restorecontext/cpu_savecontext
+   *  - corrupted memory
+  */
+
+  assert(false);
 }
