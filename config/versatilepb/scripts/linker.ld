@@ -1,8 +1,8 @@
 /* On VersatilePB the kernel is load at 0x10000 address
- * 128 Mb
+ * We only use 16Mb of memory
  */
 MEMORY {
-  RAM   (xrw): ORIGIN = 0x10000, LENGTH = 0x7FF0000
+  RAM   (xrw): ORIGIN = 0x10000, LENGTH = 0xFF0000
 }
 
 __RAM_START   = ORIGIN(RAM);
@@ -61,7 +61,7 @@ SECTIONS {
                  KEEP(*(.stack*))
                 . = ALIGN(4);
                 _sstack = .;
-                . = . + 1024;
+                . = . + 2048;
                 . = ALIGN(4);
                 _estack = .;
        } >RAM

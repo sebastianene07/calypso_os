@@ -10,11 +10,7 @@
 __attribute__((section(".isr_vector")))
 void (*g_vectors[NUM_IRQS])(void) = {
         STACK_TOP,
-#ifdef CONFIG_CONSOLE_NRF_INIT_SOFTDEVICE_APP
-        Reset_Handler,
-#else
         __start,
-#endif
         irq_generic_handler,  /* NMI handler */
         irq_generic_handler,  /* Hard fault handler */
         irq_generic_handler,
