@@ -2,7 +2,7 @@ SRC := $(wildcard *.c)
 SRC += $(wildcard */*.c)
 OBJS += $(patsubst %.c,%.o,$(SRC))
 ARCH_FLAGS:=${CFLAGS} -I$(TOPDIR)/include -I$(TOPDIR)/s_alloc -I./include/ -I$(TOPDIR)/sched/include
-ASM_FLAGS := -march=armv6
+ASM_FLAGS := -mcpu=arm926ej-s
 
 SRC_ASM:=$(wildcard *.s)
 OBJS_ASM:=$(patsubst %.s,%.o,$(SRC_ASM))
