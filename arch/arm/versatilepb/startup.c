@@ -78,6 +78,11 @@ void (*g_vectors[NUM_IRQS])(void) = {
         irq_generic_handler,
 };
 
+void copy_isr_vector(void)
+{
+  memcpy(NULL, g_vectors, sizeof(g_vectors));
+}
+
 void __assert_func(bool assert_cond)
 {
   __asm volatile("bkpt 1");

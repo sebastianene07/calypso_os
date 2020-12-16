@@ -32,38 +32,12 @@ typedef enum {
 #define TIMER_32BIT    0x02
 #define TIMER_ONESHOT  0x01
 
-/* http://infocenter.arm.com/help/topic/com.arm.doc.dui0224i/I1042232.html */
-#define PIC           ((volatile unsigned int*)0x10140000)
-#define PIC_TIMER01   0x10
-#define PIC_UART0     0x1000
-/* http://infocenter.arm.com/help/topic/com.arm.doc.ddi0181e/I1006461.html */
-#define VIC_INTENABLE  0x4 /* 0x10 bytes */
-#define VIC_INTENCLEAR 0x5 /* 0x14 bytes */
+#define PIC_BASE          0x10140000
+#define PIC_IntEnable     ((volatile unsigned int *)(PIC_BASE  + 0x10))
+#define PIC_IntEnClear    ((volatile unsigned int *)(PIC_BASE  + 0x14))
 
 /* The IRQ state */
 
 typedef uint64_t irq_state_t;
-
-/**
-  \brief   Enable IRQ Interrupts
-  \details Enables IRQ interrupts by clearing the I-bit in the CPSR.
-           Can only be executed in Privileged modes.
- */
-static inline void enable_int(irq_state_t irq_state)
-{
-	*(PIC + VIC_INTENABLE) = 0xFF;
-}
-
-
-/**
-  \brief   Disable IRQ Interrupts
-  \details Disables IRQ interrupts by setting the I-bit in the CPSR.
-           Can only be executed in Privileged modes.
- */
-static inline irq_state_t disable_int(void)
-{
-	*(PIC + VIC_INTENCLEAR) = 0xFF;
-  return 0;
-}
 
 #endif /* __VERSATILEPB_H */
