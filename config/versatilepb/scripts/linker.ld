@@ -61,7 +61,7 @@ SECTIONS {
                  KEEP(*(.stack*))
                 . = ALIGN(4);
                 _sstack = .;
-                . = . + 2048;
+                . = . + 4096;
                 . = ALIGN(4);
                 _estack = .;
        } >RAM
