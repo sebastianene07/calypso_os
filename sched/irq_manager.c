@@ -50,7 +50,7 @@ void irq_detach(int irq_num)
 
 /**************************************************************************
  * Name:
- *  irq_generic_handler 
+ *  irq_generic_handler
  *
  * Description:
  *  This is the generic interrupt handler for this OS..

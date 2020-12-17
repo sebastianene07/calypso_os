@@ -219,9 +219,10 @@ int sched_create_task(int (*task_entry_point)(int argc, char **argv),
 #ifdef CONFIG_SCHEDULER_TASK_COLORATION
   /* The effective stack size is base - top */
 
-  for (uint32_t *ptr = task_tcb->stack_ptr_base;
-     ptr < task_tcb->stack_ptr_base + (task_tcb->stack_ptr_top - task_tcb->stack_ptr_base) / sizeof(uint32_t);
-     ptr++)
+  uint32_t *ptr_end = (uint32_t *)(task_tcb->stack_ptr_base +
+    (task_tcb->stack_ptr_top - task_tcb->stack_ptr_base) / sizeof(uint32_t));
+
+  for (uint32_t *ptr = task_tcb->stack_ptr_base; ptr < ptr_end; ptr++)
   {
     *ptr = 0xDEADBEEF;
   }
