@@ -32,6 +32,7 @@
   push {r2}                 // Push the R2
   push {r1}                 // Push the R1
   push {r0}                 // Push the R0
+  push {fp}
   str sp, [r0, #52]              // Update the SP from the task
   mov r0, #0                        // Return "0" if we saved the data on the stack
   bx lr
@@ -57,6 +58,7 @@ cpu_savecontext_ret:
  ************************************************************************/
 cpu_restorecontext:
     ldr sp, [r0, #52]
+    pop {fp}
     pop {r0}                  // Pop the R0
     pop {r1}                  // Pop the R1
     pop {r2}                  // Pop the R2

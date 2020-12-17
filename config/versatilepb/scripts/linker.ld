@@ -51,19 +51,19 @@ SECTIONS {
 
         .stack : {
                  KEEP(*(.stack*))
-                . = ALIGN(4);
+                . = ALIGN(8);
                 _sstack = .;
-                . = . + 2048;
-                . = ALIGN(4);
+                . = . + 4096;
+                . = ALIGN(8);
                 _estack = .;
        } >RAM_DATA
 
        .irq_stack : {
                  KEEP(*(.irq_stack*))
-                . = ALIGN(4);
+                . = ALIGN(8);
                 _sirq_stack = .;
                 . = . + 2048;
-                . = ALIGN(4);
+                . = ALIGN(8);
                 _eirq_stack = .;
        } >RAM_DATA
 

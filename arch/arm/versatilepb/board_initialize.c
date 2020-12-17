@@ -30,8 +30,9 @@
 #define REG_LR                (14)
 #define REG_PC                (15)
 #define REG_XPSR              (16)
+#define REG_FP                (17)
 
-#define REG_NUMS              (17)
+#define REG_NUMS              (18)
 
 /****************************************************************************
  * Private Types
@@ -41,6 +42,7 @@
 
 typedef struct cpu_stacking_s
 {
+  void *fp;
   void *r0;
   void *r1;
   void *r2;
@@ -107,6 +109,7 @@ int cpu_inittask(struct tcb_s *tcb, int argc, char **argv)
   /* Setup the initial stack */
 
   cpu_stacking_s *initial_stack = (cpu_stacking_s *)bottom_sp;
+  initial_stack->fp = bottom_sp;
   initial_stack->r0 = (void *)argc;
   initial_stack->r1 = (void *)argv;
   initial_stack->lr = (void *)sched_default_task_exit_point;
@@ -135,7 +138,9 @@ void cpu_destroytask(tcb_t *tcb)
  */
 irq_state_t cpu_disableint(void)
 {
-  return 0;
+  irq_state_t reg = PIC_IntEnable;
+  PIC_IntEnClear = 0xFFFFFF;
+  return reg;
 }
 
 /*
@@ -144,7 +149,7 @@ irq_state_t cpu_disableint(void)
  */
 void cpu_enableint(irq_state_t irq_state)
 {
-
+  PIC_IntEnable = irq_state;
 }
 
 /*
@@ -155,5 +160,13 @@ void cpu_enableint(irq_state_t irq_state)
  */
 int cpu_getirqnum(void)
 {
-  return -ENOSYS;
+  int ipsr;
+
+  __asm volatile("mrs %0, apsr\n"
+                 : "=r" (ipsr)
+                 :
+                 : "memory");
+
+  ipsr -= 16;
+  return ipsr;
 }

@@ -3,11 +3,14 @@
 
 typedef enum {
   DEFAULT = 0,
-  NUM_IRQS = 90
+  NUM_IRQS = 255
 } IRQn_Type;
 
 /* http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0224i/Bbabegge.html */
 #define UART0       ((volatile unsigned int*)0x101f1000)
+
+#define UART_IRQ      (194)
+
 /* http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.ddi0183g/I18381.html */
 #define UARTFR        0x06 /* 0x18 bytes */
 #define UARTIMSC      0x0E /* 0x38 bytes */
@@ -33,11 +36,15 @@ typedef enum {
 #define TIMER_ONESHOT  0x01
 
 #define PIC_BASE          0x10140000
+
+#define PIC_IntStatus     (*(volatile unsigned int *)(PIC_BASE))
 #define PIC_IntEnable     (*(volatile unsigned int *)(PIC_BASE  + 0x10))
 #define PIC_IntEnClear    (*(volatile unsigned int *)(PIC_BASE  + 0x14))
 
+#define PIC_INT_SOURCE_UART0  (12)
+
 /* The IRQ state */
 
-typedef uint64_t irq_state_t;
+typedef uint32_t irq_state_t;
 
 #endif /* __VERSATILEPB_H */

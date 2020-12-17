@@ -57,7 +57,7 @@ void irq_detach(int irq_num)
  *
  *************************************************************************/
 
-void irq_generic_handler(void)
+void __attribute__((interrupt)) irq_generic_handler(void)
 {
   uint8_t isr_num = cpu_getirqnum();
 

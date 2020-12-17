@@ -1,5 +1,7 @@
-#include <stdint.h>
 #include <board.h>
+
+#include <stdint.h>
+#include <irq_manager.h>
 #include <semaphore.h>
 #include <serial.h>
 #include <string.h>
@@ -19,6 +21,8 @@
  */
 #define RXIM            (4)
 
+#define UART0_BASE_ADDR 0x101f1000
+#define UART0_IMSC (*((volatile uint32_t *)(UART0_BASE_ADDR + 0x038)))
 
 /****************************************************************************
  * Private Types
@@ -93,17 +97,22 @@ static struct uart_lower_s g_uart_lowerhalfs[] =
  * Private Functions
  ****************************************************************************/
 
-#define UART0_BASE_ADDR 0x101f1000
-#define UART0_IMSC (*((volatile uint32_t *)(UART0_BASE_ADDR + 0x038)))
+static void versatilepb_lpuart_int(void)
+{
+  struct uart_lower_s *lower = &g_uart_lowerhalfs[0];
+
+  lower->rx_buffer[lower->index_write_rx_buffer] = uart0->DR;
+  lower->index_write_rx_buffer = (lower->index_write_rx_buffer + 1) % UART_RX_BUFFER;
+
+  /* Notify incomming RX characters */
+  sem_post(&lower->rx_notify);
+}
 
 static int versatilepb_lpuart_config(struct uart_lower_s *lower)
 {
-  struct versatilepb_uart_priv_s *uart_priv = lower->priv;
-  pl011_T *uart_mmio = (pl011_T *)uart_priv->base_peripheral_ptr;
-
-//  uart_mmio->IMSC = (1 << RXIM);
-  PIC_IntEnable = (1 << 12);
-  UART0_IMSC    = (1 << 4);
+  irq_attach(UART_IRQ, versatilepb_lpuart_int);
+  PIC_IntEnable   |= (1 << PIC_INT_SOURCE_UART0);
+  UART0_IMSC = (1 << RXIM);
   return 0;
 }
 
@@ -181,7 +190,7 @@ static int versatilepb_lpuart_read(const struct uart_lower_s *lower_half,
   } while (count > 0);
 
   return total_copy;
-}  
+}
 
 /****************************************************************************
  * Public Functions
@@ -192,8 +201,8 @@ static int versatilepb_lpuart_read(const struct uart_lower_s *lower_half,
  *
  * Description:
  *   The lower level UART initialization should allow printing characters on
- *   the console. 
- *    
+ *   the console.
+ *
  ****************************************************************************/
 
 int uart_low_init(void)
