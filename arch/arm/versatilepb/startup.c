@@ -9,17 +9,16 @@
 
 /* RAM based ISR vector */
 
-void copy_isr_vector(void *pc_dispatch_address)
+void copy_isr_vector(void)
 {
-  uint32_t irq_dispatch_instruction;
-  uint32_t *irq_copy = NULL;
+  extern uint32_t vectors_start;
+  extern uint32_t vectors_end;
 
-  memcpy(&irq_dispatch_instruction, pc_dispatch_address, sizeof(irq_dispatch_instruction));
-  for (int i = 0; i < NUM_IRQS; i++)
-  {
-    memcpy(irq_copy, &irq_dispatch_instruction, sizeof(uint32_t));
-    irq_copy++;
-  }
+  uint32_t *vectors_src = &vectors_start;
+  uint32_t *vectors_dst = (uint32_t *)0;
+ 
+  while(vectors_src < &vectors_end)
+    *vectors_dst++ = *vectors_src++;
 }
 
 void __assert_func(bool assert_cond)

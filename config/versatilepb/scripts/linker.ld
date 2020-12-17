@@ -53,9 +53,18 @@ SECTIONS {
                  KEEP(*(.stack*))
                 . = ALIGN(4);
                 _sstack = .;
-                . = . + 4096;
+                . = . + 2048;
                 . = ALIGN(4);
                 _estack = .;
+       } >RAM_DATA
+
+       .irq_stack : {
+                 KEEP(*(.irq_stack*))
+                . = ALIGN(4);
+                _sirq_stack = .;
+                . = . + 2048;
+                . = ALIGN(4);
+                _eirq_stack = .;
        } >RAM_DATA
 
         .heap : {
