@@ -81,7 +81,7 @@ static versatilepb_uart_priv_t g_uart_low_0_priv =
 static struct uart_lower_s g_uart_lowerhalfs[] =
 {
   {
-    .priv     = &g_uart_low_0_priv,
+    .priv     = (void *)&g_uart_low_0_priv,
     .open_cb  = versatilepb_lpuart_open,
     .write_cb = versatilepb_lpuart_write,
     .read_cb  = versatilepb_lpuart_read,
@@ -93,14 +93,18 @@ static struct uart_lower_s g_uart_lowerhalfs[] =
  * Private Functions
  ****************************************************************************/
 
+#define UART0_BASE_ADDR 0x101f1000
+#define UART0_IMSC (*((volatile uint32_t *)(UART0_BASE_ADDR + 0x038)))
+
 static int versatilepb_lpuart_config(struct uart_lower_s *lower)
 {
   struct versatilepb_uart_priv_s *uart_priv = lower->priv;
   pl011_T *uart_mmio = (pl011_T *)uart_priv->base_peripheral_ptr;
 
-  uart_mmio->IMSC = (1 << RXIM);
-  *PIC_IntEnable |= (1 << 12);
-  return 0; 
+//  uart_mmio->IMSC = (1 << RXIM);
+  PIC_IntEnable = (1 << 12);
+  UART0_IMSC    = (1 << 4);
+  return 0;
 }
 
 static int versatilepb_lpuart_open(const struct uart_lower_s *lower)
@@ -121,8 +125,6 @@ static int versatilepb_lpuart_write(const struct uart_lower_s *lower,
                                     const void *ptr_data,
                                     unsigned int sz)
 {
-  struct versatilepb_uart_priv_s *uart_priv = lower->priv;
-
   sem_wait((sem_t *)&lower->lock);
 
   for (int i = 0; i < sz; i++) {
@@ -137,12 +139,9 @@ static int versatilepb_lpuart_read(const struct uart_lower_s *lower_half,
                                    void *buf,
                                    unsigned int count)
 {
-  int ret = 0;
-  uint32_t min_copy = 0;
   int total_copy = 0;
 
   struct uart_lower_s *lower = (struct uart_lower_s *)lower_half;
-  struct versatilepb_uart_priv_s *uart_priv = lower->priv;
 
   do {
     uint8_t available_rx_bytes = 0;

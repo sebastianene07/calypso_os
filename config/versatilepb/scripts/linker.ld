@@ -2,24 +2,16 @@
  * We only use 16Mb of memory
  */
 MEMORY {
-  RAM   (xrw): ORIGIN = 0x10000, LENGTH = 0xFF0000
+  RAM_CODE   (xrw): ORIGIN = 0x10000,  LENGTH = 0x100000  /* 1Mb text */
+  RAM_DATA   (xrw): ORIGIN = 0x110000, LENGTH = 0x200000  /* 2Mb stack + heap */
 }
-
-__RAM_START   = ORIGIN(RAM);
-__RAM_LENGTH  = LENGTH(RAM);
-__RAM_END     = (ORIGIN(RAM) + LENGTH(RAM)) - 1;
 
 SECTIONS {
         .boot_startup : {
           . = ALIGN(4);
           bootload.o(.text)
           . = ALIGN(4);
-        } >RAM
-        .isr_vector : {
-                . = ALIGN(4);
-                KEEP(*(.isr_vector))    /* vector table */
-                . = ALIGN(4);
-        } >RAM
+        } >RAM_CODE
 
         .rodata : {
           . = ALIGN(4);
@@ -27,7 +19,7 @@ SECTIONS {
           *(.rodata)
           *(.rodata.*)
           . = ALIGN(4);
-        } >RAM
+        } >RAM_CODE
 
         .text :  {
                 . = ALIGN(4);
@@ -35,9 +27,9 @@ SECTIONS {
                 *(.text.*)
                 . = ALIGN(4);
                 _etext = .;             /* _etext is end of program code */
-        } >RAM                        /* this section is code, hence gos to FLASH */
+        } >RAM_CODE                     /* this section is code, hence gos to FLASH */
 
-        .data : {         /* AT specifies the LMA (load memory address) */
+        .data : {                       /* AT specifies the LMA (load memory address) */
                 . = ALIGN(4);           /* also, this section is for initialized
                                              global/static variables */
                 _sdata = .;
@@ -45,7 +37,7 @@ SECTIONS {
                 *(.data.*)
                 . = ALIGN(4);
                 _edata = .;
-        } >RAM                          /* this section go into this RAM */
+        } >RAM_CODE                     /* this section go into this RAM */
 
         .bss : {                        /* this section is for uninitialized global/static
                                         variables, which we set to zero */
@@ -55,7 +47,7 @@ SECTIONS {
                 *(COMMON)
                 . = ALIGN(4);
                 _ebss = .;
-        } >RAM
+        } >RAM_CODE
 
         .stack : {
                  KEEP(*(.stack*))
@@ -64,13 +56,13 @@ SECTIONS {
                 . = . + 4096;
                 . = ALIGN(4);
                 _estack = .;
-       } >RAM
+       } >RAM_DATA
 
         .heap : {
                 KEEP(*(.heap*))
                 . = ALIGN(4);
                 _sheap = .;
-        } >RAM
+        } >RAM_DATA
 
-      _eheap = ORIGIN(RAM) + LENGTH(RAM);
+      _eheap = ORIGIN(RAM_DATA) + LENGTH(RAM_DATA);
 }

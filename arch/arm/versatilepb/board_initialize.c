@@ -55,8 +55,6 @@ typedef struct cpu_stacking_s
  * Public Functions
  ****************************************************************************/
 
-void copy_isr_vector(void);
-
 /*
  * board_init - initialize the board resources
  *
@@ -65,8 +63,6 @@ void copy_isr_vector(void);
 void board_init(void)
 {
   size_t num_uarts;
-
-  copy_isr_vector();
 
   uart_low_init();
   printf("\r\nQEMU versatilepb initializing\r\n.");
@@ -96,7 +92,8 @@ int cpu_inittask(struct tcb_s *tcb, int argc, char **argv)
     return -ENOMEM;
   }
 
-  void *bottom_sp = (unsigned int)tcb->stack_ptr_top - 8 * sizeof(void *);
+  void *bottom_sp =
+    (void *)((unsigned int)tcb->stack_ptr_top - 8 * sizeof(void *));
 
   /* Initial MCU context */
 

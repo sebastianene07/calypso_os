@@ -33,8 +33,8 @@ typedef enum {
 #define TIMER_ONESHOT  0x01
 
 #define PIC_BASE          0x10140000
-#define PIC_IntEnable     ((volatile unsigned int *)(PIC_BASE  + 0x10))
-#define PIC_IntEnClear    ((volatile unsigned int *)(PIC_BASE  + 0x14))
+#define PIC_IntEnable     (*(volatile unsigned int *)(PIC_BASE  + 0x10))
+#define PIC_IntEnClear    (*(volatile unsigned int *)(PIC_BASE  + 0x14))
 
 /* The IRQ state */
 
