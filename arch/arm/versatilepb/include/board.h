@@ -21,6 +21,8 @@
 #define STACK_TOP             (void *)(0x1900c)
 #define HEAP_BLOCK_SIZE       (16)
 
+#define INTERRUPT_ATR         __attribute__((interrupt))
+
 /****************************************************************************
  * Peripheral initialization function for the board
  ****************************************************************************/
