@@ -50,14 +50,17 @@ void irq_detach(int irq_num)
 
 /**************************************************************************
  * Name:
- *  irq_generic_handler 
+ *  irq_generic_handler
  *
  * Description:
  *  This is the generic interrupt handler for this OS..
  *
  *************************************************************************/
-
-void irq_generic_handler(void)
+#ifdef INTERRUPT_ATR
+  void INTERRUPT_ATR irq_generic_handler(void)
+#else
+  void irq_generic_handler(void)
+#endif
 {
   uint8_t isr_num = cpu_getirqnum();
 

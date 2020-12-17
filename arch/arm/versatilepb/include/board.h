@@ -12,8 +12,16 @@
  ****************************************************************************/
 
 #define RAM_BASE              (void *)(0x10000)
-#define STACK_TOP             (void *)(0x11000)
+
+/* This is ignored because when the system boots up the _bootload code is
+ * executed and the initial stack is copied from _estack (defined in the
+ * linker file).
+ */
+
+#define STACK_TOP             (void *)(0x1900c)
 #define HEAP_BLOCK_SIZE       (16)
+
+#define INTERRUPT_ATR         __attribute__((interrupt))
 
 /****************************************************************************
  * Peripheral initialization function for the board

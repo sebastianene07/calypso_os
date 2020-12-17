@@ -79,7 +79,7 @@ typedef struct cpu_stacking_s
   void *lr;
   void *pc;
   void *xpsr;
-} cpu_stacking_s;
+} __attribute__((packed)) cpu_stacking_s;
 
 /****************************************************************************
  * Private Data
@@ -243,6 +243,9 @@ void board_entersleep(void)
   __WFI();
 }
 
+/*
+ * task_entry_point - a trampoline used to setup task arguments
+ */
 void task_entry_point(void)
 {
   tcb_t *tcb = sched_get_current_task();

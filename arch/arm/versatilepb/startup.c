@@ -3,80 +3,23 @@
 #include <irq_manager.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 #include <scheduler.h>
 #include <os_start.h>
 
-/* Flash based ISR vector */
-__attribute__((section(".isr_vector")))
-void (*g_vectors[NUM_IRQS])(void) = {
-        STACK_TOP,
-        __start,
-        irq_generic_handler,  /* NMI handler */
-        irq_generic_handler,  /* Hard fault handler */
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,  /* SVC */
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,  /* Pend SV */
-        irq_generic_handler,  /* Systick handler */
+/* RAM based ISR vector */
 
-        /* External interrupts */
+void copy_isr_vector(void)
+{
+  extern uint32_t vectors_start;
+  extern uint32_t vectors_end;
 
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-        irq_generic_handler,
-};
+  uint32_t *vectors_src = &vectors_start;
+  uint32_t *vectors_dst = (uint32_t *)0;
+ 
+  while(vectors_src < &vectors_end)
+    *vectors_dst++ = *vectors_src++;
+}
 
 void __assert_func(bool assert_cond)
 {
