@@ -3,7 +3,7 @@
  */
 MEMORY {
   RAM_CODE   (xrw): ORIGIN = 0x10000,  LENGTH = 0x100000  /* 1Mb text */
-  RAM_DATA   (xrw): ORIGIN = 0x110000, LENGTH = 0x200000  /* 2Mb stack + heap */
+  RAM_DATA   (xrw): ORIGIN = 0x110000, LENGTH = 0x400000  /* 4Mb stack + heap */
 }
 
 SECTIONS {
