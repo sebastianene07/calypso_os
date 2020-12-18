@@ -128,8 +128,7 @@ int cpu_inittask(struct tcb_s *tcb, int argc, char **argv)
  */
 void cpu_destroytask(tcb_t *tcb)
 {
-  // TODO: Investigate crash :
-  //free(tcb->mcu_context);
+  free(tcb->mcu_context);
   free(tcb);
 }
 
