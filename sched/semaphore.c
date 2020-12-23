@@ -165,3 +165,23 @@ int sem_post(sem_t *sem)
 
   return 0;
 }
+
+/*
+ * sem_timedwait - wait on a semaphore with timeoute
+ *
+ * @sem       - the semaphore address
+ *
+ * Not implemneted yet. It only works with SEM_WAIT_FOREVER.
+ *
+ */
+int sem_timedwait(sem_t *sem, int timeout_abs)
+{
+  if (timeout_abs == SEM_WAIT_FOREVER)
+  {
+    return sem_wait(sem);
+  }
+  else
+  {
+    return -ENOSYS;
+  }
+}
