@@ -20,19 +20,94 @@
  * Public Types
  ****************************************************************************/
 
-/* Supported node opeartions */
+/* Supported node opeartions - this should be implemented by the driver nodes
+ */
 
 typedef int (*open_cb)(struct opened_resource_s *priv, const char *pathname,
                        int flags,
                        mode_t mode);
 typedef int (*close_cb)(struct opened_resource_s *priv);
+
+/* 
+ * write_cb - this callback writes data specified from buf to the devicee
+ *
+ * Input Arguments:
+ *  priv      - an opened virtual file system node for a task
+ *  buf       - buffer from where we write the dataa
+ *  count     - the number of bytes that we want to writer
+ *
+ * Return Values:
+ *  On success it returns the number of bytes written. On error it returns a
+ *  negative error code. This function blocks the task until the bytes are
+ *  written.
+ */
 typedef int (*write_cb)(struct opened_resource_s *priv, const void *buf,
                         size_t count);
+
+/* 
+ * read_cb - this callback returns data read from the devicee
+ *
+ * Input Arguments:
+ *  priv      - an opened virtual file system node for a task
+ *  buf       - buffer where we need to place the read data
+ *  count     - the number of bytes that we want to place in the buffer
+ *
+ * Return Values:
+ *  On success it returns the number of bytes read. On error it returns a
+ *  negative error code. This function blocks the task until the bytes are
+ *  available.
+ */
 typedef int (*read_cb)(struct opened_resource_s *priv, void *buf, size_t count);
+
+/* 
+ * ioctl_cb - this callback provides special access functions for a device
+ *
+ * Input Arguments:
+ *  priv      - an opened virtual file system node for a task
+ *  request   - the request code
+ *  arg       - arguments to the deviced (usually this holds an address)
+ *
+ * Return Values:
+ *  On success (0) is returned otherwise a negative error code.
+ */
 typedef int (*ioctl_cb)(struct opened_resource_s *priv, unsigned long request,
                         unsigned long arg);
+
+/* 
+ * unlink_cb - remove a node from the disk
+ *
+ * Input Arguments:
+ *  pathname - the path that needs to be invalidated
+ *
+ * Return Values:
+ *  On success (0) is returned otherwise a negative error code.
+ */
 typedef int (*unlink_cb)(const char *pathname);
+
+/* 
+ * mkdir_cb - create a new directory on the disk
+ *
+ * Input Arguments:
+ *  pathname - the new directory path
+ *  mode     - the mode operations
+ *
+ * Return Values:
+ *  On success (0) is returned otherwise a negative error code.
+ */
 typedef int (*mkdir_cb)(const char *path, mode_t mode);
+
+/* 
+ * poll_cb - poll the device for I/O events
+ *
+ * Input Arguments:
+ *  priv      - an opened virtual file system node for a task
+ *  poll_sema - the poll semaphore
+ *  revents   - (out) the receive mask which is set when an event is generated
+ *              in the driver code.
+ *
+ * Return Values:
+ *  On success (0) is returned otherwise a negative error code.
+ */
 typedef int (*poll_cb)(struct opened_resource_s *priv, sem_t *poll_sema,
                        short *revents);
 
