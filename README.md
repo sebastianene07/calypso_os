@@ -143,7 +143,30 @@ https://github.com/users/sebastianene07/projects/1#card-30262282
 
 ## Porting Guide 
 
-Adding a new board support has never been easier. Check out the board
+Run the script to add a new board:
+```
+user:~/calypso_os/$ ./add_board.sh
+do you wish to create a new board [Y/y/n] ?
+y
+Yes
+what name has the board ?
+awesome_board
+Confirm board name awesome_board [Y/y/n] ?
+y
+what arch is the board [arm sim template xtensa] ?
+x86
+ARCH x86 is new. Confirm adding it [Y/y/n] ?
+y
+Creating board in: arch/x86/awesome_board
+Creating config entry in: config/awesome_board
+Done !
+```
+
+After this, there are a bunch of filed generated from the template. This files
+contains sources, makefiles and Kconfig options. A good place to start is to
+edit the memory layout in the config/${board_name}/scripts/linker.ld
+The next step is to specify the CROSS COMPILER PREFIX from the defconfig.
+Check out the board
 interface defined here: https://github.com/sebastianene07/calypso_os/tree/master/config
 
 To implement the minimum support, define and use the functions marked as
