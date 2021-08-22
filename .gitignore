@@ -24,3 +24,4 @@ tags
 *.pyc
 build/build.bin
 *.a
+build.uf

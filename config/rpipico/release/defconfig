@@ -8,7 +8,7 @@
 #
 CONFIG_MACHINE_TYPE="rpipico"
 CONFIG_PREFIX_TOOLCHAIN="arm-none-eabi-"
-CONFIG_COMMAND_LOAD="./flash_all.sh"
+CONFIG_COMMAND_LOAD="arch/arm/rpipico/pico-sdk/elf2uf2/elf2uf2 build/build.elf build.uf"
 CONFIG_CFLAGS=" -mcpu=cortex-m0plus -mthumb -g -Wall -nostartfiles -nostdlib -ffreestanding "
 CONFIG_LDFLAGS=" ${CFLAGS} -Wl,-T${TOPDIR}/linker.ld -L. -lbsp -lgcc"
 # CONFIG_SPI_0 is not set

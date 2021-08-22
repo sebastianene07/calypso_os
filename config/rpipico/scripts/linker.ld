@@ -29,12 +29,16 @@ SECTIONS {
          * launches only, to perform proper flash setup.
          */
 	. = 0x10000100;
+	.isr_vector : {
+      		KEEP (*(.isr_vector))
+	} > FLASH
+
         .text :  {
                 . = ALIGN(4);
                 *(.text)                /* Program code */
                 *(.text.*)
                 . = ALIGN(4);
-        }
+        } > FLASH
 
         .rodata : {
           . = ALIGN(4);
@@ -157,12 +161,14 @@ SECTIONS {
 */
 		__StackLimit = .;
         .heap : {
+/*
+*/
+                . = ALIGN(4);
+		_sheap = .;
+                KEEP(*(.heap*))
 		__end__ = .;
 		end = __end__;
-                KEEP(*(.heap*))
-                . = ALIGN(4);
-                _sheap = .;
         } >RAM
-      _eheap = ORIGIN(RAM) + LENGTH(RAM);
+      _eheap = ORIGIN(RAM) + LENGTH(RAM) - 2048;
       __StackTop = ORIGIN(SCRATCH_Y) + LENGTH(SCRATCH_Y);
 }

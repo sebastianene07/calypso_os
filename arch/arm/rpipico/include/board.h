@@ -14,12 +14,11 @@
 /* Template default ! Edit this value for your board */
 #define RAM_BASE              (void *)(0x10000)
 
-/* This is ignored because when the system boots up the _bootload code is
- * executed and the initial stack is copied from _estack (defined in the
- * linker file).
+/* We setup 2044 bytes of initial stack . !! Caution !! Too much stack usage
+ * can overflow the heap portion. TODO: Need to add verifications.
  */
 
-#define STACK_TOP             (void *)(0x1900c)
+#define STACK_TOP             (void *)(0x2003fffc)
 #define HEAP_BLOCK_SIZE       (16)
 
 #define INTERRUPT_ATR         __attribute__((interrupt))

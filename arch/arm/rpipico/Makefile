@@ -1,4 +1,4 @@
-SRC := board_initialize.c
+SRC := board_initialize.c startup.c
 OBJS += $(patsubst %.c,%.o,$(SRC))
 OBJS += bs2_default.o
 ARCH_FLAGS:=${CFLAGS} -I$(TOPDIR)/include -I$(TOPDIR)/s_alloc -I./include/ -I$(TOPDIR)/sched/include
