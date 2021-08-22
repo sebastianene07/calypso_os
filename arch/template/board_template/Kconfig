@@ -1,0 +1,133 @@
+config MACHINE_TYPE
+    string "The machine name"
+    default "template"
+
+config PREFIX_TOOLCHAIN
+    string "The prefix used by the toolchain"
+    default "gcc-template-"
+
+config COMMAND_LOAD
+    string "The command used to load the binnary on the board"
+    default "./flash_template.sh"
+
+config CFLAGS
+    string "The compilation flags"
+    default ''
+
+config LDFLAGS
+    string "The linker flags"
+    default ''
+
+config SPI_0
+    bool "SPI master 0 peripheral support"
+    default n
+
+if SPI_0
+
+config SPI_0_MISO_PIN
+    int "SPI 0 MISO pin"
+    default 0
+
+config SPI_0_MISO_PORT
+    int "SPI 0 MISO port"
+    default 0
+
+config SPI_0_MOSI_PIN
+    int "SPI 0 MOSI pin"
+    default 0
+
+config SPI_0_MOSI_PORT
+    int "SPI 0 MOSI port"
+    default 0
+
+config SPI_0_SCK_PIN
+    int "SPI 0 SCK pin"
+    default 0
+
+config SPI_0_SCK_PORT
+    int "SPI 0 SCK port"
+    default 0
+
+config SPI_0_CS_PIN
+    int "SPI 0 CS pin"
+    default 0
+
+config SPI_0_CS_PORT
+    int "SPI 0 CS port"
+    default 0
+
+config SPI_0_FREQUENCY
+    int "SPI 0 Master clock frequency [0 .. 6]"
+    default 0
+    ---help---
+    The SPI master clock frequency { 0 = 125 KBPS, 1 = 250 KBSP, 2 = 500 KBPS,
+    3 = 1 MBPS, 4 = 2 MBPS, 5 = 4 MBSP, 6 = 8 MBPS }
+
+endif # SPI_0
+
+config SPI_1
+    bool "SPI master 1 peripheral support"
+    default n
+
+if SPI_1
+
+config SPI_1_MISO_PIN
+    int "SPI 1 MISO pin"
+    default 0
+
+config SPI_1_MISO_PORT
+    int "SPI 1 MISO port"
+    default 0
+
+config SPI_1_MOSI_PIN
+    int "SPI 1 MOSI pin"
+    default 0
+
+config SPI_1_MOSI_PORT
+    int "SPI 1 MOSI port"
+    default 0
+
+config SPI_1_SCK_PIN
+    int "SPI 1 SCK pin"
+    default 0
+
+config SPI_1_SCK_PORT
+    int "SPI 1 SCK port"
+    default 0
+
+config SPI_1_CS_PIN
+    int "SPI 1 CS pin"
+    default 0
+
+config SPI_1_CS_PORT
+    int "SPI 1 CS port"
+    default 0
+
+config SPI_1_FREQUENCY
+    int "SPI 1 Master clock frequency [0 .. 6]"
+    default 0
+    ---help---
+    The SPI master clock frequency { 0 = 125 KBPS, 1 = 250 KBSP, 2 = 500 KBPS,
+    3 = 1 MBPS, 4 = 2 MBPS, 5 = 4 MBSP, 6 = 8 MBPS }
+
+endif # SPI_1
+
+config SPI_BUFFER_LEN
+    int "SPI Buffer len in bytes"
+    default 32
+
+config CONSOLE_UART_PATH
+    string "The path where we mount the serial console node"
+    default "/dev/ttyUSB0"
+
+config SERIAL_CONSOLE_TX
+    int "The TX serial console pin"
+    default 6
+
+config SERIAL_CONSOLE_RX
+    int "The RX serial console pin"
+    default 8
+
+config RTC_PATH
+    string "The path where we mount the rtc driver node"
+    default "/dev/rtc0"
