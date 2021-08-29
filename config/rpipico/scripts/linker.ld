@@ -137,6 +137,8 @@ SECTIONS {
 		__bss_start__ = .;
                 _sbss = .;              /* the . sets the symbol to value of current counter */
 		. = ALIGN(4);
+		*(SORT_BY_ALIGNMENT(SORT_BY_NAME(.bss*)))
+		*(COMMON)
 		__bss_end__ = .;
                 _ebss = .;
         } >RAM
