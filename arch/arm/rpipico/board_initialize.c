@@ -6,7 +6,7 @@
 #include <scheduler.h>
 #include <os_start.h>
 
-extern int bsp_main(void);
+#include "bsp.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -27,13 +27,7 @@ extern int bsp_main(void);
  */
 void board_init(void)
 {
-  //size_t num_uarts;
-
-  //uart_low_init();
-  //printf("\r\nTemplate initializing\r\n.");
-
-  //uart_init(&num_uarts);
-  bsp_main();
+  bsp_gpio_led_init();
 }
 
 /*
@@ -93,19 +87,4 @@ int cpu_savecontext(void *mcu_context)
 
 void cpu_restorecontext(void *mcu_context)
 {
-}
-
-int putchar(int c)
-{
-  return 0;
-}
-
-int uart_low_init(void)
-{
-  return 0;
-}
-
-sem_t *get_console_sema(void)
-{
-  return NULL;
 }
