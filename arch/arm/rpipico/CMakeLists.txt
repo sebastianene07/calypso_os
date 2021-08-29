@@ -13,3 +13,8 @@ add_library(bsp STATIC
 
 # Add pico_stdlib library which aggregates commonly used features
 target_link_libraries(bsp pico_stdlib)
+
+add_compile_definitions(PICO_TIME_DEFAULT_ALARM_POOL_DISABLED=1)
+
+#pico_enable_stdio_usb(bsp 1)
+pico_enable_stdio_uart(bsp 1)
