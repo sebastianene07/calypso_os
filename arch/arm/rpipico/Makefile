@@ -23,9 +23,11 @@ bs2_default.bin: boot/bs2_default.elf
 
 boot/bs2_default.elf: libbsp.a
 
-libbsp.a:
-	mkdir build && cd build && cmake .. && make -j4 && cp libbsp.a ..
-	rm -rf build
+libbsp.a: build bsp.c
+	cd build && make -f Makefile && cp libbsp.a ..
+
+build:
+	mkdir build && cd build && cmake ..
 
 clean:
 	rm -rf build
