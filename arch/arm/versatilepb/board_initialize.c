@@ -35,25 +35,6 @@
 #define REG_NUMS              (18)
 
 /****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/* The CPU stacking registers  */
-
-typedef struct cpu_stacking_s
-{
-  void *fp;
-  void *r0;
-  void *r1;
-  void *r2;
-  void *r3;
-  void *r12;
-  void *lr;
-  void *pc;
-  void *xpsr;
-} __attribute__((packed)) cpu_stacking_s;
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -105,18 +86,6 @@ int cpu_inittask(struct tcb_s *tcb, int argc, char **argv)
   mcu_context[REG_PC]   = (void *)task_entry_point;
   mcu_context[REG_XPSR] = (void *)0x1000000;
   mcu_context[REG_SP]   = bottom_sp;
-
-  /* Setup the initial stack */
-
-  cpu_stacking_s *initial_stack = (cpu_stacking_s *)bottom_sp;
-  initial_stack->fp = bottom_sp;
-  initial_stack->r0 = (void *)argc;
-  initial_stack->r1 = (void *)argv;
-  initial_stack->lr = (void *)sched_default_task_exit_point;
-  initial_stack->pc = (void *)task_entry_point;
-  initial_stack->xpsr = (void *)0x1000000;
-
-  /* Setup the initial stack context  */
 
   tcb->mcu_context = mcu_context;
   return 0;
