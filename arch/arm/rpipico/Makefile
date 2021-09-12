@@ -14,7 +14,8 @@ ARCH_FLAGS:=${CFLAGS} -I$(TOPDIR)/include\
 											-I$(TOPDIR)/$(PICO_SDK)/src/rp2040/hardware_structs/include/\
 											-I$(TOPDIR)/$(PICO_SDK)/src/rp2_common/hardware_base/include/\
 											-I$(TOPDIR)/$(PICO_SDK)/src/rp2040/hardware_regs/include/\
-											-I$(TOPDIR)/$(PICO_SDK)/src/rp2_common/hardware_gpio/include/
+											-I$(TOPDIR)/$(PICO_SDK)/src/rp2_common/hardware_gpio/include/\
+											-I$(TOPDIR)/$(PICO_SDK)/lib/tinyusb/lib/CMSIS_5/CMSIS/Core/Include/
 LDFLAGS += -Llibbsp.a
 
 all: $(OBJS) libbsp.a

@@ -8,6 +8,10 @@
 
 #include "bsp.h"
 
+#define __NVIC_PRIO_BITS (0)
+
+#include <core_cm0plus.h>
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -36,7 +40,27 @@ void board_init(void)
  */
 int cpu_inittask(struct tcb_s *tcb, int argc, char **argv)
 {
-  /* TODO  */
+  void **mcu_context = calloc(REG_NUMS, sizeof(void *));
+  if (mcu_context == NULL)
+  {
+    return -ENOMEM;
+  }
+
+  void *bottom_sp =
+    (void *)((unsigned int)tcb->stack_ptr_top - 8 * sizeof(void *));
+
+  /* Initial MCU context */
+
+  mcu_context[REG_R0]   = (void *)argc;
+  mcu_context[REG_R1]   = (void *)argv;
+  mcu_context[REG_LR]   = (void *)sched_default_task_exit_point;
+  mcu_context[REG_PC]   = (void *)tcb->entry_point;
+  mcu_context[REG_XPSR] = (void *)0x1000000;
+  mcu_context[REG_SP]   = bottom_sp;
+
+  /* Setup the initial stack context  */
+
+  tcb->mcu_context = mcu_context;
   return 0;
 }
 
@@ -46,7 +70,8 @@ int cpu_inittask(struct tcb_s *tcb, int argc, char **argv)
  */
 void cpu_destroytask(tcb_t *tcb)
 {
-  /* TODO  */
+  free(tcb->mcu_context);
+  free(tcb);
 }
 
 /*
@@ -55,8 +80,13 @@ void cpu_destroytask(tcb_t *tcb)
  */
 irq_state_t cpu_disableint(void)
 {
-  /* TODO  */
-  return 0;
+  unsigned short primask;
+  __asm volatile("mrs %0, primask\n"
+                 "cpsid i\n"
+                 : "=r" (primask)
+                 :
+                 : "memory");
+  return (irq_state_t)primask;
 }
 
 /*
@@ -65,7 +95,13 @@ irq_state_t cpu_disableint(void)
  */
 void cpu_enableint(irq_state_t irq_state)
 {
-  /* TODO  */
+  __asm volatile("tst %0, #1\n"
+                 "bne.n 1f\n"
+                 "cpsie i\n"
+                 "1:\n"
+                 :
+                 : "r" (irq_state)
+                 : "memory");
 }
 
 /*
@@ -76,8 +112,15 @@ void cpu_enableint(irq_state_t irq_state)
  */
 int cpu_getirqnum(void)
 {
-  /* TODO  */
-  return 0;
+  int ipsr;
+
+  __asm volatile("mrs %0, ipsr\n"
+                 : "=r" (ipsr)
+                 :
+                 : "memory");
+
+  ipsr -= 16;
+  return ipsr;
 }
 
 int cpu_savecontext(void *mcu_context)
