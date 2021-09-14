@@ -23,16 +23,17 @@
  ************************************************************************/
 
  cpu_savecontext:
+
   mrs r4, xpsr              // Move the content of the XPSR in R4
-  push {r4}                 // Push the XPSR
+  str r4, [r0, #64]         // Save the XPSR
   ldr r4, =cpu_savecontext_ret
-  push {r4}                 // Push the PC to the cpu_savecontext_ret
-  push {lr}                 // Push the LR
-  push {r12}                // Push the R12
-  push {r3}                 // Push the R3
-  push {r2}                 // Push the R2
-  push {r1}                 // Push the R1
-  push {r0}                 // Push the R0
+  str r4, [r0, #60]         // Place the PC to the cpu_savecontext_ret
+  str lr, [r0, #56]         // Place the LR
+  str r12, [r0, #48]        // Place the R12
+  str r3, [r0, #12]         // Place the R3
+  str r2, [r0, #8]          // Place the R2
+  str r1, [r0, #4]          // Place the R1
+  str fp, [r0, #68]
   str sp, [r0, #52]              // Update the SP from the task
   mov r0, #0                        // Return "0" if we saved the data on the stack
   bx lr
@@ -59,15 +60,16 @@ cpu_savecontext_ret:
  ************************************************************************/
 cpu_restorecontext:
     ldr sp, [r0, #52]
-    pop {r0}                  // Pop the R0
-    pop {r1}                  // Pop the R1
-    pop {r2}                  // Pop the R2
-    pop {r3}                  // Pop the R3
-    pop {r12}                 // Pop the R12
-    pop {lr}                  // Pop the LR
-    pop {r4}                  // Pop the PC address in R4
-    pop {r5}                  // Pop the XPSR address in R5
-    msr xpsr, r5              // Restore the XPSR from R5
+    ldr fp, [r0, #68]
+                   
+    ldr r1, [r0, #4]          // Get the R1
+    ldr r2, [r0, #8]          // Get the R2
+    ldr r3, [r0, #12]         // Get the R3
+    ldr r12, [r0, #48]        // Get the R12
+    ldr lr, [r0, #56]         // Get the LR
+    ldr r4, [r0, #60]         // Get the PC address in R4
+    ldr r5, [r0, #64]         // Get the XPSR address in R5
+    msr apsr, r5              // Restore the XPSR from R5
     mov pc, r4                // Jump to the last PC from R4
 
 .size cpu_restorecontext, .-cpu_restorecontext
