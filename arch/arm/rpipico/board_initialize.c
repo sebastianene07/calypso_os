@@ -95,13 +95,11 @@ irq_state_t cpu_disableint(void)
  */
 void cpu_enableint(irq_state_t irq_state)
 {
-  __asm volatile("tst %0, #1\n"
-                 "bne.n 1f\n"
-                 "cpsie i\n"
-                 "1:\n"
-                 :
-                 : "r" (irq_state)
-                 : "memory");
+    __asm volatile(
+        "msr primask, %0\n"
+        "cpsie i\n"
+        :
+        : "r" (irq_state));
 }
 
 /*

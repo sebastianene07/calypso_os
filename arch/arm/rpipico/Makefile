@@ -31,17 +31,17 @@ bs2_default.o: bs2_default.s
 bs2_default.s: bs2_default.bin
 	${PREFIX}as $(ASM_FLAGS) -c $@ -o bs2_default.o
 
-bs2_default.bin: boot/bs2_default.elf
-	${PREFIX}objcopy -I elf32-littlearm -O binary boot/bs2_default.elf bs2_default.bin --rename-section .text=.boot2
+bs2_default.bin: build/pico-sdk/src/rp2_common/boot_stage2/bs2_default.elf
+	${PREFIX}objcopy -I elf32-littlearm -O binary build/pico-sdk/src/rp2_common/boot_stage2/bs2_default.elf bs2_default.bin --rename-section .text=.boot2
 	python3 pico-sdk/src/rp2_common/boot_stage2/pad_checksum -s 0xffffffff $@ bs2_default.s
 
-boot/bs2_default.elf: libbsp.a
+build/pico-sdk/src/rp2_common/boot_stage2/bs2_default.elf: libbsp.a
 
 libbsp.a: build bsp.c
 	cd build && make -f Makefile && cp libbsp.a ..
 
 build:
-	mkdir build && cd build && cmake ..
+	mkdir build && cd build && cmake .. && cd -
 
 clean:
 	rm -rf build
