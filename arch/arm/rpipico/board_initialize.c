@@ -120,12 +120,3 @@ int cpu_getirqnum(void)
   ipsr -= 16;
   return ipsr;
 }
-
-int cpu_savecontext(void *mcu_context)
-{
-  return 0;
-}
-
-void cpu_restorecontext(void *mcu_context)
-{
-}

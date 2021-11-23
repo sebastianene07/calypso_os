@@ -18,16 +18,21 @@ ARCH_FLAGS:=${CFLAGS} -I$(TOPDIR)/include\
 											-I$(TOPDIR)/$(PICO_SDK)/lib/tinyusb/lib/CMSIS_5/CMSIS/Core/Include/
 LDFLAGS += -Llibbsp.a
 
-all: $(OBJS) libbsp.a
+SRC_ASM:= context_switch.s
+OBJS_ASM:=$(patsubst %.s,%.o,$(SRC_ASM))
+
+all: $(OBJS) $(OBJS_ASM) libbsp.a
 	echo "Building arch specific"
-	${PREFIX}ar -rc $(TOPDIR)/$(TMP_LIB) $(OBJS) libbsp.a
+	${PREFIX}ar -rc $(TOPDIR)/$(TMP_LIB) $(OBJS) $(OBJS_ASM) libbsp.a
 
 %.o : %.c
 	${PREFIX}gcc $(ARCH_FLAGS) -c $< -o $@
 
+%.o : %.s
+	${PREFIX}as $(ASM_FLAGS) -c $< -o $@
+
 bs2_default.o: bs2_default.s
 	
-
 bs2_default.s: bs2_default.bin
 	${PREFIX}as $(ASM_FLAGS) -c $@ -o bs2_default.o
 
