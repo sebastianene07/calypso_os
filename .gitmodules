@@ -4,3 +4,6 @@
 [submodule "fatfs"]
 	path = fatfs
 	url = https://github.com/sebastianene07/fatfs.git
+[submodule "arch/arm/rpipico/pico-sdk"]
+	path = arch/arm/rpipico/pico-sdk
+	url = https://github.com/raspberrypi/pico-sdk.git

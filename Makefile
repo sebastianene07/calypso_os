@@ -4,7 +4,7 @@ DEBUG_PORT=2331
 
 # Include user config
 ifeq ($(MACHINE_TYPE),)
-include .config
+-include .config
 MACHINE_TYPE=$(subst $\",,$(CONFIG_MACHINE_TYPE))
 -include Make.defs
 -include arch/*/$(MACHINE_TYPE)/Make.defs
