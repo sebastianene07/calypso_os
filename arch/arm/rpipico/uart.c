@@ -8,6 +8,9 @@
 
 #include "bsp.h"
 
+int bsp_serial_console_attach_irq(void *irq_cb(uint8_t ch));
+void rpipico_uart0_irq(void);
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -36,6 +39,8 @@ static int rpipico_lpuart_read(const struct uart_lower_s *lower_half,
 
 static sem_t g_console_sema;
 
+static rpipico_uart_priv_t g_uart_low_0_priv;
+
 /* Uart 0 lower half operations. There is no need to provide a read_cb function
  * because we notify the incmming data through rx_notify semaphore and we
  * copy it in the rx_buffer from interrupt.
@@ -44,6 +49,7 @@ static sem_t g_console_sema;
 static struct uart_lower_s g_uart_lowerhalfs[] =
 {
   {
+    .priv     = &g_uart_low_0_priv,
     .open_cb  = rpipico_lpuart_open,
     .write_cb = rpipico_lpuart_write,
     .read_cb  = rpipico_lpuart_read,
@@ -55,9 +61,30 @@ static struct uart_lower_s g_uart_lowerhalfs[] =
  * Private Functions
  ****************************************************************************/
 
+static volatile void rpipico_on_uart_rx(uint8_t ch)
+{
+  struct uart_lower_s *lower = &g_uart_lowerhalfs[0];
+
+  lower->rx_buffer[lower->index_write_rx_buffer] = ch;
+  lower->index_write_rx_buffer = (lower->index_write_rx_buffer + 1) % UART_RX_BUFFER;
+
+  /* Notify incomming RX characters */
+  sem_post(&lower->rx_notify);
+}
+
 static int rpipico_lpuart_config(struct uart_lower_s *lower)
 {
-  // TODO
+  irq_state_t irq_state;
+  int irq;
+
+  /* Attach the interrupt handler */
+  /* Note: We need to route interrupts from Calypso OS to the pico-sdk */
+
+  irq_state = cpu_disableint();
+  irq = bsp_serial_console_attach_irq(rpipico_on_uart_rx);
+  irq_attach(irq, rpipico_uart0_irq);
+  cpu_enableint(irq_state);
+
   return 0;
 }
 
@@ -82,7 +109,7 @@ static int rpipico_lpuart_write(const struct uart_lower_s *lower,
   sem_wait((sem_t *)&lower->lock);
 
   for (int i = 0; i < sz; i++) {
-    // TODO:
+    bsp_serial_console_putc(*((uint8_t *)(ptr_data + i)));
   }
 
   sem_post((sem_t *)&lower->lock);
@@ -193,7 +220,6 @@ sem_t *get_console_sema(void)
   return &g_console_sema;
 }
 
-#if 0
 /****************************************************************************
  * Name: uart_init
  *
@@ -209,7 +235,7 @@ sem_t *get_console_sema(void)
  *
  ****************************************************************************/
 
-struct uart_lower_s *uart_init(size_t *uart_num)
+struct uart_lower_s *uart_upper_init(size_t *uart_num)
 {
   int ret = 0;
 
@@ -233,4 +259,3 @@ struct uart_lower_s *uart_init(size_t *uart_num)
 
   return g_uart_lowerhalfs;
 }
-#endif

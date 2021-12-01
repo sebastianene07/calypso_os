@@ -96,10 +96,12 @@ cpu_restorecontext:
 
     ldr r1, [r0, #56]         // Get the LR
     mov lr, r1
-    ldr r1, [r0, #60]         // Get the PC address in R1
+    ldr r3, [r0, #60]         // Get the PC address in R1
     ldr r2, [r0, #64]         // Get the XPSR address in R2
+    ldr r1, [r0, #36]         // Get the R1
+    ldr r0, [r0, #40]         // Get the R0
     msr psr, r2              // Restore the XPSR from R2
-    mov pc, r1                // Jump to the last PC from R1
+    mov pc, r3                // Jump to the last PC from R1
 
 .size cpu_restorecontext, .-cpu_restorecontext
 .end

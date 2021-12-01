@@ -24,6 +24,8 @@
  * Public Functions
  ****************************************************************************/
 
+struct uart_lower_s *uart_upper_init(size_t *uart_num);
+
 /*
  * board_init - initialize the board resources
  *
@@ -31,7 +33,10 @@
  */
 void board_init(void)
 {
+  size_t uart_num = 0;
+
   bsp_gpio_led_init();
+  uart_upper_init(&uart_num);
 }
 
 /*

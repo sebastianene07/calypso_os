@@ -8,7 +8,7 @@ ARCH_FLAGS:=${CFLAGS} -I$(TOPDIR)/include\
 											-I$(TOPDIR)/sched/include\
 											-I$(TOPDIR)/$(PICO_SDK)/src/host/hardware_uart/include/\
 											-I$(TOPDIR)/$(PICO_SDK)/src/common/pico_base/include/\
-											-I$(TOPDIR)/$(PICO_SDK)/generated/pico_base/\
+											-I$(TOPDIR)/$(PICO_SDK)/../build/generated/pico_base/\
 											-I$(TOPDIR)/$(PICO_SDK)/src/rp2_common/pico_platform/include/\
 											-I$(TOPDIR)/$(PICO_SDK)/src/host/pico_platform/include/\
 											-I$(TOPDIR)/$(PICO_SDK)/src/rp2040/hardware_structs/include/\
