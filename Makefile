@@ -1,6 +1,5 @@
 PREFIX :=
 TOPDIR=$(shell pwd)
-DEBUG_PORT=2331
 
 # Include user config
 ifeq ($(MACHINE_TYPE),)
@@ -76,9 +75,6 @@ config:
 
 savedefconfig:
 	cp .config defconfig
-
-debug:
-	JLinkGDBServer -device nRF52 -speed 4000 -if SWD -port ${DEBUG_PORT}
 
 menuconfig:
 	cp arch/*/$(MACHINE_TYPE)/Kconfig include/.

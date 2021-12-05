@@ -21,3 +21,7 @@ There are multipple configs available for this familiy:
 nrf5x/nrf52832            - with or without soft device library from nordic
 nrf5x/nrf52832_softdevice
 nrf5x/nrf52840
+
+To debug:
+
+JLinkGDBServer -device nRF52 -speed 4000 -if SWD -port ${DEBUG_PORT}
