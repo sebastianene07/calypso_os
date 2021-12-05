@@ -10,27 +10,15 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-/* The MCU context registers */
+/* The MCU context registers and their indexes for stacking */
 
-#define REG_R0                (0)
-#define REG_R1                (1)
-#define REG_R2                (2)
-#define REG_R3                (3)
-#define REG_R4                (4)
-#define REG_R5                (5)
-#define REG_R6                (6)
-#define REG_R7                (7)
-#define REG_R8                (8)
-#define REG_R9                (9)
+#define REG_R0                (13)
+#define REG_R1                (14)
 
-#define REG_R10               (10)
-#define REG_R11               (11)
-#define REG_R12               (12)
-#define REG_SP                (13)
-#define REG_LR                (14)
-#define REG_PC                (15)
+#define REG_SP                (10)
+#define REG_LR                (11)
+#define REG_PC                (0)
 #define REG_XPSR              (16)
-#define REG_FP                (17)
 
 #define REG_NUMS              (18)
 
@@ -54,16 +42,6 @@ void board_init(void)
 }
 
 /*
- * task_entry_point - a trampoline used to setup task arguments
- */
-void task_entry_point(void)
-{
-  tcb_t *tcb = sched_get_current_task();
-  void **mcu_context = (void **)tcb->mcu_context;
-  tcb->entry_point((int)mcu_context[REG_R0], mcu_context[REG_R1]);
-}
-
-/*
  * cpu_inittask - creates the initial state for a task
  *
  */
@@ -83,7 +61,7 @@ int cpu_inittask(struct tcb_s *tcb, int argc, char **argv)
   mcu_context[REG_R0]   = (void *)argc;
   mcu_context[REG_R1]   = (void *)argv;
   mcu_context[REG_LR]   = (void *)sched_default_task_exit_point;
-  mcu_context[REG_PC]   = (void *)task_entry_point;
+  mcu_context[REG_PC]   = (void *)tcb->entry_point;
   mcu_context[REG_XPSR] = (void *)0x1000000;
   mcu_context[REG_SP]   = bottom_sp;
 
