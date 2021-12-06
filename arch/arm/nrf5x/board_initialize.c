@@ -46,25 +46,14 @@
 #define LFCLKSTART_CFG            CLOCK_CONFIG(LFCLKSTART_OFFSET)
 #define EVENTS_LFCLKSTARTED_CFG   CLOCK_CONFIG(EVENTS_LFCLKSTARTED)
 
-/* The MCU context registers */
+/* The MCU context registers and the indexes used in save/restore context */
 
-#define REG_R0                (0)
-#define REG_R1                (1)
-#define REG_R2                (2)
-#define REG_R3                (3)
-#define REG_R4                (4)
-#define REG_R5                (5)
-#define REG_R6                (6)
-#define REG_R7                (7)
-#define REG_R8                (8)
-#define REG_R9                (9)
+#define REG_R0                (12)
+#define REG_R1                (13)
 
-#define REG_R10               (10)
-#define REG_R11               (11)
-#define REG_R12               (12)
-#define REG_SP                (13)
-#define REG_LR                (14)
-#define REG_PC                (15)
+#define REG_SP                (1)
+#define REG_LR                (11)
+#define REG_PC                (0)
 #define REG_XPSR              (16)
 
 #define REG_NUMS              (17)
@@ -244,16 +233,6 @@ void board_entersleep(void)
 }
 
 /*
- * task_entry_point - a trampoline used to setup task arguments
- */
-void task_entry_point(void)
-{
-  tcb_t *tcb = sched_get_current_task();
-  void **mcu_context = (void **)tcb->mcu_context;
-  tcb->entry_point((int)mcu_context[REG_R0], mcu_context[REG_R1]);
-}
-
-/*
  * cpu_inittask - creates the initial state for a task
  *
  */
@@ -272,20 +251,11 @@ int cpu_inittask(tcb_t *task_tcb, int argc, char **argv)
   mcu_context[REG_R0]   = (void *)argc;
   mcu_context[REG_R1]   = (void *)argv;
   mcu_context[REG_LR]   = (void *)sched_default_task_exit_point;
-  mcu_context[REG_PC]   = (void *)task_entry_point;
+  mcu_context[REG_PC]   = (void *)task_tcb->entry_point;
   mcu_context[REG_XPSR] = (void *)0x1000000;
   mcu_context[REG_SP]   = bottom_sp;
 
-  /* Setup the initial stack */
-
-  cpu_stacking_s *initial_stack = (cpu_stacking_s *)bottom_sp;
-  initial_stack->r0 = (void *)argc;
-  initial_stack->r1 = (void *)argv;
-  initial_stack->lr = (void *)sched_default_task_exit_point;
-  initial_stack->pc = (void *)task_entry_point;
-  initial_stack->xpsr = (void *)0x1000000;
-
-  /* Setup the initial stack context  */
+ /* Setup the initial stack context  */
 
   task_tcb->mcu_context = mcu_context;
   return 0;

@@ -24,18 +24,12 @@
 
  cpu_savecontext:
 
-  mrs r4, xpsr              // Move the content of the XPSR in R4
-  str r4, [r0, #64]         // Save the XPSR
-  ldr r4, =cpu_savecontext_ret
-  str r4, [r0, #60]         // Place the PC to the cpu_savecontext_ret
-  str lr, [r0, #56]         // Place the LR
-  str r12, [r0, #48]        // Place the R12
-  str r3, [r0, #12]         // Place the R3
-  str r2, [r0, #8]          // Place the R2
-  str r1, [r0, #4]          // Place the R1
-  str fp, [r0, #68]
-  str sp, [r0, #52]              // Update the SP from the task
-  mov r0, #0                        // Return "0" if we saved the data on the stack
+  mrs r1, xpsr              // Move the content of the XPSR in R1
+  str r1, [r0, #64]         // Save the XPSR
+  ldr r1, =cpu_savecontext_ret 
+  mov r2, sp                // Place the SP in R2
+  stm r0, {r1, r2, r4-r12, lr} // Store PC[0], SP[1], R4-R12, LR[10]
+  mov r0, #0                   // Return "0" if we saved the data on the stack
   bx lr
 cpu_savecontext_ret:
   mov r0, #1
@@ -59,18 +53,14 @@ cpu_savecontext_ret:
  *
  ************************************************************************/
 cpu_restorecontext:
-    ldr sp, [r0, #52]
-    ldr fp, [r0, #68]
-                   
-    ldr r1, [r0, #4]          // Get the R1
-    ldr r2, [r0, #8]          // Get the R2
-    ldr r3, [r0, #12]         // Get the R3
-    ldr r12, [r0, #48]        // Get the R12
-    ldr lr, [r0, #56]         // Get the LR
-    ldr r4, [r0, #60]         // Get the PC address in R4
-    ldr r5, [r0, #64]         // Get the XPSR address in R5
-    msr apsr, r5              // Restore the XPSR from R5
-    mov pc, r4                // Jump to the last PC from R4
+    ldm r0, {r2-r12, lr}      // Get the PC and SP in R2 and R3 and the rest
+    mov sp, r3                // Update the stack pointer
+    ldr r3, [r0, #64]         // Get the XPSR address in R5
+    ldr r1, [r0, #52]         // These are used (r0, r1) only when we create
+    ldr r0, [r0, #48]         // the initial context and pass the args in the
+			      // entry point
+    msr apsr, r3              // Restore the XPSR from R5
+    mov pc, r2                // Jump to the last PC from R4
 
 .size cpu_restorecontext, .-cpu_restorecontext
 .end
