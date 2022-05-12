@@ -8,7 +8,6 @@
 
 #include "bsp.h"
 
-int bsp_serial_console_attach_irq(void *irq_cb(uint8_t ch));
 void rpipico_uart0_irq(void);
 
 /****************************************************************************
@@ -77,14 +76,7 @@ static int rpipico_lpuart_config(struct uart_lower_s *lower)
   irq_state_t irq_state;
   int irq;
 
-  /* Attach the interrupt handler */
-  /* Note: We need to route interrupts from Calypso OS to the pico-sdk */
-
-  irq_state = cpu_disableint();
-  irq = bsp_serial_console_attach_irq(rpipico_on_uart_rx);
-  irq_attach(irq, rpipico_uart0_irq);
-  cpu_enableint(irq_state);
-
+  /* TODO Attach the interrupt handler */
   return 0;
 }
 
@@ -106,14 +98,8 @@ static int rpipico_lpuart_write(const struct uart_lower_s *lower,
                                 const void *ptr_data,
                                 unsigned int sz)
 {
-  sem_wait((sem_t *)&lower->lock);
-
-  for (int i = 0; i < sz; i++) {
-    bsp_serial_console_putc(*((uint8_t *)(ptr_data + i)));
-  }
-
-  sem_post((sem_t *)&lower->lock);
-  return sz;
+	// TODO : acquire lock and print a char at a time
+  	return sz;
 }
 
 static int rpipico_lpuart_read(const struct uart_lower_s *lower_half,
@@ -185,7 +171,6 @@ int uart_low_init(void)
   if (ret != 0)
     return ret;
 
-  bsp_serial_console_init();
   return ret;
 }
 
@@ -203,7 +188,7 @@ int uart_low_init(void)
 
 int putchar(int c)
 {
-  bsp_serial_console_putc(c);
+  // TODO : push a char to default uart
   return 0;
 }
 

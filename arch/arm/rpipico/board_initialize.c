@@ -3,12 +3,11 @@
 #include <errno.h>
 #include <serial.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <scheduler.h>
 #include <os_start.h>
 
 #include "bsp.h"
-
-#define __NVIC_PRIO_BITS (0)
 
 #include <core_cm0plus.h>
 
@@ -35,7 +34,6 @@ void board_init(void)
 {
   size_t uart_num = 0;
 
-  bsp_gpio_led_init();
   uart_upper_init(&uart_num);
 }
 
@@ -124,4 +122,12 @@ int cpu_getirqnum(void)
 
   ipsr -= 16;
   return ipsr;
+}
+
+void __assert_func(bool res)
+{
+  while (res == false)
+  {
+	  ;;
+  }
 }

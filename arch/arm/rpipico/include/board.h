@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 #include <board_cfg.h>
-#include <template.h>
 
 #include <scheduler.h>
 
@@ -22,6 +21,17 @@
 #define HEAP_BLOCK_SIZE       (16)
 
 #define INTERRUPT_ATR         __attribute__((interrupt))
+
+/* The number of IRQs as defined by the CMSIS interface is
+ * (-NonMaskableInt_IRQn + SPI_IRQn + 1)
+ */
+#define NUM_IRQS              (46)
+
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
+
+typedef uint32_t irq_state_t;
 
 /****************************************************************************
  * Peripheral initialization function for the board
