@@ -25,3 +25,4 @@ tags
 build/build.bin
 *.a
 build.uf
+/apps/console_app/console_app
