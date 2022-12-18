@@ -8,8 +8,13 @@ ifeq ($(CONFIG_CONSOLE_DATE_ON),y)
 SRC+= console_date.c
 endif
 
+ifneq ($(CONFIG_SEPARATE_BUNDLES),y)
+# We cannot access the kernel's heap directly when we create separate app
+# bundles. Instead we should expose the free memory information through some
+# virtual file system pseudo-file.
 ifeq ($(CONFIG_CONSOLE_FREE),y)
-SRC+= console_free.c
+ SRC+= console_free.c
+endif
 endif
 
 ifeq ($(CONFIG_CONSOLE_LS),y)
@@ -57,11 +62,11 @@ SRC += console_mkdir.c
 endif
 
 OBJS:=$(patsubst %.c,%.o,$(SRC))
-CONSOLE_FLAGS := ${CFLAGS}  \
-	-I$(TOPDIR)/include \
-	-I$(TOPDIR)/include/chip \
-	-I$(TOPDIR)/drivers \
-  -I$(TOPDIR)/s_alloc \
+CONSOLE_FLAGS := ${CFLAGS}  		\
+	-I$(TOPDIR)/include 		\
+	-I$(TOPDIR)/include/chip 	\
+	-I$(TOPDIR)/drivers 		\
+	-I$(TOPDIR)/s_alloc 		\
 	-I$(TOPDIR)/sched/include	\
 	-I$(TOPDIR)/apps/console_app	\
 	-I$(TOPDIR)/fatfs/		\
@@ -70,7 +75,14 @@ SRC_ASM:=$(wildcard *.s)
 OBJS_ASM:=$(patsubst %.s,%.o,$(SRC_ASM))
 
 all: $(OBJS) $(OBJS_ASM)
+ifeq ($(CONFIG_SEPARATE_BUNDLES),y)
+	# App bundles are created sepparetely
+	${PREFIX}gcc $(OBJS) $(OBJS_ASM) -L../../lib -lapp -o console_app
+else
+	# Put everything into a big object archive when we don;t use protected
+	# build.
 	${PREFIX}ar -rc $(TOPDIR)/$(TMP_LIB) $(OBJS) $(OBJS_ASM)
+endif
 
 %.o : %.c
 	${PREFIX}gcc $(CONSOLE_FLAGS) -c $< -o $@

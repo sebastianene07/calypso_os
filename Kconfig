@@ -17,6 +17,17 @@ config FATFS_SUPPORT
 config WORKER_STACK_SIZE
 	int "Default stack size for the worker thread"
 	default 2048
+
+config SEPARATE_BUNDLES
+	bool "Separate the kernel image from the apps bundle"
+	default n
+	---help---
+	  Build the kernel as a separate image and allow apps to use the
+	  system call interface to interact with the kernel services.
+	  Applications will use the functions exported from "exported_syscall.h"
+	  header and will link to some arch specific wrappers that trigger the
+	  jump from kernel to userspace.
+
 endmenu
 
 menu "Device Drivers"
