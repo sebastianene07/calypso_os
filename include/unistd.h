@@ -8,7 +8,11 @@
 typedef int ssize_t;
 
 typedef uint32_t mode_t;
+
+#ifndef _USECONDS_T_DECLARED
+#define _USECONDS_T_DECLARED
 typedef uint64_t useconds_t;
+#endif
 
 /* Basic operations during open */
 #define O_RDONLY                        (1 << 0)
