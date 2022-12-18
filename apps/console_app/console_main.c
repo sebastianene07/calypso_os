@@ -21,7 +21,7 @@ int console_date(int argc, const char *argv[]);
 int console_display(int argc, const char *argv[]);
 #endif
 
-#ifdef CONFIG_CONSOLE_FREE
+#if defined(CONFIG_CONSOLE_FREE) && !defined(CONFIG_SEPARATE_BUNDLES)
 int console_free(int argc, const char *argv[]);
 #endif
 
@@ -93,7 +93,7 @@ static console_command_entry_t g_cmd_table[] =
   },
 #endif
 
-#ifdef CONFIG_CONSOLE_FREE
+#if defined(CONFIG_CONSOLE_FREE) && !defined(CONFIG_SEPARATE_BUNDLES)
   { .cmd_name     = "free",
     .cmd_function = console_free,
     .stack_size   = CONFIG_CONSOLE_STACK_SIZE,
@@ -287,10 +287,10 @@ static int parse_arguments(char *buffer, size_t newline)
 }
 
 /*
- * console_main - console application entry point
+ * main - console application entry point
  *
  */
-int console_main(int argc, char **argv)
+int main(int argc, char **argv)
 {
   char cmd_buffer[CONFIG_CMD_BUFER_LEN]={0};
 
