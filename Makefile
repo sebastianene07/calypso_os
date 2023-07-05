@@ -22,7 +22,7 @@ TARGET=$(MACHINE_TYPE)
 # List the directories that contain the MACHINE_TYPE name
 
 SRC_DIRS := $(shell find . -iname $(MACHINE_TYPE))
-SRC_DIRS += sched s_alloc utils apps lib drivers
+SRC_DIRS += sched utils apps lib drivers
 
 # This is the archive where we will bundle the object files
 
@@ -36,23 +36,26 @@ export TOPDIR
 export TMP_LIB
 export TARGET
 
-all: create_board_file create_object_files
+all: create_board_file create_object_files lib_salloc.a
 	mkdir -p build
 ifeq ($(CONFIG_TWO_PASS_BUILD),y)
 	@echo "Two pass build"
-	cd build && ${PREFIX}ar xv ${TOPDIR}/${TMP_LIB} && \
-	${PREFIX}ld -r -L${TOPDIR}/ $(LDFLAGS) *.o $(LDUNEXPORTSYMBOLS)
+	cd build && ${PREFIX}ar xv ${TOPDIR}/${TMP_LIB} && ${PREFIX}ar xv ${TOPDIR}/s_alloc/lib_salloc.a && \
+	${PREFIX}ld -r -L${TOPDIR}/ $(LDFLAGS) *.o  $(LDUNEXPORTSYMBOLS)
 ifneq ($(CONFIG_HOST_OS),"Darwin")
 	${PREFIX}objcopy --redefine-syms=Linux-names.dat build/build.rel
 endif
 	${PREFIX}gcc build/build.rel arch/sim/sim/host_board_up.o -o build.elf $(EXTRALINK)
 else
-	cd build && ${PREFIX}ar xv ${TOPDIR}/${TMP_LIB} && \
-	${PREFIX}gcc *.o -o build.elf ${LDFLAGS} && \
+	cd build && ${PREFIX}ar xv ${TOPDIR}/${TMP_LIB} && ${PREFIX}ar xv ${TOPDIR}/s_alloc/lib_salloc.a && \
+	${PREFIX}gcc *.o  -o build.elf ${LDFLAGS} && \
 	${PREFIX}objcopy -O ihex build.elf build.hex && \
 	${PREFIX}objcopy -O binary build.elf build.bin
 endif
 	@echo "Build finished successfully."
+
+lib_salloc.a:
+	$(MAKE) -C s_alloc lib_salloc.a ;
 
 create_object_files:
 	for src_dir in $(SRC_DIRS) ; do \
@@ -86,6 +89,7 @@ clean:
 	for src_dir in $(SRC_DIRS) ; do \
 		$(MAKE) -C $$src_dir	clean;	\
 	done ;
+	$(MAKE) -C s_alloc clean;
 	rm -rf build/ && rm -f $(TMP_LIB)
 	rm -f include/Kconfig 2> /dev/null
 	rm -f include/chip/* 2> /dev/null
