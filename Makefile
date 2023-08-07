@@ -9,7 +9,6 @@ MACHINE_TYPE=$(subst $\",,$(CONFIG_MACHINE_TYPE))
 -include arch/*/$(MACHINE_TYPE)/Make.defs
 CFLAGS+=$(subst $\",,$(CONFIG_CFLAGS))
 LDFLAGS+=$(subst $\",,$(CONFIG_LDFLAGS))
-
 ifneq ($(CONFIG_PREFIX_TOOLCHAIN),)
 PREFIX := $(CONFIG_PREFIX_TOOLCHAIN)
 endif
@@ -35,6 +34,10 @@ export PREFIX
 export TOPDIR
 export TMP_LIB
 export TARGET
+
+#ifneq ($(CONFIG_HOST_OS),"Linux")
+#CFLAGS +=-I/lib/modules/$(shell uname -r)/build/include/
+#endif
 
 all: create_board_file create_object_files lib_salloc.a
 	mkdir -p build
