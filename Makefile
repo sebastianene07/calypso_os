@@ -39,26 +39,26 @@ export TARGET
 #CFLAGS +=-I/lib/modules/$(shell uname -r)/build/include/
 #endif
 
-all: create_board_file create_object_files lib_salloc.a
+all: create_board_file create_object_files s_alloc/s_heap.o
 	mkdir -p build
 ifeq ($(CONFIG_TWO_PASS_BUILD),y)
 	@echo "Two pass build"
-	cd build && ${PREFIX}ar xv ${TOPDIR}/${TMP_LIB} && ${PREFIX}ar xv ${TOPDIR}/s_alloc/lib_salloc.a && \
+	cd build && ${PREFIX}ar xv ${TOPDIR}/${TMP_LIB} && \
 	${PREFIX}ld -r -L${TOPDIR}/ $(LDFLAGS) *.o  $(LDUNEXPORTSYMBOLS)
 ifneq ($(CONFIG_HOST_OS),"Darwin")
 	${PREFIX}objcopy --redefine-syms=Linux-names.dat build/build.rel
 endif
 	${PREFIX}gcc build/build.rel arch/sim/sim/host_board_up.o -o build.elf $(EXTRALINK)
 else
-	cd build && ${PREFIX}ar xv ${TOPDIR}/${TMP_LIB} && ${PREFIX}ar xv ${TOPDIR}/s_alloc/lib_salloc.a && \
+	cd build && ${PREFIX}ar xv ${TOPDIR}/${TMP_LIB} && \
 	${PREFIX}gcc *.o  -o build.elf ${LDFLAGS} && \
 	${PREFIX}objcopy -O ihex build.elf build.hex && \
 	${PREFIX}objcopy -O binary build.elf build.bin
 endif
 	@echo "Build finished successfully."
 
-lib_salloc.a:
-	$(MAKE) -C s_alloc lib_salloc.a ;
+s_alloc/s_heap.o:
+	$(MAKE) -C s_alloc all ;
 
 create_object_files:
 	for src_dir in $(SRC_DIRS) ; do \
